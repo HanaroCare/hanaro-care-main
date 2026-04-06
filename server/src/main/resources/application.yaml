@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: server
+
+  config:
+    import: classpath:security.yaml
+
