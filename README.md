@@ -1,6 +1,6 @@
 # 🚀 Hana Care Project (Team Name)
 
-**Next.js + Spring Boot MSA 프로젝트**입니다.
+**Next.js + Spring Boot MSA**
 
 ---
 
@@ -28,15 +28,12 @@
 
 ## 🤝 Collaboration & Git Convention
 
-**Trunk-based Development (TBD)** 전략을 채택하여 속도감 있게 개발합니다.
-
 ### 1. Branch Strategy (TBD)
 * **Main/Develop:** 모든 작업의 통합 브랜치입니다.
-* **Rule:** 기능을 쪼개어 **4시간 미만 단위로 `Push`** 하고, 수시로 `Pull` 받아 충돌을 방지합니다.
-* 틀 작업 기간(초기 2-3일) 외에는 복잡한 PR 리뷰보다 **페어 프로그래밍**과 **빠른 통합**에 집중합니다.
+* **Rule:** 기능을 쪼개어 **4시간 미만 단위로 `Push`** 하고, 수시로 `Pull` 받아 충돌을 방지
 
 ### 2. Commit Message (Angular Style)
-`jira issue num-type: description` 형식으로 작성합니다.
+`jira issue num-type: description` 형식으로 작
 
 | Type | Description |
 | :--- | :--- |
@@ -53,18 +50,44 @@
 ### 3. PR & Code Review
 * **제목:** [Type] 기능 요약 (예: [Feat] 로그인 API 연동)
 * **본문:** 변경 사항, 관련 이슈, 테스트 결과 포함.
-* **보안:** API Key, DB 패스워드 등 **민감 정보 절대 포함 금지** (.env 활용).
+* **보안:** API Key, DB 패스워드 등
 
 ---
 
-## 📂 Repository Structure (Monorepo)
+### 📂 Repository Structure
 
 ```text
 hanaro-care-main/
-├── client/          # Next.js + Prisma (BFF 및 프론트 로직)
+├── client/                 # Next.js + Prisma 
 │   ├── src/
-│   ├── prisma/
-│   └── biome.json
-└── server/          # Spring Boot (Core API 및 비즈니스 로직)
-    ├── src/
-    └── build.gradle
+│   │   └── app/
+│   │       └── {domain}/   # 도메인 단위 (ex: saving, asset)
+│   │           ├─ actions/ # 도메인 전용 서버 액션 (데이터 조회/변경)
+│   │           ├─ components/ # 도메인 전용 UI 컴포넌트 (PascalCase)
+│   │           ├─ hooks/   # 도메인 전용 커스텀 훅 (use 접두사)
+│   │           └─ page.tsx # 페이지 단위 레이아웃 및 데이터 조합
+│   ├── prisma/             # Database Schema & Migrations
+│   └── biome.json          # Lint/Format 설정 (Biome)
+│
+└── server/src/main/java/com/server/
+    ├── common/                  # 도메인 전반에 쓰이는 공통 요소
+    │   ├── exception/           # GlobalExceptionHandler, CustomException
+    │   ├── response/            # 공통 응답 규격 (ApiResponse)
+    │   ├── util/                # 날짜 계산, 문자열 처리 등 유틸
+    │   └── constant/            # 공통 코드, Enum 등
+    │
+    ├── config/                  # 애플리케이션 전역 설정
+    │   ├── security/            # JWT, SecurityConfig
+    │   ├── database/            # Querydsl, JPA 설정
+    │   └── swagger/             # API 문서 설정
+    │
+    ├── domain/                  
+    │   ├── asset/               
+    │   │   ├── controller/      # AssetController
+    │   │   ├── service/         # AssetService
+    │   │   ├── repository/      # AssetRepository
+    │   │   ├── entity/          # RealAsset
+    │   │   ├── dto/             # AssetRequest, AssetResponse
+    │   │   └── mapper/          # AssetMapper
+    │
+    └── ServerApplication.java  # 메인 실행 클래스
