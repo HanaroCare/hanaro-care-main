@@ -4,11 +4,11 @@ package com.server.entity;
 public class Transaction {
 
   private long id;
-  private long userproductId;
   private long type;
   private double amount;
   private String status;
   private java.sql.Timestamp transactionAt;
+  private String userproductId;
 
 
   public long getId() {
@@ -17,15 +17,6 @@ public class Transaction {
 
   public void setId(long id) {
     this.id = id;
-  }
-
-
-  public long getUserproductId() {
-    return userproductId;
-  }
-
-  public void setUserproductId(long userproductId) {
-    this.userproductId = userproductId;
   }
 
 
@@ -62,6 +53,15 @@ public class Transaction {
 
   public void setTransactionAt(java.sql.Timestamp transactionAt) {
     this.transactionAt = transactionAt;
+  }
+
+
+  public String getUserproductId() {
+    return userproductId;
+  }
+
+  public void setUserproductId(String userproductId) {
+    this.userproductId = userproductId;
   }
 
 }

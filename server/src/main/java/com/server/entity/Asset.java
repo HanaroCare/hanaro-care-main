@@ -1,41 +1,33 @@
 package com.server.entity;
 
+
 public class Asset {
 
-  private long id;
-  private long userId;
-  private double category;
+  private String id;
+  private String category;
   private double totalValue;
   private String dataSource;
+  private long userId;
   private String address;
   private String details;
   private java.sql.Timestamp createdAt;
   private java.sql.Timestamp updatedAt;
 
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
   }
 
 
-  public long getUserId() {
-    return userId;
-  }
-
-  public void setUserId(long userId) {
-    this.userId = userId;
-  }
-
-
-  public double getCategory() {
+  public String getCategory() {
     return category;
   }
 
-  public void setCategory(double category) {
+  public void setCategory(String category) {
     this.category = category;
   }
 
@@ -55,6 +47,15 @@ public class Asset {
 
   public void setDataSource(String dataSource) {
     this.dataSource = dataSource;
+  }
+
+
+  public long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(long userId) {
+    this.userId = userId;
   }
 
 

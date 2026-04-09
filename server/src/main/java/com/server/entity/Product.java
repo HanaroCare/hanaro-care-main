@@ -3,21 +3,21 @@ package com.server.entity;
 
 public class Product {
 
-  private long id;
+  private String id;
   private String category;
   private String subCategory;
   private String name;
   private String description;
   private double baseRate;
   private long isAvailable;
-  private double mortgageType;
+  private String mortgageType;
 
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
   }
 
@@ -76,11 +76,11 @@ public class Product {
   }
 
 
-  public double getMortgageType() {
+  public String getMortgageType() {
     return mortgageType;
   }
 
-  public void setMortgageType(double mortgageType) {
+  public void setMortgageType(String mortgageType) {
     this.mortgageType = mortgageType;
   }
 

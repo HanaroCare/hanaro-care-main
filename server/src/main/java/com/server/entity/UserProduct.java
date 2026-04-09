@@ -3,60 +3,25 @@ package com.server.entity;
 
 public class UserProduct {
 
-  private long id;
-  private long userId;
-  private long productId;
-  private long targetAssetId;
-  private long repaymentChildId;
+  private String id;
   private String prodType;
+  private String prodSubType;
   private double monthlyPayout;
   private double loanAmount;
   private String inheritanceType;
   private String status;
+  private long userId;
+  private String targetAssetId;
+  private long repaymentChildId;
+  private String productId;
 
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
-  }
-
-
-  public long getUserId() {
-    return userId;
-  }
-
-  public void setUserId(long userId) {
-    this.userId = userId;
-  }
-
-
-  public long getProductId() {
-    return productId;
-  }
-
-  public void setProductId(long productId) {
-    this.productId = productId;
-  }
-
-
-  public long getTargetAssetId() {
-    return targetAssetId;
-  }
-
-  public void setTargetAssetId(long targetAssetId) {
-    this.targetAssetId = targetAssetId;
-  }
-
-
-  public long getRepaymentChildId() {
-    return repaymentChildId;
-  }
-
-  public void setRepaymentChildId(long repaymentChildId) {
-    this.repaymentChildId = repaymentChildId;
   }
 
 
@@ -66,6 +31,15 @@ public class UserProduct {
 
   public void setProdType(String prodType) {
     this.prodType = prodType;
+  }
+
+
+  public String getProdSubType() {
+    return prodSubType;
+  }
+
+  public void setProdSubType(String prodSubType) {
+    this.prodSubType = prodSubType;
   }
 
 
@@ -102,6 +76,42 @@ public class UserProduct {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+
+  public long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
+
+
+  public String getTargetAssetId() {
+    return targetAssetId;
+  }
+
+  public void setTargetAssetId(String targetAssetId) {
+    this.targetAssetId = targetAssetId;
+  }
+
+
+  public long getRepaymentChildId() {
+    return repaymentChildId;
+  }
+
+  public void setRepaymentChildId(long repaymentChildId) {
+    this.repaymentChildId = repaymentChildId;
+  }
+
+
+  public String getProductId() {
+    return productId;
+  }
+
+  public void setProductId(String productId) {
+    this.productId = productId;
   }
 
 }

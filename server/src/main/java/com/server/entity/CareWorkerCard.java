@@ -1,18 +1,16 @@
 package com.server.entity;
 
 
-public class User {
+public class CareWorkerCard {
 
   private long id;
   private String name;
-  private String phone;
-  private String loginType;
-  private String authMethod;
+  private double amount;
   private long isActive;
   private java.sql.Timestamp createdAt;
   private java.sql.Timestamp updatedAt;
-  private String password;
-  private double amount;
+  private long accountId;
+  private double limit;
 
 
   public long getId() {
@@ -33,30 +31,12 @@ public class User {
   }
 
 
-  public String getPhone() {
-    return phone;
+  public double getAmount() {
+    return amount;
   }
 
-  public void setPhone(String phone) {
-    this.phone = phone;
-  }
-
-
-  public String getLoginType() {
-    return loginType;
-  }
-
-  public void setLoginType(String loginType) {
-    this.loginType = loginType;
-  }
-
-
-  public String getAuthMethod() {
-    return authMethod;
-  }
-
-  public void setAuthMethod(String authMethod) {
-    this.authMethod = authMethod;
+  public void setAmount(double amount) {
+    this.amount = amount;
   }
 
 
@@ -87,21 +67,21 @@ public class User {
   }
 
 
-  public String getPassword() {
-    return password;
+  public long getAccountId() {
+    return accountId;
   }
 
-  public void setPassword(String password) {
-    this.password = password;
+  public void setAccountId(long accountId) {
+    this.accountId = accountId;
   }
 
 
-  public double getAmount() {
-    return amount;
+  public double getLimit() {
+    return limit;
   }
 
-  public void setAmount(double amount) {
-    this.amount = amount;
+  public void setLimit(double limit) {
+    this.limit = limit;
   }
 
 }

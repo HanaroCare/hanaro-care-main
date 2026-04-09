@@ -3,40 +3,24 @@ package com.server.entity;
 
 public class CarePermission {
 
-  private long id;
-  private long grantorId;
-  private long granteeId;
+  private String id;
   private long viewInsurance;
   private String status;
   private String relation;
   private java.sql.Timestamp createdAt;
   private java.sql.Timestamp updatedAt;
+  private long grantorId;
+  private long granteeId;
+  private long viewCard;
+  private long workercardId;
 
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
-  }
-
-
-  public long getGrantorId() {
-    return grantorId;
-  }
-
-  public void setGrantorId(long grantorId) {
-    this.grantorId = grantorId;
-  }
-
-
-  public long getGranteeId() {
-    return granteeId;
-  }
-
-  public void setGranteeId(long granteeId) {
-    this.granteeId = granteeId;
   }
 
 
@@ -82,6 +66,42 @@ public class CarePermission {
 
   public void setUpdatedAt(java.sql.Timestamp updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+
+  public long getGrantorId() {
+    return grantorId;
+  }
+
+  public void setGrantorId(long grantorId) {
+    this.grantorId = grantorId;
+  }
+
+
+  public long getGranteeId() {
+    return granteeId;
+  }
+
+  public void setGranteeId(long granteeId) {
+    this.granteeId = granteeId;
+  }
+
+
+  public long getViewCard() {
+    return viewCard;
+  }
+
+  public void setViewCard(long viewCard) {
+    this.viewCard = viewCard;
+  }
+
+
+  public long getWorkercardId() {
+    return workercardId;
+  }
+
+  public void setWorkercardId(long workercardId) {
+    this.workercardId = workercardId;
   }
 
 }

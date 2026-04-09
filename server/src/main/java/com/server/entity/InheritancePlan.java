@@ -3,30 +3,21 @@ package com.server.entity;
 
 public class InheritancePlan {
 
-  private long id;
-  private long userId;
+  private String id;
   private double gifted;
   private double estimatedTax;
   private String familyType;
   private java.sql.Timestamp createdAt;
   private java.sql.Timestamp updatedAt;
+  private long userId;
 
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
-  }
-
-
-  public long getUserId() {
-    return userId;
-  }
-
-  public void setUserId(long userId) {
-    this.userId = userId;
   }
 
 
@@ -72,6 +63,15 @@ public class InheritancePlan {
 
   public void setUpdatedAt(java.sql.Timestamp updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+
+  public long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(long userId) {
+    this.userId = userId;
   }
 
 }

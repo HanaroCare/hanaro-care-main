@@ -4,12 +4,12 @@ package com.server.entity;
 public class UserAuth {
 
   private long id;
-  private long userId;
   private String authType;
   private String result;
   private String ipAddress;
   private String deviceInfo;
   private java.sql.Timestamp createdAt;
+  private long userId;
 
 
   public long getId() {
@@ -18,15 +18,6 @@ public class UserAuth {
 
   public void setId(long id) {
     this.id = id;
-  }
-
-
-  public long getUserId() {
-    return userId;
-  }
-
-  public void setUserId(long userId) {
-    this.userId = userId;
   }
 
 
@@ -72,6 +63,15 @@ public class UserAuth {
 
   public void setCreatedAt(java.sql.Timestamp createdAt) {
     this.createdAt = createdAt;
+  }
+
+
+  public long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(long userId) {
+    this.userId = userId;
   }
 
 }

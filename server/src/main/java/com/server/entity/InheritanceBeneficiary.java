@@ -3,29 +3,19 @@ package com.server.entity;
 
 public class InheritanceBeneficiary {
 
-  private long id;
-  private long planId;
+  private String id;
   private String relation;
-  private String name;
   private double ratio;
-  private double amount;
+  private String planId;
+  private long userId;
 
 
-  public long getId() {
+  public String getId() {
     return id;
   }
 
-  public void setId(long id) {
+  public void setId(String id) {
     this.id = id;
-  }
-
-
-  public long getPlanId() {
-    return planId;
-  }
-
-  public void setPlanId(long planId) {
-    this.planId = planId;
   }
 
 
@@ -38,15 +28,6 @@ public class InheritanceBeneficiary {
   }
 
 
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-
   public double getRatio() {
     return ratio;
   }
@@ -56,12 +37,21 @@ public class InheritanceBeneficiary {
   }
 
 
-  public double getAmount() {
-    return amount;
+  public String getPlanId() {
+    return planId;
   }
 
-  public void setAmount(double amount) {
-    this.amount = amount;
+  public void setPlanId(String planId) {
+    this.planId = planId;
+  }
+
+
+  public long getUserId() {
+    return userId;
+  }
+
+  public void setUserId(long userId) {
+    this.userId = userId;
   }
 
 }
