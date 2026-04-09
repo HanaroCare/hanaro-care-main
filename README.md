@@ -69,16 +69,25 @@ hanaro-care-main/
 │   ├── prisma/             # Database Schema & Migrations
 │   └── biome.json          # Lint/Format 설정 (Biome)
 │
-└── server/                 # Spring Boot
-    ├── src/main/java/com/server
-    │   ├── common/         # 공통 유틸리티, 예외 처리, 상수
-    │   ├── config/         # Security, Swagger, DB 등 설정 클래스
-    │   ├── controller/     # API 엔드포인트 (REST Controller)
-    │   ├── dto/            # 계층 간 데이터 전송 객체 (Request/Response)
-    │   ├── entity/         # JPA 엔티티 (Database Table Mapping)
-    │   ├── mapper/         # Entity ↔ DTO 변환 로직 (MapStruct 등)
-    │   ├── repository/     # DB 접근 인터페이스 (Spring Data JPA)
-    │   ├── security/       # 인증/인가 및 보안 관련 로직
-    │   ├── service/        # 비즈니스 로직 및 트랜잭션 관리
-    │   └── HanaCareApplication.java # 애플리케이션 메인 클래스
-    └── build.gradle        # 의존성 관리 및 빌드 설정 (JaCoCo 포함)
+└── server/src/main/java/com/server/
+    ├── common/                  # 도메인 전반에 쓰이는 공통 요소
+    │   ├── exception/           # GlobalExceptionHandler, CustomException
+    │   ├── response/            # 공통 응답 규격 (ApiResponse)
+    │   ├── util/                # 날짜 계산, 문자열 처리 등 유틸
+    │   └── constant/            # 공통 코드, Enum 등
+    │
+    ├── config/                  # 애플리케이션 전역 설정
+    │   ├── security/            # JWT, SecurityConfig
+    │   ├── database/            # Querydsl, JPA 설정
+    │   └── swagger/             # API 문서 설정
+    │
+    ├── domain/                  
+    │   ├── asset/               
+    │   │   ├── controller/      # AssetController
+    │   │   ├── service/         # AssetService
+    │   │   ├── repository/      # AssetRepository
+    │   │   ├── entity/          # RealAsset
+    │   │   ├── dto/             # AssetRequest, AssetResponse
+    │   │   └── mapper/          # AssetMapper
+    │
+    └── ServerApplication.java  # 메인 실행 클래스
