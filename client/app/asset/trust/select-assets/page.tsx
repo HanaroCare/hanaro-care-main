@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import TrustNextButton from "../../components/trust/TrustNextButton";
+import NextButton from "../../../../components/NextButton";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 import { formatKoreanAmount, parseKoreanAmount } from "../trustUtils";
@@ -33,7 +33,7 @@ export default function TrustAssetSelectPage() {
 		<TrustStepLayout
 			footer={
 				<footer className="bg-white px-6 pb-8 pt-10">
-					<TrustNextButton
+					<NextButton
 						label="연결하기"
 						disabled={selected.size === 0}
 						onClick={() => router.push("/asset/trust/start-timing")}

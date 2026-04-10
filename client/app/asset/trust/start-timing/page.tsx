@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import TrustNextButton from "../../components/trust/TrustNextButton";
+import NextButton from "../../../../components/NextButton";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 
@@ -35,7 +35,7 @@ export default function TrustStartTimingPage() {
 		<TrustStepLayout
 			footer={
 				<footer className="shrink-0 bg-white px-6 pb-8 pt-10">
-					<TrustNextButton
+					<NextButton
 						disabled={!selected}
 						onClick={() => router.push("/asset/trust/operation-type")}
 					/>

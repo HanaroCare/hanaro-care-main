@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import TrustInfoBox from "../../components/trust/TrustInfoBox";
+import InfoBox from "../../../../components/InfoBox";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
 import TrustSkipNextFooter from "../../components/trust/TrustSkipNextFooter";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
@@ -48,14 +48,13 @@ export default function SelectAgentPage() {
 								key={agent.id}
 								type="button"
 								onClick={() => setSelected(agent.id)}
-								aria-pressed={isSelected}
-								className={`flex min-h-29.5 items-center rounded-[28px] px-6 py-7 text-left shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition ${
+								className={`flex items-center rounded-[28px] px-6 py-7 text-left shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition ${
 									isSelected
 										? "border border-hana-ez-600 bg-[#F5FFFE]"
 										: "border border-[#F2F3F5] bg-white"
 								}`}
 							>
-								<div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-[#E9F8F9] text-[24px] leading-none font-semibold tracking-tight text-hana-ez-600">
+								<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E9F8F9] text-[20px] leading-none font-semibold tracking-tight text-hana-ez-600">
 									{agent.initial}
 								</div>
 								<div className="ml-5 flex items-center gap-3">
@@ -71,7 +70,7 @@ export default function SelectAgentPage() {
 					})}
 				</div>
 
-				<TrustInfoBox
+				<InfoBox
 					title="지급청구대리인이란?"
 					desc="부득이한 경우, 본인이 자산 관리(운용/집행 등)를 하지 못할 때 사전 지정한 지급청구대리인이 관리를 할 수 있어요."
 					className="mt-8"
