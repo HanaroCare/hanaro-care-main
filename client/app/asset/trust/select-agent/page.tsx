@@ -35,7 +35,7 @@ export default function SelectAgentPage() {
 						<br />
 						지정해주세요
 					</h2>
-					<p className="mt-4 text-[12px] leading-[20px] font-normal tracking-snug text-[#6A7282]">
+					<p className="mt-4 text-[12px] leading-5 font-normal tracking-snug text-[#6A7282]">
 						신탁 가입 시 영업점에 같이 가야해요
 					</p>
 				</div>
@@ -48,7 +48,8 @@ export default function SelectAgentPage() {
 								key={agent.id}
 								type="button"
 								onClick={() => setSelected(agent.id)}
-								className={`flex min-h-[118px] items-center rounded-[28px] px-6 py-7 text-left shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition ${
+								aria-pressed={isSelected}
+								className={`flex min-h-29.5 items-center rounded-[28px] px-6 py-7 text-left shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition ${
 									isSelected
 										? "border border-hana-ez-600 bg-[#F5FFFE]"
 										: "border border-[#F2F3F5] bg-white"
@@ -61,7 +62,7 @@ export default function SelectAgentPage() {
 									<p className="text-[16px] leading-6 font-semibold tracking-tight text-black">
 										{agent.name}
 									</p>
-									<span className="rounded-full bg-[#E9F8F9] px-3 py-1 text-[12px] leading-[18px] font-medium tracking-snug text-hana-ez-600">
+									<span className="rounded-full bg-[#E9F8F9] px-3 py-1 text-[12px] leading-4.5 font-medium tracking-snug text-hana-ez-600">
 										{agent.role}
 									</span>
 								</div>
@@ -73,7 +74,7 @@ export default function SelectAgentPage() {
 				<TrustInfoBox
 					title="지급청구대리인이란?"
 					desc="부득이한 경우, 본인이 자산 관리(운용/집행 등)를 하지 못할 때 사전 지정한 지급청구대리인이 관리를 할 수 있어요."
-					className="mt-20"
+					className="mt-8"
 				/>
 			</section>
 		</TrustStepLayout>

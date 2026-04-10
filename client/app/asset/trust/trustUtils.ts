@@ -1,8 +1,20 @@
 export function parseKoreanAmount(amount: string): number {
-	const clean = amount.replace(/[^\d]/g, "");
-	const num = parseInt(clean || "0", 10);
-	if (amount.includes("억")) return num * 100_000_000;
-	return num * 10_000;
+	const normalized = amount.replace(/\s|,/g, "");
+	let total = 0;
+
+	const eok = normalized.match(/(\d+(?:\.\d+)?)억/)?.[1];
+	const cheonMan = normalized.match(/(\d+)천만/)?.[1];
+	const man = normalized.match(/(\d+)만(?:원)?/)?.[1];
+
+	if (eok) total += Number(eok) * 100_000_000;
+	if (cheonMan) total += Number(cheonMan) * 10_000_000;
+	if (man && !cheonMan) total += Number(man) * 10_000;
+
+	if (total === 0) {
+		const onlyDigits = normalized.replace(/[^\d]/g, "");
+		return Number(onlyDigits || 0) * 10_000;
+	}
+	return Math.round(total);
 }
 export function formatKoreanAmount(num: number): string {
 	const eok = Math.floor(num / 100_000_000);

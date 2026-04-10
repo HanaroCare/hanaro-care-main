@@ -63,6 +63,7 @@ export default function TrustAssetSelectPage() {
 								key={asset.id}
 								type="button"
 								onClick={() => toggle(asset.id)}
+								aria-pressed={isSelected}
 								className={`w-full rounded-[24px] px-6 py-7 text-left shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition ${
 									isSelected
 										? "border border-hana-ez-600 bg-[#EFFFFD]"

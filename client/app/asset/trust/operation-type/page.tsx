@@ -23,11 +23,30 @@ const options = [
 		highlight: "운용 방식에 따라 다름",
 		desc: "내가 원하는대로 운용",
 	},
-];
+] as const;
+
+type OperationType = (typeof options)[number]["id"];
+
+const infoBoxByType: Record<
+	OperationType,
+	{
+		title: string;
+		desc: string;
+	}
+> = {
+	managed: {
+		title: "일임형이란?",
+		desc: "전문가가 채권, 주식, 펀드를 나눠서 자산을 운용해줍니다. 매 분기 결과를 앱에서 확인할 수 있습니다.",
+	},
+	self: {
+		title: "직접 운용이란?",
+		desc: "원하는 자산과 비중을 직접 선택해 운용합니다. 운용 결과는 선택 전략에 따라 달라질 수 있습니다.",
+	},
+};
 
 export default function OperationTypePage() {
 	const router = useRouter();
-	const [selected, setSelected] = useState<string | null>("managed");
+	const [selected, setSelected] = useState<OperationType>("managed");
 
 	return (
 		<TrustStepLayout
@@ -53,11 +72,8 @@ export default function OperationTypePage() {
 					}
 					options={options}
 					selected={selected}
-					onSelect={setSelected}
-					infoBox={{
-						title: "일임형이란?",
-						desc: "전문가가 채권, 주식, 펀드를 나눠서 자산을 운용해줍니다. 매 분기 결과를 앱에서 확인할 수 있습니다.",
-					}}
+					onSelect={(id) => setSelected(id as OperationType)}
+					infoBox={infoBoxByType[selected]}
 				/>
 			</section>
 		</TrustStepLayout>

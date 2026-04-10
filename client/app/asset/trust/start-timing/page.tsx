@@ -10,7 +10,7 @@ const options = [
 	{
 		id: "now",
 		title: "지금 바로",
-		desc: ["지금부터 전문가가 굴러드려요"],
+		desc: ["지금부터 전문가가 굴려드려요"],
 		recommended: false,
 	},
 	{
@@ -64,6 +64,7 @@ export default function TrustStartTimingPage() {
 								key={option.id}
 								type="button"
 								onClick={() => setSelected(option.id)}
+								aria-pressed={isSelected}
 								className={`w-full rounded-4xl border px-4 py-5 text-left shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition ${
 									isSelected
 										? "border-hana-ez-600 bg-[#F5FFFE]"
@@ -79,7 +80,7 @@ export default function TrustStartTimingPage() {
 											{option.desc.map((line) => (
 												<p
 													key={line}
-													className="text-[12px] leading-[18px] font-normal tracking-snug text-[#6A7282]"
+													className="text-[12px] leading-4.5 font-normal tracking-snug text-[#6A7282]"
 												>
 													{line}
 												</p>
@@ -88,7 +89,7 @@ export default function TrustStartTimingPage() {
 									</div>
 
 									{option.recommended && (
-										<span className="shrink-0 rounded-full bg-[#E9F8F9] px-3 py-1 text-[12px] leading-[18px] font-medium tracking-snug text-hana-ez-600">
+										<span className="shrink-0 rounded-full bg-[#E9F8F9] px-3 py-1 text-[12px] leading-4.5 font-medium tracking-snug text-hana-ez-600">
 											추천
 										</span>
 									)}
