@@ -3,6 +3,7 @@
 import { NavigationBar } from '@/components/NavigationBar';
 import { AssetDashboard } from './asset/component/AssetDashboard';
 import { BannerCard } from './asset/component/BannerCard';
+import { RealAssetCard } from './asset/component/RealAssetCard';
 
 export default function Home() {
   return (
@@ -46,6 +47,7 @@ export default function Home() {
         />
       </div>
       <NavigationBar />
+      <RealAssetCard />
     </div>
   );
 }
