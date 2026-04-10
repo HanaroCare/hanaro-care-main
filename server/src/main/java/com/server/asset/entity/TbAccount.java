@@ -1,6 +1,6 @@
 package com.server.asset.entity;
 
-import jakarta.persistence.Column;
+import io.hypersistence.utils.hibernate.id.Tsid;import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
