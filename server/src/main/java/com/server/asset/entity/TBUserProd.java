@@ -1,10 +1,10 @@
 package com.server.asset.entity;
 
 import com.server.common.entity.BaseEntity;
-import com.server.asset.entity.enums.InvestTypeCd;
-import com.server.asset.entity.enums.PayoutTypeCd;
-import com.server.asset.entity.enums.ProdStatCd;
-import com.server.asset.entity.enums.ProdTypeCd;
+import com.server.asset.entity.enums.InvestType;
+import com.server.asset.entity.enums.PayoutType;
+import com.server.asset.entity.enums.ProdStat;
+import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.StartType;
 import com.server.user.entity.TBUser;
 
@@ -43,15 +43,15 @@ public class TBUserProd extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "PROD_TYPE_CD", nullable = false)
-	private ProdTypeCd prodTypeCd;
+	private ProdType prodType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "PAYOUT_TYPE_CD", nullable = false)
-	private PayoutTypeCd payoutTypeCd;
+	private PayoutType payoutType;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "PROD_STAT_CD", nullable = false)
-	private ProdStatCd prodStatCd;
+	private ProdStat prodStat;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "TARGET_ASSET_ID", referencedColumnName = "REAL_ASSET_ID",
@@ -70,7 +70,7 @@ public class TBUserProd extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "INVEST_TYPE_CD", nullable = true)
-	private InvestTypeCd investTypeCd;
+	private InvestType investType;
 
 	@Column(name = "PRINCIPAL_AMOUNT",
 		precision = 13, scale = 2,

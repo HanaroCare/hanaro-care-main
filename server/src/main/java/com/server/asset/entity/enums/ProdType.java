@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum InvestTypeCd {
-	LUMP_SUM("01", "일임형"),
-	DIRECT("02", "직접운용");
+public enum ProdType {
+	HOUSING_PENSION("01", "주택연금"),
+	TRUST("02", "신탁");
 
 	private final String code;
 	private final String description;

@@ -1,15 +1,29 @@
 package com.server.asset.entity;
 
-import com.server.asset.entity.enums.TransStatCd;
-import com.server.asset.entity.enums.TransTypeCd;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import com.server.asset.entity.enums.TransStat;
+import com.server.asset.entity.enums.TransType;
 import com.server.common.entity.BaseEntity;
 
 import io.hypersistence.utils.hibernate.id.Tsid;
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ForeignKey;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -28,7 +42,7 @@ public class TBAssetTrans extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "TRANS_TYPE_CD", nullable = false)
-	private TransTypeCd transTypeCd;
+	private TransType transType;
 
 	@Column(name = "TRANS_AMT",
 		precision = 18, scale = 2,
@@ -38,7 +52,7 @@ public class TBAssetTrans extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "TRANS_STAT_CD", nullable = false)
-	private TransStatCd transStatCd;
+	private TransStat transStat;
 
 	@Column(name = "TRANS_DT",
 		nullable = false,

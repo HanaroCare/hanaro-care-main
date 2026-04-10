@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum TransTypeCd {
+public enum TransType {
 	PAYMENT("01", "지급"),
 	INTEREST("02", "이자"),
 	REPAYMENT("03", "상환");

@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProdCateCd {
-
-	PENSION("01", "연금"),
-	TRUST("02", "신탁");
+public enum PayoutType {
+	FLEXIBLE("01", "자유형"),
+	PENSION("02", "연금");
 
 	private final String code;
 	private final String description;

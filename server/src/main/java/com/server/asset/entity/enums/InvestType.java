@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum TransStatCd {
-	COMPLETED("01", "완료"),
-	IN_PROGRESS("02", "진행중"),
-	FAILED("03", "실패");
+public enum InvestType {
+	LUMP_SUM("01", "일임형"),
+	DIRECT("02", "직접운용");
 
 	private final String code;
 	private final String description;

@@ -1,6 +1,6 @@
 package com.server.asset.entity;
 
-import com.server.asset.entity.enums.ProdCateCd;
+import com.server.asset.entity.enums.ProdCate;
 import com.server.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
@@ -35,7 +35,7 @@ public class TBProduct extends BaseEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "PROD_CATE_CD", nullable = false)
-	private ProdCateCd prodCateCd;
+	private ProdCate prodCate;
 
 	@Column(name = "PROD_NM", nullable = false, length = 10)
 	private String prodNm;

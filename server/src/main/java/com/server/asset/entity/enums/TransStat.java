@@ -5,9 +5,10 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ProdTypeCd {
-	HOUSING_PENSION("01", "주택연금"),
-	TRUST("02", "신탁");
+public enum TransStat {
+	COMPLETED("01", "완료"),
+	IN_PROGRESS("02", "진행중"),
+	FAILED("03", "실패");
 
 	private final String code;
 	private final String description;
