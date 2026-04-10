@@ -1,5 +1,4 @@
 package com.server.asset.entity;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
