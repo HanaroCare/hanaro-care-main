@@ -3,6 +3,9 @@
 import { NavigationBar } from '@/components/NavigationBar';
 import { AssetDashboard } from './asset/component/AssetDashboard';
 import { BannerCard } from './asset/component/BannerCard';
+import { LivingExpenseCard } from './asset/component/LivingExpenseCard';
+import { MedicalBillCard } from './asset/component/MedicalBillCard';
+import { PensionCard } from './asset/component/PensionCard';
 import { RealAssetCard } from './asset/component/RealAssetCard';
 
 export default function Home() {
@@ -48,6 +51,10 @@ export default function Home() {
       </div>
       <NavigationBar />
       <RealAssetCard />
+      <MedicalBillCard />
+      <PensionCard />
+      <RealAssetCard />
+      <LivingExpenseCard />
     </div>
   );
 }
