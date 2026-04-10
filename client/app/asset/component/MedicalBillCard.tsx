@@ -17,7 +17,7 @@ export function MedicalBillCard() {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.3 }}
-        className="group relative flex h-[247px] w-[325px] flex-col justify-end overflow-hidden rounded-[20px] p-6"
+        className="group relative flex h-61.75 w-81.25 flex-col justify-end overflow-hidden rounded-4xl p-6"
         style={{
           background:
             'linear-gradient(135deg, #ffffff 0%, rgba(7, 101, 101, 0.2) 100%)',
@@ -54,7 +54,7 @@ export function MedicalBillCard() {
           </svg>
         </button>
 
-        <div className="pointer-events-none absolute top-[14px] left-[163px] h-[139px] w-[136px]">
+        <div className="pointer-events-none absolute top-3.5 left-40.75 h-34.75 w-34">
           <div className="absolute inset-0 rounded-full bg-hana-green-500/10 blur-3xl" />
           <Image
             src="/images/asset/medical-icon.svg"
@@ -66,14 +66,14 @@ export function MedicalBillCard() {
         </div>
 
         <div className="relative z-10 space-y-5">
-          <h2 className="whitespace-pre-line font-bold text-[#3E454C] text-[19px] leading-[24px] tracking-tight">
+          <h2 className="whitespace-pre-line font-bold text-[#3E454C] text-[19px] leading-6 tracking-tight">
             내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?
           </h2>
 
           <motion.button
             whileHover={{ scale: 1.02, backgroundColor: '#007575' }}
             whileTap={{ scale: 0.98 }}
-            className="flex h-[41px] w-full items-center justify-center rounded-[13px] bg-hana-green-700 font-semi-bold text-[14px] text-white shadow-[0_10px_20px_rgba(0,132,133,0.15)] transition-colors"
+            className="flex h-10.25 w-full items-center justify-center rounded-[13px] bg-hana-green-700 font-semi-bold text-[14px] text-white shadow-[0_10px_20px_rgba(0,132,133,0.15)] transition-colors"
           >
             병원비 계산하기
           </motion.button>

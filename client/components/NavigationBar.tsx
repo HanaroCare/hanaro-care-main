@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 
 export function NavigationBar() {
   return (
-    <nav className="-translate-x-1/2 fixed bottom-0 left-1/2 flex h-[65px] w-full max-w-[375px] items-center justify-around bg-white px-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
+    <nav className="-translate-x-1/2 fixed bottom-0 left-1/2 flex h-16.25 w-full max-w-93.75 items-center justify-around bg-white px-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
       {NAV_ITEMS.map((item) => (
         <motion.button
           key={item.id}
@@ -26,7 +26,7 @@ export function NavigationBar() {
               className={
                 item.active ? 'text-hana-green-700' : 'text-hana-black-400'
               }
-              aria-hidden="true" // SVG에 title이 없어도 린트 에러 안 나게 방지
+              aria-hidden="true"
             />
           </div>
           <span
