@@ -1,7 +1,7 @@
-/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <explanation> */
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { X } from 'lucide-react';
 import Image from 'next/image';
 import { type ReactNode, useState } from 'react';
 
@@ -41,36 +41,20 @@ export function BannerCard({
             e.stopPropagation();
             setIsVisible(false);
           }}
-          className="absolute top-4 right-4 z-50 flex size-6 items-center justify-center rounded-full border-none bg-white/50 outline-none backdrop-blur-sm transition-colors hover:bg-white"
+          className="absolute top-4 right-4 z-50 flex size-6 items-center justify-center rounded-full bg-white/50 outline-none backdrop-blur-sm transition-colors hover:bg-white"
         >
-          <svg
-            width="9"
-            height="9"
-            viewBox="0 0 9 9"
-            fill="none"
-            aria-hidden="true"
-          >
-            <path
-              d="M0.5 0.5L7.93083 7.93083"
-              stroke="#5E707C"
-              strokeLinecap="round"
-            />
-            <path
-              d="M7.93083 0.5L0.5 7.93083"
-              stroke="#5E707C"
-              strokeLinecap="round"
-            />
-          </svg>
+          <X size={9} className="text-hana-black-500" />
         </button>
 
         <div className="pointer-events-none absolute top-3.5 left-40.75 h-34.75 w-34">
           <div className="absolute inset-0 rounded-full bg-hana-green-500/10 blur-3xl" />
           <Image
             src={imageSrc}
-            alt="Banner Illustration"
+            alt=""
             width={136}
             height={139}
             className="h-full w-full object-contain"
+            aria-hidden="true"
           />
         </div>
 
@@ -78,7 +62,6 @@ export function BannerCard({
           <h2 className="whitespace-pre-line font-bold text-[#3E454C] text-[19px] leading-[1.3] tracking-tight">
             {title}
           </h2>
-
           <motion.button
             whileHover={{ scale: 1.02, backgroundColor: '#007575' }}
             whileTap={{ scale: 0.98 }}
