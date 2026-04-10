@@ -2,9 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import DualActionFooter from "@/components/DualActionFooter";
 import InfoBox from "../../../../components/InfoBox";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
-import TrustSkipNextFooter from "../../components/trust/TrustSkipNextFooter";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 
 const agents = [
@@ -19,10 +19,11 @@ export default function SelectAgentPage() {
 	return (
 		<TrustStepLayout
 			footer={
-				<TrustSkipNextFooter
-					nextLabel="결과 보기"
-					nextDisabled={!selected}
-					onNext={() => router.push("/asset/trust/result")}
+				<DualActionFooter
+					leftLabel="지금 안할래요"
+					rightLabel="결과보기"
+					rightDisabled={!selected}
+					onRightClick={() => router.push("/asset/trust/select-agent")}
 				/>
 			}
 		>
