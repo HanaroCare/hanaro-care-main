@@ -130,7 +130,6 @@ export function AssetDashboard() {
                   </div>
                 </div>
 
-                {/* Breakdown List */}
                 <div className="flex-1 space-y-2.5">
                   {ASSET_DATA.map((asset) => (
                     <div key={asset.name} className="space-y-1">

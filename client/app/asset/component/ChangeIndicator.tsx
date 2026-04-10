@@ -1,9 +1,10 @@
+/** biome-ignore-all lint/a11y/noSvgWithoutTitle: <explanation> */
 'use client';
 
 export function ChangeIndicator() {
   return (
     <div className="inline-flex h-[24px] w-fit items-center rounded-full bg-white px-3">
-      <span className="flex items-center gap-1 font-bold text-[#D60003] text-[11px]">
+      <span className="flex items-center gap-1 font-bold text-[11px] text-hana-red-500">
         230만 ( 1.2% )
         <svg
           width="6"
