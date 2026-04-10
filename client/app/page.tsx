@@ -1,41 +1,48 @@
-'use client';
-
-import { NavigationBar } from '@/components/NavigationBar';
-import { AssetDashboard } from './asset/component/AssetDashboard';
-import { BannerCard } from './asset/component/BannerCard';
+import { FinancialAssetCard } from './asset/component/FinancialAssetCard';
+import { MainFeatureCard } from './asset/component/MainFeatureCard';
+import { NavigationBar } from './asset/component/NavigationBar';
 
 export default function Home() {
-  const BANNERS = [
-    {
-      id: 'change',
-      title: (
-        <>
-          남노인 손님,{'\n'}병원비 부담이{' '}
-          <span className="text-hana-red-500">30%</span> 줄었네요
-        </>
-      ),
-      buttonText: '확인하러 가기',
-      imageSrc: '/images/asset/asset-big-change.svg',
-    },
-  ];
-
   return (
-    // 전체 배경색과 하단 네비게이션 공간(pb-24) 확보
-    <div className="min-h-screen bg-zinc-50 pb-24 font-sans">
-      <div className="mx-auto flex max-w-[375px] flex-col items-center gap-6 px-6 pt-10">
-        {/* 상단 배너 섹션 */}
-        <BannerCard
-          title={BANNERS[0].title}
-          buttonText={BANNERS[0].buttonText}
-          imageSrc={BANNERS[0].imageSrc}
-          onClick={() => console.log('자산 변동 확인')}
-        />
+    <div className="flex min-h-screen flex-col items-center justify-start bg-zinc-50 p-6 pb-[100px] font-sans gap-8">
+      {/* Existing Financial Asset Component */}
+      <FinancialAssetCard />
 
-        {/* 자산 대시보드 */}
-        <AssetDashboard />
-      </div>
+      {/* Main Feature Cards Showcase */}
+      
+      {/* [1] Medical Bill Case */}
+      <MainFeatureCard 
+        title={<>내 남은 인생,{"\n"}평생 병원비 걱정 없을까요?</>}
+        buttonText="병원비 계산하기"
+        imageSrc="/images/medical.svg"
+      />
 
-      {/* 하단 네비게이션 바 */}
+      {/* [2] Inheritance Case */}
+      <MainFeatureCard 
+        title={<>미리 준비하는 상속{"\n"}가족 모두가 든든해져요</>}
+        buttonText="상속 계산하기"
+        imageSrc="/images/inheritance-recom.svg"
+      />
+
+      {/* [3] Big Change Case */}
+      <MainFeatureCard 
+        title={
+          <>
+            남노인 손님,{"\n"}
+            병원비 부담이 <span className="text-[#D60003]">30%</span> 줄었네요
+          </>
+        }
+        buttonText="확인하러 가기"
+        imageSrc="/images/asset-big-change.svg"
+      />
+
+      {/* [4] Housing Pension Case */}
+      <MainFeatureCard 
+        title={<>내 집에 살면서{"\n"}매달 안정적인 생활비를 받아보세요</>}
+        buttonText="확인하러 가기"
+        imageSrc="/images/housing-pension.svg"
+      />
+
       <NavigationBar />
     </div>
   );
