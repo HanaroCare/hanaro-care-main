@@ -34,7 +34,7 @@ export function AssetTabNavigation({
 
   return (
     <div className="w-full border-border-gray border-b bg-white">
-      <div className="no-scrollbar flex w-full overflow-x-auto px-2">
+      <div className="flex w-full">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -42,7 +42,7 @@ export function AssetTabNavigation({
               key={tab.id}
               type="button"
               onClick={() => handleTabClick(tab.id)}
-              className={`relative flex min-w-[75px] flex-1 items-center justify-center py-3 font-medium text-[15px] transition-colors ${
+              className={`relative flex flex-1 items-center justify-center py-3 font-medium text-[15px] transition-colors ${
                 isActive ? 'text-hana-green-700' : 'text-border-gray'
               }`}
             >
