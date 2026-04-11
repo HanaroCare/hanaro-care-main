@@ -53,7 +53,7 @@ export default function OperationTypePage() {
 			footer={
 				<footer className="shrink-0 bg-white px-6 pb-8 pt-10">
 					<PrimaryButton
-						label="결과 보기"
+						label="다음으로"
 						disabled={!selected}
 						onClick={() => router.push("/asset/trust/payout-type")}
 					/>

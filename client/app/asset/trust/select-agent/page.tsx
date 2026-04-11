@@ -23,7 +23,7 @@ export default function SelectAgentPage() {
 					leftLabel="지금 안할래요"
 					rightLabel="결과보기"
 					rightDisabled={!selected}
-					onRightClick={() => router.push("/asset/trust/select-agent")}
+					onRightClick={() => router.push("/asset/trust/result")}
 				/>
 			}
 		>

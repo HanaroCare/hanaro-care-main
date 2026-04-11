@@ -19,6 +19,8 @@ export default function DualActionFooter({
 	rightDisabled = false,
 	className = "",
 }: DualActionFooterProps) {
+	const isLeftDisabled = leftDisabled || !onLeftClick;
+	const isRightDisabled = rightDisabled || !onRightClick;
 	return (
 		<footer
 			className={`flex shrink-0 gap-3 bg-white px-6 pb-8 pt-10 ${className}`}
@@ -26,7 +28,7 @@ export default function DualActionFooter({
 			<PrimaryButton
 				label={leftLabel}
 				variant="secondary"
-				disabled={leftDisabled}
+				disabled={isLeftDisabled}
 				onClick={onLeftClick}
 				className="h-14 flex-1 rounded-2xl text-[17px] leading-6"
 			/>
@@ -34,7 +36,7 @@ export default function DualActionFooter({
 			<PrimaryButton
 				label={rightLabel}
 				variant="primary"
-				disabled={rightDisabled}
+				disabled={isRightDisabled}
 				onClick={onRightClick}
 				className="h-14 flex-1 rounded-2xl text-[17px] leading-6"
 			/>
