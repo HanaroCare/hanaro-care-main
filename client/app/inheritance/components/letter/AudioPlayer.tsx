@@ -21,6 +21,8 @@ export default function AudioPlayer({
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const progress = duration ? (currentTime / duration) * 100 : 0;
 
   const togglePlay = () => {
     if (!audioRef.current) return;
@@ -44,19 +46,22 @@ export default function AudioPlayer({
 
   return (
     <div
-      className={`${bgColor} rounded-2xl flex flex-col justify-between ${className} pb-5 w-78.75 h-38.75`}
+      className={`${bgColor} rounded-2xl flex flex-col justify-between ${className} pb-5 w-full h-38.75`}
     >
       {/* 진행바 */}
       <div className={`w-full h-1 bg-white rounded-full mt-7`}>
-        <div className={`h-1 bg-hana-green-700 rounded-full w-full`} />
+        <div
+          className={`h-1 bg-hana-green-700 rounded-full w-full`}
+          style={{ width: `${progress}%` }}
+        />
       </div>
-
       {/* 시간 */}
       <div className="flex items-center justify-between pt-1">
-        <span className={`text-xs ${timeColor}`}>{formatTime(0)}</span>
+        <span className={`text-xs ${timeColor}`}>
+          {formatTime(currentTime)}
+        </span>
         <span className={`text-xs ${timeColor}`}>{formatTime(duration)}</span>
       </div>
-
       {/* 재생버튼 */}
       <div className="flex justify-center mt-1 mb-3">
         <button
@@ -71,15 +76,17 @@ export default function AudioPlayer({
           )}
         </button>
       </div>
-      
       <audio
         ref={audioRef}
         src={audioUrl}
         onLoadedMetadata={() => {
           if (audioRef.current) setDuration(audioRef.current.duration);
         }}
+        onTimeUpdate={() => {
+          if (audioRef.current) setCurrentTime(audioRef.current.currentTime);
+        }}
         onEnded={() => setIsPlaying(false)}
-      />{" "}
+      />
     </div>
   );
 }
