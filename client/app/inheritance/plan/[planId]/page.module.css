@@ -1,0 +1,288 @@
+/* 하나은행 아이덴티티 컬러를 변수로 활용 */
+:root {
+  --hana-green: var(--color-hana-ez-600);
+  --hana-dark: #333333;
+  --hana-gray: #94A3B8;
+  --hana-bg: #F9FEFF;
+}
+
+.page {
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  height: 100dvh; /* 전체 화면 높이 고정 */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden; /* 컨테이너 자체는 스크롤 불가 */
+  background-color: #fff;
+}
+
+.scrollArea {
+  flex: 1; /* 남은 공간을 다 차지 */
+  overflow-y: auto; /* 여기서만 스크롤 발생 */
+  -webkit-overflow-scrolling: touch;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: #fff;
+  flex-shrink: 0; /* 헤더는 줄어들지 않음 */
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.headerBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  color: var(--hana-dark);
+}
+
+.headerTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--hana-dark);
+}
+
+.container {
+  flex: 1;
+  padding: 24px;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  margin-bottom: 24px;
+}
+
+.chartImageContainer {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.summaryCard {
+  background: var(--hana-bg);
+  border: 1px solid #E8F4F5;
+  border-radius: 24px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  color: var(--hana-dark);
+}
+
+.ratioHighlight {
+  color: var(--hana-green);
+  font-weight: 700;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #E8F4F5;
+}
+
+.ratioValue {
+  font-size: 18px;
+}
+
+.heirList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heirCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid #F1F5F9;
+  border-radius: 20px;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.heirCard:active {
+  background-color: #F8FAFC;
+  transform: scale(0.98);
+}
+
+.heirInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.heirIcon {
+  font-size: 20px;
+}
+
+.heirName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--hana-dark);
+}
+
+.heirDetails {
+  text-align: right;
+}
+
+.heirPercentage {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--hana-green);
+}
+
+.heirAmount {
+  font-size: 13px;
+  color: var(--hana-gray);
+  margin-top: 2px;
+}
+
+/* ✅ 중앙 팝업 스타일링 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: white;
+  width: 100%;
+  max-width: 327px;
+  border-radius: 28px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--hana-dark);
+  line-height: 1.4;
+}
+
+.modalSliderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sliderHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sliderHeader span:first-child {
+  font-size: 14px;
+  color: var(--hana-gray);
+}
+
+.sliderValue {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--hana-green);
+}
+
+.slider {
+  width: 100%;
+  appearance: none;
+  height: 8px;
+  border-radius: 10px;
+  outline: none;
+  cursor: pointer;
+}
+
+.slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  border: 3px solid var(--hana-green);
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.modalFooter {
+  display: flex;
+  gap: 12px;
+}
+
+.cancelBtn, .confirmBtn {
+  flex: 1;
+  padding: 16px;
+  border-radius: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancelBtn {
+  background-color: #F1F5F9;
+  color: var(--hana-gray);
+  border: none;
+}
+
+.confirmBtn {
+  background-color: var(--hana-green);
+  color: white;
+  border: none;
+}
+
+.confirmBtn:active {
+  transform: scale(0.98);
+  filter: brightness(0.9);
+}
+
+.footer {
+  flex-shrink: 0; /* 푸터(버튼) 영역 고정 */
+  padding: 20px 24px 40px;
+  background: #fff;
+  border-top: 1px solid #F1F5F9;
+}
+
+.nextBtn {
+  width: 100%;
+  padding: 18px;
+  border-radius: 18px;
+  font-size: 18px;
+  font-weight: 700;
+  background-color: var(--hana-green);
+  color: white;
+  border: none;
+  transition: all 0.3s;
+}
+
+.nextBtn:disabled {
+  background-color: #E2E8F0;
+  color: var(--hana-gray);
+  cursor: not-allowed;
+}
