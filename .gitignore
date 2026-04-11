@@ -1,10 +1,29 @@
-.idea/
-*.iml
-node_modules/
-.next/
-dist/
-build/
-.env
-
 .DS_Store
-**/.DS_Store
+*.pem
+.idea/
+.vscode/
+*.iml
+.env*
+
+# [Client - Next.js]
+client/.next/
+client/node_modules/
+client/out/
+client/next-env.d.ts
+client/.pnpm-debug.log*
+
+# [Server - Spring Boot]
+server/.gradle/
+server/build/
+server/bin/
+server/out/
+server/src/main/resources/security.yaml
+
+# [Gradle Wrapper]
+!server/gradle/wrapper/gradle-wrapper.jar
+
+# [OS/IDE Misc]
+**/Thumbs.db
+**/*.iws
+**/*.ipr
+**/*.log
