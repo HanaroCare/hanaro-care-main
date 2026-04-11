@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { AlertBanner } from "@/components/AlertBanner";
 import { NavigationBar } from "@/components/NavigationBar";
-import { AssetChangeChart } from "./components/AssetChangeChart";
+import { AssetChart } from "./components/AssetChart";
 import { AssetDetailCard } from "./components/AssetDetailCard";
 import { AssetListCard } from "./components/AssetListCard";
 import { AssetSummaryHeader } from "./components/AssetSummaryHeader";
 import { AssetTabNavigation } from "./components/AssetTabNavigation";
-import { AlertBanner } from "@/components/AlertBanner";
 
 type TabId = "asset" | "realestate" | "insurance" | "car" | "gold";
 
@@ -17,7 +17,22 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 			return (
 				<>
 					<AssetListCard />
-					<AssetChangeChart />
+					<AssetChart
+						title="6개월 자산 변화"
+						data={[
+							{ name: "7월", value: 11.8 },
+							{ name: "8월", value: 12.1 },
+							{ name: "9월", value: 11.5 },
+							{ name: "10월", value: 12.3 },
+							{ name: "11월", value: 12.6 },
+							{ name: "12월", value: 12.8 },
+						]}
+						config={{
+							type: "bar",
+							domain: [11, 13.5],
+							ticks: [11, 11.5, 12, 12.5, 13],
+						}}
+					/>
 				</>
 			);
 		case "realestate":
@@ -26,8 +41,8 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 					<AssetDetailCard type="property" />
 					<AssetDetailCard
 						type="property"
-						address="경기 성남시 분당구 아파트"
-						details="59㎡ (25평)"
+						title="경기 성남시 분당구 아파트"
+						subtitle="59㎡ (25평)"
 						value="5억 1,000만원"
 						change="800만원"
 						changePercent="5%"
@@ -75,7 +90,38 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 				</>
 			);
 		case "gold":
-			return <div>금 컴포넌트 준비 중</div>;
+			return (
+				<>
+					<AssetDetailCard type="gold" />
+					<AssetDetailCard
+						type="gold"
+						title="KRX 금시장 잔고"
+						subtitle="중량: 37.5g"
+						value="438만원"
+						change="22만원"
+						changePercent="10.2%"
+						isPositive={true}
+					/>
+					<AssetChart
+						title="국제 금 시세"
+						subtitle="최근 6개월 기준"
+						data={[
+							{ name: "7월", value: 1100 },
+							{ name: "8월", value: 1250 },
+							{ name: "9월", value: 1150 },
+							{ name: "10월", value: 1300 },
+							{ name: "11월", value: 1380 },
+							{ name: "12월", value: 1400 },
+						]}
+						config={{
+							type: "line",
+							color: "#C1B483",
+							domain: [0, 1400],
+							ticks: [0, 350, 700, 1050, 1400],
+						}}
+					/>
+				</>
+			);
 		default:
 			return null;
 	}

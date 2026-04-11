@@ -16,10 +16,11 @@ const ICON_MAP: Record<IconType, string> = {
 const EMOJI_MAP: Record<string, string> = {
 	property: "🏠",
 	car: "🚗",
+	gold: "🥇",
 };
 
 type DetailedAssetCardProps = {
-	type: "property" | "car";
+	type: "property" | "car" | "gold";
 	title?: string;
 	subtitle?: string;
 	value?: string;
@@ -39,7 +40,7 @@ type InsuranceAssetCardProps = {
 
 type AssetDetailCardProps = DetailedAssetCardProps | InsuranceAssetCardProps;
 
-const DEFAULT_VALUES: Record<"property" | "car", DetailedAssetCardProps> = {
+const DEFAULT_VALUES: Record<"property" | "car" | "gold", DetailedAssetCardProps> = {
 	property: {
 		type: "property",
 		title: "서울 강남구 역삼동 아파트",
@@ -57,6 +58,15 @@ const DEFAULT_VALUES: Record<"property" | "car", DetailedAssetCardProps> = {
 		change: "15만원",
 		changePercent: "0.5%",
 		isPositive: false,
+	},
+	gold: {
+		type: "gold",
+		title: "골드바 (100g)",
+		subtitle: "중량: 100g",
+		value: "1,330만원",
+		change: "80만원",
+		changePercent: "10%",
+		isPositive: true,
 	},
 };
 
