@@ -1,13 +1,17 @@
 package com.server.common.config;
 
+import com.server.common.security.CustomJsonLoginFilter;
 import com.server.common.security.JwtAuthenticationFilter;
 import com.server.common.security.handler.CustomAccessDeniedHandler;
+import com.server.common.security.handler.LoginFailureHandler;
+import com.server.common.security.handler.LoginSuccessHandler;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,35 +33,28 @@ public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final CustomAccessDeniedHandler accessDeniedHandler;
-  private final com.server.common.security.handler.LoginSuccessHandler loginSuccessHandler;
-  private final com.server.common.security.handler.LoginFailureHandler loginFailureHandler;
+  private final LoginSuccessHandler loginSuccessHandler;
+  private final LoginFailureHandler loginFailureHandler;
+  private final AuthenticationConfiguration authenticationConfiguration;
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     http
         .csrf(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-        .formLogin(config -> {
-          config.loginPage("/api/auth/login");
-          config.successHandler(loginSuccessHandler);
-          config.failureHandler(loginFailureHandler);
-        })
-
         .sessionManagement(session ->
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
             .anyRequest().authenticated()
         )
+        .addFilterBefore(customJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
         .exceptionHandling(ex -> ex
             .accessDeniedHandler(accessDeniedHandler)
-        )
-
-        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        );
 
     return http.build();
   }
@@ -65,6 +62,15 @@ public class SecurityConfig {
   @Bean
   public BCryptPasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
+  }
+
+  @Bean
+  public CustomJsonLoginFilter customJsonLoginFilter() throws Exception {
+    CustomJsonLoginFilter filter = new CustomJsonLoginFilter();
+    filter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
+    filter.setAuthenticationSuccessHandler(loginSuccessHandler);
+    filter.setAuthenticationFailureHandler(loginFailureHandler);
+    return filter;
   }
 
   private CorsConfigurationSource corsConfigurationSource() {

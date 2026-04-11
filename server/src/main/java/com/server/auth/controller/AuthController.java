@@ -26,9 +26,10 @@ public class AuthController {
   @Operation(summary = "로그인 API", description = "아이디/비번으로 Access/Refresh 토큰을 발급한다.")
   @PostMapping("/login")
   public ResponseEntity<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-    return ResponseEntity.ok(authService.login(request));
+    throw new IllegalStateException("이 메서드는 스프링 시큐리티 필터에 의해 처리되어야 합니다.");
   }
 
+  @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급한다.")
   @PostMapping("/refresh")
   public ResponseEntity<TokenResponseDTO> refresh(@RequestBody TokenResponseDTO request) {
     return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
