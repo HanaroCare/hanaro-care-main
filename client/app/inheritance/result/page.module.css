@@ -246,7 +246,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 327px;
+  width: 100%;
+  max-width: 327px;
+  box-sizing: border-box;
   height: 53px;
   background-color: var(--color-hana-ez-600);
   color: #ffffff;

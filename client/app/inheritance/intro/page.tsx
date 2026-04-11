@@ -1,8 +1,8 @@
 'use client';
 
-import BottomNav from '@/components/BottomNav';
+import NextButton from '@/components/NextButton';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 const SLIDES = [
@@ -24,94 +24,109 @@ const SLIDES = [
 ];
 
 export default function InheritanceIntroPage() {
+  const router = useRouter();
   const [activeSlide, setActiveSlide] = useState(0);
 
   const goNext = () => setActiveSlide((s) => Math.min(s + 1, SLIDES.length - 1));
   const goPrev = () => setActiveSlide((s) => Math.max(s - 1, 0));
 
   return (
-    // h-full overflow-hidden: 스크롤을 방지하고 화면에 딱 맞춤
-    <div className="flex flex-col min-h-full bg-white font-sans text-[#333] relative">
-      
-      {/* 1. 상단 탭 (자산 | 상속) */}
-      <div className="flex px-6 pt-4 gap-6 border-b border-gray-100 bg-white z-20 shrink-0">
-        <div className="pb-2 text-gray-400 font-medium">자산</div>
-        <div className="pb-2 text-[var(--color-hana-ez-600)] font-bold border-b-2 border-[var(--color-hana-ez-600)]">상속</div>
-      </div>
-
-      {/* 2. 메인 컨텐츠 영역 (내부 여백 조정) */}
-      <main className="flex-1 flex flex-col px-6">
-        <header className="pt-6 pb-4 shrink-0">
-          <h1 className="text-2xl font-bold leading-tight mb-2">
-            <span className="text-[var(--color-hana-ez-600)]">상속설계</span>로<br />
-            소중한 사람을 지켜요
-          </h1>
-          <p className="text-gray-500 text-base leading-snug whitespace-pre-wrap">
-            마이데이터로 자산을 연동해{"\n"}나만의 상속 계획을 세울 수 있어요
-          </p>
-        </header>
-
-        <p className="text-lg font-bold mb-3 shrink-0">상속설계 안내</p>
-
-        {/* 캐러셀 영역 (flex-1로 남는 공간 차지) */}
-        <div className="relative min-h-[300px] mb-4">
-          <div className="h-full overflow-hidden rounded-3xl border border-gray-100 shadow-sm bg-white flex flex-col">
-            <div 
-              className="flex-1 flex transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${activeSlide * 100}%)` }}
-            >
-              {SLIDES.map((s, i) => (
-                <div key={i} className="min-w-full p-6 flex flex-col items-center justify-center text-center">
-                  <div className="w-32 h-32 md:w-40 md:h-40 relative mb-4">
-                    <Image
-                      src={s.image}
-                      alt={s.title}
-                      fill
-                      className="object-contain"
-                      priority={i === 0}
-                      unoptimized
-                    />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{s.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-wrap">
-                    {s.description}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 화살표 버튼 */}
-          {activeSlide > 0 && (
-            <button onClick={goPrev} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18L9 12L15 6"/></svg>
-            </button>
-          )}
-          {activeSlide < SLIDES.length - 1 && (
-            <button onClick={goNext} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18L15 12L9 6"/></svg>
-            </button>
-          )}
+    <div className="app-shell bg-white">
+      <div className="app-layout">
+        {/* 1. 상단 탭 (자산 | 상속) */}
+        <div className="flex px-6 pt-4 gap-6 border-b border-gray-100 bg-white z-20 shrink-0 text-base">
+          <div className="pb-2 text-gray-400 font-medium cursor-pointer" onClick={() => router.push('/')}>자산</div>
+          <div className="pb-2 text-hana-ez-600 font-bold border-b-2 border-hana-ez-600">상속</div>
         </div>
 
-        {/* 하단 배치 요소들 */}
-        <div className="shrink-0 pb-24">
+        {/* 2. 메인 컨텐츠 영역 */}
+        <main className="app-main flex flex-col px-6 no-scrollbar">
+          <header className="pt-6 pb-4 shrink-0">
+            <h1 className="text-2xl font-bold leading-tight mb-2">
+              <span className="text-hana-ez-600">상속설계</span>로<br />
+              소중한 사람을 지켜요
+            </h1>
+            <p className="text-gray-500 text-base leading-snug whitespace-pre-wrap">
+              마이데이터로 자산을 연동해{"\n"}나만의 상속 계획을 세울 수 있어요
+            </p>
+          </header>
+
+          <p className="text-lg font-bold mb-3 shrink-0">상속설계 안내</p>
+
+          {/* 캐러셀 영역 */}
+          <div className="relative min-h-[300px] mb-4">
+            <div className="h-full overflow-hidden rounded-3xl border border-gray-100 shadow-sm bg-white flex flex-col">
+              <div 
+                className="flex-1 flex transition-transform duration-500 ease-out"
+                style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+              >
+                {SLIDES.map((s, i) => (
+                  <div key={i} className="min-w-full p-6 flex flex-col items-center justify-center text-center">
+                    <div className="w-32 h-32 md:w-40 md:h-40 relative mb-4">
+                      <Image
+                        src={s.image}
+                        alt={s.title}
+                        fill
+                        className="object-contain"
+                        priority={i === 0}
+                        unoptimized
+                      />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">{s.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed whitespace-pre-wrap">
+                      {s.description}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 화살표 버튼 */}
+            {activeSlide > 0 && (
+              <button 
+                type="button"
+                onClick={goPrev} 
+                aria-label="Previous slide"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10 focus:outline-none focus:ring-2 focus:ring-hana-ez-600"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18L9 12L15 6"/></svg>
+              </button>
+            )}
+            {activeSlide < SLIDES.length - 1 && (
+              <button 
+                type="button"
+                onClick={goNext} 
+                aria-label="Next slide"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10 focus:outline-none focus:ring-2 focus:ring-hana-ez-600"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18L15 12L9 6"/></svg>
+              </button>
+            )}
+          </div>
+
           {/* 도트 인디케이터 */}
           <div className="flex justify-center gap-2 mb-6">
             {SLIDES.map((_, i) => (
-              <div key={i} className={`h-2 rounded-full transition-all ${i === activeSlide ? 'w-5 bg-[var(--color-hana-ez-600)]' : 'w-2 bg-gray-200'}`} />
+              <button
+                key={i}
+                type="button"
+                onClick={() => setActiveSlide(i)}
+                aria-label={`Slide ${i + 1}`}
+                aria-current={i === activeSlide ? "true" : undefined}
+                className={`h-2 rounded-full transition-all focus:outline-none focus:ring-2 focus:ring-hana-ez-600 ${i === activeSlide ? 'w-5 bg-hana-ez-600' : 'w-2 bg-gray-200'}`}
+              />
             ))}
           </div>
+        </main>
 
-          {/* CTA 버튼 */}
-          <Link href="/inheritance/plan" className="block w-full bg-[var(--color-hana-ez-600)] text-white py-4 rounded-2xl text-center text-lg font-bold shadow-lg shadow-[var(--color-hana-ez-600)]/20">
-            상속설계 시작하기
-          </Link>
-        </div>
-      </main>
-
-      {/* 3. 하단 고정 네비게이션 */}
-      <BottomNav activePath="/inheritance" />
+        {/* CTA 버튼을 footer 영역으로 분리 */}
+        <footer className="px-6 pb-8 bg-white">
+          <NextButton 
+            label="상속설계 시작하기" 
+            onClick={() => router.push('/inheritance/plan')} 
+          />
+        </footer>
+      </div>
     </div>
   );
 }
