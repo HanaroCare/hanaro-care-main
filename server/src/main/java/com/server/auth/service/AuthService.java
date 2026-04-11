@@ -1,6 +1,7 @@
 package com.server.auth.service;
 
 import com.server.auth.dto.LoginRequestDTO;
+import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
 import com.server.auth.entity.TBRefreshToken;
 import com.server.auth.repository.TBRefreshTokenRepository;
@@ -9,6 +10,7 @@ import com.server.common.security.AuthConstants;
 import com.server.common.security.JwtUtil;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
+import com.server.user.enums.UserStatus;
 import com.server.user.repository.TBUserRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -34,7 +36,35 @@ public class AuthService {
   private long refreshExpiration;
 
   /**
-   * 1. 로그인
+   * 1. 회원가입
+   */
+  @Transactional(rollbackFor = {Exception.class, Error.class})
+  public void signUp(SignUpRequestDTO request) {
+
+    if (userRepository.findByUserNm(request.getUserNm()).isPresent()) {
+      throw new CustomJwtException("DUPLICATE_USERNAME", "이미 사용 중인 아이디입니다.");
+    }
+
+    TBUser user = TBUser.builder()
+        .userNm(request.getUserNm())
+        .userAge(request.getUserAge())
+        .userPhone(request.getUserPhone())
+        .userPwd(passwordEncoder.encode(request.getUserPwd()))
+        .userStatusCd(UserStatus.ACTIVE)
+        .build();
+
+    userRepository.save(user);
+    log.info("=================================================");
+    log.info("[회원가입 성공] 신규 사용자가 등록되었습니다!");
+    log.info("등록 계정: {}", user.getUserNm());
+    log.info("사용자 번호(ID): {}", user.getUserId());
+    log.info("부여 권한: {}", user.getUserRole());
+    log.info("가입 시각: {}", LocalDateTime.now());
+    log.info("=================================================");
+  }
+
+  /**
+   * 2. 로그인
    */
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public TokenResponseDTO login(LoginRequestDTO request) {
@@ -65,7 +95,7 @@ public class AuthService {
   }
 
   /**
-   * 2. 토큰 재발급
+   * 3. 토큰 재발급
    */
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public TokenResponseDTO refresh(String refreshTokenValue) {
@@ -101,7 +131,7 @@ public class AuthService {
   }
 
   /**
-   * 3. 로그아웃
+   * 4. 로그아웃
    */
   @Transactional
   public void logout(Long userId) {
