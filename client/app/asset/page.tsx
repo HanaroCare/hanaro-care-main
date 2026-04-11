@@ -7,6 +7,7 @@ import { AssetDetailCard } from "./components/AssetDetailCard";
 import { AssetListCard } from "./components/AssetListCard";
 import { AssetSummaryHeader } from "./components/AssetSummaryHeader";
 import { AssetTabNavigation } from "./components/AssetTabNavigation";
+import { AlertBanner } from "@/components/AlertBanner";
 
 type TabId = "asset" | "realestate" | "insurance" | "car" | "gold";
 
@@ -37,9 +38,13 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 		case "insurance":
 			return (
 				<>
+					<AlertBanner
+						message="보험대리청구인으로 지정되셨나요?"
+						actionText="인증하기"
+						variant="warning"
+					/>
 					<AssetDetailCard
 						type="insurance"
-						iconType="hana-bank"
 						company="하나생명"
 						insuranceName="하나 건강보험"
 						monthlyPremium="월 15만원"
@@ -47,7 +52,6 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 					/>
 					<AssetDetailCard
 						type="insurance"
-						iconType="nation-pension"
 						company="메리츠화재"
 						insuranceName="올바른 암보험"
 						monthlyPremium="월 8.5만원"
@@ -76,7 +80,7 @@ export default function AssetPage() {
 				/>
 				<AssetSummaryHeader totalAmount="10억 3,700만원" />
 			</div>
-			<main className="flex flex-col items-center gap-6 px-6 pt-6 pb-[100px]">
+			<main className="flex flex-col items-center gap-6 px-6 pt-6 pb-25">
 				<TabContent activeTab={activeTab} />
 			</main>
 			<NavigationBar />
