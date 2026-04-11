@@ -6,13 +6,10 @@ interface Props {
 export default function NicknameInput({ value, onChange }: Props) {
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-sm font-semibold text-gray-900">
+      <label htmlFor="nickname" className="text-sm font-semibold text-gray-900">
         받는 분의 이름이나 별칭
-      </span>
-      <label
-        htmlFor="nickname"
-        className="text-sm font-semibold  text-gray-900"
-      >
+      </label>
+      <label id="nickname" className="text-sm font-semibold  text-gray-900">
         <input
           type="text"
           value={value}

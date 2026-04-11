@@ -21,6 +21,7 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   const formatTime = (seconds: number) => {
     const m = String(Math.floor(seconds / 60)).padStart(2, "0");
@@ -29,35 +30,43 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
   };
 
   const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const mediaRecorder = new MediaRecorder(stream);
-    mediaRecorderRef.current = mediaRecorder;
-    chunksRef.current = [];
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      const mediaRecorder = new MediaRecorder(stream);
 
-    mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data);
-    mediaRecorder.onstop = () => {
-      const blob = new Blob(chunksRef.current, { type: "audio/webm" });
-      setAudioBlob(blob);
-      setAudioUrl(URL.createObjectURL(blob));
-      setState("recorded");
-    };
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
 
-    mediaRecorder.start();
-    setState("recording");
+      mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        setAudioBlob(blob);
+        setAudioUrl(URL.createObjectURL(blob));
+        setState("recorded");
+      };
 
-    timerRef.current = setInterval(() => {
-      setElapsed((prev) => {
-        if (prev + 1 >= MAX_SECONDS) {
-          stopRecording();
-          return MAX_SECONDS;
-        }
-        return prev + 1;
-      });
-    }, 1000);
+      mediaRecorder.start();
+      setState("recording");
+
+      timerRef.current = setInterval(() => {
+        setElapsed((prev) => {
+          if (prev + 1 >= MAX_SECONDS) {
+            stopRecording();
+            return MAX_SECONDS;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (error) {
+      console.error("마이크 접근 실패:", error);
+      alert("마이크 접근 권한이 필요합니다. 브라우저 설정을 확인해주세요.");
+    }
   };
 
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
@@ -67,6 +76,7 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
   };
 
   const handleReRecord = () => {
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
     setElapsed(0);
     setAudioUrl(null);
     setAudioBlob(null);
@@ -80,6 +90,8 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
     };
   }, []);
 

@@ -1,7 +1,6 @@
 "use client";
 
 import AudioPlayer from "@/app/inheritance/components/letter/AudioPlayer";
-import Header from "@/app/inheritance/components/letter/Header";
 import InheritanceMethodToggle from "@/app/inheritance/components/letter/InheritanceMethodToggle";
 import MessageInput from "@/app/inheritance/components/letter/MessageInput";
 import NicknameInput from "@/app/inheritance/components/letter/NicknameInput";
@@ -9,11 +8,11 @@ import RecipientHeader from "@/app/inheritance/components/letter/RecipientHeader
 import VoiceRecorderSheet from "@/app/inheritance/components/letter/VoiceRecorderSheet";
 import YearsInput from "@/app/inheritance/components/letter/YearsInput";
 import type { InheritanceMethod } from "@/app/inheritance/types";
+import PrimaryButton from "@/components/PrimaryButton";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { submitInheritanceLetter } from "../../../actions/letter/inheritance";
 import { mockRecipients } from "../../data";
-import PrimaryButton from "@/components/PrimaryButton";
 
 export default function InheritanceWritePage({
   params,
@@ -32,6 +31,14 @@ export default function InheritanceWritePage({
   const [showVoiceSheet, setShowVoiceSheet] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (audioUrl) {
+        URL.revokeObjectURL(audioUrl);
+      }
+    };
+  }, [audioUrl]);
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
@@ -107,6 +114,9 @@ export default function InheritanceWritePage({
         <VoiceRecorderSheet
           onClose={() => setShowVoiceSheet(false)}
           onSave={(blob) => {
+            if (audioUrl) {
+              URL.revokeObjectURL(audioUrl);
+            }
             setAudioBlob(blob);
             setAudioUrl(URL.createObjectURL(blob));
             setShowVoiceSheet(false);
