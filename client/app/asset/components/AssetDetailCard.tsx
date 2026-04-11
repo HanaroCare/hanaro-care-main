@@ -5,7 +5,6 @@ import { Shield } from "lucide-react";
 import Image from "next/image";
 
 type InsuranceStatus = "needs_check" | "normal";
-
 type IconType = "hana-bank" | "nation-pension" | "default";
 
 const ICON_MAP: Record<IconType, string> = {
@@ -14,10 +13,15 @@ const ICON_MAP: Record<IconType, string> = {
 	default: "",
 };
 
-type PropertyAssetCardProps = {
-	type: "property";
-	address?: string;
-	details?: string;
+const EMOJI_MAP: Record<string, string> = {
+	property: "🏠",
+	car: "🚗",
+};
+
+type DetailedAssetCardProps = {
+	type: "property" | "car";
+	title?: string;
+	subtitle?: string;
 	value?: string;
 	change?: string;
 	changePercent?: string;
@@ -33,7 +37,28 @@ type InsuranceAssetCardProps = {
 	status?: InsuranceStatus;
 };
 
-type AssetDetailCardProps = PropertyAssetCardProps | InsuranceAssetCardProps;
+type AssetDetailCardProps = DetailedAssetCardProps | InsuranceAssetCardProps;
+
+const DEFAULT_VALUES: Record<"property" | "car", DetailedAssetCardProps> = {
+	property: {
+		type: "property",
+		title: "서울 강남구 역삼동 아파트",
+		subtitle: "84㎡ (33평)",
+		value: "9억 2,000만원",
+		change: "1,200만원",
+		changePercent: "10%",
+		isPositive: true,
+	},
+	car: {
+		type: "car",
+		title: "그랜저 IG",
+		subtitle: "2021년식 · 37,200km",
+		value: "2,850만원",
+		change: "15만원",
+		changePercent: "0.5%",
+		isPositive: false,
+	},
+};
 
 export function AssetDetailCard(props: AssetDetailCardProps) {
 	if (props.type === "insurance") {
@@ -54,7 +79,11 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 				<div className="flex items-center gap-4.25">
 					<div className="flex size-[33px] items-center justify-center rounded-[10px] bg-hana-teal-100">
 						{iconType === "default" ? (
-							<Shield size={18} className="text-hana-green-700" />
+							<Shield
+								size={18}
+								className="text-hana-green-700"
+								aria-hidden="true"
+							/>
 						) : (
 							<Image
 								src={ICON_MAP[iconType]}
@@ -105,13 +134,14 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 		);
 	}
 
+	const defaults = DEFAULT_VALUES[props.type];
 	const {
-		address = "서울 강남구 역삼동 아파트",
-		details = "84㎡ (33평)",
-		value = "9억 2,000만원",
-		change = "1,200만원",
-		changePercent = "10%",
-		isPositive = true,
+		title = defaults.title,
+		subtitle = defaults.subtitle,
+		value = defaults.value,
+		change = defaults.change,
+		changePercent = defaults.changePercent,
+		isPositive = defaults.isPositive,
 	} = props;
 
 	return (
@@ -122,14 +152,14 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 		>
 			<div className="flex flex-col">
 				<span className="font-medium text-[15px] text-hana-black-900 leading-5.25">
-					{address}
+					{title}
 				</span>
-				<div className="mt-[3.5px] flex items-center gap-2">
-					<span className="text-[20px] leading-none" aria-hidden="true">
-						🏠
+				<div className="mt-[3.5px] flex items-center gap-4">
+					<span className="text-[25px] leading-none" aria-hidden="true">
+						{EMOJI_MAP[props.type]}
 					</span>
 					<span className="text-[11px] text-hana-black-600 leading-4.5">
-						{details}
+						{subtitle}
 					</span>
 				</div>
 			</div>

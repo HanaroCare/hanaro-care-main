@@ -60,7 +60,20 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 				</>
 			);
 		case "car":
-			return <div>자동차 컴포넌트 준비 중</div>;
+			return (
+				<>
+					<AssetDetailCard type="car" />
+					<AssetDetailCard
+						type="car"
+						title="그랜저 IG"
+						subtitle="2021년식 · 37,200km"
+						value="2,850만원"
+						change="15만원"
+						changePercent="0.5%"
+						isPositive={false}
+					/>
+				</>
+			);
 		case "gold":
 			return <div>금 컴포넌트 준비 중</div>;
 		default:
