@@ -15,6 +15,7 @@ import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +40,11 @@ public class AuthService {
   public TokenResponseDTO login(LoginRequestDTO request) {
 
     TBUser user = userRepository.findByUserNm(request.getUserNm())
-        .orElseThrow(() -> new CustomJwtException("유효하지 않은 사용자입니다.", "USER_NOT_FOUND"));
+        .orElseThrow(() -> new CustomJwtException("BAD_CREDENTIALS", "아이디 또는 비밀번호가 일치하지 않습니다."));
 
     if (!passwordEncoder.matches(request.getUserPwd(), user.getUserPwd())) {
       log.warn("로그인 실패: 비밀번호 불일치 - {}", request.getUserNm());
-      throw new CustomJwtException("비밀번호가 일치하지 않습니다.", "BAD_CREDENTIALS");
+      throw new CustomJwtException("BAD_CREDENTIALS", "아이디 또는 비밀번호가 일치하지 않습니다.");
     }
 
     SubscriberDTO subscriberDTO = createSubscriberDTO(user);
@@ -58,6 +59,8 @@ public class AuthService {
         .accessToken(accessToken)
         .refreshToken(refreshToken)
         .grantType(AuthConstants.TOKEN_TYPE)
+        .userRole(user.getUserRole().name())
+        .userNm(user.getUserNm())
         .build();
   }
 
@@ -71,6 +74,10 @@ public class AuthService {
 
     TBRefreshToken storedToken = refreshTokenRepository.findByTokenValue(refreshTokenValue)
         .orElseThrow(() -> new CustomJwtException("유효하지 않은 토큰입니다.", "INVALID_TOKEN"));
+
+    if (!storedToken.getTokenValue().equals(refreshTokenValue)) {
+      throw new CustomJwtException("토큰이 일치하지 않습니다. 다시 로그인하세요.", "TOKEN_MISMATCH");
+    }
 
     if (storedToken.getExpiryDt().isBefore(LocalDateTime.now())) {
       refreshTokenRepository.delete(storedToken);
@@ -107,7 +114,7 @@ public class AuthService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
-        Collections.emptyList()
+        Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }
 
@@ -118,7 +125,6 @@ public class AuthService {
     if (tbRefreshToken == null) {
       tbRefreshToken = TBRefreshToken.builder()
           .userId(user.getUserId())
-          .user(user)
           .tokenValue(refreshToken)
           .expiryDt(calculateExpiryDt())
           .build();

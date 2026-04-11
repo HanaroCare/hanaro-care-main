@@ -22,7 +22,10 @@ public class SubscriberDTO extends User {
   public Map<String, Object> getClaims() {
     return Map.of(
         "userId", userId,
-        "userNm", userNm
+        "userNm", userNm,
+        "roles", getAuthorities().stream()
+            .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+            .toList()
     );
   }
 }

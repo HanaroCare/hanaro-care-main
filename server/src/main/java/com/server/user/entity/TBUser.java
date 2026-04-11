@@ -1,5 +1,6 @@
 package com.server.user.entity;
 
+import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
@@ -47,5 +48,10 @@ public class TBUser {
   @Enumerated(EnumType.STRING)
   @Column(name = "USER_STAT_CD", nullable = false, length = 20)
   private UserStatus userStatusCd; // 활동(01), 정지(02), 휴면(03)
+
+  @Builder.Default
+  @Enumerated(EnumType.STRING)
+  @Column(name = "USER_ROLE", nullable = false, length = 20)
+  private SubscriberRole userRole = SubscriberRole.ROLE_USER;
 
 }

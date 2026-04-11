@@ -61,8 +61,14 @@ public class JwtUtil {
     Claims claims = parseClaims(token);
     Long userId = claims.get("userId", Long.class);
     String userNm = claims.getSubject();
-    
-    return new SubscriberDTO(userId, userNm, "", Collections.emptyList());
+    java.util.List<String> roles = claims.get("roles", java.util.List.class);
+
+    java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities =
+        (roles != null) ? roles.stream()
+            .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
+            .toList() : java.util.Collections.emptyList();
+
+    return new SubscriberDTO(userId, userNm, "", authorities);
   }
 
   public void validateToken(String token) {
