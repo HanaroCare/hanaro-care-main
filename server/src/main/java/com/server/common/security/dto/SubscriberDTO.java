@@ -24,7 +24,7 @@ public class SubscriberDTO extends User {
         "userId", userId,
         "userNm", userNm,
         "roles", getAuthorities().stream()
-            .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+            .map(GrantedAuthority::getAuthority)
             .toList()
     );
   }

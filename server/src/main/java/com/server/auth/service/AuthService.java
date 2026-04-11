@@ -119,6 +119,12 @@ public class AuthService {
   }
 
   private void saveRefreshToken(TBUser user, String refreshToken) {
+
+    if (user == null || user.getUserId() == null) {
+      log.error("사용자 정보가 없어 리프레시 토큰을 저장할 수 없습니다.");
+      return;
+    }
+
     TBRefreshToken tbRefreshToken = refreshTokenRepository.findById(user.getUserId())
         .orElse(null);
 
