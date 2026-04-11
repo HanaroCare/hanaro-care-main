@@ -12,10 +12,8 @@ export default function InheritanceLetter() {
   const router = useRouter();
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center font-pretendard">
-      <Header />
-
-      <div className="w-full max-w-107.5 min-h-screen flex flex-col bg-white">
+    <div className="bg-white flex flex-col items-center font-pretendard">
+      <div className="w-full max-w-107.5 flex flex-col bg-white">
         <main className="flex flex-col items-center flex-1 px-5.5">
           <h2 className="mt-23 text-[#1A212D] text-center font-semibold leading-7.5 max-w-66.75 text-5">
             {MockUser.name} 손님의 소중한 사람들에게
@@ -35,7 +33,6 @@ export default function InheritanceLetter() {
           </div>
         </main>
 
-        {/* //! 공컴 버튼으로 수정 */}
         <div className="w-full px-5.5 py-4 bg-white">
           <button
             type="button"

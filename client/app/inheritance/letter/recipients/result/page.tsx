@@ -72,9 +72,6 @@ export default function InheritanceCompletePage() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center">
       <div className="w-full max-w-sm min-h-screen flex flex-col">
-        {/* Header */}
-        <Header />
-
         {/* Content */}
         <div className="flex-1 flex flex-col gap-8 px-5 pt-8 pb-32">
           {/* 타이틀 */}

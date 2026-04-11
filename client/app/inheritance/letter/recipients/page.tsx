@@ -18,8 +18,6 @@ export default function InheritanceLetterPage() {
     <div className="min-h-screen bg-white flex flex-col items-center justify-start">
       {/* Mobile container */}
       <div className="w-full max-w-sm min-h-screen bg-white flex flex-col">
-        {/* Header */}
-        <Header />
 
         {/* Content */}
         <div className="flex-1 px-5 pt-8 pb-6 flex flex-col gap-5">

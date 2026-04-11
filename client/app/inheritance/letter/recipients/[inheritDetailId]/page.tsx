@@ -57,8 +57,6 @@ export default function InheritanceWritePage({
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center">
-      <Header />
-
       <div className="w-full max-w-sm min-h-screen flex flex-col">
         {/* Form */}
         <div className="flex-1 flex flex-col gap-7 px-5 pt-6 pb-32">
