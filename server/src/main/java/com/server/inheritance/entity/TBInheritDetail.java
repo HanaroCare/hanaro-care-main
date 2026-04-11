@@ -3,6 +3,7 @@ package com.server.inheritance.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.server.common.entity.BaseEntity;
 import com.server.inheritance.enums.FamilyRelation;
+import com.server.user.entity.TBUser;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,7 +46,7 @@ public class TBInheritDetail extends BaseEntity {
   private FamilyRelation relationCd;
 
   @Column(name = "DIST_RATIO", nullable = false,
-      columnDefinition = "DEFAULT 0")
+      columnDefinition = "double DEFAULT 0")
   private Double distRatio;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -53,7 +54,7 @@ public class TBInheritDetail extends BaseEntity {
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_InheritDetail_inheritPlanId_InheritPlan"
       ))
-  private TBInheritPlan inheritPlan;
+  private TbInheritPlan inheritPlan;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID",

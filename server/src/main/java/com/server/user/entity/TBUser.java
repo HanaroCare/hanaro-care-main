@@ -1,6 +1,5 @@
 package com.server.user.entity;
 
-import com.server.common.entity.BaseEntity;
 import com.server.user.enums.UserStatus;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
@@ -9,15 +8,12 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Data
 @Builder
@@ -25,7 +21,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Table(name = "TB_USER")
-public class TBUser extends BaseEntity {
+public class TBUser {
 
   @Id
   @Tsid
@@ -51,8 +47,5 @@ public class TBUser extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "USER_STAT_CD", nullable = false, length = 20)
   private UserStatus userStatusCd; // 활동(01), 정지(02), 휴면(03)
-
-  @Column(name = "LAST_LOGIN_DT")
-  private LocalDateTime lastLoginDt;
 
 }

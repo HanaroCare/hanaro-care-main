@@ -58,6 +58,12 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler {
         return handleExceptionInternalFalse(e, ErrorStatus._INTERNAL_SERVER_ERROR, HttpHeaders.EMPTY, ErrorStatus._INTERNAL_SERVER_ERROR.getHttpStatus(), request, e.getMessage());
     }
 
+    @ExceptionHandler(value = CustomJwtException.class)
+    public ResponseEntity<Object> onCustomJwtException(CustomJwtException e, HttpServletRequest request) {
+        ApiResponse<Object> body = ApiResponse.onFailure(e.getErrorCode(), e.getMessage(), null);
+        return new ResponseEntity<>(body, HttpStatus.UNAUTHORIZED);
+    }
+
     @ExceptionHandler(value = ApiException.class)
     public ResponseEntity onThrowException(ApiException apiException, HttpServletRequest request) {
         ErrorReasonDTO errorReasonHttpStatus = apiException.getErrorReasonHttpStatus();
