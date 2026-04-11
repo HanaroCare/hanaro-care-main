@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AlertBanner } from "@/components/AlertBanner";
+import { InfoListCard } from "@/components/InfoListCard";
 import { NavigationBar } from "@/components/NavigationBar";
 import { AssetChart } from "./components/AssetChart";
 import { AssetDetailCard } from "./components/AssetDetailCard";
@@ -38,7 +39,49 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 		case "realestate":
 			return (
 				<>
-					<AssetDetailCard type="property" />
+					<AssetDetailCard type="property">
+						<AssetChart
+							title="부동산 시세 변화"
+							subtitle="최근 6개월 기준"
+							data={[
+								{ name: "7월", value: 8.8 },
+								{ name: "8월", value: 8.9 },
+								{ name: "9월", value: 9.0 },
+								{ name: "10월", value: 9.1 },
+								{ name: "11월", value: 9.2 },
+								{ name: "12월", value: 9.2 },
+							]}
+							config={{
+								type: "line",
+								color: "#008485",
+								domain: [8.5, 9.5],
+								ticks: [8.5, 9.0, 9.5],
+							}}
+						/>
+						<InfoListCard
+							title="취득 정보"
+							items={[
+								{ label: "취득일", value: "2018.05.20" },
+								{ label: "취득가", value: "7억 5,000만원" },
+							]}
+						/>
+						<InfoListCard
+							title="담보 대출 정보"
+							items={[
+								{ label: "잔액", value: "2억 1,000만원" },
+								{ label: "월 상환금", value: "98만원" },
+								{ label: "금리", value: "연 3.8%" },
+								{ label: "만기", value: "2034.03" },
+							]}
+						/>
+						<InfoListCard
+							title="세금 예상"
+							items={[
+								{ label: "재산세", value: "약 180만원/년" },
+								{ label: "양도세 (매각 시)", value: "약 4,500만원" },
+							]}
+						/>
+					</AssetDetailCard>
 					<AssetDetailCard
 						type="property"
 						title="경기 성남시 분당구 아파트"
