@@ -103,7 +103,7 @@ export default function InheritancePlanDetailPage() {
           <TrustProgressBar step={2} total={5} />
         </div>
 
-        <main className="pt-6 pb-10">
+        <div className="pt-6 pb-10">
           <h1 className="text-2xl font-bold mb-6 whitespace-pre-wrap leading-tight">상속 비율을{"\n"}자유롭게 조정해보세요</h1>
           
           <div className="flex justify-center mb-8">
@@ -143,7 +143,7 @@ export default function InheritancePlanDetailPage() {
               </button>
             ))}
           </div>
-        </main>
+        </div>
       </div>
 
       {editingHeir && (

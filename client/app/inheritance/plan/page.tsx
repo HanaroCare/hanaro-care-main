@@ -23,13 +23,13 @@ export default function InheritancePlanPage() {
     >
       {/* Header */}
       <header className="flex items-center justify-between px-4 h-14 bg-white shrink-0">
-        <Link href="/inheritance/intro" className={styles.headerBtn} aria-label="Go back">
+        <Link href="/inheritance/intro" className={styles.headerBtn} aria-label="뒤로가기">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </Link>
         <span className="text-lg font-semibold">상속 설계</span>
-        <button type="button" className={styles.headerBtn} aria-label="Close" onClick={() => router.push('/inheritance')}>
+        <button type="button" className={styles.headerBtn} aria-label="닫기" onClick={() => router.push('/inheritance')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -42,7 +42,7 @@ export default function InheritancePlanPage() {
           <TrustProgressBar step={1} total={5} />
         </div>
 
-        <main className="pt-6 pb-10">
+        <div className="pt-6 pb-10">
           <p className="text-hana-ez-600 font-medium mb-1">권하나 손님의 상속설계를 도와드릴게요</p>
           <h1 className="text-2xl font-bold mb-8">상속할 자산을 확인해주세요</h1>
 
@@ -81,7 +81,7 @@ export default function InheritancePlanPage() {
               <span className="text-hana-ez-600 font-bold text-lg">12.0억원</span>
             </div>
           </div>
-        </main>
+        </div>
       </div>
     </TrustStepLayout>
   );
