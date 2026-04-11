@@ -13,7 +13,8 @@ import { useRouter } from "next/navigation";
 import { use, useState } from "react";
 import { submitInheritanceLetter } from "../../../actions/letter/inheritance";
 import { mockRecipients } from "../../data";
-// TODO: 공컴
+import PrimaryButton from "@/components/PrimaryButton";
+
 export default function InheritanceWritePage({
   params,
 }: {
@@ -56,10 +57,10 @@ export default function InheritanceWritePage({
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center">
-      <div className="w-full max-w-sm min-h-screen flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
+      <div className="min-h-screen flex flex-col">
         {/* Form */}
-        <div className="flex-1 flex flex-col gap-7 px-5 pt-6 pb-32">
+        <div className="flex-1 flex flex-col gap-7 pt-6 pb-32">
           <RecipientHeader
             recipient={recipient!}
             onEdit={() => router.back()}
@@ -94,15 +95,12 @@ export default function InheritanceWritePage({
         </div>
 
         {/* Submit button */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm px-5 pb-8 bg-white pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
-          <button
-            type="button"
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full px-[25px] pb-8 bg-white pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
+          <PrimaryButton
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="w-full py-4 bg-hana-green-700 text-white text-base font-semibold rounded-2xl hover:bg-hana-green-600 transition-colors disabled:opacity-50 outline-none"
-          >
-            {isSubmitting ? "저장 중..." : "작성 완료"}
-          </button>
+            label={isSubmitting ? "저장 중..." : "작성 완료"}
+          />
         </div>
       </div>
       {showVoiceSheet && (

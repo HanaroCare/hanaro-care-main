@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Header from "../components/letter/Header";
+import PrimaryButton from "@/components/PrimaryButton";
 
 const MockUser = {
   name: "권하나",
@@ -32,17 +33,11 @@ export default function InheritanceLetter() {
             />
           </div>
         </main>
-
-        <div className="w-full px-5.5 py-4 bg-white">
-          <button
-            type="button"
-            className="w-full py-4 rounded-[10px] bg-[#01A5AC] text-white text-base font-medium transition-opacity hover:opacity-90 active:opacity-80"
-            onClick={() => router.push("/inheritance/letter/recipients")}
-          >
-            편지 작성하기
-          </button>
-        </div>
       </div>
+      <PrimaryButton
+        onClick={() => router.push("/inheritance/letter/recipients")}
+        label={"편지 작성하기"}
+      />
     </div>
   );
 }

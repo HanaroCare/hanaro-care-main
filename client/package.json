@@ -38,6 +38,7 @@
 		"date-fns": "^4.1.0",
 		"dotenv": "^17.2.3",
 		"framer-motion": "^12.29.2",
+		"html-to-image": "^1.11.13",
 		"ioredis": "^5.9.2",
 		"iron-session": "^8.0.4",
 		"lucide": "^1.8.0",
@@ -64,7 +65,10 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.0",
+		"@chromatic-com/storybook": "^5.1.1",
+		"@storybook/addon-a11y": "^10.3.5",
 		"@storybook/addon-docs": "10.2.0",
+		"@storybook/addon-onboarding": "^10.3.5",
 		"@storybook/addon-vitest": "^10.2.0",
 		"@storybook/nextjs-vite": "10.2.0",
 		"@storybook/react": "^10.2.0",
