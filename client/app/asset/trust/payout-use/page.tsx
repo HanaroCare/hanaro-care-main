@@ -3,8 +3,8 @@
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import DualActionFooter from "@/components/DualActionFooter";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
-import TrustSkipNextFooter from "../../components/trust/TrustSkipNextFooter";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 import { formatKoreanAmount, parseKoreanAmount } from "../trustUtils";
 
@@ -34,9 +34,11 @@ export default function PayoutUsagePage() {
 	return (
 		<TrustStepLayout
 			footer={
-				<TrustSkipNextFooter
-					nextDisabled={selected.size === 0}
-					onNext={() => router.push("/asset/trust/select-agent")}
+				<DualActionFooter
+					leftLabel="지금 안할래요"
+					rightLabel="다음으로"
+					rightDisabled={selected.size === 0}
+					onRightClick={() => router.push("/asset/trust/select-agent")}
 				/>
 			}
 		>
