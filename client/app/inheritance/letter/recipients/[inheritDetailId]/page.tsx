@@ -95,7 +95,7 @@ export default function InheritanceWritePage({
         </div>
 
         {/* Submit button */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full px-[25px] pb-8 bg-white pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full px-6.25 pb-8 bg-white pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
           <PrimaryButton
             onClick={handleSubmit}
             disabled={isSubmitting}

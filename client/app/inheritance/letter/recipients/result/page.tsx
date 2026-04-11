@@ -71,9 +71,9 @@ export default function InheritanceCompletePage() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center">
-      <div className="w-full max-w-sm min-h-screen flex flex-col">
+      <div className="w-full min-h-screen flex flex-col">
         {/* Content */}
-        <div className="flex-1 flex flex-col gap-8 px-5 pt-8 pb-32">
+        <div className="flex-1 flex flex-col gap-8 pt-8 pb-32">
           {/* 타이틀 */}
           <div className="flex flex-col gap-1 items-center">
             <h2 className="text-xl font-bold text-gray-900">
@@ -106,7 +106,7 @@ export default function InheritanceCompletePage() {
         </div>
 
         {/* 하단 버튼 */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm px-5 pb-8 bg-white pt-4 flex gap-3">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full px-6.25 pb-8 bg-white pt-4 flex gap-3">
           <button
             type="button"
             className="flex-1 py-4 h-auto rounded-2xl text-base font-semibold text-hana-green-700 bg-[#E9F8F9] hover:bg-hana-green-50"

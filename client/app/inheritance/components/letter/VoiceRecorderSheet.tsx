@@ -90,7 +90,7 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
         className="absolute inset-0 bg-black/30"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-sm bg-white rounded-t-3xl px-6 pt-6 pb-10 flex flex-col items-center gap-6">
+      <div className="relative w-full bg-white rounded-t-3xl px-6 pt-6 pb-10 flex flex-col items-center gap-6">
         {/* 헤더 */}
         <div className="w-full flex items-center justify-between">
           <span className="text-base font-semibold text-gray-900">

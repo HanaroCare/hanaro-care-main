@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import Header from "../../components/letter/Header";
 import { RecipientCard } from "../../components/letter/RecipientCard";
 import type { Recipient } from "../../types";
 import { formatAmount } from "../../utils/format";
@@ -17,10 +16,9 @@ export default function InheritanceLetterPage() {
   return (
     <div className="min-h-screen bg-white flex flex-col items-center justify-start">
       {/* Mobile container */}
-      <div className="w-full max-w-sm min-h-screen bg-white flex flex-col">
-
+      <div className="w-full min-h-screen bg-white flex flex-col">
         {/* Content */}
-        <div className="flex-1 px-5 pt-8 pb-6 flex flex-col gap-5">
+        <div className="flex-1 pt-8 pb-6 flex flex-col gap-5">
           {/* Section title */}
           <h2 className="text-xl font-bold text-gray-900">
             누구에게 남길까요?
