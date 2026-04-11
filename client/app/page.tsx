@@ -10,7 +10,7 @@ import { RealAssetCard } from "./asset/components/RealAssetCard";
 
 export default function Home() {
 	return (
-		<main className="flex flex-col items-center gap-6 px-6 pt-6 pb-[100px]">
+		<main className="flex flex-col items-center gap-6 px-6 pt-6 pb-25">
 			<AssetDashboard />
 			<BannerCard
 				title={<>내 남은 인생,{"\n"}평생 병원비 걱정 없을까요?</>}
