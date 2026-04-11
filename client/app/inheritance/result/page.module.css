@@ -1,0 +1,258 @@
+.page {
+  width: 100%;
+  max-width: 375px;
+  margin: 0 auto;
+  height: 100dvh; /* 전체 화면 높이 고정 */
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden; /* 컨테이너 자체는 스크롤 불가 */
+  background-color: var(--background);
+}
+
+.scrollArea {
+  flex: 1; /* 남은 공간을 다 차지 */
+  overflow-y: auto; /* 여기서만 스크롤 발생 */
+  -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  padding-bottom: 40px; /* 마지막 버튼 아래 충분한 여백 확보 */
+}
+
+.header {
+  display: flex;
+  width: 100%;
+  height: 47px;
+  border-bottom: 1px solid var(--color-hana-silver-100);
+  background-color: var(--background);
+  flex-shrink: 0; /* 헤더는 줄어들지 않음 */
+}
+
+.navWrapper {
+  flex-shrink: 0; /* 네비게이션 바 영역 고정 */
+  width: 100%;
+  background-color: #ffffff;
+  border-top: 1px solid #f0f0f0;
+  z-index: 100;
+}
+
+.tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-hana-black-800);
+  text-decoration: none;
+}
+
+.activeTab {
+  color: var(--color-hana-ez-600);
+  border-bottom: 2px solid var(--color-hana-ez-600);
+}
+
+.content {
+  padding: 24px 24px 0;
+}
+.title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-hana-black-900);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.summaryCard {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.summaryRow:last-child {
+  margin-bottom: 0;
+}
+
+.summaryLabel {
+  font-size: var(--font-size-sm);
+  color: var(--color-hana-black-500);
+}
+
+.summaryValue {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-hana-black-900);
+}
+
+.taxValue {
+  color: var(--color-hana-red-500);
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--border);
+  margin: 16px 0;
+}
+
+.chartSection {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.chartWrapper {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  margin: 0 auto 24px;
+}
+
+.chartImage {
+  width: 100%;
+  height: 100%;
+}
+
+.chartLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-hana-black-900);
+}
+
+.legendGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 0 10px;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  color: var(--color-hana-black-900);
+}
+
+.legendColor {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.memberCard {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 16px;
+  background: var(--background);
+}
+
+.memberHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.memberInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-hana-ez-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.memberName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-hana-black-900);
+}
+
+.statusBadge {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.statusPositive {
+  background-color: var(--color-hana-ez-50);
+  color: var(--color-hana-ez-600);
+}
+
+.statusNegative {
+  background-color: var(--color-hana-red-50);
+  color: var(--color-hana-red-500);
+}
+
+.memberDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detailRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.detailLabel {
+  color: var(--color-hana-black-500);
+}
+
+.detailValue {
+  color: var(--color-hana-black-900);
+}
+
+.highlightValue {
+  color: var(--color-hana-ez-600);
+  font-weight: 700;
+}
+
+.letterLink {
+  display: block;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--color-hana-black-600);
+  text-decoration: none;
+}
+
+.actionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 327px;
+  height: 53px;
+  background-color: var(--color-hana-ez-600);
+  color: #ffffff;
+  border-radius: var(--radius);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+  margin: 32px auto 8px; /* 하단 마진 추가 */
+}
