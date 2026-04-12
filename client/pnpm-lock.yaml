@@ -147,9 +147,6 @@ importers:
       '@biomejs/biome':
         specifier: 2.2.0
         version: 2.2.0
-      '@chromatic-com/storybook':
-        specifier: ^5.1.1
-        version: 5.1.1(storybook@10.2.0(@testing-library/dom@10.4.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
       '@storybook/addon-a11y':
         specifier: ^10.3.5
         version: 10.3.5(storybook@10.2.0(@testing-library/dom@10.4.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))
