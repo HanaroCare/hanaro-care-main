@@ -1,14 +1,11 @@
 'use client';
 
-import { ChevronLeft } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 import PrimaryButton from '@/components/PrimaryButton';
 import { CareMethodSelector } from '../components/simulator/CareMethodSelector';
 import { LifeExpectancySlider } from '../components/simulator/LifeExpectancySlider';
 
 export default function SimulatorPage() {
-  const router = useRouter();
-
   return (
     <div
       className="flex min-h-screen flex-col"
@@ -17,18 +14,9 @@ export default function SimulatorPage() {
           'linear-gradient(162deg, #F0FDFA 0%, #EFF6FF 28.72%, #ECFEFF 57.43%)',
       }}
     >
-      <header className="sticky top-0 z-50 flex h-14 items-center px-4">
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="-ml-2 p-2 text-hana-black-900"
-          aria-label="뒤로가기"
-        >
-          <ChevronLeft size={24} />
-        </button>
-      </header>
+      <Header title="시뮬레이터" />
 
-      <main className="flex flex-col gap-10 px-6 pt-2 pb-25">
+      <main className="flex flex-col gap-8 px-6 pt-8 pb-25">
         <div className="flex flex-col">
           <h1 className="page-center-text text-hana-black-900">
             미래 병원비 계산기
@@ -37,7 +25,6 @@ export default function SimulatorPage() {
             조건을 선택해주세요
           </h2>
         </div>
-
 
         <div className="flex w-full flex-col gap-4">
           <span className="font-semi-bold text-[16px] text-hana-black-800">
