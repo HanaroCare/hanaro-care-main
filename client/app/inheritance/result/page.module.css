@@ -108,8 +108,8 @@
 
 .chartWrapper {
   position: relative;
-  width: 150px;
-  height: 150px;
+  width: 220px;
+  height: 220px;
   margin: 0 auto 24px;
 }
 
@@ -246,9 +246,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  max-width: 327px;
-  box-sizing: border-box;
+  width: 327px;
   height: 53px;
   background-color: var(--color-hana-ez-600);
   color: #ffffff;
