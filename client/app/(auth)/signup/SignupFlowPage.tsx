@@ -1,0 +1,102 @@
+"use client";
+
+import { useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import NavigationBar from "./components/NavigationBar";
+import InputStep from "./components/InputStep";
+import OTPInput from "./components/OTPInput";
+import PasswordStep from "./components/PasswordStep";
+import SignupCompleted from "./components/SignupCompleted";
+
+const STEPS = [
+  {
+    key: "name",
+    question: "이름을 입력해주세요",
+    description: "실명 확인을 위해 한글 또는 영문으로 입력해주세요",
+    placeholder: "ex) 홍길동",
+    type: "text"
+  },
+  {
+    key: "age",
+    question: "나이를 입력해주세요",
+    description: "본인 확인을 위해 나이를 입력해주세요",
+    placeholder: "예시) 25",
+    type: "number"
+  },
+  {
+    key: "phone",
+    question: "휴대폰 번호를 입력해주세요",
+    description: "'-' 없이 숫자 11자리를 입력해주세요",
+    placeholder: "01012345678",
+    type: "tel"
+  },
+  { key: "otp" },
+  { key: "password" },
+];
+
+export default function SignupFlowPage() {
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [formData, setFormData] = useState<Record<string, string>>({});
+  const [maxIdx, setMaxIdx] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
+
+  const handleNext = () => {
+    if (currentIdx < STEPS.length - 1) {
+      setCurrentIdx((prev) => {
+        const next = prev + 1;
+        if (next > maxIdx) setMaxIdx(next);
+        return next;
+      });
+    } else {
+      setIsFinished(true);
+    }
+  };
+
+  const handleEdit = (index: number) => {
+    setCurrentIdx(index);
+  };
+
+  if (isFinished) return <SignupCompleted />;
+
+  return (
+    <div className="flex h-screen w-full flex-col bg-white max-w-[23.4375rem] mx-auto overflow-hidden shadow-sm">
+      <NavigationBar title="회원가입" />
+
+      <main className="flex-1 flex flex-col gap-[1.25rem] px-[1.25rem] pt-[1.5rem] pb-[5rem] overflow-y-auto no-scrollbar scroll-smooth">
+        <AnimatePresence initial={false}>
+          {STEPS.slice(0, maxIdx + 1).reverse().map((step, idx) => {
+            const actualIdx = maxIdx - idx;
+            const isActive = actualIdx === currentIdx;
+
+            if (step.key === "otp") return (
+              <div key="otp" className={!isActive ? "opacity-40 hover:opacity-100 cursor-pointer" : ""} onClick={() => !isActive && handleEdit(actualIdx)}>
+                <OTPInput isActive={isActive} onComplete={handleNext} />
+              </div>
+            );
+            if (step.key === "password") return (
+              <div key="password" className={!isActive ? "opacity-40 hover:opacity-100 cursor-pointer" : ""} onClick={() => !isActive && handleEdit(actualIdx)}>
+                <PasswordStep isActive={isActive} onComplete={handleNext} />
+              </div>
+            );
+
+            return (
+              <InputStep
+                key={step.key}
+                question={step.question!}
+                description={(step as any).description}
+                placeholder={step.placeholder}
+                type={step.type}
+                value={formData[step.key] || ""}
+                onChange={(val) => setFormData(prev => ({ ...prev, [step.key]: val }))}
+                onSubmit={handleNext}
+                onEdit={() => handleEdit(actualIdx)}
+                isActive={isActive}
+                isFocused={isActive}
+              />
+            );
+          })}
+        </AnimatePresence>
+      </main>
+    </div>
+  );
+}
