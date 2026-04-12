@@ -40,9 +40,7 @@ export default function CardUsagePage() {
   const router = useRouter();
   const [selectedCard, setSelectedCard] = useState(1);
 
-  const filtered = MOCK_USAGES.filter(() => true); // TODO: 카드별 필터링
-
-  // 날짜별 그룹핑
+  const filtered = MOCK_USAGES;
   const grouped = filtered.reduce<Record<string, UsageItem[]>>((acc, item) => {
     if (!acc[item.date]) acc[item.date] = [];
     acc[item.date].push(item);
@@ -98,7 +96,7 @@ export default function CardUsagePage() {
               {items.map((u) => (
                 <button
                   key={u.id}
-                  onClick={() => router.push(`/card/usage/${u.id}`)}
+                  onClick={() => router.push(`/card/usage/${u.id}?abnml=${u.abnmlYn}`)}
                   className={`w-full flex justify-between items-start py-2 px-2 rounded-lg text-left transition-colors ${
                     u.abnmlYn === "Y" ? "bg-hana-red-50/50" : "bg-transparent"
                   }`}

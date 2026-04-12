@@ -1,41 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Share, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Download, X } from "lucide-react";
+import BlockModal from "../components/BlockModal";
 import EvidenceSheet from "../components/EvidenceSheet";
 
+// TODO: 백엔드 연동 시 useParams로 id 받아서 GET /api/cards/usages/{id} 호출로 교체
 const MOCK_USAGE = {
   id: 1,
   usageNm: "삼성서울병원",
   usageAmt: 180000,
   createdAt: "26.4.8 11:58:43",
+  // TODO: 백엔드 연동 시 실제 위치 데이터로 교체
   usageLoc: "서울 강남구 테헤란로34길 6, 9,10층 (역삼동, 태광타워)",
+  // TODO: 백엔드 연동 시 네이버맵 API로 교체. 현재는 /images/card/ 하위 샘플 이미지 사용
+  mapImageUrl: "/images/card/map-sample.png" as string | null,
   aprvlYn: "Y" as "Y" | "N",
-  abnmlYn: "Y" as "Y" | "N",
 };
 
 export default function CardUsageDetailPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isAbnormal = searchParams.get("abnml") === "Y";
+
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showEvidenceSheet, setShowEvidenceSheet] = useState(false);
-
-  const isAbnormal = MOCK_USAGE.abnmlYn === "Y";
 
   return (
     <div
       className="relative min-h-screen"
       style={{ background: isAbnormal ? "#FFF1F1" : "#FFFFFF" }}
     >
-      {/* 핸들 */}
-      <div className="flex justify-center pt-3">
-        <div className="w-10 h-1 bg-[#D1D5DB] rounded-full" />
-      </div>
-
       {/* 상단 액션 버튼 */}
       <div className="absolute top-4 right-4 flex gap-2">
+        {/* TODO: 백엔드 연동 시 영수증 다운로드 기능 구현 */}
         <button className="w-[35px] h-[35px] bg-[#E5E5E5] rounded-full flex items-center justify-center">
-          <Share size={16} color="#0A0A0A" />
+          <Download size={16} color="#0A0A0A" />
         </button>
         <button
           className="w-[35px] h-[35px] bg-[#E5E5E5] rounded-full flex items-center justify-center"
@@ -82,9 +83,16 @@ export default function CardUsageDetailPage() {
         <p className="text-sm font-medium text-black leading-5">{MOCK_USAGE.usageLoc}</p>
       </div>
 
-      {/* 지도 영역 */}
-      <div className="mx-6 mt-4 h-[257px] bg-hana-silver-50 rounded-xl flex items-center justify-center">
-        <p className="text-sm text-hana-black-500">지도</p>
+      {/* 지도 영역 - TODO: 백엔드 연동 시 네이버맵 API로 교체 */}
+      <div className="mx-6 mt-4 h-[257px] bg-hana-silver-50 rounded-xl overflow-hidden">
+        {MOCK_USAGE.mapImageUrl ? (
+          <img src={MOCK_USAGE.mapImageUrl} alt="지도" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+            <p className="text-sm text-hana-black-500">지도 준비 중</p>
+            <p className="text-xs text-hana-black-500 opacity-50">{MOCK_USAGE.usageLoc}</p>
+          </div>
+        )}
       </div>
 
       {/* 이상 감지 시 하단 버튼 */}
@@ -105,38 +113,15 @@ export default function CardUsageDetailPage() {
         </div>
       )}
 
-      {/* 차단 확인 팝업 (인라인) */}
+      {/* 차단 확인 팝업 */}
       {showBlockModal && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
-          <div className="w-[283px] bg-white rounded-3xl p-6 relative">
-            <button
-              onClick={() => setShowBlockModal(false)}
-              className="absolute top-4 right-4 text-lg text-hana-black-800"
-            >
-              ✕
-            </button>
-            <p className="text-base font-medium text-hana-black-900 text-center mt-8 leading-6 tracking-tight">
-              요양보호사1 카드의 지출 이상 내역이 감지되었어요
-            </p>
-            <div className="flex gap-3 mt-8">
-              <button
-                onClick={() => setShowBlockModal(false)}
-                className="flex-1 h-10 rounded-xl bg-hana-red-50 text-hana-red-500 text-sm font-semibold"
-              >
-                카드 관리하기
-              </button>
-              <button
-                onClick={() => {
-                  setShowBlockModal(false);
-                  router.push("/card");
-                }}
-                className="flex-1 h-10 rounded-xl bg-hana-red-500 text-white text-sm font-semibold"
-              >
-                내역 확인하기
-              </button>
-            </div>
-          </div>
-        </div>
+        <BlockModal
+          onClose={() => setShowBlockModal(false)}
+          onConfirm={() => {
+            setShowBlockModal(false);
+            router.push("/card");
+          }}
+        />
       )}
 
       {/* 증빙 요청 바텀시트 */}
