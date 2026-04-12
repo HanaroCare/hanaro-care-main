@@ -18,7 +18,21 @@ export function AssetDetailCard() {
 	);
 }
 
-function Row({ label, value, red, green, highlight }: any) {
+type RowProps = {
+	label: string;
+	value: string;
+	red?: boolean;
+	green?: boolean;
+	highlight?: boolean;
+};
+
+function Row({
+	label,
+	value,
+	red = false,
+	green = false,
+	highlight = false,
+}: RowProps) {
 	return (
 		<div className="flex justify-between">
 			<span className="text-[#6A7282]">{label}</span>

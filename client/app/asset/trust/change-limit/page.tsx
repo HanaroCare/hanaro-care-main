@@ -42,6 +42,8 @@ export default function ChangeLivingLimitPage() {
 					</p>
 
 					<input
+						aria-label="생활비 한도"
+						aria-valuetext={`월 ${amount}만원`}
 						type="range"
 						min={50}
 						max={300}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useId, useState } from "react";
 import InfoBox from "@/components/InfoBox";
 import PrimaryButton from "@/components/PrimaryButton";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
@@ -10,7 +10,7 @@ import TrustStepLayout from "../../components/trust/TrustStepLayout";
 export default function ChangeAgentPage() {
 	const router = useRouter();
 	const [openPermission, setOpenPermission] = useState(true);
-
+	const permissionId = useId();
 	return (
 		<TrustStepLayout
 			footer={
@@ -66,13 +66,16 @@ export default function ChangeAgentPage() {
 							</div>
 
 							<div className="flex items-center gap-3">
-								<span className="text-[12px] leading-5 text-[#9CA3AF]">
+								<span
+									id={permissionId}
+									className="text-[12px] leading-5 text-[#9CA3AF]"
+								>
 									집행내역 열람
 								</span>
-
 								<button
 									type="button"
 									role="switch"
+									aria-labelledby="permission-read-label"
 									aria-checked={openPermission}
 									onClick={() => setOpenPermission((prev) => !prev)}
 									className={`relative h-5 w-10 rounded-full transition ${

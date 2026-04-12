@@ -101,12 +101,14 @@ function DocumentItem({
 	buttonLabel,
 	icon,
 	iconBg,
+	onClick,
 }: {
 	title: string;
 	desc: string;
 	buttonLabel: string;
 	icon: ReactNode;
 	iconBg: string;
+	onClick?: () => void;
 }) {
 	return (
 		<div className="rounded-[20px] border border-[#F2F3F5] bg-white px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
@@ -129,6 +131,7 @@ function DocumentItem({
 
 				<button
 					type="button"
+					onClick={onClick}
 					className="rounded-xl bg-hana-ez-600 px-3 py-2 text-[12px] font-semibold text-white"
 				>
 					{buttonLabel}
