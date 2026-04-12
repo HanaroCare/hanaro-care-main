@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { AlertBanner } from '@/components/AlertBanner';
 import { NavigationBar } from '@/components/NavigationBar';
 import PrimaryButton from '@/components/PrimaryButton';
@@ -129,7 +129,7 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
   }
 }
 
-export default function AssetPage() {
+function AssetPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -220,5 +220,13 @@ export default function AssetPage() {
       </main>
       <NavigationBar />
     </div>
+  );
+}
+
+export default function AssetPage() {
+  return (
+    <Suspense fallback={<div>로딩 중...</div>}>
+      <AssetPageContent />
+    </Suspense>
   );
 }
