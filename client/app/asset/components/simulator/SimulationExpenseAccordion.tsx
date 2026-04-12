@@ -91,7 +91,7 @@ const MOCK_EXPENSES: ExpenseItem[] = [
     ],
   },
   {
-    range: '85세 - 90세',
+    range: '80세 - 85세',
     totalAmount: '150만원',
     breakdown: [
       {

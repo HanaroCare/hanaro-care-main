@@ -1,7 +1,7 @@
 'use client';
 
 import { Building2, Home, Hospital } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CareMethodCard } from './CareMethodCard';
 
 type CareMethod = {
@@ -32,8 +32,24 @@ const CARE_METHODS: CareMethod[] = [
   },
 ];
 
-export function CareMethodSelector() {
-  const [selectedId, setSelectedId] = useState<string>('nursing-home');
+type CareMethodSelectorProps = {
+  value?: string;
+  onChange?: (id: string) => void;
+};
+
+export function CareMethodSelector({ value, onChange }: CareMethodSelectorProps) {
+  const [selectedId, setSelectedId] = useState<string>(value || 'nursing-home');
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setSelectedId(value);
+    }
+  }, [value]);
+
+  const handleSelect = (id: string) => {
+    setSelectedId(id);
+    onChange?.(id);
+  };
 
   return (
     <div className="flex w-81.25 flex-col gap-2.5">
@@ -44,7 +60,7 @@ export function CareMethodSelector() {
           subtitle={method.subtitle}
           Icon={method.Icon}
           isSelected={selectedId === method.id}
-          onClick={() => setSelectedId(method.id)}
+          onClick={() => handleSelect(method.id)}
         />
       ))}
     </div>

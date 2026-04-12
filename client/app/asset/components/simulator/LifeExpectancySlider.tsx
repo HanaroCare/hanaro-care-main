@@ -13,8 +13,11 @@ export function LifeExpectancySlider({
   max = 100,
   defaultAge = 85,
 }: LifeExpectancySliderProps) {
-  const [age, setAge] = useState(defaultAge);
-  const percentage = ((age - min) / (max - min)) * 100;
+  const clamp = (val: number) => Math.min(Math.max(val, min), max);
+  const [age, setAge] = useState(clamp(defaultAge));
+
+  const range = max - min;
+  const percentage = range === 0 ? 0 : ((age - min) / range) * 100;
 
   return (
     <div className="flex h-42.25 w-81.25 flex-col justify-between rounded-[14px] border-2 border-hana-silver-100 bg-white/80 p-6">
@@ -35,10 +38,11 @@ export function LifeExpectancySlider({
           />
           <input
             type="range"
+            aria-label="수명 나이 선택"
             min={min}
             max={max}
             value={age}
-            onChange={(e) => setAge(Number.parseInt(e.target.value))}
+            onChange={(e) => setAge(clamp(Number.parseInt(e.target.value)))}
             className="absolute inset-0 z-20 h-full w-full cursor-pointer opacity-0"
           />
           <div

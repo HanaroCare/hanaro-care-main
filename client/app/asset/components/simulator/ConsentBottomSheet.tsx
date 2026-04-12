@@ -142,9 +142,9 @@ function ConsentRow({
         </div>
       </button>
       {showDetail && (
-        <button type="button" className="p-1 text-hana-black-200">
+        <span className="p-1 text-hana-black-200" aria-hidden="true">
           <ChevronRight size={20} />
-        </button>
+        </span>
       )}
     </div>
   );

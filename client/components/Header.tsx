@@ -30,6 +30,14 @@ export default function Header({
     }
   };
 
+  const handleClose = () => {
+    if (onClose) {
+      onClose();
+    } else {
+      router.back();
+    }
+  };
+
   return (
     <header
       className={`sticky top-0 z-50 flex h-16.25 w-full items-center justify-between border-black/10 border-b bg-white px-4 ${className}`}
@@ -55,7 +63,7 @@ export default function Header({
         {showCloseButton && (
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="-mr-1 p-2 text-hana-black-900"
             aria-label="닫기"
           >

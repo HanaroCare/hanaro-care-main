@@ -51,7 +51,7 @@ export function SimulatorSummaryCard() {
       <button
         type="button"
         onClick={() => router.push('/asset/simulator/result')}
-        className="mt-5 flex items-center justify-between text-[15px] font-semibold text-white outline-none"
+        className="mt-5 flex items-center justify-between text-[15px] font-semibold text-white rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#00A8A6]"
       >
         <span>상세 결과 보기</span>
         <ChevronRight size={20} />

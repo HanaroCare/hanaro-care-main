@@ -22,13 +22,16 @@ export function TabNavigation({
 }: TabNavigationProps) {
   return (
     <div className={`w-full border-border-gray border-b bg-white ${className}`}>
-      <div className="flex w-full">
+      <div className="flex w-full" role="tablist">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               type="button"
+              role="tab"
+              aria-selected={isActive}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => onTabChange(tab.id)}
               className={`relative flex flex-1 items-center justify-center py-3 font-medium text-[15px] transition-colors ${
                 isActive ? 'text-hana-green-700' : 'text-border-gray'

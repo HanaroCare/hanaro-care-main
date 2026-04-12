@@ -58,8 +58,8 @@ export function SimulationTrendChart() {
               axisLine={false}
               tickLine={false}
               tick={{ fontSize: 12, fill: 'var(--color-hana-black-500)' }}
-              domain={[0, 200]}
-              ticks={[0, 50, 100, 150, 200]}
+              domain={[0, 250]}
+              ticks={[0, 50, 100, 150, 200, 250]}
             />
 
             <ReferenceArea

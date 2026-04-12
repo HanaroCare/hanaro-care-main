@@ -21,21 +21,18 @@ const DASHBOARD_TABS = [
 
 export default function SimulatorPage() {
   const router = useRouter();
-  const [showOnboarding, setShowOnboarding] = useState(true);
-  const [hasResult, setHasResult] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+  const [hasResult, setHasResult] = useState<boolean | null>(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [activeTab, setActiveTab] = useState('asset');
+  const [careMethod, setCareMethod] = useState('nursing-home');
 
   useEffect(() => {
     const hasSeen = localStorage.getItem(ONBOARDING_KEY);
     const completed = localStorage.getItem(COMPLETION_KEY);
 
-    if (hasSeen === 'true') {
-      setShowOnboarding(false);
-    }
-    if (completed === 'true') {
-      setHasResult(true);
-    }
+    setShowOnboarding(hasSeen !== 'true');
+    setHasResult(completed === 'true');
   }, []);
 
   const handleOnboardingComplete = () => {
@@ -46,6 +43,10 @@ export default function SimulatorPage() {
   const handleRecalculate = () => {
     setIsRecalculating(true);
   };
+
+  if (showOnboarding === null) {
+    return null;
+  }
 
   if (showOnboarding) {
     return (
@@ -143,7 +144,7 @@ export default function SimulatorPage() {
           <span className="font-semibold text-[16px] text-hana-black-800">
             원하는 요양 방식을 선택해주세요
           </span>
-          <CareMethodSelector />
+          <CareMethodSelector value={careMethod} onChange={setCareMethod} />
         </div>
 
         <div className="mt-auto pt-4">

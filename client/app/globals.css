@@ -6,28 +6,28 @@
 
 /* ===== Fonts ===== */
 @font-face {
-  font-family: "Pretendard";
+  font-family: Pretendard;
   font-weight: 400;
   font-display: swap;
   src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: "Pretendard";
+  font-family: Pretendard;
   font-weight: 500;
   font-display: swap;
   src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: "Pretendard";
+  font-family: Pretendard;
   font-weight: 600;
   font-display: swap;
   src: url("/fonts/Pretendard-SemiBold.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: "Pretendard";
+  font-family: Pretendard;
   font-weight: 700;
   font-display: swap;
   src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
@@ -39,8 +39,8 @@
   --color-foreground: var(--foreground);
 
   --font-sans:
-    "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-hana: "Hana 2.0", "Pretendard", sans-serif;
+    Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-hana: "Hana 2.0", Pretendard, sans-serif;
 
   /* Font sizes & Text styles */
   /* desc text: Regular 12px -1% */
@@ -318,7 +318,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 /* ===== Animations ===== */
-@keyframes starFloat {
+@keyframes star-float {
   0% {
     transform: translateY(0) scale(1);
   }
@@ -331,7 +331,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .animate-star-float {
-  animation: starFloat 2.4s ease-in-out infinite;
+  animation: star-float 2.4s ease-in-out infinite;
 }
 
 /* ===== Page Transitions ===== */
@@ -341,10 +341,10 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 .page-in {
-  animation: pageIn 360ms ease-out both;
+  animation: page-in 360ms ease-out both;
 }
 
-@keyframes pageIn {
+@keyframes page-in {
   from {
     opacity: 0;
     filter: blur(2px);
@@ -358,10 +358,10 @@ input[type="search"]::-webkit-search-results-decoration {
 .splash-in {
   position: absolute;
   inset: 0;
-  animation: splashIn 220ms ease-out both;
+  animation: splash-in 220ms ease-out both;
 }
 
-@keyframes splashIn {
+@keyframes splash-in {
   from {
     opacity: 0;
     filter: blur(2px);
@@ -375,10 +375,10 @@ input[type="search"]::-webkit-search-results-decoration {
 .splash-out {
   position: absolute;
   inset: 0;
-  animation: splashOut 100ms ease-in both;
+  animation: splash-out 100ms ease-in both;
 }
 
-@keyframes splashOut {
+@keyframes splash-out {
   from {
     opacity: 1;
     filter: blur(0);
@@ -402,7 +402,7 @@ input[type="search"]::-webkit-search-results-decoration {
 }
 
 /* ===== QR Wave Background ===== */
-@keyframes waveGradient {
+@keyframes wave-gradient {
   0% {
     background-position: 0% 0%;
   }
@@ -418,7 +418,7 @@ input[type="search"]::-webkit-search-results-decoration {
   position: relative;
   background: linear-gradient(135deg, #0a5657, #008485, #00d0cb, #eefffc);
   background-size: 300% 200%;
-  animation: waveGradient 4s ease-in-out infinite;
+  animation: wave-gradient 4s ease-in-out infinite;
   overflow: hidden;
 }
 
