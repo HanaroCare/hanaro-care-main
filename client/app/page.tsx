@@ -2,11 +2,11 @@
 
 import { NavigationBar } from "@/components/NavigationBar";
 import { AssetDashboard } from "./asset/components/AssetDashboard";
-import { BannerCard } from "./asset/components/BannerCard";
-import { LivingExpenseCard } from "./asset/components/LivingExpenseCard";
-import { MedicalBillCard } from "./asset/components/MedicalBillCard";
-import { PensionCard } from "./asset/components/PensionCard";
-import { RealAssetCard } from "./asset/components/RealAssetCard";
+import { BannerCard } from "./asset/components/notification/BannerCard";
+import { LivingExpenseCard } from "./asset/components/notification/LivingExpenseCard";
+import { MedicalBillCard } from "./asset/components/notification/MedicalBillCard";
+import { PensionCard } from "./asset/components/notification/PensionCard";
+import { RealAssetCard } from "./asset/components/RealAssetListCard";
 
 export default function Home() {
 	return (

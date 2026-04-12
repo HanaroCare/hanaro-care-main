@@ -14,8 +14,6 @@ import {
 	YAxis,
 } from "recharts";
 
-type ChartType = "bar" | "line";
-
 type ChartDataItem = {
 	name: string;
 	value: number;

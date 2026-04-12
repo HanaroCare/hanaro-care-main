@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { Car, ChevronRight, Coins, Home } from "lucide-react";
 
 type ChangeType = "up" | "down";
 
 type RealAsset = {
 	id: number;
-	icon: string;
+	type: "property" | "car" | "gold";
 	name: string;
 	value: string;
 	subText: string;
@@ -15,10 +15,16 @@ type RealAsset = {
 	changeType: ChangeType;
 };
 
+const ASSET_ICON_MAP = {
+	property: Home,
+	car: Car,
+	gold: Coins,
+};
+
 const REAL_ASSETS: RealAsset[] = [
 	{
 		id: 1,
-		icon: "🏠",
+		type: "property",
 		name: "안양시 동안구 00 아파트",
 		value: "10억 2,000만",
 		subText: "45㎡ · 2025년 6월 매입",
@@ -27,7 +33,7 @@ const REAL_ASSETS: RealAsset[] = [
 	},
 	{
 		id: 2,
-		icon: "🚗",
+		type: "car",
 		name: "그랜저 IG 2021",
 		value: "2,850만",
 		subText: "37,200km",
@@ -36,7 +42,7 @@ const REAL_ASSETS: RealAsset[] = [
 	},
 	{
 		id: 3,
-		icon: "🥇",
+		type: "gold",
 		name: "금 · 37.5g",
 		value: "438만",
 		subText: "KRX 금시장 기준",
@@ -67,6 +73,7 @@ function ChangeIndicator({ change, changeType }: ChangeIndicatorProps) {
 				aria-hidden="true"
 				className={isUp ? "" : "rotate-180"}
 			>
+				<title>{isUp ? "상승" : "하락"}</title>
 				<path d="M3.5 0L7 6H0L3.5 0Z" fill={isUp ? "#D60003" : "#3135FF"} />
 			</svg>
 		</div>
@@ -88,40 +95,43 @@ export function RealAssetCard() {
 			</div>
 
 			<div className="flex flex-col gap-4">
-				{REAL_ASSETS.map((asset, index) => (
-					<div key={asset.id} className="flex flex-col">
-						<div className="flex items-start gap-3">
-							<span className="text-[25px] leading-none" aria-hidden="true">
-								{asset.icon}
-							</span>
-
-							<div className="flex flex-1 flex-col">
-								<div className="flex items-center justify-between">
-									<span className="font-bold text-[13px] text-hana-black-800">
-										{asset.name}
-									</span>
-									<span className="font-medium text-[13px] text-hana-black-900">
-										{asset.value}
-									</span>
+				{REAL_ASSETS.map((asset, index) => {
+					const AssetIcon = ASSET_ICON_MAP[asset.type];
+					return (
+						<div key={asset.id} className="flex flex-col">
+							<div className="flex items-start gap-3">
+								<div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-hana-black-800">
+									<AssetIcon size={20} strokeWidth={2.5} />
 								</div>
 
-								<div className="mt-1 flex items-center justify-between">
-									<span className="text-[11px] text-hana-black-500">
-										{asset.subText}
-									</span>
-									<ChangeIndicator
-										change={asset.change}
-										changeType={asset.changeType}
-									/>
+								<div className="flex flex-1 flex-col">
+									<div className="flex items-center justify-between">
+										<span className="font-bold text-[13px] text-hana-black-800">
+											{asset.name}
+										</span>
+										<span className="font-medium text-[13px] text-hana-black-900">
+											{asset.value}
+										</span>
+									</div>
+
+									<div className="mt-1 flex items-center justify-between">
+										<span className="text-[11px] text-hana-black-500">
+											{asset.subText}
+										</span>
+										<ChangeIndicator
+											change={asset.change}
+											changeType={asset.changeType}
+										/>
+									</div>
 								</div>
 							</div>
-						</div>
 
-						{index !== REAL_ASSETS.length - 1 && (
-							<div className="mt-4 h-px w-full bg-border-gray" />
-						)}
-					</div>
-				))}
+							{index !== REAL_ASSETS.length - 1 && (
+								<div className="mt-4 h-px w-full bg-border-gray" />
+							)}
+						</div>
+					);
+				})}
 			</div>
 		</motion.div>
 	);

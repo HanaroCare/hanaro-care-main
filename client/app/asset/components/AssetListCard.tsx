@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 type AssetType = "bank" | "stock" | "pension" | "card";
 
@@ -62,6 +63,13 @@ const ASSET_ITEMS: AssetItemData[] = [
 	},
 ];
 
+const INSTITUTION_LOGO: Record<string, string> = {
+	하나은행: "/images/asset/hana-bank.svg",
+	하나증권: "/images/asset/hana-bank.svg",
+	하나카드: "/images/asset/hana-bank.svg",
+	국민연금: "/images/asset/nation-pension.svg",
+};
+
 const ICON_STYLES: Record<AssetType, string> = {
 	bank: "bg-hana-teal-100",
 	stock: "bg-hana-teal-100",
@@ -71,15 +79,24 @@ const ICON_STYLES: Record<AssetType, string> = {
 
 type AssetIconProps = {
 	type: AssetType;
+	institution: string;
 };
 
-function AssetIcon({ type }: AssetIconProps) {
+function AssetIcon({ type, institution }: AssetIconProps) {
+	const logoSrc = INSTITUTION_LOGO[institution];
+
 	return (
 		<div
-			className={`flex size-8 items-center justify-center rounded-[10px] ${ICON_STYLES[type]}`}
+			className={`flex size-8 shrink-0 items-center justify-center rounded-[10px] ${ICON_STYLES[type]}`}
 		>
-			{type === "pension" ? (
-				<div className="size-5 rounded-full bg-white/50" />
+			{logoSrc ? (
+				<Image
+					src={logoSrc}
+					alt=""
+					width={20}
+					height={20}
+					className="object-contain"
+				/>
 			) : (
 				<div className="size-5 rounded-sm bg-white/50" />
 			)}
@@ -112,6 +129,7 @@ function ChangeIndicator({
 				aria-hidden="true"
 				className={isPositive ? "" : "rotate-180"}
 			>
+				<title>{isPositive ? "상승" : "하락"}</title>
 				<path d="M3.5 0L7 6L0 6L3.5 0Z" fill="currentColor" />
 			</svg>
 			<span>
@@ -128,7 +146,7 @@ export function AssetListCard() {
 				{ASSET_ITEMS.map((item) => (
 					<div key={item.id} className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
-							<AssetIcon type={item.type} />
+							<AssetIcon type={item.type} institution={item.institution} />
 							<div className="flex flex-col">
 								<span className="text-[12px] text-hana-black-500 leading-tight">
 									{item.institution}

@@ -1,12 +1,13 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, Shield } from "lucide-react";
+import { motion } from "framer-motion";
+import { Car, ChevronRight, Coins, Home, Shield } from "lucide-react";
 import Image from "next/image";
-import { type ReactNode, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type InsuranceStatus = "needs_check" | "normal";
 type IconType = "hana-bank" | "nation-pension" | "default";
+type AssetType = "property" | "car" | "gold";
 
 const ICON_MAP: Record<IconType, string> = {
 	"hana-bank": "/images/asset/hana-bank.svg",
@@ -14,245 +15,180 @@ const ICON_MAP: Record<IconType, string> = {
 	default: "",
 };
 
-const EMOJI_MAP: Record<string, string> = {
-	property: "🏠",
-	car: "🚗",
-	gold: "🥇",
+const ASSET_ICON_MAP = {
+	property: Home,
+	car: Car,
+	gold: Coins,
 };
 
 type DetailedAssetCardProps = {
-	type: "property" | "car" | "gold";
-	title?: string;
-	subtitle?: string;
-	value?: string;
+	type: AssetType;
+	// TODO: 서버에서 아래 데이터를 받아와야 함
+	// GET /api/asset/real?category={type}
+	// response: { title, subtitle, value, change, changePercent, isPositive }
+	title: string;
+	subtitle: string;
+	value: string;
 	change?: string;
 	changePercent?: string;
 	isPositive?: boolean;
-	children?: ReactNode;
+	href?: string;
 };
 
 type InsuranceAssetCardProps = {
 	type: "insurance";
+	// TODO: 서버에서 아래 데이터를 받아와야 함
+	// GET /api/asset/financial?category=INSURANCE
+	// response: { iconType, company, insuranceName, monthlyPremium, status }
 	iconType?: IconType;
-	company?: string;
-	insuranceName?: string;
-	monthlyPremium?: string;
+	company: string;
+	insuranceName: string;
+	monthlyPremium: string;
 	status?: InsuranceStatus;
-	children?: ReactNode;
+	href?: string;
 };
 
 type AssetDetailCardProps = DetailedAssetCardProps | InsuranceAssetCardProps;
 
-const DEFAULT_VALUES: Record<
-	"property" | "car" | "gold",
-	DetailedAssetCardProps
-> = {
-	property: {
-		type: "property",
-		title: "서울 강남구 역삼동 아파트",
-		subtitle: "84㎡ (33평)",
-		value: "9억 2,000만원",
-		change: "1,200만원",
-		changePercent: "10%",
-		isPositive: true,
-	},
-	car: {
-		type: "car",
-		title: "그랜저 IG",
-		subtitle: "2021년식 · 37,200km",
-		value: "2,850만원",
-		change: "15만원",
-		changePercent: "0.5%",
-		isPositive: false,
-	},
-	gold: {
-		type: "gold",
-		title: "골드바 (100g)",
-		subtitle: "중량: 100g",
-		value: "1,330만원",
-		change: "80만원",
-		changePercent: "10%",
-		isPositive: true,
-	},
-};
-
 export function AssetDetailCard(props: AssetDetailCardProps) {
-	const [isExpanded, setIsExpanded] = useState(false);
+	const router = useRouter();
+
+	const handleCardClick = () => {
+		if (props.href) {
+			router.push(props.href);
+		}
+	};
 
 	if (props.type === "insurance") {
 		const {
 			iconType = "hana-bank",
-			company = "하나생명",
-			insuranceName = "하나 건강보험",
-			monthlyPremium = "월 15만원",
+			company,
+			insuranceName,
+			monthlyPremium,
 			status = "needs_check",
-			children,
 		} = props;
 
 		return (
 			<motion.div
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
-				className="relative flex w-81.25 flex-col overflow-hidden rounded-[15px] border-[0.5px] border-border-gray bg-white shadow-sm"
+				onClick={handleCardClick}
+				className="relative flex h-22.5 w-81.25 cursor-pointer items-center justify-between rounded-[15px] border-[0.5px] border-border-gray bg-white px-4.5 shadow-sm active:bg-zinc-50"
 			>
-				<button
-					type="button"
-					onClick={() => setIsExpanded(!isExpanded)}
-					className="flex h-22.5 w-full items-center justify-between px-4.5 text-left"
-				>
-					<div className="flex items-center gap-4.25">
-						<div className="flex size-8.25 items-center justify-center rounded-[10px] bg-hana-teal-100">
-							{iconType === "default" ? (
-								<Shield
-									size={18}
-									className="text-hana-green-700"
-									aria-hidden="true"
-								/>
-							) : (
-								<Image
-									src={ICON_MAP[iconType]}
-									alt=""
-									width={22}
-									height={22}
-									aria-hidden="true"
-								/>
-							)}
-						</div>
-						<div className="flex flex-col">
-							<span className="text-[12px] text-hana-black-600 leading-4.5">
-								{company}
-							</span>
-							<span className="font-semibold text-[16px] text-hana-black-900 leading-5.25">
-								{insuranceName}
-							</span>
-							<span className="text-[12px] text-hana-black-600 leading-4.5">
-								{monthlyPremium}
-							</span>
-						</div>
-					</div>
-
-					<div className="flex flex-col items-end gap-2">
-						{status === "needs_check" ? (
-							<div className="flex h-6.5 items-center justify-center rounded-[15px] bg-hana-red-50 px-3">
-								<span className="font-medium text-[12px] text-hana-red-500 tracking-tight">
-									확인 필요
-								</span>
-							</div>
+				<div className="flex items-center gap-4.25">
+					<div className="flex size-8.25 items-center justify-center rounded-[10px] bg-hana-teal-100">
+						{iconType === "default" ? (
+							<Shield
+								size={18}
+								className="text-hana-green-700"
+								aria-hidden="true"
+							/>
 						) : (
-							<div className="flex h-6.5 items-center justify-center rounded-[15px] bg-hana-blue-50 px-3">
-								<span className="font-medium text-[12px] text-hana-blue-500 tracking-tight">
-									정상
-								</span>
-							</div>
-						)}
-						{status === "needs_check" && (
-							<span className="font-medium text-[11px] text-hana-black-600 tracking-tight">
-								확인하기 &gt;
-							</span>
+							<Image
+								src={ICON_MAP[iconType]}
+								alt=""
+								width={22}
+								height={22}
+								aria-hidden="true"
+							/>
 						)}
 					</div>
-				</button>
+					<div className="flex flex-col">
+						<span className="text-[12px] text-hana-black-600 leading-4.5">
+							{company}
+						</span>
+						<span className="font-semibold text-[16px] text-hana-black-900 leading-5.25">
+							{insuranceName}
+						</span>
+						<span className="text-[12px] text-hana-black-600 leading-4.5">
+							{monthlyPremium}
+						</span>
+					</div>
+				</div>
 
-				<AnimatePresence>
-					{isExpanded && children && (
-						<motion.div
-							initial={{ height: 0, opacity: 0 }}
-							animate={{ height: "auto", opacity: 1 }}
-							exit={{ height: 0, opacity: 0 }}
-							className="border-t border-border-gray/50 bg-zinc-50/50 p-4.5"
-						>
-							{children}
-						</motion.div>
+				<div className="flex flex-col items-end gap-2">
+					{status === "needs_check" ? (
+						<div className="flex h-6.5 items-center justify-center rounded-[15px] bg-hana-red-50 px-3">
+							<span className="font-medium text-[12px] text-hana-red-500 tracking-tight">
+								확인 필요
+							</span>
+						</div>
+					) : (
+						<div className="flex h-6.5 items-center justify-center rounded-[15px] bg-hana-blue-50 px-3">
+							<span className="font-medium text-[12px] text-hana-blue-500 tracking-tight">
+								정상
+							</span>
+						</div>
 					)}
-				</AnimatePresence>
+					{status === "needs_check" && (
+						<span className="font-medium text-[11px] text-hana-black-600 tracking-tight">
+							확인하기 &gt;
+						</span>
+					)}
+				</div>
 			</motion.div>
 		);
 	}
 
-	const defaults = DEFAULT_VALUES[props.type];
-	const {
-		title = defaults.title,
-		subtitle = defaults.subtitle,
-		value = defaults.value,
-		change = defaults.change,
-		changePercent = defaults.changePercent,
-		isPositive = defaults.isPositive,
-		children,
-	} = props;
+	const { title, subtitle, value, change, changePercent, isPositive } = props;
+	const AssetIcon = ASSET_ICON_MAP[props.type];
 
 	return (
 		<motion.div
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
-			className="relative flex w-81.25 flex-col overflow-hidden rounded-3xl border-[0.5px] border-border-gray bg-white shadow-sm"
+			onClick={handleCardClick}
+			className="relative flex h-32 w-81.25 cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border-[0.5px] border-border-gray bg-white p-5 shadow-sm active:bg-zinc-50"
 		>
-			<button
-				type="button"
-				onClick={() => setIsExpanded(!isExpanded)}
-				className="flex h-27.75 w-full flex-col justify-between p-4.5 text-left"
-			>
-				<div className="flex items-start justify-between">
+			<div className="flex items-start justify-between">
+				<div className="flex items-start gap-3">
+					{/* 2. 아이콘을 타이틀 왼쪽으로 배치 */}
+					<div className="mt-0.5 flex size-10 items-center justify-center rounded-xl bg-gray-50 text-hana-black-800">
+						<AssetIcon size={24} strokeWidth={2} />
+					</div>
+
 					<div className="flex flex-col">
-						<span className="font-medium text-[15px] text-hana-black-900 leading-5.25">
+						<span className="font-bold text-[16px] text-hana-black-900 leading-tight">
 							{title}
 						</span>
-						<div className="mt-[3.5px] flex items-center gap-4">
-							<span className="text-[25px] leading-none" aria-hidden="true">
-								{EMOJI_MAP[props.type]}
-							</span>
-							<span className="text-[11px] text-hana-black-600 leading-4.5">
-								{subtitle}
-							</span>
-						</div>
+						{/* 3. 아래에는 상세 정보만 위치 */}
+						<span className="mt-1 text-[12px] text-hana-black-500 font-medium">
+							{subtitle}
+						</span>
 					</div>
-					<motion.div
-						animate={{ rotate: isExpanded ? 180 : 0 }}
-						className="mt-1 text-hana-black-400"
-					>
-						<ChevronDown size={20} aria-hidden="true" />
-					</motion.div>
 				</div>
+				<div className="mt-1 text-hana-black-300">
+					<ChevronRight size={20} />
+				</div>
+			</div>
 
-				<div className="mt-[8.5px] flex items-center justify-between">
-					<span className="font-medium text-[18px] text-hana-black-900 leading-6">
-						{value}
-					</span>
-					{change && changePercent && (
-						<div
-							className={`flex items-center gap-1 font-medium text-[13px] ${
-								isPositive ? "text-hana-red-500" : "text-hana-blue-500"
-							}`}
+			{/* 4. 금액 섹션 (간격을 넓히기 위해 mt-auto 활용) */}
+			<div className="mt-auto flex items-center justify-between">
+				<span className="font-semi-bold text-[18px] text-hana-black-900 tracking-tight">
+					{value}
+				</span>
+				{change && changePercent && (
+					<div
+						className={`flex items-center gap-1 font-semi-bold text-[13px] ${
+							isPositive ? "text-hana-red-500" : "text-hana-blue-500"
+						}`}
+					>
+						<svg
+							width="8"
+							height="7"
+							viewBox="0 0 7 6"
+							fill="none"
+							className={isPositive ? "" : "rotate-180"}
+							aria-hidden="true"
 						>
-							<svg
-								width="7"
-								height="6"
-								viewBox="0 0 7 6"
-								fill="none"
-								aria-hidden="true"
-								className={isPositive ? "" : "rotate-180"}
-							>
-								<path d="M3.5 0L7 6L0 6L3.5 0Z" fill="currentColor" />
-							</svg>
-							<span>
-								{change} ({changePercent})
-							</span>
-						</div>
-					)}
-				</div>
-			</button>
-
-			<AnimatePresence>
-				{isExpanded && children && (
-					<motion.div
-						initial={{ height: 0, opacity: 0 }}
-						animate={{ height: "auto", opacity: 1 }}
-						exit={{ height: 0, opacity: 0 }}
-						className="flex flex-col gap-4 border-t border-border-gray/50 bg-zinc-50/50 p-4.5"
-					>
-						{children}
-					</motion.div>
+							<path d="M3.5 0L7 6L0 6L3.5 0Z" fill="currentColor" />
+						</svg>
+						<span>
+							{change} ({changePercent})
+						</span>
+					</div>
 				)}
-			</AnimatePresence>
+			</div>
 		</motion.div>
 	);
 }
