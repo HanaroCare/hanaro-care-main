@@ -28,15 +28,16 @@ export default function SimulatorPage() {
         </button>
       </header>
 
-      <main className="flex flex-col gap-6 px-6 pt-2 pb-25">
-        <div className="flex flex-col gap-1.5">
-          <h1 className="font-semibold text-[20px] text-hana-black-900 leading-tight">
+      <main className="flex flex-col gap-10 px-6 pt-2 pb-25">
+        <div className="flex flex-col">
+          <h1 className="page-center-text text-hana-black-900">
             미래 병원비 계산기
           </h1>
-          <h2 className="font-semibold text-[20px] text-hana-green-700 leading-tight">
+          <h2 className="page-center-text text-hana-green-700">
             조건을 선택해주세요
           </h2>
         </div>
+
 
         <div className="flex w-full flex-col gap-4">
           <span className="font-semi-bold text-[16px] text-hana-black-800">

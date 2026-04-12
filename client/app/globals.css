@@ -434,3 +434,13 @@ input[type="search"]::-webkit-search-results-decoration {
 	opacity: 0.2;
 	pointer-events: none;
 }
+
+/* 페이지 중심 문구 */
+.page-center-text {
+	font-family: "Pretendard", sans-serif;
+	font-size: 20px;
+	font-style: normal;
+	font-weight: 600;
+	line-height: 30px; /* 150% */
+	letter-spacing: -0.2px;
+}
