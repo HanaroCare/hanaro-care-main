@@ -1,0 +1,139 @@
+"use client";
+
+import { FileCheck, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
+import InfoBox from "@/components/InfoBox";
+import PrimaryButton from "@/components/PrimaryButton";
+import TrustStepLayout from "../../components/trust/TrustStepLayout";
+
+export default function ChangeAgentChildPage() {
+	const router = useRouter();
+
+	return (
+		<TrustStepLayout
+			footer={
+				<footer className="shrink-0 bg-white px-6 py-4">
+					<PrimaryButton
+						label="상담 예약하기"
+						className="h-14 rounded-2xl text-[16px] leading-6"
+						onClick={() => router.back()}
+					/>
+				</footer>
+			}
+		>
+			<section className="px-6 pt-4">
+				<div className="mt-14">
+					<h2 className="text-[22px] leading-[1.45] font-bold tracking-tight text-black">
+						특별지급 신청
+					</h2>
+					<p className="mt-4 text-[12px] leading-5 font-normal tracking-snug text-[#6A7282]">
+						자산이 오직 치료와 안녕을 위해서만 쓰이도록
+						<br />
+						미리 지정한 대리인에게 권한을 위임해주세요
+					</p>
+				</div>
+
+				<InfoBox
+					title="특별지급 신청이란?"
+					desc="부득이한 경우, 미리 지정한 지급청구대리인을 통해 자산을 안전하게 운용 및 집행하는 보호 시스템"
+					className="mt-6"
+				/>
+
+				<div className="mt-8">
+					<p className="mb-3 text-[13px] leading-5 font-medium tracking-snug text-[#6A7282]">
+						위탁자(부모님) 정보
+					</p>
+
+					<div className="rounded-4xl border border-[#F2F3F5] bg-white px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+						<div className="flex items-center gap-4">
+							<div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E9F8F9] text-[20px] font-semibold text-hana-ez-600">
+								권
+							</div>
+
+							<div>
+								<div className="flex items-center gap-2">
+									<span className="text-[16px] leading-6 font-semibold tracking-tight text-black">
+										권하나
+									</span>
+									<span className="rounded-full bg-[#E9F8F9] px-2.5 py-1 text-[11px] leading-4 font-medium text-hana-ez-600">
+										어머니
+									</span>
+								</div>
+								<p className="mt-1 text-[12px] leading-5 text-[#9CA3AF]">
+									010-1234-5678
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<div className="mt-6">
+					<p className="mb-3 text-[13px] leading-5 font-medium tracking-snug text-[#6A7282]">
+						대리인 지정을 위한 본인 확인 서류
+					</p>
+
+					<div className="flex flex-col gap-3">
+						<DocumentItem
+							title="가족관계 증명서"
+							desc="정부24에서 발급받기"
+							iconBg="#E9F8F9"
+							buttonLabel="발급받기"
+							icon={<FileText size={20} className="text-hana-ez-600" />}
+						/>
+						<DocumentItem
+							title="후견 증명서"
+							desc="전자후견등기에서 발급받기"
+							iconBg="#FDEEEE"
+							buttonLabel="발급받기"
+							icon={<FileCheck size={20} className="text-hana-red-500" />}
+						/>
+					</div>
+				</div>
+			</section>
+		</TrustStepLayout>
+	);
+}
+
+function DocumentItem({
+	title,
+	desc,
+	buttonLabel,
+	icon,
+	iconBg,
+}: {
+	title: string;
+	desc: string;
+	buttonLabel: string;
+	icon: ReactNode;
+	iconBg: string;
+}) {
+	return (
+		<div className="rounded-[20px] border border-[#F2F3F5] bg-white px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+			<div className="flex items-center justify-between gap-4">
+				<div className="flex items-center gap-4">
+					<div
+						className="flex h-12 w-12 items-center justify-center rounded-full"
+						style={{ backgroundColor: iconBg }}
+					>
+						{icon}
+					</div>
+
+					<div>
+						<p className="text-[15px] leading-6 font-semibold tracking-tight text-black">
+							{title}
+						</p>
+						<p className="text-[12px] leading-5 text-[#6A7282]">{desc}</p>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					className="rounded-xl bg-hana-ez-600 px-3 py-2 text-[12px] font-semibold text-white"
+				>
+					{buttonLabel}
+				</button>
+			</div>
+		</div>
+	);
+}
