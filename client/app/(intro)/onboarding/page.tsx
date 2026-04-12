@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import { ChevronLeft, X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import PrimaryButton from "@/components/PrimaryButton";
@@ -18,41 +18,45 @@ export default function OnboardingPage() {
 		{
 			title: (
 				<>
-					내게 맞는<br />
+					내게 맞는
+					<br />
 					<span className="text-primary">진짜</span> 노후 설계
 				</>
 			),
-			subtitle: "자산은 안전하게 생활비는 풍족하게"
+			subtitle: "자산은 안전하게 생활비는 풍족하게",
 		},
 		{
 			title: (
 				<>
-					의료비·간병비<br />
+					의료비·간병비
+					<br />
 					미리 계산해두세요
 				</>
 			),
 			subtitle: "부족한 만큼 딱 맞게 상품 설계까지!",
-			imagePath: "/img/onboarding1.png",
+			imagePath: "/images/onboarding/onboarding1.png",
 		},
 		{
 			title: (
 				<>
-					요양보호사 전용 카드<br />
+					요양보호사 전용 카드
+					<br />
 					가족이 함께 관리해요
 				</>
 			),
 			subtitle: "내역 확인부터 한도 설정까지 간편하게",
-			imagePath: "/img/onboarding2.png",
+			imagePath: "/images/onboarding/onboarding2.png",
 		},
 		{
 			title: (
 				<>
-					건강할 때 챙겨야 하는<br />
+					건강할 때 챙겨야 하는
+					<br />
 					노후 준비 A to Z
 				</>
 			),
 			subtitle: "상속·신탁 설계부터 임의후견인 등록까지 한번에",
-			imagePath: "/img/onboarding3.png",
+			imagePath: "/images/onboarding/onboarding3.png",
 		},
 	];
 
@@ -75,7 +79,6 @@ export default function OnboardingPage() {
 	return (
 		<div className="app-shell relative overflow-hidden bg-background">
 			<div className="app-layout">
-
 				<header className="flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-4">
 					<button
 						type="button"
@@ -114,12 +117,17 @@ export default function OnboardingPage() {
 						<div className="flex min-h-80 w-full flex-col items-center justify-center overflow-hidden rounded-3xl bg-card p-6 shadow-lg">
 							{currentSlide === 0 ? (
 								<div className="flex h-40 w-40 flex-col items-center justify-center rounded-2xl bg-gray-100">
-									<span className="text-gray-400 text-sm font-medium">로고 넣기</span>
+									<span className="text-gray-400 text-sm font-medium">
+										로고 넣기
+									</span>
 								</div>
 							) : (
 								<div className="relative h-full w-full">
 									<Image
-										src={slides[currentSlide]?.imagePath ?? "/images/default-thumbnail.png"}
+										src={
+											slides[currentSlide]?.imagePath ??
+											"/images/default-thumbnail.png"
+										}
 										alt={`Onboarding ${currentSlide + 1}`}
 										fill
 										className="object-contain"
@@ -141,18 +149,14 @@ export default function OnboardingPage() {
 
 			{isBottomSheetOpen && (
 				<>
-
-					<div
-						className="absolute inset-0 z-40 bg-black/50 transition-opacity animate-in fade-in"
+					<button
+						type="button"
+						className="absolute inset-0 z-40 w-full h-full bg-black/50 transition-opacity animate-in fade-in border-none"
 						onClick={() => setIsBottomSheetOpen(false)}
-						onKeyDown={(e) => e.key === "Escape" && setIsBottomSheetOpen(false)}
-						role="button"
-						tabIndex={0}
 						aria-label="바텀시트 닫기"
 					/>
 
 					<div className="absolute bottom-0 left-0 right-0 z-50 flex flex-col items-center rounded-t-[25px] bg-card p-6 pt-8 pb-12 shadow-2xl animate-in slide-in-from-bottom-full duration-300">
-
 						<div className="flex w-full items-center justify-center pb-7">
 							<div className="h-1.5 w-12 rounded-full bg-gray-300" />
 						</div>
