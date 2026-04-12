@@ -8,6 +8,7 @@ import { insurances, isDesignated, viewMode } from './constants/data';
 
 export default function ChildMainInsuranceScreen() {
   const router = useRouter();
+
   return (
     <div className="mb-10 flex h-full flex-col">
       <div className="flex-1 space-y-3 overflow-y-auto pb-4">
@@ -15,9 +16,15 @@ export default function ChildMainInsuranceScreen() {
           <div className="mt-5">
             {/* 광고 */}
             <Image
+              onClick={() =>
+                window.open(
+                  'https://cont.insure.or.kr/cont_web/intro.do',
+                  '_blank',
+                )
+              }
               src={
                 viewMode === 'GRANTEE'
-                  ? '/images/my/insurance/childrenBanner.png'
+                  ? '/images/my/insurance/childrenBanner2.png'
                   : '/images/my/insurance/parentBanner.png'
               }
               alt="자녀 - 부모 보험금 조회 배너"
