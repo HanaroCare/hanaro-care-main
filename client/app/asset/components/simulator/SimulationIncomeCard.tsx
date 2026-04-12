@@ -22,13 +22,13 @@ export function SimulationIncomeCard({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex w-full flex-col rounded-[24px] border border-[#F3F4F6] bg-white px-6 py-[26px] shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
+      className="flex w-full flex-col rounded-[24px] border border-hana-silver-100 bg-white px-6 py-[26px] shadow-sm"
     >
       <div className="flex flex-col gap-[22px]">
-        {items.map((item, index) => (
+        {items.map((item) => (
           <div key={item.label} className="flex flex-col gap-1">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-[#111827] text-[16px]">
+              <span className="font-medium text-[16px] text-hana-black-900">
                 {item.label}
               </span>
               <span className="font-bold text-[20px] text-hana-green-700">
@@ -36,7 +36,7 @@ export function SimulationIncomeCard({
               </span>
             </div>
             {(item.subLabel || item.subLabel2) && (
-              <div className="flex items-center justify-between text-[#9CA3AF] text-[13px]">
+              <div className="flex items-center justify-between text-[13px] text-hana-black-500 opacity-60">
                 <span>{item.subLabel}</span>
                 <span>{item.subLabel2}</span>
               </div>
@@ -45,14 +45,14 @@ export function SimulationIncomeCard({
         ))}
       </div>
 
-      <div className="my-[22px] h-px w-full bg-[#F3F4F6]" />
+      <div className="my-[22px] h-px w-full bg-hana-silver-100" />
 
-      <div className="mb-4 flex items-center justify-between font-medium text-[#6B7280] text-[14px]">
+      <div className="mb-4 flex items-center justify-between font-medium text-[14px] text-hana-black-500">
         <span>활용 가능 금융 자산</span>
         <span>월 가용 금액</span>
       </div>
 
-      <div className="flex h-[72px] w-full items-center justify-center rounded-[16px] bg-[#F0FDFA]">
+      <div className="flex h-[72px] w-full items-center justify-center rounded-[16px] bg-hana-green-50">
         <span className="font-bold text-[28px] text-hana-green-700">
           {totalAvailable}
         </span>

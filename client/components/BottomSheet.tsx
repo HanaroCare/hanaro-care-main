@@ -14,7 +14,6 @@ export default function BottomSheet({
   onClose,
   children,
 }: BottomSheetProps) {
-  // 스크롤 잠금 (UX 디테일)
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';

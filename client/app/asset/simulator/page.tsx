@@ -60,13 +60,12 @@ export default function SimulatorPage() {
   if (hasResult && !isRecalculating) {
     return (
       <div className="flex min-h-screen flex-col bg-white">
-        <Header title="시뮬레이터" onBack={() => router.back()} />
         <TabNavigation
           tabs={DASHBOARD_TABS}
           activeTab={activeTab}
           onTabChange={setActiveTab}
         />
-        <main className="flex flex-1 flex-col gap-8 bg-gradient-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-32">
+        <main className="flex flex-1 flex-col gap-8 bg-linear-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-20">
           {activeTab === 'asset' ? (
             <>
               <div className="flex flex-col gap-1.5">
@@ -79,6 +78,12 @@ export default function SimulatorPage() {
               </div>
 
               <SimulatorSummaryCard />
+
+              <PrimaryButton
+                label="다시 계산하기"
+                variant="secondary"
+                onClick={handleRecalculate}
+              />
 
               <div className="flex flex-col gap-4">
                 <h2 className="font-bold text-[18px] text-hana-black-900">
@@ -99,18 +104,6 @@ export default function SimulatorPage() {
                   />
                 </div>
               </div>
-
-              <div className="mt-8 flex flex-col gap-4">
-                <PrimaryButton
-                  label="다시 계산하기"
-                  variant="secondary"
-                  onClick={handleRecalculate}
-                />
-                <PrimaryButton
-                  label="상세 결과 보기"
-                  onClick={() => router.push('/asset/simulator/result')}
-                />
-              </div>
             </>
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-4 py-20 text-center">
@@ -129,17 +122,7 @@ export default function SimulatorPage() {
   // 입력 화면 (최초 진입 또는 재계산 클릭 시)
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <Header
-        title="시뮬레이터"
-        onBack={() => {
-          if (hasResult) {
-            setIsRecalculating(false);
-          } else {
-            setShowOnboarding(true);
-          }
-        }}
-      />
-      <main className="flex flex-1 flex-col gap-10 bg-gradient-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-25">
+      <main className="flex flex-1 flex-col gap-10 bg-linear-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-20">
         <div className="flex flex-col">
           <h1 className="page-center-text text-hana-black-900">
             미래 병원비 계산기

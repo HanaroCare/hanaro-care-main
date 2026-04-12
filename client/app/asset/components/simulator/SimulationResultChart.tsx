@@ -22,6 +22,7 @@ type SimulationResultChartProps = {
 };
 
 export function SimulationResultChart({ data }: SimulationResultChartProps) {
+  // 데이터 가공 로직
   const chartData = data.map((d) => ({
     age: d.age,
     expense: d.expense,
@@ -34,16 +35,20 @@ export function SimulationResultChart({ data }: SimulationResultChartProps) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full rounded-[24px] bg-white px-[20px] py-[24px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-[#F3F4F6]"
+      className="w-full rounded-[24px] border border-hana-silver-100 bg-white px-5 py-6 shadow-sm"
     >
-      <div className="mb-[40px] flex items-center justify-end gap-4 px-2">
+      <div className="mb-10 flex items-center justify-end gap-4 px-2">
         <div className="flex items-center gap-1.5">
-          <div className="h-[12px] w-[12px] rounded-full bg-[#E94E5A]" />
-          <span className="font-semibold text-[#4B5563] text-[13px]">지출</span>
+          <div className="h-3 w-3 rounded-full bg-hana-red-500" />
+          <span className="font-semibold text-[13px] text-hana-black-500">
+            지출
+          </span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-[12px] w-[12px] rounded-full bg-[#138586]" />
-          <span className="font-semibold text-[#4B5563] text-[13px]">수입</span>
+          <div className="h-3 w-3 rounded-full bg-hana-green-700" />
+          <span className="font-semibold text-[13px] text-hana-black-500">
+            수입
+          </span>
         </div>
       </div>
 
@@ -53,20 +58,25 @@ export function SimulationResultChart({ data }: SimulationResultChartProps) {
             data={chartData}
             margin={{ top: 30, right: 0, left: 0, bottom: 0 }}
           >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-            <XAxis dataKey="age" hide={true} />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              stroke="var(--color-hana-silver-100)"
+            />
+            <XAxis dataKey="age" hide />
             <YAxis hide domain={[0, 'dataMax + 20']} />
+
             <Bar
               dataKey="expense"
               stackId="a"
-              fill="#C28287"
+              fill="var(--color-hana-red-200)"
               barSize={18}
-              radius={[0, 0, 0, 0]}
             />
+
             <Bar
               dataKey="remaining"
               stackId="a"
-              fill="#76C1BE"
+              fill="var(--color-hana-green-200)"
               barSize={18}
               radius={[2, 2, 0, 0]}
             >
@@ -77,7 +87,7 @@ export function SimulationResultChart({ data }: SimulationResultChartProps) {
                 style={{
                   fontSize: '12px',
                   fontWeight: 700,
-                  fill: '#138586',
+                  fill: 'var(--color-hana-green-700)',
                   fontFamily: 'Pretendard',
                 }}
               />
@@ -88,7 +98,7 @@ export function SimulationResultChart({ data }: SimulationResultChartProps) {
                 style={{
                   fontSize: '12px',
                   fontWeight: 700,
-                  fill: '#E94E5A',
+                  fill: 'var(--color-hana-red-500)',
                   fontFamily: 'Pretendard',
                 }}
               />
