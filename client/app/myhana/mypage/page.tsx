@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ChevronDown, ChevronRight, Heart, X } from 'lucide-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { NavigationBar } from '@/components/NavigationBar';
 
 /**
@@ -11,6 +12,7 @@ import { NavigationBar } from '@/components/NavigationBar';
  * - '내 미래 설계하기' 클릭 시 하단 슬라이드 애니메이션
  */
 export default function MyHanaPage() {
+  const router = useRouter();
   // 실제 연동 시에는 useSession이나 전역 상태에서 가져오는 값입니다.
   const [userRole, setUserRole] = useState<'parent' | 'child'>('parent');
 
@@ -83,7 +85,11 @@ export default function MyHanaPage() {
 
           {/* --- 메뉴 리스트 영역 --- */}
           <section className="space-y-1.5 px-6">
-            <MenuItem icon="👥" title="가족 관리" />
+            <MenuItem 
+              icon="👥" 
+              title="가족 관리" 
+              onClick={() => router.push('/myhana/family')} 
+            />
             <MenuItem icon="🛡️" title="가족 보험 관리" />
 
             {userRole === 'parent' ? (
@@ -183,10 +189,11 @@ export default function MyHanaPage() {
 
 // --- 하위 컴포넌트 ---
 
-function MenuItem({ icon, title }: { icon: string; title: string }) {
+function MenuItem({ icon, title, onClick }: { icon: string; title: string; onClick?: () => void }) {
   return (
     <button
       type="button"
+      onClick={onClick}
       className="group flex w-full items-center rounded-2xl p-4 transition-all hover:bg-gray-50 active:bg-gray-100"
     >
       <span className="mr-4 text-xl transition-transform group-hover:scale-110">
