@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import PrimaryButton from '@/components/button/PrimaryButton';
 import { StepIndicator } from '@/components/indicator/StepIndicator';
+import ConsentBottomSheet from './ConsentBottomSheet';
 
 const ONBOARDING_CONTENT = {
   title: (
@@ -63,6 +64,8 @@ export default function SimulatorOnboarding({
 }: SimulatorOnboardingProps) {
   const [[currentStep, direction], setStep] = useState([0, 0]);
 
+  const [isConsentOpen, setIsConsentOpen] = useState(false);
+
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === STEPS.length - 1;
 
@@ -74,6 +77,9 @@ export default function SimulatorOnboarding({
   };
 
   const currentData = STEPS[currentStep];
+  const handleStartClick = () => {
+    setIsConsentOpen(true); // 바로 완료하는 게 아니라 동의 창을 띄움
+  };
 
   return (
     <div className="flex flex-1 flex-col gap-10 px-6 pt-10 pb-25">
@@ -159,9 +165,18 @@ export default function SimulatorOnboarding({
       <footer className="mt-auto w-full pt-4">
         <PrimaryButton
           label="내 노후 자금 진단 시작하기"
-          onClick={onCompleteAction}
+          onClick={handleStartClick}
         />
       </footer>
+
+      <ConsentBottomSheet
+        isOpen={isConsentOpen}
+        onClose={() => setIsConsentOpen(false)}
+        onConfirm={() => {
+          setIsConsentOpen(false);
+          onCompleteAction();
+        }}
+      />
     </div>
   );
 }
