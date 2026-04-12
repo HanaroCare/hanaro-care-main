@@ -2,17 +2,16 @@
 
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { AssetChart } from "../components/AssetChart";
 import { InfoListCard } from "@/components/InfoListCard";
+import { AssetChart } from "../components/AssetChart";
 
 export default function CarDetailPage() {
 	const router = useRouter();
 
 	return (
 		<div className="flex min-h-screen flex-col bg-white">
-			{/* Header */}
 			<header className="sticky top-0 z-50 flex h-14 items-center px-4 bg-white border-b border-zinc-100">
-				<button 
+				<button
 					type="button"
 					onClick={() => router.back()}
 					className="p-2 -ml-2 text-hana-black-900"
@@ -25,7 +24,6 @@ export default function CarDetailPage() {
 			</header>
 
 			<main className="flex flex-col items-center gap-6 px-6 py-6 pb-20">
-				{/* Asset Summary in Detail */}
 				<div className="w-full">
 					<h2 className="text-[24px] font-bold text-hana-black-900 leading-tight">
 						제네시스 GV80

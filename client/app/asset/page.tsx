@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { AlertBanner } from "@/components/AlertBanner";
 import { NavigationBar } from "@/components/NavigationBar";
 import PrimaryButton from "@/components/PrimaryButton";
@@ -123,7 +124,23 @@ function TabContent({ activeTab }: { activeTab: TabId }) {
 }
 
 export default function AssetPage() {
-	const [activeTab, setActiveTab] = useState<TabId>("asset");
+	const searchParams = useSearchParams();
+	const router = useRouter();
+
+	const queryTab = searchParams.get("tab") as TabId;
+	const [activeTab, setActiveTab] = useState<TabId>(queryTab || "asset");
+
+	const handleTabChange = (tabId: string) => {
+		const newTab = tabId as TabId;
+		setActiveTab(newTab);
+		router.replace(`/asset?tab=${newTab}`, { scroll: false });
+	};
+
+	useEffect(() => {
+		if (queryTab && queryTab !== activeTab) {
+			setActiveTab(queryTab);
+		}
+	}, [queryTab, activeTab]);
 
 	const summaryData = useMemo(
 		() => ({
@@ -163,7 +180,7 @@ export default function AssetPage() {
 			<div className="sticky top-0 z-50 bg-white">
 				<AssetTabNavigation
 					initialTab={activeTab}
-					onTabChangeAction={(tabId) => setActiveTab(tabId as TabId)}
+					onTabChangeAction={handleTabChange}
 				/>
 				{/* TODO: GET /api/asset 로 totalAmount fetch */}
 				<AssetSummaryHeader
