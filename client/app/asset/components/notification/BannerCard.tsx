@@ -4,6 +4,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { NotificationButton } from "./NotificationButton";
 
@@ -21,8 +22,26 @@ export function BannerCard({
 	onClick,
 }: BannerCardProps) {
 	const [isVisible, setIsVisible] = useState(true);
+	const router = useRouter();
 
 	if (!isVisible) return null;
+
+	const handleBannerClick = () => {
+		if (onClick) {
+			onClick();
+			return;
+		}
+
+		if (buttonText.includes("병원비 계산하기")) {
+			router.push("/simulator");
+		} else if (buttonText.includes("상속 계산하기")) {
+			router.push("/inheritance/plan");
+		} else if (buttonText.includes("확인하러 가기")) {
+			router.push("/simulator/result");
+		} else if (buttonText.includes("내 실물 자산")) {
+			router.push("/asset?tab=realestate");
+		}
+	};
 
 	return (
 		<AnimatePresence>
@@ -62,7 +81,7 @@ export function BannerCard({
 					<h2 className="whitespace-pre-line font-bold text-[19px] text-hana-black-800 leading-[1.3] tracking-tight">
 						{title}
 					</h2>
-					<NotificationButton variant="green" onClick={onClick}>
+					<NotificationButton variant="green" onClick={handleBannerClick}>
 						{buttonText}
 					</NotificationButton>
 				</div>
