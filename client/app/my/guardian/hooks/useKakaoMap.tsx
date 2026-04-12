@@ -14,9 +14,19 @@ export const useKakaoMap = (
   // 지도 초기화 및 공증인 검색
   // biome-ignore lint/correctness/useExhaustiveDependencies: 마운트 시 한 번만 실행
   useEffect(() => {
+    const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
+    if (!appKey) {
+      setLocationLabel('지도 설정을 확인해주세요.');
+      setLoading(false);
+      return;
+    }
     const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false&libraries=services`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${appKey}&autoload=false&libraries=services`;
     script.async = true;
+    script.onerror = () => {
+      setLocationLabel('지도를 불러오지 못했어요.');
+      setLoading(false);
+    };
     document.head.appendChild(script);
 
     script.onload = () => {

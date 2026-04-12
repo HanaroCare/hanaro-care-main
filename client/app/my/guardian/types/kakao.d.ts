@@ -19,7 +19,7 @@ declare namespace kakao.maps {
   }
 
   interface MarkerOptions {
-    map: KakaoMap;
+    map: Map;
     position: LatLng;
     title?: string;
   }
@@ -92,3 +92,5 @@ declare global {
     kakao: typeof kakao;
   }
 }
+
+export {};

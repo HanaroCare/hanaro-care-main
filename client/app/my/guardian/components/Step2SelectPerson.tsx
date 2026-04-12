@@ -102,7 +102,12 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
           ))}
         </div>
       </div>
-      <PrimaryButton onClick={onNext} className="mt-15 w-full" label={'다음'} />
+      <PrimaryButton
+        onClick={onNext}
+        disabled={!data.selectedPerson}
+        className="mt-15 w-full"
+        label={'다음'}
+      />{' '}
     </div>
   );
 }
