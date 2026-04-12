@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/button/PrimaryButton';
 import Header from '@/components/Header';
+import { TabNavigation } from '@/components/TabNavigation';
 import { CareMethodSelector } from '../components/simulator/CareMethodSelector';
 import { LifeExpectancySlider } from '../components/simulator/LifeExpectancySlider';
 import SimulatorOnboarding from '../components/simulator/SimulatorOnboarding';
@@ -12,11 +13,17 @@ import { SimulatorSummaryCard } from '../components/simulator/SimulatorSummaryCa
 const ONBOARDING_KEY = 'has_seen_simulator_onboarding';
 const COMPLETION_KEY = 'has_completed_simulation';
 
+const DASHBOARD_TABS = [
+  { id: 'asset', label: '자산' },
+  { id: 'inheritance', label: '상속' },
+];
+
 export default function SimulatorPage() {
   const router = useRouter();
   const [showOnboarding, setShowOnboarding] = useState(true);
   const [hasResult, setHasResult] = useState(false);
   const [isRecalculating, setIsRecalculating] = useState(false);
+  const [activeTab, setActiveTab] = useState('asset');
 
   useEffect(() => {
     const hasSeen = localStorage.getItem(ONBOARDING_KEY);
@@ -53,29 +60,46 @@ export default function SimulatorPage() {
     return (
       <div className="flex min-h-screen flex-col bg-white">
         <Header title="시뮬레이터" onBack={() => router.back()} />
+        <TabNavigation
+          tabs={DASHBOARD_TABS}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
         <main className="flex flex-1 flex-col gap-8 bg-gradient-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-25">
-          <div className="flex flex-col gap-1.5">
-            <h1 className="text-[22px] font-bold text-hana-black-900 leading-tight">
-              지난 시뮬레이션 결과예요
-            </h1>
-            <p className="text-[14px] font-medium text-hana-black-500">
-              최근에 설정한 조건으로 계산된 결과예요.
-            </p>
-          </div>
+          {activeTab === 'asset' ? (
+            <>
+              <div className="flex flex-col gap-1.5">
+                <h1 className="text-[22px] font-bold text-hana-black-900 leading-tight">
+                  지난 시뮬레이션 결과예요
+                </h1>
+                <p className="text-[14px] font-medium text-hana-black-500">
+                  최근에 설정한 조건으로 계산된 결과예요.
+                </p>
+              </div>
 
-          <SimulatorSummaryCard />
+              <SimulatorSummaryCard />
 
-          <div className="mt-auto flex flex-col gap-4">
-            <PrimaryButton
-              label="다시 계산하기"
-              variant="secondary"
-              onClick={handleRecalculate}
-            />
-            <PrimaryButton
-              label="상세 결과 보기"
-              onClick={() => router.push('/asset/simulator/result')}
-            />
-          </div>
+              <div className="mt-auto flex flex-col gap-4">
+                <PrimaryButton
+                  label="다시 계산하기"
+                  variant="secondary"
+                  onClick={handleRecalculate}
+                />
+                <PrimaryButton
+                  label="상세 결과 보기"
+                  onClick={() => router.push('/asset/simulator/result')}
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-4 py-20 text-center">
+              <p className="text-[16px] font-medium text-hana-black-500">
+                상속 시뮬레이션은
+                <br />
+                준비 중입니다.
+              </p>
+            </div>
+          )}
         </main>
       </div>
     );
