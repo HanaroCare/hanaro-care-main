@@ -27,3 +27,6 @@ server/src/main/resources/security.yaml
 **/*.iws
 **/*.ipr
 **/*.log
+
+# MySQL data files
+server/mysql/
