@@ -15,48 +15,40 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Getter
-@Setter
+@Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-@Table(name = "TB_USER_LOGIN_LOG")
-public class TBUserLoginLog extends BaseEntity {
+@Table(name = "TB_USER_SIMPLE_AUTH")
+public class TBUserSimpleAuth extends BaseEntity {
 
   @Id
   @Tsid
-  @Column(name = "USER_LOG_ID", columnDefinition = "bigint unsigned")
-  private Long userLogId;
+  @Column(name = "SIMPLE_AUTH_ID", columnDefinition = "bigint unsigned")
+  private Long simpleAuthId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
       name = "USER_ID",
       referencedColumnName = "USER_ID",
       columnDefinition = "bigint unsigned not null",
-      foreignKey = @ForeignKey(name = "fk_UserLoginLog_userId_User")
+      foreignKey = @ForeignKey(name = "fk_UserSimpleAuth_userId_User")
   )
   private TBUser user;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "USER_MEANS_CD", nullable = false, length = 20)
-  private LoginMeans userMeansCd;
+  @Column(name = "AUTH_MEANS_CD", nullable = false, length = 20)
+  private LoginMeans authMeansCd;
 
-  @Builder.Default
-  @Column(name = "USER_RESULT_YN", nullable = false)
-  private boolean userResultYn = true;
+  @Column(name = "AUTH_VALUE", nullable = false, length = 255)
+  private String authValue;
 
-  @Column(name = "ACCESS_IP_ADDR", length = 50)
-  private String accessIpAddr;
-
-  @Column(name = "ACCESS_DEV_NM", length = 255)
-  private String accessDevNm;
 }

@@ -11,18 +11,21 @@ public class SubscriberDTO extends User {
 
   private final Long userId;
   private final String userNm;
+  private final boolean hanaCertYn;
 
-  public SubscriberDTO(Long userId, String userNm, String userPwd,
+  public SubscriberDTO(Long userId, String userNm, String userPwd, boolean hanaCertYn,
       Collection<? extends GrantedAuthority> authorities) {
     super(userNm, userPwd, authorities);
     this.userId = userId;
     this.userNm = userNm;
+    this.hanaCertYn = hanaCertYn;
   }
 
   public Map<String, Object> getClaims() {
     return Map.of(
         "userId", userId,
         "userNm", userNm,
+        "hanaCertYn", hanaCertYn,
         "roles", getAuthorities().stream()
             .map(GrantedAuthority::getAuthority)
             .toList()

@@ -65,13 +65,14 @@ public class JwtUtil {
     Long userId = claims.get("userId", Long.class);
     String userNm = claims.getSubject();
     java.util.List<String> roles = claims.get("roles", java.util.List.class);
+    Boolean hanaCertYn = claims.get("hanaCertYn", Boolean.class);
 
     java.util.List<org.springframework.security.core.authority.SimpleGrantedAuthority> authorities =
         (roles != null) ? roles.stream()
             .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
             .toList() : java.util.Collections.emptyList();
 
-    return new SubscriberDTO(userId, userNm, "", authorities);
+    return new SubscriberDTO(userId, userNm, "", Boolean.TRUE.equals(hanaCertYn), authorities);
   }
 
   public Map<String, Object> authenticationToClaims(Authentication authentication) {
@@ -81,6 +82,7 @@ public class JwtUtil {
 
       claims.put("userId", subscriber.getUserId());
       claims.put("userNm", subscriber.getUserNm());
+      claims.put("hanaCertYn", subscriber.isHanaCertYn());
       claims.put("roles", subscriber.getAuthorities().stream()
           .map(GrantedAuthority::getAuthority).toList());
 
@@ -90,7 +92,7 @@ public class JwtUtil {
 
       return claims;
     }
-    
+
     throw new CustomJwtException("INVALID_AUTH", "인증 정보가 올바르지 않습니다.");
   }
 

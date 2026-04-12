@@ -31,6 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
+        user.isHanaCertYn(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }

@@ -5,22 +5,31 @@ import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
 import com.server.auth.entity.TBRefreshToken;
 import com.server.auth.repository.TBRefreshTokenRepository;
+import com.server.common.exception.ApiException;
 import com.server.common.exception.CustomJwtException;
+import com.server.common.response.code.status.ErrorStatus;
 import com.server.common.security.AuthConstants;
 import com.server.common.security.JwtUtil;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
+import com.server.user.entity.TBUserSimpleAuth;
+import com.server.user.enums.LoginMeans;
 import com.server.user.enums.UserStatus;
 import com.server.user.repository.TBUserRepository;
+import com.server.user.repository.TBUserSimpleAuthRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -29,20 +38,18 @@ public class AuthService {
 
   private final TBUserRepository userRepository;
   private final TBRefreshTokenRepository refreshTokenRepository;
+  private final LoginLogService loginLogService;
+  private final TBUserSimpleAuthRepository simpleAuthRepository;
   private final JwtUtil jwtUtil;
   private final BCryptPasswordEncoder passwordEncoder;
 
   @Value("${jwt.refresh-expiration}")
   private long refreshExpiration;
 
-  /**
-   * 1. 회원가입
-   */
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public void signUp(SignUpRequestDTO request) {
-
     if (userRepository.findByUserNm(request.getUserNm()).isPresent()) {
-      throw new CustomJwtException("DUPLICATE_USERNAME", "이미 사용 중인 아이디입니다.");
+      throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
 
     TBUser user = TBUser.builder()
@@ -51,67 +58,53 @@ public class AuthService {
         .userPhone(request.getUserPhone())
         .userPwd(passwordEncoder.encode(request.getUserPwd()))
         .userStatusCd(UserStatus.ACTIVE)
+        .hanaCertYn(false)
         .build();
 
-    userRepository.save(user);
-    log.info("=================================================");
-    log.info("[회원가입 성공] 신규 사용자가 등록되었습니다!");
-    log.info("등록 계정: {}", user.getUserNm());
-    log.info("사용자 번호(ID): {}", user.getUserId());
-    log.info("부여 권한: {}", user.getUserRole());
-    log.info("가입 시각: {}", LocalDateTime.now());
-    log.info("=================================================");
-  }
-
-  /**
-   * 2. 로그인
-   */
-  @Transactional(rollbackFor = {Exception.class, Error.class})
-  public TokenResponseDTO login(LoginRequestDTO request) {
-
-    TBUser user = userRepository.findByUserNm(request.getUserNm())
-        .orElseThrow(() -> new CustomJwtException("BAD_CREDENTIALS", "아이디 또는 비밀번호가 일치하지 않습니다."));
-
-    if (!passwordEncoder.matches(request.getUserPwd(), user.getUserPwd())) {
-      log.warn("로그인 실패: 비밀번호 불일치 - {}", request.getUserNm());
-      throw new CustomJwtException("BAD_CREDENTIALS", "아이디 또는 비밀번호가 일치하지 않습니다.");
+    try {
+      userRepository.save(user);
+    } catch (DataIntegrityViolationException e) {
+      throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
 
-    SubscriberDTO subscriberDTO = createSubscriberDTO(user);
-    String accessToken = jwtUtil.createAccessToken(subscriberDTO);
-    String refreshToken = jwtUtil.createRefreshToken(subscriberDTO);
-
-    saveRefreshToken(user, refreshToken);
-
-    log.info("로그인 성공: {}", user.getUserNm());
-
-    return TokenResponseDTO.builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .grantType(AuthConstants.TOKEN_TYPE)
-        .userRole(user.getUserRole().name())
-        .userNm(user.getUserNm())
-        .build();
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public void afterCommit() {
+        log.info("[회원가입 성공] userNm={}, userId={}, role={}", user.getUserNm(), user.getUserId(), user.getUserRole());
+      }
+    });
   }
 
-  /**
-   * 3. 토큰 재발급
-   */
+  @Transactional(rollbackFor = {Exception.class, Error.class})
+  public TokenResponseDTO login(LoginRequestDTO request) {
+    TBUser user = userRepository.findByUserNm(request.getUserNm())
+        .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS));
+
+    LoginMeans means = Optional.ofNullable(request.getMeans()).orElse(LoginMeans.PASSWORD);
+
+    verifyCredential(user, request.getUserPwd(), means);
+
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public void afterCommit() {
+        loginLogService.save(user, means, true);
+        log.info("[로그인 성공] userNm={}, means={}", user.getUserNm(), means.getDescription());
+      }
+    });
+
+    return issueTokens(user);
+  }
+
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public TokenResponseDTO refresh(String refreshTokenValue) {
-
     jwtUtil.validateToken(refreshTokenValue);
 
     TBRefreshToken storedToken = refreshTokenRepository.findByTokenValue(refreshTokenValue)
-        .orElseThrow(() -> new CustomJwtException("유효하지 않은 토큰입니다.", "INVALID_TOKEN"));
-
-    if (!storedToken.getTokenValue().equals(refreshTokenValue)) {
-      throw new CustomJwtException("토큰이 일치하지 않습니다. 다시 로그인하세요.", "TOKEN_MISMATCH");
-    }
+        .orElseThrow(() -> new CustomJwtException("AUTH_005", "유효하지 않은 토큰입니다."));
 
     if (storedToken.getExpiryDt().isBefore(LocalDateTime.now())) {
       refreshTokenRepository.delete(storedToken);
-      throw new CustomJwtException("토큰이 만료되었습니다.", "EXPIRED");
+      throw new CustomJwtException("AUTH_006", "토큰이 만료되었습니다.");
     }
 
     TBUser user = storedToken.getUser();
@@ -130,13 +123,56 @@ public class AuthService {
         .build();
   }
 
-  /**
-   * 4. 로그아웃
-   */
   @Transactional
   public void logout(Long userId) {
     refreshTokenRepository.deleteById(userId);
-    log.info("로그아웃 처리: 사용자 ID {}", userId);
+    log.info("[로그아웃] userId={}", userId);
+  }
+
+  private void verifyCredential(TBUser user, String inputSecret, LoginMeans means) {
+    if (means == LoginMeans.PASSWORD) {
+      if (!passwordEncoder.matches(inputSecret, user.getUserPwd())) {
+        log.warn("[로그인 실패] 비밀번호 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+        loginLogService.save(user, means, false);
+        throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
+      }
+      return;
+    }
+
+    if (!user.isHanaCertYn()) {
+      log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      loginLogService.save(user, means, false);
+      throw new ApiException(ErrorStatus.AUTH_CERT_REQUIRED);
+    }
+
+    Optional<TBUserSimpleAuth> authOpt = simpleAuthRepository.findByUserAndAuthMeansCd(user, means);
+    if (authOpt.isEmpty()) {
+      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      loginLogService.save(user, means, false);
+      throw new ApiException(ErrorStatus.AUTH_SIMPLE_NOT_REGISTERED);
+    }
+
+    if (!passwordEncoder.matches(inputSecret, authOpt.get().getAuthValue())) {
+      log.warn("[간편 로그인 실패] 인증 값 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      loginLogService.save(user, means, false);
+      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
+    }
+  }
+
+  private TokenResponseDTO issueTokens(TBUser user) {
+    SubscriberDTO subscriberDTO = createSubscriberDTO(user);
+    String accessToken = jwtUtil.createAccessToken(subscriberDTO);
+    String refreshToken = jwtUtil.createRefreshToken(subscriberDTO);
+
+    saveRefreshToken(user, refreshToken);
+
+    return TokenResponseDTO.builder()
+        .accessToken(accessToken)
+        .refreshToken(refreshToken)
+        .grantType(AuthConstants.TOKEN_TYPE)
+        .userRole(user.getUserRole().name())
+        .userNm(user.getUserNm())
+        .build();
   }
 
   private SubscriberDTO createSubscriberDTO(TBUser user) {
@@ -144,31 +180,19 @@ public class AuthService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
+        user.isHanaCertYn(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }
 
   private void saveRefreshToken(TBUser user, String refreshToken) {
-
-    if (user == null || user.getUserId() == null) {
-      log.error("사용자 정보가 없어 리프레시 토큰을 저장할 수 없습니다.");
-      return;
-    }
-
     TBRefreshToken tbRefreshToken = refreshTokenRepository.findById(user.getUserId())
-        .orElse(null);
+        .orElseGet(() -> TBRefreshToken.builder()
+            .userId(user.getUserId())
+            .build());
 
-    if (tbRefreshToken == null) {
-      tbRefreshToken = TBRefreshToken.builder()
-          .userId(user.getUserId())
-          .tokenValue(refreshToken)
-          .expiryDt(calculateExpiryDt())
-          .build();
-    } else {
-      tbRefreshToken.setTokenValue(refreshToken);
-      tbRefreshToken.setExpiryDt(calculateExpiryDt());
-    }
-
+    tbRefreshToken.setTokenValue(refreshToken);
+    tbRefreshToken.setExpiryDt(calculateExpiryDt());
     refreshTokenRepository.save(tbRefreshToken);
   }
 
