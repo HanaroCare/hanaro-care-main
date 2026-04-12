@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import { User } from 'lucide-react';
+import { User, AlertCircle } from 'lucide-react';
 // import BottomNav from '@/components/BottomNav';
 import InheritanceHeader from '@/components/InheritanceHeader';
 import styles from './page.module.css';
@@ -19,6 +19,7 @@ const COLORS = [
 
 export default function InheritanceResultPage() {
   const router = useRouter();
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const resultData = useMemo(() => [
     { name: '배우자', value: 30 },
@@ -31,12 +32,14 @@ export default function InheritanceResultPage() {
     localStorage.setItem('inheritance_completed', 'true');
   }, []);
 
-  const handleReset = (e: React.MouseEvent) => {
+  const openResetModal = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (confirm('상속 설계를 처음부터 다시 시작하시겠습니까?')) {
-      localStorage.removeItem('inheritance_completed');
-      router.push('/inheritance/plan');
-    }
+    setShowConfirmModal(true);
+  };
+
+  const confirmReset = () => {
+    localStorage.removeItem('inheritance_completed');
+    router.push('/inheritance/plan');
   };
 
   return (
@@ -49,6 +52,7 @@ export default function InheritanceResultPage() {
             <h1 className={styles.title}>상속설계 결과</h1>
             
             <section className={styles.chartSection}>
+              {/* ... (차트 내용 유지) */}
               <div className={styles.chartWrapper} style={{ height: '220px', width: '220px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -101,6 +105,7 @@ export default function InheritanceResultPage() {
             </section>
 
             <div className={styles.memberList}>
+              {/* ... (리스트 내용 유지) */}
               <div className={styles.memberCard}>
                 <div className={styles.memberHeader}>
                   <div className={styles.memberInfo}>
@@ -189,11 +194,42 @@ export default function InheritanceResultPage() {
               </div>
             </div>
 
-            <Link href="/inheritance/plan" className={styles.actionButton} onClick={handleReset}>
+            <button className={styles.actionButton} onClick={openResetModal}>
               상속 설계 다시하기
-            </Link>
+            </button>
           </main>
         </div>
+
+        {/* Custom Confirmation Modal */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 animate-in fade-in duration-200">
+            <div className="w-full max-w-[320px] bg-white rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+              <div className="p-6 text-center">
+                <div className="w-12 h-12 bg-[var(--color-hana-red-50)] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-6 h-6 text-[var(--color-hana-red-500)]" />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">상속 설계 초기화</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  작성하신 상속 설계를 처음부터<br />다시 시작하시겠습니까?
+                </p>
+              </div>
+              <div className="flex border-t border-gray-100">
+                <button 
+                  className="flex-1 px-4 py-4 text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                  onClick={() => setShowConfirmModal(false)}
+                >
+                  취소
+                </button>
+                <button 
+                  className="flex-1 px-4 py-4 text-sm font-bold text-[var(--color-hana-red-500)] border-l border-gray-100 hover:bg-red-50 transition-colors"
+                  onClick={confirmReset}
+                >
+                  확인
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className={styles.navWrapper}>
           {/* <BottomNav activePath="/inheritance" /> */}
