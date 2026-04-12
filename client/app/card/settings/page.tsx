@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronDown } from "lucide-react";
 import CancelModal from "./components/CancelModal";
-import CardView from "../components/Cardview";
+import CardView from "../components/CardView";
 
 const MIN = 100000;
 const MAX = 2000000;

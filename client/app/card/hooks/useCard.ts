@@ -20,7 +20,7 @@ export interface UsageData {
 // TODO: 백엔드 연동 시 API로 교체
 const MOCK_CARD: CardData = {
   cardId: 1,
-  cardNm: "요양보호사1의 카드",
+  cardNm: "김복자 요양사의 카드",
   balance: 320000,
   autoTransAmt: 500000,
   limitAmt: 1000000,

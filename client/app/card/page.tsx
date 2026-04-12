@@ -2,7 +2,7 @@
 
 import { useCard } from "./hooks/useCard";
 import CardIssueScreen from "./components/Cardissuesscreen";
-import CardDashboardScreen from "./components/Carddashboardscreen";
+import CardDashboardScreen from "./components/CardDashboardScreen";
 
 export default function CardPage() {
   const { card, usages, showIssue, setShowIssue, issueCard } = useCard();

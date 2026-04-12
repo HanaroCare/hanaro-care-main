@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { CheckCircle } from "lucide-react";
 import { ChevronLeft } from "lucide-react";
-import CardView from "../../components/Cardview";
+import CardView from "../../components/CardView";
 
 export default function CardIssueCompletePage() {
   const router = useRouter();

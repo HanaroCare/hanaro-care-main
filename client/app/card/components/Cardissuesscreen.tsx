@@ -1,4 +1,4 @@
-import CardView from "./Cardview";
+import CardView from "./CardView";
 
 interface CardIssueScreenProps {
   onIssue: () => void;
