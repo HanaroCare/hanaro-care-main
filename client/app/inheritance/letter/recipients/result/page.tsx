@@ -1,6 +1,5 @@
 "use client";
 
-import Header from "@/app/inheritance/components/letter/Header";
 import LetterCard from "@/app/inheritance/components/letter/LetterCard";
 import LetterSummary from "@/app/inheritance/components/letter/LetterSummary";
 import { toPng } from "html-to-image";
@@ -25,10 +24,14 @@ const mockResult = {
     "https://s3.ap-northeast-2.amazonaws.com/your-bucket/audio/test.mp3",
 };
 
-export default function InheritanceCompletePage() {
+export default function InheritanceCompletePage({
+  searchParams,
+}: {
+  searchParams: { method?: string };
+}) {
   const router = useRouter();
-  const searchParam = useSearchParams();
-  const method = (searchParam.get("method") as "once" | "divided") || "once";
+
+  const method = (searchParams.method as "once" | "divided") || "once";
 
   const handleShare = async () => {
     if (mockResult.letterType === "LETTER") {
@@ -62,16 +65,16 @@ export default function InheritanceCompletePage() {
 
   const handleImageSave = async () => {
     if (!cardRef.current) return;
-		try {
-    const dataUrl = await toPng(cardRef.current);
-    const link = document.createElement("a");
-    link.download = "inheritance-letter.png";
-    link.href = dataUrl;
-    link.click();
-		} catch (error) {
-    console.error("이미지 저장 실패:", error);
-    alert("이미지 저장에 실패했습니다. 다시 시도해주세요.");
-  }
+    try {
+      const dataUrl = await toPng(cardRef.current);
+      const link = document.createElement("a");
+      link.download = "inheritance-letter.png";
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error("이미지 저장 실패:", error);
+      alert("이미지 저장에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   return (
