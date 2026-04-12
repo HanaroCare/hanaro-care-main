@@ -3,6 +3,7 @@
 import { CircleCheck } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import DualActionFooter from "../../../components/DualActionFooter";
 
 const benefits = [
 	{
@@ -73,21 +74,11 @@ export default function TrustPage() {
 					</section>
 				</main>
 
-				<footer className="flex shrink-0 gap-2.75 bg-white px-5.5 pt-3 pb-4">
-					<button
-						type="button"
-						className="h-13.25 flex-1 rounded-lg bg-[#E9F8F9] text-[16px] leading-5 font-semibold tracking-[-0.15px] text-hana-green-700"
-					>
-						상담 신청
-					</button>
-					<button
-						type="button"
-						onClick={() => router.push("/asset/trust/select-assets")}
-						className="h-13.25 flex-1 rounded-lg bg-hana-ez-600 text-[16px] leading-5 font-semibold tracking-[-0.15px] text-white"
-					>
-						상품 비교
-					</button>
-				</footer>
+				<DualActionFooter
+					leftLabel="상담 신청"
+					rightLabel="상품 비교"
+					onRightClick={() => router.push("/asset/trust/select-assets")}
+				/>
 			</div>
 		</div>
 	);
