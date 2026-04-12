@@ -33,7 +33,7 @@ const MOCK_USAGES: UsageData[] = [
 ];
 
 export function useCard() {
-  const [card, setCard] = useState<CardData | null>(null);
+  const [card, setCard] = useState<CardData | null>(MOCK_CARD);
   const [usages] = useState<UsageData[]>(MOCK_USAGES);
   const [showIssue, setShowIssue] = useState(false);
 

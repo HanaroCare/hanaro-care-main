@@ -1,21 +1,20 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCard } from "./hooks/useCard";
-import CardIssueScreen from "./components/Cardissuesscreen";
 import CardDashboardScreen from "./components/CardDashboardScreen";
 
 export default function CardPage() {
-  const { card, usages, showIssue, setShowIssue, issueCard } = useCard();
+  const router = useRouter();
+  const { card, usages } = useCard();
 
-  if (!card || showIssue) {
-    return <CardIssueScreen onIssue={issueCard} />;
-  }
+  if (!card) return null; // TODO: 백엔드 연동 시 로딩/리다이렉트 처리
 
   return (
     <CardDashboardScreen
       card={card}
       usages={usages}
-      onAddCard={() => setShowIssue(true)}
+      onAddCard={() => router.push("/card/add")}
     />
   );
 }

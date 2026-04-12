@@ -35,16 +35,16 @@ export default function CardIssueCompletePage() {
       {/* 버튼 */}
       <div className="absolute bottom-8 left-0 right-0 px-6 flex flex-col gap-3">
         <button
-          onClick={() => router.push("/card")}
-          className="w-full h-[53px] rounded-xl bg-hana-ez-600 text-white text-base font-medium hover:bg-hana-green-700 transition-colors"
+          onClick={() => router.push("/card/add")}
+          className="w-full h-[53px] rounded-xl border-2 border-border-gray text-[#99A1AF] text-base font-medium"
         >
           + 카드 추가하기
         </button>
         <button
           onClick={() => router.push("/card")}
-          className="w-full h-[53px] rounded-xl border-2 border-border-gray text-[#99A1AF] text-base font-medium"
+          className="w-full h-[53px] rounded-xl bg-hana-ez-600 text-white text-base font-medium hover:bg-hana-green-700 transition-colors"
         >
-          카드 관리 보기
+          홈으로 돌아가기
         </button>
       </div>
     </div>

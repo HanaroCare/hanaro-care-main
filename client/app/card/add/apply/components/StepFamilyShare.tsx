@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 
 interface FamilyMember {
@@ -27,6 +28,12 @@ export default function StepFamilyShare({
   onNext,
   isActive,
 }: StepFamilyShareProps) {
+  const [alertAgreed, setAlertAgreed] = useState(false);
+
+  const handleToggleAll = (val: boolean) => {
+    onToggleAll(val); // toggleAllMembers만 호출
+  };
+
   return (
     <div className="page-in px-8 pt-8 pb-6 border-t border-border-gray">
       <h2 className="text-lg font-semibold leading-[30px] tracking-snug text-black whitespace-pre-line">
@@ -42,7 +49,7 @@ export default function StepFamilyShare({
         <Switch
           checked={shareAll}
           disabled={!isActive}
-          onCheckedChange={onToggleAll}
+          onCheckedChange={handleToggleAll}
           className="data-[state=checked]:bg-hana-green-700"
         />
       </div>
@@ -55,7 +62,6 @@ export default function StepFamilyShare({
             className="flex items-center justify-between px-4 h-[74px] bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
           >
             <div className="flex items-center gap-3">
-              {/* 아바타 */}
               <div className="w-10 h-10 rounded-full bg-hana-green-50 flex items-center justify-center">
                 <span className="text-lg font-semibold text-hana-ez-600">{m.initial}</span>
               </div>
@@ -79,18 +85,46 @@ export default function StepFamilyShare({
         ))}
       </div>
 
-      {/* 이상 감지 알림 안내 */}
-      <div className="mt-4 px-4 py-3 bg-hana-red-50 rounded-[14px]">
-        <p className="text-xs font-medium text-hana-red-500">이상 감지 알림</p>
-        <p className="text-[11px] text-hana-red-500 mt-1 leading-5">
-          차단 카테고리 결제 시도, 한도 초과, 심야 결제 등 이상 지출이 감지되면 선택한 가족 전체에게 즉시 알림이 가요.
-        </p>
+      {/* 이상 감지 알림 */}
+      <div
+        className={`mt-4 px-4 py-3 rounded-[14px] border transition-colors cursor-pointer ${
+          alertAgreed
+            ? "bg-hana-blue-50 border-hana-blue-300"
+            : "bg-hana-red-50 border-hana-red-100"
+        }`}
+        onClick={() => setAlertAgreed(!alertAgreed)}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <p className={`text-xs font-medium ${alertAgreed ? "text-hana-blue-600" : "text-hana-red-500"}`}>
+              이상 감지 알림
+            </p>
+            <p className={`text-[11px] mt-1 leading-5 ${alertAgreed ? "text-hana-blue-500" : "text-hana-red-500"}`}>
+              차단 카테고리 결제 시도, 한도 초과, 심야 결제 등 이상 지출이 감지되면 선택한 가족 전체에게 즉시 알림이 가요.
+            </p>
+          </div>
+          {/* 큰 체크박스 */}
+          <div
+            className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-colors ${
+              alertAgreed
+                ? "border-hana-blue-500 bg-hana-blue-500"
+                : "border-hana-red-400 bg-transparent"
+            }`}
+          >
+            {alertAgreed && (
+              <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
+                <path d="M1 5.5L5 9.5L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </div>
+        </div>
       </div>
 
       {isActive && (
         <button
           onClick={onNext}
-          className="mt-6 w-full h-[53px] rounded-xl bg-hana-ez-600 text-white text-base font-medium hover:bg-hana-green-700 transition-colors"
+          disabled={!alertAgreed}
+          className="mt-6 w-full h-[53px] rounded-xl text-white text-base font-medium transition-colors disabled:bg-gray-200 disabled:text-gray-400 bg-hana-ez-600 hover:bg-hana-green-700"
         >
           발급 완료
         </button>

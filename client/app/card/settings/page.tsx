@@ -136,7 +136,7 @@ export default function CardSettingsPage() {
             </div>
             {isMax ? (
               <p className="text-xs text-hana-green-700 mt-2 font-medium">
-                안전한 요양비 관리를 위해 월 60만원을 권장해요
+                월 60만원까지 충전할 수 있어요
               </p>
             ) : (
               <p className="text-xs text-hana-green-700 mt-2 font-medium">

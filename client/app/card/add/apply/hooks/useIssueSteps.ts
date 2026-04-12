@@ -19,7 +19,7 @@ export function useIssueSteps() {
   const topRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState<IssueFormData>({
-    limitAmt: 600000,
+    limitAmt: 400000,
     accountId: null,
     cardNm: "",
     familyShareAll: true,
@@ -34,7 +34,11 @@ export function useIssueSteps() {
   useEffect(() => {
     if (visibleSteps.length > 1) {
       setTimeout(() => {
-        topRef.current?.scrollIntoView({ behavior: "smooth" });
+        const el = topRef.current;
+        if (el) {
+          const top = el.getBoundingClientRect().top + window.scrollY - 65;
+          window.scrollTo({ top, behavior: "smooth" });
+        }
       }, 100);
     }
   }, [visibleSteps]);
@@ -56,6 +60,15 @@ export function useIssueSteps() {
     setFormData((prev) => ({ ...prev, ...data }));
   };
 
+  // 전체 토글 - 한 번에 업데이트
+  const toggleAllMembers = (val: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      familyShareAll: val,
+      familyMembers: prev.familyMembers.map((m) => ({ ...m, shareEnabled: val })),
+    }));
+  };
+
   return {
     currentStep,
     visibleSteps,
@@ -63,6 +76,7 @@ export function useIssueSteps() {
     setShowModal,
     formData,
     updateFormData,
+    toggleAllMembers,
     nextStep,
     topRef,
   };
