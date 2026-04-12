@@ -43,7 +43,7 @@ export default function SimulatorResultPage() {
         className="border-none bg-transparent"
       />
 
-      <main className="flex flex-col gap-9 px-6 pt-6 pb-25">
+      <main className="flex flex-col gap-9 px-6 pt-6 pb-20">
         <section className="flex flex-col gap-6">
           <div className="flex flex-col gap-1.5 text-hana-black-900 tracking-snug">
             <h1 className="font-semibold text-[22px] leading-snug">
@@ -63,7 +63,6 @@ export default function SimulatorResultPage() {
           />
         </section>
 
-        {/* 지출 내역 상세 */}
         <section className="flex flex-col gap-4">
           <h2 className="font-bold text-[17px] text-hana-black-800 tracking-tight">
             지출 내역
@@ -81,7 +80,7 @@ export default function SimulatorResultPage() {
         <div className="mt-4">
           <PrimaryButton
             label="연령별로 결과 자세히 보기"
-            onClick={() => console.log('자세히 보기')}
+            onClick={() => router.push('/asset/simulator/result/detail')}
             variant="primary"
           />
         </div>

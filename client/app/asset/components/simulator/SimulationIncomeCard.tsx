@@ -31,7 +31,7 @@ export function SimulationIncomeCard({
               <span className="font-medium text-[#111827] text-[16px]">
                 {item.label}
               </span>
-              <span className="font-bold text-[#008485] text-[20px]">
+              <span className="font-bold text-[20px] text-hana-green-700">
                 {item.amount}
               </span>
             </div>
@@ -53,7 +53,7 @@ export function SimulationIncomeCard({
       </div>
 
       <div className="flex h-[72px] w-full items-center justify-center rounded-[16px] bg-[#F0FDFA]">
-        <span className="font-bold text-[#008485] text-[28px]">
+        <span className="font-bold text-[28px] text-hana-green-700">
           {totalAvailable}
         </span>
       </div>
