@@ -1,3 +1,4 @@
+import Header from '@/components/Header';
 import { insuranceDetails, viewMode } from '../constants/data';
 import InsuranceLogo from '../constants/InsuranceLogo';
 
@@ -29,7 +30,8 @@ export default async function InsuranceDetailPage({
   return (
     <div className="-mx-6.25 min-h-full bg-gray-50 px-6.25 pt-2 pb-83">
       <div className="mt-12 mb-5 rounded-2xl bg-white p-5 py-7 shadow-sm">
-        {/* 헤더 */}
+        <Header title="보험 관리" />
+
         <div className="flex items-center gap-3">
           <InsuranceLogo />
           <div>
