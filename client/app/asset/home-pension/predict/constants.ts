@@ -1,7 +1,7 @@
 export type PeriodKey = '5' | '10' | '20';
 export type ScenarioKey = 'bull' | 'base' | 'bear';
 
-type DataPoint = {
+export type DataPoint = {
   year: string;
   past?: number;
   bull?: number;

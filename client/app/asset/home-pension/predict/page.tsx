@@ -16,6 +16,11 @@ import {
   scenarioMeta,
 } from './constants';
 
+function formatEok(value?: number) {
+  if (typeof value !== 'number') return '-';
+  return Number.isInteger(value) ? `${value}억` : `${value.toFixed(1)}억`;
+}
+
 export default function HomeValueForecastPage() {
   const router = useRouter();
   const [period, setPeriod] = useState<PeriodKey>('5');
@@ -23,14 +28,25 @@ export default function HomeValueForecastPage() {
 
   const chartData = useMemo(() => chartDataByPeriod[period], [period]);
 
+  const currentValues = useMemo(() => {
+    const last = chartData[chartData.length - 1];
+
+    return {
+      bull: formatEok(last?.bull),
+      base: formatEok(last?.base),
+      bear: formatEok(last?.bear),
+    };
+  }, [chartData]);
+
   const summaryText = useMemo(() => {
     if (selectedScenario === 'bull') {
       return {
         title: '낙관 (집값 상승)',
-        desc1: '5년 후 매도 → 약 13.6억 예상돼요!',
-        desc2: '5년 후 매각을 추천해요!',
+        desc1: `${period}년 후 매도 → 약 ${currentValues.bull} 예상돼요!`,
+        desc2: `${period}년 후 매각을 추천해요!`,
       };
     }
+
     if (selectedScenario === 'base') {
       return {
         title: '중립 (현상 유지)',
@@ -38,12 +54,13 @@ export default function HomeValueForecastPage() {
         desc2: '연금을 추천해요!',
       };
     }
+
     return {
-      title: '비관 (집값 정체) : 20% 이런식으로 표시',
+      title: '비관 (집값 정체)',
       desc1: '매도보다 연금 총액이 더 많아요',
       desc2: '연금이 유리해요!',
     };
-  }, [selectedScenario]);
+  }, [selectedScenario, period, currentValues]);
 
   const currentScenario = scenarioMeta[selectedScenario];
 
@@ -52,7 +69,7 @@ export default function HomeValueForecastPage() {
       <div className="app-layout bg-white">
         <SubHeader
           title="집값 예측"
-          backUrl="/asset/check-home"
+          backUrl="/asset/home-pension/check-home"
           closeUrl="/asset"
         />
         <main className="app-main no-scrollbar px-5 pt-7 pb-6">
@@ -88,10 +105,10 @@ export default function HomeValueForecastPage() {
               <ForecastLegend />
             </div>
 
-            {period === '5' && (
+            {
               <div className="mt-5 rounded-[24px] bg-[#EAF8F7] px-6 py-6 text-center">
                 <p className="text-[14px] leading-5 font-medium text-hana-ez-600">
-                  5년 뒤 집값이
+                  {period}년 뒤 집값이
                 </p>
                 <p className="mt-2 text-[20px] leading-7 font-bold text-hana-ez-600">
                   8.8억~9.0억일 확률이
@@ -100,11 +117,11 @@ export default function HomeValueForecastPage() {
                   가장 높아요!
                 </p>
               </div>
-            )}
+            }
 
             <div className="mt-6">
               <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
-                5년 후 예상 시세
+                {period}년 후 예상 시세
               </p>
 
               <div className="mt-3 flex gap-3">
@@ -113,7 +130,7 @@ export default function HomeValueForecastPage() {
                     key={key}
                     label={scenarioMeta[key].label}
                     share={scenarioMeta[key].share}
-                    value={scenarioMeta[key].value}
+                    value={currentValues[key]}
                     color={scenarioMeta[key].color}
                     bgColor={scenarioMeta[key].bgColor}
                     selected={selectedScenario === key}

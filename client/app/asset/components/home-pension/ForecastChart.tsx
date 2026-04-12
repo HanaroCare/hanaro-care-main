@@ -7,14 +7,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-
-type DataPoint = {
-  year: string;
-  past?: number;
-  bull?: number;
-  base?: number;
-  bear?: number;
-};
+import type { DataPoint } from '../../home-pension/predict/constants';
 
 type ForecastChartProps = {
   data: DataPoint[];
@@ -40,7 +33,7 @@ export function ForecastChart({ data }: ForecastChartProps) {
             tick={{ fontSize: 11, fill: '#9CA3AF' }}
           />
           <YAxis
-            domain={[6, 14]}
+            domain={[6, 15]}
             ticks={[6, 8, 10, 12, 14]}
             axisLine={false}
             tickLine={false}

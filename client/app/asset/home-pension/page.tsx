@@ -81,8 +81,16 @@ export default function HomePensionPage() {
 
         {showEmptyModal && (
           <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-10">
-            <div className="w-full max-w-[260px] rounded-[24px] bg-white px-6 py-8 shadow-[0_10px_30px_rgba(0,0,0,0.16)]">
-              <p className="text-center text-[18px] leading-[30px] font-medium tracking-[-0.03em] text-[#1F2937]">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="empty-home-modal-title"
+              className="w-full max-w-65 rounded-[24px] bg-white px-6 py-8 shadow-[0_10px_30px_rgba(0,0,0,0.16)]"
+            >
+              <p
+                id="empty-home-modal-title"
+                className="text-center text-[18px] leading-[30px] font-medium tracking-[-0.03em] text-[`#1F2937`]"
+              >
                 현재 조회되는
                 <br />
                 주택이 없습니다.

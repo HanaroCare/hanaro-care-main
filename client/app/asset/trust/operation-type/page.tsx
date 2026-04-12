@@ -58,7 +58,6 @@ export default function OperationTypePage() {
 >>>>>>> 6124be8 (HN-22-fix/오류수정)
           <PrimaryButton
             label="다음으로"
-            disabled={!selected}
             onClick={() => router.push('/asset/trust/payout-type')}
           />
         </footer>

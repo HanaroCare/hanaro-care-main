@@ -18,6 +18,8 @@ export function ScenarioValueCard({
   return (
     <button
       type="button"
+      aria-pressed={selected}
+      aria-label={`${label} 시나리오 ${selected ? '선택됨' : '선택 안됨'}`}
       onClick={onClick}
       className="flex flex-1 flex-col items-center rounded-3xl px-4 py-3 text-center transition"
       style={{
