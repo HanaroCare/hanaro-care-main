@@ -1,6 +1,7 @@
 'use client';
 
 import { Check, CheckCircle2 } from 'lucide-react';
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import PrimaryButton from '@/components/PrimaryButton';
 
@@ -83,7 +84,7 @@ export default function Step7Complete({ onPrev }: Props) {
       </div>
       <PrimaryButton
         label={'홈으로 돌아가기'}
-        onClick={() => router.push('/my')}
+        onClick={() => router.push('/my' as Route)}
         className="mb-3"
       />
       <PrimaryButton

@@ -10,6 +10,7 @@ import { AssetDetailCard } from './components/AssetDetailCard';
 import { AssetListCard } from './components/AssetListCard';
 import { AssetSummaryHeader } from './components/AssetSummaryHeader';
 import { AssetTabNavigation } from './components/AssetTabNavigation';
+import { Route } from 'next';
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
@@ -191,7 +192,7 @@ function AssetPageContent() {
 
   const handlePrimaryAction = () => {
     if (currentSummary.href) {
-      router.push(currentSummary.href);
+      router.push(currentSummary.href as Route);
     }
   };
 
