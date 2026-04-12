@@ -18,13 +18,14 @@ export function NavigationBar() {
 	return (
 		<nav className="-translate-x-1/2 fixed bottom-0 left-1/2 flex h-16.25 w-full max-w-93.75 items-center justify-around bg-white px-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
 			{NAV_ITEMS.map(({ id, label, Icon, href }) => {
-				const isActive = pathname === href;
+				const isActive =
+					href === "/" ? pathname === "/" : pathname.startsWith(href);
 				return (
 					<motion.button
 						key={id}
 						whileTap={{ scale: 0.95 }}
 						onClick={() => router.push(href)}
-						className="flex flex-col items-center gap-1 p-2 focus:outline-none"
+						className="flex flex-col items-center gap-1 p-2 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-hana-green-700/50"
 					>
 						<Icon
 							size={24}

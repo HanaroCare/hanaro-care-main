@@ -16,7 +16,9 @@ const ASSET_DATA = [
 export function AssetDashboard() {
 	const router = useRouter();
 	return (
-		<motion.div
+		<motion.button
+			type="button"
+			aria-label="자산 상세 화면으로 이동"
 			whileTap={{ scale: 0.98 }}
 			onClick={() => router.push("/asset")}
 			className="flex w-81.25 cursor-pointer flex-col overflow-hidden rounded-4xl shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
@@ -109,6 +111,6 @@ export function AssetDashboard() {
 					</div>
 				</div>
 			</div>
-		</motion.div>
+		</motion.button>
 	);
 }

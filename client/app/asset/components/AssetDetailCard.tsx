@@ -59,6 +59,13 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 		}
 	};
 
+	const handleKeyDown = (e: React.KeyboardEvent) => {
+		if (e.key === "Enter" || e.key === " ") {
+			e.preventDefault();
+			handleCardClick();
+		}
+	};
+
 	if (props.type === "insurance") {
 		const {
 			iconType = "hana-bank",
@@ -73,7 +80,10 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 				initial={{ opacity: 0, y: 10 }}
 				animate={{ opacity: 1, y: 0 }}
 				onClick={handleCardClick}
-				className="relative flex h-22.5 w-81.25 cursor-pointer items-center justify-between rounded-[15px] border-[0.5px] border-border-gray bg-white px-4.5 shadow-sm active:bg-zinc-50"
+				onKeyDown={handleKeyDown}
+				tabIndex={0}
+				role="button"
+				className="relative flex h-22.5 w-81.25 cursor-pointer items-center justify-between rounded-[15px] border-[0.5px] border-border-gray bg-white px-4.5 shadow-sm active:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-hana-green-500/50"
 			>
 				<div className="flex items-center gap-4.25">
 					<div className="flex size-8.25 items-center justify-center rounded-[10px] bg-hana-teal-100">
@@ -138,7 +148,10 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 			initial={{ opacity: 0, y: 10 }}
 			animate={{ opacity: 1, y: 0 }}
 			onClick={handleCardClick}
-			className="relative flex h-32 w-81.25 cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border-[0.5px] border-border-gray bg-white p-5 shadow-sm active:bg-zinc-50"
+			onKeyDown={handleKeyDown}
+			tabIndex={0}
+			role="button"
+			className="relative flex h-32 w-81.25 cursor-pointer flex-col justify-between overflow-hidden rounded-3xl border-[0.5px] border-border-gray bg-white p-5 shadow-sm active:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-hana-green-500/50"
 		>
 			<div className="flex items-start justify-between">
 				<div className="flex items-start gap-3">

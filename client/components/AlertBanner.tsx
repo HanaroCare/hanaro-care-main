@@ -53,7 +53,7 @@ export function AlertBanner({
 				</span>
 			</div>
 
-			{actionText && (
+			{actionText && onActionAction && (
 				<button
 					type="button"
 					onClick={onActionAction}

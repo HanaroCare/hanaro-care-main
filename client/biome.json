@@ -1,9 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
   "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
+    "enabled": false
   },
   "files": {
     "ignoreUnknown": true,
@@ -31,7 +29,7 @@
           "options": {}
         }
       },
-      "a11y": { "useButtonType": "off", "noSvgWithoutTitle": "off" }
+      "a11y": { "useButtonType": "warn", "noSvgWithoutTitle": "warn" }
     },
     "domains": {
       "next": "recommended",

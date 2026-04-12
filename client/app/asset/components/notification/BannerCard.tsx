@@ -13,6 +13,7 @@ type BannerCardProps = {
 	buttonText: string;
 	imageSrc: string;
 	onClick?: () => void;
+	href?: string;
 };
 
 export function BannerCard({
@@ -20,6 +21,7 @@ export function BannerCard({
 	buttonText,
 	imageSrc,
 	onClick,
+	href,
 }: BannerCardProps) {
 	const [isVisible, setIsVisible] = useState(true);
 	const router = useRouter();
@@ -32,14 +34,8 @@ export function BannerCard({
 			return;
 		}
 
-		if (buttonText.includes("병원비 계산하기")) {
-			router.push("/simulator");
-		} else if (buttonText.includes("상속 계산하기")) {
-			router.push("/inheritance/plan");
-		} else if (buttonText.includes("확인하러 가기")) {
-			router.push("/simulator/result");
-		} else if (buttonText.includes("내 실물 자산")) {
-			router.push("/asset?tab=realestate");
+		if (href) {
+			router.push(href);
 		}
 	};
 
@@ -62,6 +58,7 @@ export function BannerCard({
 						e.stopPropagation();
 						setIsVisible(false);
 					}}
+					aria-label="알림 닫기"
 					className="absolute top-4 right-4 z-50 flex size-6 items-center justify-center rounded-full bg-white/50 outline-none backdrop-blur-sm transition-colors hover:bg-white"
 				>
 					<X size={12} className="text-hana-black-500" />

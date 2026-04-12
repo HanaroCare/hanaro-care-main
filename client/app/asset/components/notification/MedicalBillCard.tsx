@@ -16,8 +16,11 @@ export function MedicalBillCard({
 	totalLimit = 500000,
 	onClick,
 }: MedicalBillCardProps) {
-	const remainingAmount = totalLimit - usedAmount;
-	const progressPercent = (usedAmount / totalLimit) * 100;
+	const remainingAmount = Math.max(0, totalLimit - usedAmount);
+	const progressPercent =
+		totalLimit > 0
+			? Math.max(0, Math.min(100, (usedAmount / totalLimit) * 100))
+			: 0;
 
 	return (
 		<NotificationCardWrapper
