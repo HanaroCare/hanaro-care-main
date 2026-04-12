@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import { TabNavigation } from '@/components/TabNavigation';
 import { CareMethodSelector } from '../components/simulator/CareMethodSelector';
 import { LifeExpectancySlider } from '../components/simulator/LifeExpectancySlider';
+import { PensionCard } from '../components/simulator/PensionCard';
 import SimulatorOnboarding from '../components/simulator/SimulatorOnboarding';
 import { SimulatorSummaryCard } from '../components/simulator/SimulatorSummaryCard';
 
@@ -28,7 +29,7 @@ export default function SimulatorPage() {
   useEffect(() => {
     const hasSeen = localStorage.getItem(ONBOARDING_KEY);
     const completed = localStorage.getItem(COMPLETION_KEY);
-    
+
     if (hasSeen === 'true') {
       setShowOnboarding(false);
     }
@@ -65,21 +66,41 @@ export default function SimulatorPage() {
           activeTab={activeTab}
           onTabChange={setActiveTab}
         />
-        <main className="flex flex-1 flex-col gap-8 bg-gradient-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-25">
+        <main className="flex flex-1 flex-col gap-8 bg-gradient-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-32">
           {activeTab === 'asset' ? (
             <>
               <div className="flex flex-col gap-1.5">
-                <h1 className="text-[22px] font-bold text-hana-black-900 leading-tight">
+                <h1 className="font-bold text-[22px] text-hana-black-900 leading-tight">
                   지난 시뮬레이션 결과예요
                 </h1>
-                <p className="text-[14px] font-medium text-hana-black-500">
+                <p className="font-medium text-[14px] text-hana-black-500">
                   최근에 설정한 조건으로 계산된 결과예요.
                 </p>
               </div>
 
               <SimulatorSummaryCard />
 
-              <div className="mt-auto flex flex-col gap-4">
+              <div className="flex flex-col gap-4">
+                <h2 className="font-bold text-[18px] text-hana-black-900">
+                  신청 가능한 연금
+                </h2>
+                <div className="flex flex-col gap-4">
+                  <PensionCard
+                    title="하나 주택연금"
+                    amount="월 150만원"
+                    status="13개월째 수령중"
+                    onAction={() => router.push('/asset/housing')}
+                  />
+                  <PensionCard
+                    title="하나 개인연금"
+                    amount="월 80만원"
+                    status="수령 예정"
+                    onAction={() => console.log('개인연금 확인')}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col gap-4">
                 <PrimaryButton
                   label="다시 계산하기"
                   variant="secondary"
@@ -93,7 +114,7 @@ export default function SimulatorPage() {
             </>
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-4 py-20 text-center">
-              <p className="text-[16px] font-medium text-hana-black-500">
+              <p className="font-medium text-[16px] text-hana-black-500">
                 상속 시뮬레이션은
                 <br />
                 준비 중입니다.
