@@ -26,6 +26,7 @@ export default function SimulatorResultPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    localStorage.setItem('has_completed_simulation', 'true');
   }, []);
 
   return (
