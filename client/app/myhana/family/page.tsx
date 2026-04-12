@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -21,16 +21,16 @@ interface FamilyMember {
   circleColor: string; // Tailwind bg class
 }
 
+// 모든 가족 초기값 '공유 안함'으로 설정
 const initialFamilyMembers: FamilyMember[] = [
   { id: 1, lastName: '권', name: '권하나', relationship: '본인', phone: '010-1234-5678', isMe: true, isSharing: false, circleColor: 'bg-[#9FEF9B]' },
-  { id: 2, lastName: '김', name: '김영웅', relationship: '배우자', phone: '010-5678-1234', isSharing: true, sharingInsuranceCount: 3, circleColor: 'bg-[#9DD3EF]' },
-  { id: 3, lastName: '김', name: '김유진', relationship: '자녀', phone: '010-9876-5432', isSharing: true, sharingInsuranceCount: 3, circleColor: 'bg-[#F9EF9B]' },
+  { id: 2, lastName: '김', name: '김영웅', relationship: '배우자', phone: '010-5678-1234', isSharing: false, circleColor: 'bg-[#9DD3EF]' },
+  { id: 3, lastName: '김', name: '김유진', relationship: '자녀', phone: '010-9876-5432', isSharing: false, circleColor: 'bg-[#F9EF9B]' },
   { id: 4, lastName: '김', name: '김생명', relationship: '자녀', phone: '010-2468-1357', isSharing: false, circleColor: 'bg-[#EFDEC2]' },
 ];
 
 const statsData = {
   registeredCount: 4,
-  sharingCount: 2,
   requestedCount: 5,
 };
 
@@ -184,16 +184,25 @@ export default function FamilyManagementPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
 
+  // 공유 완료 상태 복구 (배열 구조)
+  useEffect(() => {
+    const sharedIdsStr = localStorage.getItem('shared_family_ids');
+    if (sharedIdsStr) {
+      const sharedIds = JSON.parse(sharedIdsStr) as number[];
+      setMembers(prev => prev.map(m => 
+        sharedIds.includes(m.id) ? { ...m, isSharing: true, sharingInsuranceCount: 3 } : m
+      ));
+    }
+  }, []);
+
   const sharingCount = members.filter(m => m.isSharing).length;
   const nonSharingMembers = members.filter(m => !m.isMe && !m.isSharing);
 
   const handleToggleSharing = (id: number, currentStatus: boolean) => {
     if (currentStatus) {
-      // ON -> OFF 시도 시 팝업 노출
       setPendingToggleId(id);
       setIsConfirmOpen(true);
     } else {
-      // OFF -> ON 시도 시 아무 작업도 하지 않음 (하단 버튼 유도)
       return;
     }
   };
@@ -201,6 +210,15 @@ export default function FamilyManagementPage() {
   const confirmToggleOff = () => {
     if (pendingToggleId) {
       setMembers(prev => prev.map(m => m.id === pendingToggleId ? { ...m, isSharing: false } : m));
+      
+      // localStorage 배열에서 제거
+      const sharedIdsStr = localStorage.getItem('shared_family_ids');
+      if (sharedIdsStr) {
+        const sharedIds = JSON.parse(sharedIdsStr) as number[];
+        const newIds = sharedIds.filter(id => id !== pendingToggleId);
+        localStorage.setItem('shared_family_ids', JSON.stringify(newIds));
+      }
+      
       setIsConfirmOpen(false);
       setPendingToggleId(null);
     }
@@ -236,7 +254,7 @@ export default function FamilyManagementPage() {
               ))
             ) : (
               <div className="py-20 text-center">
-                <p className="text-gray-400">공유 가능한 가족이 없습니다.</p>
+                <p className="text-gray-400 text-sm">공유 가능한 가족이 없습니다.</p>
               </div>
             )}
           </div>
@@ -245,6 +263,7 @@ export default function FamilyManagementPage() {
             label="공유 요청하기" 
             onClick={() => {
               if (selectedId) {
+                localStorage.setItem('pending_share_id', String(selectedId));
                 router.push('/myhana/family/share');
                 onClose();
               }
@@ -267,8 +286,6 @@ export default function FamilyManagementPage() {
 
         <main className="app-main px-6 pt-6 pb-24">
           <Stats sharingCount={sharingCount} />
-
-          {/* 가족 추가하기 버튼 삭제됨 */}
 
           <section className="mb-6">
             <div className="flex items-center justify-between mb-4 px-1">

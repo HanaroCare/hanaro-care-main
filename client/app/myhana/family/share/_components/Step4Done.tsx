@@ -8,6 +8,28 @@ import { Check } from 'lucide-react';
 export default function Step4Done() {
   const router = useRouter();
 
+  const handleFinish = () => {
+    // 임시 저장된 ID를 가져와서 기존 공유 배열에 추가
+    const pendingIdStr = localStorage.getItem('pending_share_id');
+    if (pendingIdStr) {
+      const pendingId = Number(pendingIdStr);
+      const sharedIdsStr = localStorage.getItem('shared_family_ids');
+      let sharedIds: number[] = [];
+      
+      if (sharedIdsStr) {
+        sharedIds = JSON.parse(sharedIdsStr);
+      }
+      
+      if (!sharedIds.includes(pendingId)) {
+        sharedIds.push(pendingId);
+      }
+      
+      localStorage.setItem('shared_family_ids', JSON.stringify(sharedIds));
+      localStorage.removeItem('pending_share_id');
+    }
+    router.push('/myhana/family');
+  };
+
   return (
     <div className="flex flex-col flex-1 px-6 py-16 text-center">
       <div className="flex-1 flex flex-col items-center justify-center gap-8">
@@ -28,11 +50,11 @@ export default function Step4Done() {
       <div className="space-y-3 mt-10">
         <PrimaryButton 
           label="확인" 
-          onClick={() => router.push('/myhana/family')} 
+          onClick={handleFinish} 
         />
         <button 
           type="button"
-          onClick={() => router.push('/myhana/family')}
+          onClick={handleFinish}
           className="w-full h-14 bg-[#E9F8F9] text-hana-ez-600 rounded-[10px] font-semibold text-[17px] transition active:scale-95"
         >
           가족 추가 등록하기
