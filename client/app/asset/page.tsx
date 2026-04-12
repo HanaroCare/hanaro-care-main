@@ -5,15 +5,23 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import { AlertBanner } from '@/components/banner/AlertBanner';
 import PrimaryButton from '@/components/button/PrimaryButton';
 import { NavigationBar } from '@/components/NavigationBar';
+import { TabNavigation } from '@/components/TabNavigation';
 import { AssetChart } from './components/AssetChart';
 import { AssetDetailCard } from './components/AssetDetailCard';
 import { AssetListCard } from './components/AssetListCard';
 import { AssetSummaryHeader } from './components/AssetSummaryHeader';
-import { AssetTabNavigation } from './components/AssetTabNavigation';
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
-const TAB_IDS: TabId[] = ['asset', 'realestate', 'insurance', 'car', 'gold'];
+const ASSET_TABS = [
+  { id: 'asset', label: '자산' },
+  { id: 'realestate', label: '부동산' },
+  { id: 'insurance', label: '보험' },
+  { id: 'car', label: '자동차' },
+  { id: 'gold', label: '금' },
+];
+
+const TAB_IDS = ASSET_TABS.map((tab) => tab.id) as TabId[];
 
 function isValidTabId(tabId: string | null): tabId is TabId {
   return TAB_IDS.includes(tabId as TabId);
@@ -198,9 +206,10 @@ function AssetPageContent() {
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <div className="sticky top-0 z-50 bg-white">
-        <AssetTabNavigation
-          initialTab={activeTab}
-          onTabChangeAction={handleTabChange}
+        <TabNavigation
+          tabs={ASSET_TABS}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
         />
         {/* TODO: GET /api/asset 로 totalAmount fetch */}
         <AssetSummaryHeader
