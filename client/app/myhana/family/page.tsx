@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Route } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, X, PlusCircle, Check, Trash2, AlertCircle } from 'lucide-react';
@@ -264,7 +265,7 @@ export default function FamilyManagementPage() {
             onClick={() => {
               if (selectedId) {
                 localStorage.setItem('pending_share_id', String(selectedId));
-                router.push('/myhana/family/share');
+                router.push('/myhana/family/share' as Route);
                 onClose();
               }
             }} 
@@ -280,8 +281,8 @@ export default function FamilyManagementPage() {
       <div className="app-layout">
         <SubHeader 
           title="가족 관리" 
-          backUrl="/myhana/mypage" 
-          closeUrl="/myhana/mypage" 
+          backUrl={'/myhana/mypage' as Route} 
+          closeUrl={'/myhana/mypage' as Route} 
         />
 
         <main className="app-main px-6 pt-6 pb-24">

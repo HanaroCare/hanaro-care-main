@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import type { Route } from 'next';
 import PrimaryButton from '@/components/PrimaryButton';
 import { Check } from 'lucide-react';
 
@@ -27,7 +28,7 @@ export default function Step4Done() {
       localStorage.setItem('shared_family_ids', JSON.stringify(sharedIds));
       localStorage.removeItem('pending_share_id');
     }
-    router.push('/myhana/family');
+    router.push('/myhana/family' as Route);
   };
 
   return (

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, ChevronDown, ChevronRight, Heart, X } from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { Route } from 'next';
 import { NavigationBar } from '@/components/NavigationBar';
 
 /**
@@ -88,7 +89,7 @@ export default function MyHanaPage() {
             <MenuItem 
               icon="👥" 
               title="가족 관리" 
-              onClick={() => router.push('/myhana/family')} 
+              onClick={() => router.push('/myhana/family' as Route)} 
             />
             <MenuItem icon="🛡️" title="가족 보험 관리" />
 
