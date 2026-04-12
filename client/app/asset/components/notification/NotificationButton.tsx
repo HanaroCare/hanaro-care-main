@@ -6,6 +6,7 @@ type NotificationButtonProps = {
 	onClick?: () => void;
 	children: React.ReactNode;
 	variant: ButtonVariant;
+	className?: string;
 };
 
 const BUTTON_STYLES: Record<ButtonVariant, { base: string; shadow: string }> = {
@@ -31,6 +32,7 @@ export function NotificationButton({
 	onClick,
 	children,
 	variant,
+	className = "",
 }: NotificationButtonProps) {
 	const { base, shadow } = BUTTON_STYLES[variant];
 
@@ -38,7 +40,7 @@ export function NotificationButton({
 		<button
 			type="button"
 			onClick={onClick}
-			className={`flex h-10.5 w-full items-center justify-center rounded-[13px] font-semibold text-[14px] text-white transition-colors ${base}`}
+			className={`flex h-10.5 w-full items-center justify-center rounded-[13px] font-semibold text-[14px] text-white transition-colors ${base} ${className}`}
 			style={{ boxShadow: shadow }}
 		>
 			{children}

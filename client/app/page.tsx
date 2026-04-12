@@ -3,6 +3,7 @@
 import { NavigationBar } from "@/components/NavigationBar";
 import { AssetDashboard } from "./asset/components/AssetDashboard";
 import { BannerCard } from "./asset/components/notification/BannerCard";
+import { InheritanceStepCard } from "./asset/components/notification/InheritanceStepCard";
 import { LivingExpenseCard } from "./asset/components/notification/LivingExpenseCard";
 import { MedicalBillCard } from "./asset/components/notification/MedicalBillCard";
 import { PensionCard } from "./asset/components/notification/PensionCard";
@@ -46,6 +47,7 @@ export default function Home() {
 			<MedicalBillCard />
 			<PensionCard />
 			<LivingExpenseCard />
+			<InheritanceStepCard />
 			<NavigationBar />
 		</main>
 	);
