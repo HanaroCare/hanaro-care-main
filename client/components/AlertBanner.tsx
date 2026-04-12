@@ -42,13 +42,13 @@ export function AlertBanner({
 		<motion.div
 			initial={{ opacity: 0, y: -10 }}
 			animate={{ opacity: 1, y: 0 }}
-			className={`flex h-[70px] w-81.25 items-center justify-between rounded-[14px] px-4.5 ${bg}`}
+			className={`flex h-15 w-81.25 items-center justify-between rounded-[14px] px-4.5 ${bg}`}
 		>
 			<div className="flex items-center gap-2.5">
 				<div className={text}>
 					{icon ?? <AlertCircle size={22} aria-hidden="true" />}
 				</div>
-				<span className={`font-semibold text-[15px] tracking-tight ${text}`}>
+				<span className={`font-semi-bold text-[14px] tracking-tight ${text}`}>
 					{message}
 				</span>
 			</div>

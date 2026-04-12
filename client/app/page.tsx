@@ -13,7 +13,20 @@ import { RealAssetCard } from "./asset/components/RealAssetListCard";
 export default function Home() {
 	return (
 		<main className="flex flex-col items-center gap-6 px-6 pt-6 pb-25">
+			<div className="flex w-full justify-start">
+				<div className="flex font-hana font-bold text-[18px] tracking-[-0.36px]">
+					<span className="text-black">Hana</span>
+					<span className="text-hana-green-700">Care</span>
+				</div>
+			</div>
 			<AssetDashboard />
+			<MedicalBudgetCard
+				usedAmount={0.8}
+				totalAmount={2.0}
+				usagePercent={40}
+				yearsLeft={12}
+			/>
+			<RealAssetCard />
 
 			<BannerCard
 				title={<>내 남은 인생,{"\n"}평생 병원비 걱정 없을까요?</>}
@@ -28,10 +41,6 @@ export default function Home() {
 				imageSrc="/images/asset/inheritance-recom.svg"
 				onClick={() => console.log("상속 계산")}
 			/>
-
-			<MedicalBudgetCard />
-
-			<InheritanceStepCard />
 
 			<BannerCard
 				title={
@@ -53,10 +62,11 @@ export default function Home() {
 				onClick={() => console.log("주택연금 확인")}
 			/>
 
-			<RealAssetCard />
 			<MedicalBillCard />
 			<PensionCard />
 			<LivingExpenseCard />
+			<InheritanceStepCard />
+
 			<NavigationBar />
 		</main>
 	);
