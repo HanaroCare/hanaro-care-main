@@ -2,15 +2,20 @@
 
 import React from 'react';
 import Link from 'next/link';
+import type { Route } from 'next';
 import { ChevronLeft, X } from 'lucide-react';
 
-interface SubHeaderProps {
+interface SubHeaderProps<T extends string> {
   title: string;
-  backUrl: string;
-  closeUrl?: string;
+  backUrl: Route<T> | URL;
+  closeUrl?: Route<T> | URL;
 }
 
-export default function SubHeader({ title, backUrl, closeUrl = '/inheritance' }: SubHeaderProps) {
+export default function SubHeader<T extends string>({ 
+  title, 
+  backUrl, 
+  closeUrl = '/inheritance' as Route<T> 
+}: SubHeaderProps<T>) {
   return (
     <header className="flex items-center justify-between px-4 py-4 bg-white border-b border-gray-100 shrink-0 h-[56px]">
       <Link href={backUrl} className="p-2 -ml-2 text-gray-900" aria-label="뒤로 가기">
