@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ChevronLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import PrimaryButton from "@/components/PrimaryButton";
 
 /**
  * 온보딩 페이지
@@ -31,7 +32,7 @@ export default function OnboardingPage() {
 				</>
 			),
 			subtitle: "부족한 만큼 딱 맞게 상품 설계까지!",
-			imagePath: "/img/onboarding2.png",
+			imagePath: "/img/onboarding1.png",
 		},
 		{
 			title: (
@@ -51,7 +52,7 @@ export default function OnboardingPage() {
 				</>
 			),
 			subtitle: "상속·신탁 설계부터 임의후견인 등록까지 한번에",
-			imagePath: "/img/onboarding2.png",
+			imagePath: "/img/onboarding3.png",
 		},
 	];
 
@@ -131,13 +132,10 @@ export default function OnboardingPage() {
 				</main>
 
 				<footer className="shrink-0 bg-background p-6 pb-12">
-					<button
-						type="button"
+					<PrimaryButton
+						label={currentSlide === slides.length - 1 ? "시작하기" : "다음"}
 						onClick={handleNext}
-						className="h-14 w-full rounded-2xl bg-primary font-bold text-lg text-white transition-colors active:scale-[0.98] hover:bg-primary/90"
-					>
-						{currentSlide === slides.length - 1 ? "시작하기" : "다음"}
-					</button>
+					/>
 				</footer>
 			</div>
 
@@ -154,6 +152,11 @@ export default function OnboardingPage() {
 					/>
 
 					<div className="absolute bottom-0 left-0 right-0 z-50 flex flex-col items-center rounded-t-[25px] bg-card p-6 pt-8 pb-12 shadow-2xl animate-in slide-in-from-bottom-full duration-300">
+
+						<div className="flex w-full items-center justify-center pb-7">
+							<div className="h-1.5 w-12 rounded-full bg-gray-300" />
+						</div>
+
 						<p className="mb-8 font-bold text-foreground text-xl">
 							처음 오셨나요?
 						</p>
