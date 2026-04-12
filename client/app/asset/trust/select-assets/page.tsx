@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import PrimaryButton from "@/components/PrimaryButton";
+import PrimaryButton from "@/components/button/PrimaryButton";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 import { formatKoreanAmount, parseKoreanAmount } from "../trustUtils";
