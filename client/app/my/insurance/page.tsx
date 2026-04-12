@@ -9,10 +9,10 @@ import { insurances, isDesignated, viewMode } from './constants/data';
 export default function ChildMainInsuranceScreen() {
   const router = useRouter();
   return (
-    <div className="mb-15 flex h-full flex-col">
+    <div className="mb-10 flex h-full flex-col">
       <div className="flex-1 space-y-3 overflow-y-auto pb-4">
         {!isDesignated ? (
-          <>
+          <div className="mt-5">
             {/* 광고 */}
             <Image
               src={
@@ -26,7 +26,7 @@ export default function ChildMainInsuranceScreen() {
               sizes="100vw"
               className="h-auto w-full"
             />
-          </>
+          </div>
         ) : (
           <>
             {/* 배너 */}

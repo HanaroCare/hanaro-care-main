@@ -27,7 +27,7 @@ export default async function InsuranceDetailPage({
     return val ?? '-';
   };
   return (
-    <div className="-mx-6.25 min-h-screen bg-gray-50 px-6.25 pt-2 pb-4">
+    <div className="-mx-6.25 min-h-full bg-gray-50 px-6.25 pt-2 pb-83">
       <div className="mt-12 mb-5 rounded-2xl bg-white p-5 py-7 shadow-sm">
         {/* 헤더 */}
         <div className="flex items-center gap-3">
