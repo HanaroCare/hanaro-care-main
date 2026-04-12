@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import {
   Bar,
   BarChart,
+  CartesianGrid,
   LabelList,
   ResponsiveContainer,
   XAxis,
@@ -20,77 +21,76 @@ type SimulationResultChartProps = {
   data: SimulationData[];
 };
 
-const TICK_STYLE = { fontSize: 12, fill: '#9CA3AF', fontWeight: 400 } as const;
-
 export function SimulationResultChart({ data }: SimulationResultChartProps) {
+  const chartData = data.map((d) => ({
+    age: d.age,
+    expense: d.expense,
+    remaining: Math.max(0, d.income - d.expense),
+    incomeLabel: d.income,
+    expenseLabel: d.expense,
+  }));
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full rounded-[20px] border border-border-gray bg-white p-[21px] shadow-[0_2px_2px_rgba(0,0,0,0.25)]"
+      className="w-full rounded-[24px] bg-white px-[20px] py-[24px] shadow-[0_2px_12px_rgba(0,0,0,0.06)] border border-[#F3F4F6]"
     >
-      <div className="mb-6 flex gap-4">
+      <div className="mb-[40px] flex items-center justify-end gap-4 px-2">
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-hana-red-500" />
-          <span className="font-medium text-[#364153] text-[12px]">지출</span>
+          <div className="h-[12px] w-[12px] rounded-full bg-[#E94E5A]" />
+          <span className="font-semibold text-[#4B5563] text-[13px]">지출</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-3 w-3 rounded-sm bg-hana-green-700" />
-          <span className="font-medium text-[#364153] text-[12px]">수입</span>
+          <div className="h-[12px] w-[12px] rounded-full bg-[#138586]" />
+          <span className="font-semibold text-[#4B5563] text-[13px]">수입</span>
         </div>
       </div>
 
-      <div className="h-55 w-full">
+      <div className="h-[220px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
-            data={data}
-            margin={{ top: 20, right: 0, left: 0, bottom: 0 }}
-            barGap={8}
+            data={chartData}
+            margin={{ top: 30, right: 0, left: 0, bottom: 0 }}
           >
-            <XAxis
-              dataKey="age"
-              axisLine={false}
-              tickLine={false}
-              tick={TICK_STYLE}
-              dy={10}
-            />
-            <YAxis hide domain={[0, 'dataMax + 40']} />
-            <Bar
-              dataKey="income"
-              fill="#008485"
-              radius={[2, 2, 0, 0]}
-              barSize={17}
-              fillOpacity={0.5}
-            >
-              <LabelList
-                dataKey="income"
-                position="top"
-                style={{
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  fill: '#008485',
-                  fontFamily: 'Pretendard',
-                }}
-                offset={8}
-              />
-            </Bar>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+            <XAxis dataKey="age" hide={true} />
+            <YAxis hide domain={[0, 'dataMax + 20']} />
             <Bar
               dataKey="expense"
-              fill="#F04452"
+              stackId="a"
+              fill="#C28287"
+              barSize={18}
+              radius={[0, 0, 0, 0]}
+            />
+            <Bar
+              dataKey="remaining"
+              stackId="a"
+              fill="#76C1BE"
+              barSize={18}
               radius={[2, 2, 0, 0]}
-              barSize={17}
-              fillOpacity={0.5}
             >
               <LabelList
-                dataKey="expense"
+                dataKey="incomeLabel"
                 position="top"
+                offset={16}
                 style={{
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  fill: '#F04452',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  fill: '#138586',
                   fontFamily: 'Pretendard',
                 }}
-                offset={8}
+              />
+              <LabelList
+                dataKey="expenseLabel"
+                position="top"
+                offset={2}
+                style={{
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  fill: '#E94E5A',
+                  fontFamily: 'Pretendard',
+                }}
               />
             </Bar>
           </BarChart>

@@ -16,9 +16,9 @@ const MOCK_SIMULATION_DATA = [
 ];
 
 const MOCK_DETAIL_DATA = [
-  { label: '생활비', amount: '5억원', progress: 1.0, opacity: 0.8 },
-  { label: '병원비', amount: '3000만원', progress: 0.57, opacity: 0.6 },
-  { label: '요양비', amount: '5000만원', progress: 0.34, opacity: 0.4 },
+  { label: '생활비', amount: '5억원', progress: 1.0, opacity: 1.0 },
+  { label: '병원비', amount: '3000만원', progress: 0.6, opacity: 0.8 },
+  { label: '요양비', amount: '5000만원', progress: 0.35, opacity: 0.6 },
 ];
 
 export default function SimulatorResultPage() {
@@ -29,72 +29,63 @@ export default function SimulatorResultPage() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-linear-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF]">
-      <Header title="진단 결과" onBack={() => router.back()} />
+    /* 🛠 리팩토링 포인트: 그라데이션 배경 적용 */
+    <div
+      className="flex min-h-screen flex-col font-sans"
+      style={{
+        background:
+          'linear-gradient(174deg, var(--color-hana-green-50) 0%, var(--color-hana-blue-50) 49.4%, var(--color-hana-teal-50) 98.8%)',
+      }}
+    >
+      <Header
+        title="진단 결과"
+        onBack={() => router.back()}
+        className="border-none bg-transparent"
+      />
 
-      <main className="flex flex-col gap-8 px-6 pt-10 pb-25">
-        <div className="flex flex-col gap-2">
-          <h1 className="page-center-text text-hana-black-900">
-            미래 병원비 계산 결과
-          </h1>
-          <p className="text-center text-[14px] text-hana-black-500">
-            85세까지 약{' '}
-            <span className="font-bold text-hana-red-500">2억 4천만원</span>이
-            <br />
-            필요할 것으로 예상됩니다.
-          </p>
-        </div>
+      <main className="flex flex-col gap-9 px-6 pt-6 pb-25">
+        <section className="flex flex-col gap-6">
+          <div className="flex flex-col gap-1.5 text-hana-black-900 tracking-snug">
+            <h1 className="font-semibold text-[22px] leading-snug">
+              지금 수입으로{' '}
+              <span className="font-bold text-hana-green-700">85세</span>까지
+            </h1>
+            <p className="font-semibold text-[22px] leading-snug">매달 평균</p>
+            <p className="font-bold text-[24px] text-hana-red-500 leading-snug">
+              67만원이 부족해요
+            </p>
+          </div>
 
-        <SimulationResultChart data={MOCK_SIMULATION_DATA} />
-
-        <SimulationDetailCard items={MOCK_DETAIL_DATA} />
-
-        <div className="flex flex-col gap-4 rounded-2xl border border-white bg-white/50 p-5 shadow-sm">
-          <SummaryRow label="준비된 자산" value="6억 2,000만원" color="green" />
-          <SummaryRow label="예상 총 지출" value="2억 4,000만원" color="red" />
-          <div className="h-px w-full bg-hana-black-100 opacity-50" />
-          <SummaryRow
-            label="최종 여유 자금"
-            value="3억 8,000만원"
-            color="green"
-            isBold
-          />
-        </div>
-
-        <div className="mt-auto pt-4">
           <PrimaryButton
-            label="상담 신청하기"
-            onClick={() => console.log('상담 신청')}
+            label="부족한 자금 해결하러 가기 >"
+            onClick={() => router.push('/asset/simulator')}
+            className="mt-1 bg-hana-red-500 text-white shadow-sm active:bg-hana-red-600"
+          />
+        </section>
+
+        {/* 지출 내역 상세 */}
+        <section className="flex flex-col gap-4">
+          <h2 className="font-bold text-[17px] text-hana-black-800 tracking-tight">
+            지출 내역
+          </h2>
+          <SimulationDetailCard items={MOCK_DETAIL_DATA} />
+        </section>
+
+        <section className="flex flex-col gap-4">
+          <h2 className="font-bold text-[17px] text-hana-black-800 tracking-tight">
+            연령대별 월 지출 내역
+          </h2>
+          <SimulationResultChart data={MOCK_SIMULATION_DATA} />
+        </section>
+
+        <div className="mt-4">
+          <PrimaryButton
+            label="연령별로 결과 자세히 보기"
+            onClick={() => console.log('자세히 보기')}
+            variant="primary"
           />
         </div>
       </main>
-    </div>
-  );
-}
-
-function SummaryRow({
-  label,
-  value,
-  color,
-  isBold = false,
-}: {
-  label: string;
-  value: string;
-  color: 'green' | 'red';
-  isBold?: boolean;
-}) {
-  return (
-    <div className="flex items-center justify-between">
-      <span
-        className={`${isBold ? 'font-bold text-[15px]' : 'text-[14px]'} text-hana-black-600`}
-      >
-        {label}
-      </span>
-      <span
-        className={`${isBold ? 'font-bold text-[18px]' : 'font-semibold text-[16px]'} ${color === 'green' ? 'text-hana-green-700' : 'text-hana-red-500'}`}
-      >
-        {value}
-      </span>
     </div>
   );
 }
