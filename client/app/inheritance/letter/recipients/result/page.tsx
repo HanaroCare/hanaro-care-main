@@ -1,10 +1,12 @@
 'use client';
 
 import { toPng } from 'html-to-image';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useRef } from 'react';
+
+import { useRouter } from 'next/navigation';
+import { use, useRef } from 'react';
 import LetterCard from '@/app/inheritance/components/letter/LetterCard';
 import LetterSummary from '@/app/inheritance/components/letter/LetterSummary';
+import DualActionFooter from '@/components/modules/DualActionFooter';
 
 // TODO: 목데이터 정리 및 공컴
 // TODO: s3에서 음원 불러오기
@@ -27,11 +29,12 @@ const mockResult = {
 export default function InheritanceCompletePage({
   searchParams,
 }: {
-  searchParams: { method?: string };
+  searchParams: Promise<{ method?: string }>;
 }) {
   const router = useRouter();
 
-  const method = (searchParams.method as 'once' | 'divided') || 'once';
+  const resolvedSearchParams = use(searchParams);
+  const method = (resolvedSearchParams.method as 'once' | 'divided') || 'once';
 
   const handleShare = async () => {
     if (mockResult.letterType === 'LETTER') {
@@ -78,16 +81,16 @@ export default function InheritanceCompletePage({
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col items-center">
-      <div className="w-full min-h-screen flex flex-col">
+    <div className="flex min-h-full flex-col items-center bg-white">
+      <div className="flex min-h-full w-full flex-col">
         {/* Content */}
-        <div className="flex-1 flex flex-col gap-8 pt-8 pb-32">
+        <div className="flex flex-1 flex-col gap-8 pt-8 pb-10">
           {/* 타이틀 */}
-          <div className="flex flex-col gap-1 items-center">
-            <h2 className="text-xl font-bold text-gray-900">
+          <div className="flex flex-col items-center gap-1">
+            <h2 className="font-bold text-gray-900 text-xl">
               편지 작성이 완료되었습니다
             </h2>
-            <p className="text-sm text-gray-400">편지를 공유해보세요</p>
+            <p className="text-gray-400 text-sm">편지를 공유해보세요</p>
           </div>
 
           {/* 카드 */}
@@ -111,24 +114,14 @@ export default function InheritanceCompletePage({
             onImageSave={handleImageSave}
             onShare={handleShare}
           />
-        </div>
 
-        {/* 하단 버튼 */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full px-6.25 pb-8 bg-white pt-4 flex gap-3">
-          <button
-            type="button"
-            className="flex-1 py-4 h-auto rounded-2xl text-base font-semibold text-hana-green-700 bg-[#E9F8F9] hover:bg-hana-green-50"
-            onClick={() => router.push('/inheritance/letter/recipients')}
-          >
-            추가 작성
-          </button>
-          <button
-            type="button"
-            className="flex-1 py-4 h-auto rounded-2xl text-base font-semibold bg-hana-green-700 hover:bg-hana-green-600 text-white"
-            onClick={() => router.push('/inheritance')}
-          >
-            완료
-          </button>
+          <DualActionFooter
+            leftLabel="추가 작성"
+            rightLabel="완료"
+            onLeftClick={() => router.push('/inheritance/letter/recipients')}
+            onRightClick={() => router.push('/inheritance')}
+            className="-mx-6.25 flex w-[calc(100%+3.125rem)] gap-3 bg-white px-6.25!"
+          />
         </div>
       </div>
     </div>
