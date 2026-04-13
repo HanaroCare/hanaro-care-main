@@ -7,7 +7,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import type { DataPoint } from '../../home-pension/predict/constants';
+import type { DataPoint } from '../../constants/constants';
 
 type ForecastChartProps = {
   data: DataPoint[];

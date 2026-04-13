@@ -14,8 +14,11 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import DualActionFooter from '@/components/DualActionFooter';
 import InfoBox from '@/components/modules/InfoBox';
 import Header from '@/components/navigation/Header';
+import TrustStepLayout from '../../components/trust/TrustStepLayout';
 
 type PensionType = 'fixed' | 'boosted' | 'growing';
 
@@ -310,6 +313,17 @@ export default function PensionTypeComparePage() {
             </div>
           </section>
         </main>
+        <DualActionFooter
+          leftLabel="결과 저장하기"
+          rightLabel="상담 예약하기"
+          onLeftClick={() => {
+            // TODO: 저장 로직
+          }}
+          onRightClick={() => {
+            // TODO: 상담 페이지 이동
+            // router.push('/some-path' as Route);
+          }}
+        />
       </div>
     </div>
   );

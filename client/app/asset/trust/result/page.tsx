@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import DualActionFooter from '@/components/DualActionFooter';
 import Header from '@/components/navigation/Header';
 
 type ChartEntry = {
@@ -237,20 +238,17 @@ export default function TrustResultPage() {
           </div>
         </main>
 
-        <footer className="flex shrink-0 gap-3 bg-white px-4 pb-6 pt-3">
-          <button
-            type="button"
-            className="h-18 flex-1 rounded-2xl bg-[#E9F8F9] text-[15px] font-semibold leading-6 tracking-tight text-hana-ez-600"
-          >
-            결과 저장하기
-          </button>
-          <button
-            type="button"
-            className="h-18 flex-1 rounded-2xl bg-hana-ez-600 text-[15px] font-semibold leading-6 tracking-tight text-white"
-          >
-            상담 예약하기
-          </button>
-        </footer>
+        <DualActionFooter
+          leftLabel="결과 저장하기"
+          rightLabel="상담 예약하기"
+          onLeftClick={() => {
+            // TODO: 저장 로직
+          }}
+          onRightClick={() => {
+            // TODO: 상담 페이지 이동
+            // router.push('/some-path' as Route);
+          }}
+        />
       </div>
     </div>
   );

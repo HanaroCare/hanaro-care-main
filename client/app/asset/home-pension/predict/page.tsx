@@ -14,7 +14,7 @@ import {
   periodOptions,
   type ScenarioKey,
   scenarioMeta,
-} from './constants';
+} from '../../constants/constants';
 
 function formatEok(value?: number) {
   if (typeof value !== 'number') return '-';
