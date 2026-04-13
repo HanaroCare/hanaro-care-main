@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import DualActionFooter from '@/components/DualActionFooter';
+import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
 
 type ChartEntry = {
