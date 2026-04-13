@@ -1,18 +1,18 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
 import { SimulationDetailCard } from '../../components/simulator/SimulationDetailCard';
 import { SimulationResultChart } from '../../components/simulator/SimulationResultChart';
 
 const MOCK_SIMULATION_DATA = [
-  { age: '65세', income: 200, expense: 180 },
-  { age: '70세', income: 200, expense: 180 },
-  { age: '75세', income: 200, expense: 180 },
-  { age: '80세', income: 200, expense: 180 },
-  { age: '85세', income: 200, expense: 180 },
+  { age: '65세', income: 250, expense: 180 },
+  { age: '70세', income: 250, expense: 180 },
+  { age: '75세', income: 250, expense: 180 },
+  { age: '80세', income: 250, expense: 180 },
+  { age: '85세', income: 250, expense: 180 },
 ];
 
 const MOCK_DETAIL_DATA = [
@@ -23,6 +23,8 @@ const MOCK_DETAIL_DATA = [
 
 export default function SimulatorResultPage() {
   const router = useRouter();
+  // 여유 자금 여부를 판단하기 위한 상태 (실제 서비스에서는 데이터 기반)
+  const [isLeeway, setIsLeeway] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,7 +32,6 @@ export default function SimulatorResultPage() {
   }, []);
 
   return (
-    /* 🛠 리팩토링 포인트: 그라데이션 배경 적용 */
     <div
       className="flex min-h-screen flex-col font-sans"
       style={{
@@ -52,16 +53,44 @@ export default function SimulatorResultPage() {
               <span className="font-bold text-hana-green-700">85세</span>까지
             </h1>
             <p className="font-semibold text-[22px] leading-snug">매달 평균</p>
-            <p className="font-bold text-[24px] text-hana-red-500 leading-snug">
-              67만원이 부족해요
-            </p>
+            {isLeeway ? (
+              <p className="font-bold text-[24px] text-hana-gold-500 leading-snug">
+                72만원이 여유로워요
+              </p>
+            ) : (
+              <p className="font-bold text-[24px] text-hana-red-500 leading-snug">
+                67만원이 부족해요
+              </p>
+            )}
           </div>
 
-          <PrimaryButton
-            label="부족한 자금 해결하러 가기 >"
-            onClick={() => router.push('/asset/simulator')}
-            className="mt-1 bg-hana-red-500 text-white shadow-sm active:bg-hana-red-600"
-          />
+          {isLeeway ? (
+            <div className="flex flex-col gap-4 rounded-[24px] border border-hana-green-700/20 bg-white/60 p-6 shadow-sm backdrop-blur-sm">
+              <div className="flex flex-col gap-1">
+                <span className="font-bold text-[18px] text-hana-black-900">
+                  남는 자산은 어떻게 할까요?
+                </span>
+                <p className="text-[14px] text-hana-black-500 leading-snug">
+                  병원비 걱정은 덜고, <br />
+                  <span className="font-semibold text-hana-gold-500">
+                    상속 설계
+                  </span>
+                  를 통해 가족에게 마음을 전해보세요
+                </p>
+              </div>
+              <PrimaryButton
+                label="상속 설계 시작하기 >"
+                onClick={() => router.push('/inheritance/intro')}
+                className="bg-hana-gold-500 text-white shadow-sm active:bg-hana-gold-600"
+              />
+            </div>
+          ) : (
+            <PrimaryButton
+              label="부족한 자금 해결하러 가기 >"
+              onClick={() => router.push('/asset/simulator')}
+              className="mt-1 bg-hana-red-500 text-white shadow-sm active:bg-hana-red-600"
+            />
+          )}
         </section>
 
         <section className="flex flex-col gap-4">

@@ -47,11 +47,6 @@ export function SimulationIncomeCard({
 
       <div className="my-[22px] h-px w-full bg-hana-silver-100" />
 
-      <div className="mb-4 flex items-center justify-between font-medium text-[14px] text-hana-black-500">
-        <span>활용 가능 금융 자산</span>
-        <span>월 가용 금액</span>
-      </div>
-
       <div className="flex h-[72px] w-full items-center justify-center rounded-[16px] bg-hana-green-50">
         <span className="font-bold text-[28px] text-hana-green-700">
           {totalAvailable}

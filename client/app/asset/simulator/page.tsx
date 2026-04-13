@@ -1,16 +1,17 @@
 'use client';
 
-import { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
 import { CareMethodSelector } from '../components/simulator/CareMethodSelector';
+import { HousingPensionStatusCard } from '../components/simulator/HousingPensionStatusCard';
 import { LifeExpectancySlider } from '../components/simulator/LifeExpectancySlider';
-import { PensionCard } from '../components/simulator/PensionCard';
 import SimulatorOnboarding from '../components/simulator/SimulatorOnboarding';
 import { SimulatorSummaryCard } from '../components/simulator/SimulatorSummaryCard';
+import { TrustStatusCard } from '../components/simulator/TrustStatusCard';
 
 const ONBOARDING_KEY = 'has_seen_simulator_onboarding';
 const COMPLETION_KEY = 'has_completed_simulation';
@@ -27,6 +28,18 @@ export default function SimulatorPage() {
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [activeTab, setActiveTab] = useState('asset');
   const [careMethod, setCareMethod] = useState('nursing-home');
+
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'asset') {
+      router.push('/asset/simulator');
+    } else if (tabId === 'inheritance') {
+      const isInheritanceCompleted =
+        localStorage.getItem('inheritance_completed') === 'true';
+      router.push(
+        isInheritanceCompleted ? '/inheritance/result' : '/inheritance/intro',
+      );
+    }
+  };
 
   useEffect(() => {
     const hasSeen = localStorage.getItem(ONBOARDING_KEY);
@@ -65,7 +78,7 @@ export default function SimulatorPage() {
         <TabNavigation
           tabs={DASHBOARD_TABS}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
         <main className="flex flex-1 flex-col gap-8 bg-linear-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-20">
           {activeTab === 'asset' ? (
@@ -89,20 +102,25 @@ export default function SimulatorPage() {
 
               <div className="flex flex-col gap-4">
                 <h2 className="font-bold text-[18px] text-hana-black-900">
-                  신청 가능한 연금
+                  나의 신탁 현황
+                </h2>
+                <TrustStatusCard
+                  trustName="하나 케어온 신탁"
+                  totalAmount="5억 2,000만원"
+                  contractStatus="계약 중"
+                  onAction={() => router.push('/asset/trust/dashboard')}
+                />
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <h2 className="font-bold text-[18px] text-hana-black-900">
+                  부족한 병원비를 채워보러 갈까요?
                 </h2>
                 <div className="flex flex-col gap-4">
-                  <PensionCard
-                    title="하나 주택연금"
-                    amount="월 150만원"
-                    status="13개월째 수령중"
-                    onAction={() => router.push('/asset/home-pension' as Route)}
-                  />
-                  <PensionCard
-                    title="하나 개인연금"
-                    amount="월 80만원"
-                    status="수령 예정"
-                    onAction={() => router.push('/asset/trust' as Route)}
+                  {/* QQQ : 진짜 주택연금으로 돌리기 */}
+                  <HousingPensionStatusCard
+                    hasPlan={false}
+                    onAction={() => router.push('/asset/housing')}
                   />
                 </div>
               </div>
@@ -117,6 +135,7 @@ export default function SimulatorPage() {
             </div>
           )}
         </main>
+        <NavigationBar />
       </div>
     );
   }
@@ -155,6 +174,7 @@ export default function SimulatorPage() {
           />
         </div>
       </main>
+      <NavigationBar />
     </div>
   );
 }
