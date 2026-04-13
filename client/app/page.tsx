@@ -57,9 +57,9 @@ export default function Home() {
 
       <BannerCard
         title={<>내 집에 살면서{'\n'}매달 안정적인 생활비를 받아보세요</>}
-        buttonText="확인하러 가기"
+        buttonText="주택연금 설계하기"
         imageSrc="/images/asset/housing-pension.svg"
-        href="/asset/housing"
+        // href="/asset/home-pension"
       />
 
       <MedicalBillCard />
@@ -67,6 +67,7 @@ export default function Home() {
       <LivingExpenseCard />
       <InheritanceStepCard />
 
+      <div className="h-20 w-full" aria-hidden="true" />
       <NavigationBar />
     </main>
   );
