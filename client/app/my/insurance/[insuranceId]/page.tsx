@@ -1,7 +1,7 @@
+import { notFound } from 'next/navigation';
 import Header from '@/components/Header';
 import { insuranceDetails, viewMode } from '../constants/data';
 import InsuranceLogo from '../constants/InsuranceLogo';
-import { notFound } from 'next/navigation';
 
 const DETAIL_ROWS = [
   { label: '보험 종류', key: 'type', colored: false },

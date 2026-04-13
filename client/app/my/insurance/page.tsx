@@ -3,36 +3,53 @@
 import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import InsuranceCard from './components/InsuranceCard';
 import { insurances, isDesignated, viewMode } from './constants/data';
 
 export default function ChildMainInsuranceScreen() {
   const router = useRouter();
+  const [isBannerVisible, setIsBannerVisible] = useState(true);
 
   return (
-    <div className="mb-10 flex h-full flex-col">
+    <div className="mb-10 flex min-h-screen flex-col">
       <div className="flex-1 space-y-3 overflow-y-auto pb-4">
-        !isDesignated ? 
+        {!isDesignated ? (
           <div className="mt-5">
-            {/* 광고 */}
-            <Image
-              onClick={() =>
-                window.open(
-                  'https://cont.insure.or.kr/cont_web/intro.do',
-                  '_blank',
-                )
-              }
-              src={
-                viewMode === 'GRANTEE'
-                  ? '/images/my/insurance/childrenBanner2.png'
-                  : '/images/my/insurance/parentBanner.png'
-              }
-              alt="자녀 - 부모 보험금 조회 배너"
-              width={500}
-              height={0}
-              sizes="100vw"
-              className="h-auto w-full"
-            />
+            <div
+              className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                isBannerVisible ? 'max-h-96' : 'max-h-0'
+              }`}
+            >
+              <button
+                type="button"
+                onClick={() => {
+                  setIsBannerVisible(false);
+                }}
+                className="absolute top-2 right-8 mt-21 h-8 w-8 rounded-full"
+              />
+              {/* 광고 */}
+              <Image
+                onClick={() =>
+                  window.open(
+                    viewMode === 'GRANTEE'
+                      ? 'https://cont.insure.or.kr/cont_web/intro.do'
+                      : 'https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1529&ccfNo=3&cciNo=1&cnpClsNo=2',
+                    '_blank',
+                  )
+                }
+                src={
+                  viewMode === 'GRANTEE'
+                    ? '/images/my/insurance/childrenBanner2.png'
+                    : '/images/my/insurance/parentBanner.png'
+                }
+                alt="자녀 - 부모 보험금 조회 배너"
+                width={500}
+                height={0}
+                sizes="100vw"
+                className="h-auto w-full"
+              />
+            </div>
           </div>
         ) : (
           <>
@@ -57,7 +74,7 @@ export default function ChildMainInsuranceScreen() {
               </button>
             </div>
           </>
-        )
+        )}
 
         {/* 섹션 라벨 */}
         <div className="flex items-center gap-2 pt-1">
@@ -73,7 +90,10 @@ export default function ChildMainInsuranceScreen() {
             <InsuranceCard
               key={item.id}
               item={item}
-              onClick={() => router.push(`/my/insurance/${item.id}`)}
+              onClick={() => {
+                router.push(`/my/insurance/${item.id}`);
+                window.scrollTo(0, 0);
+              }}
             />
           ))}
         </div>
@@ -87,5 +107,5 @@ export default function ChildMainInsuranceScreen() {
         </div>
       </div>
     </div>
-  ;
+  );
 }
