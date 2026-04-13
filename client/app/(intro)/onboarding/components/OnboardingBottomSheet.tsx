@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import PrimaryButton from "@/components/PrimaryButton";
+import { motion, AnimatePresence } from "framer-motion";
 
 type OnboardingBottomSheetProps = {
   isOpen: boolean;
@@ -17,81 +18,68 @@ export default function OnboardingBottomSheet({
   onClose,
 }: OnboardingBottomSheetProps) {
   const router = useRouter();
-  const sheetRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      sheetRef.current?.focus();
-
-      // 배경 스크롤 방지
-      const originalStyle = window.getComputedStyle(document.body).overflow;
       document.body.style.overflow = "hidden";
-
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === "Escape") {
-          onClose();
-        }
-      };
-
-      window.addEventListener("keydown", handleKeyDown);
-      return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-        document.body.style.overflow = originalStyle;
-      };
+    } else {
+      document.body.style.overflow = "auto";
     }
-  }, [isOpen, onClose]);
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, [isOpen]);
 
-  if (!isOpen) return null;
+  const handleNavigation = (path: string) => {
+    localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+    router.push(path);
+  };
 
   return (
-    <>
-      <div
-        className="fixed inset-0 z-40 w-full h-full bg-black/40 transition-opacity animate-in fade-in"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      <div
-        ref={sheetRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="bottom-sheet-title"
-        tabIndex={-1}
-        className="fixed bottom-0 left-1/2 -translate-x-1/2 z-50 flex w-full max-w-[375px] flex-col items-center rounded-t-[1.5rem] bg-card p-[1.5rem] pt-[1.25rem] pb-[3rem] shadow-2xl animate-in slide-in-from-bottom-full duration-300 focus:outline-none"
-      >
-        <div className="flex w-full items-center justify-between pb-[1.75rem]">
-          <div className="w-6 h-6" />
-          <div className="h-[0.375rem] w-[3rem] rounded-full bg-gray-200" />
-          <div className="w-6 h-6" />
-        </div>
-
-        <p id="bottom-sheet-title" className="mb-[2rem] text-center font-hana font-bold text-foreground text-[1.25rem]">
-          이미 회원이신가요?
-          <br />
-          <span className="text-[1rem] font-medium text-muted-foreground">또는 처음 오셨나요?</span>
-        </p>
-
-        <div className="flex w-full flex-col gap-[0.75rem]">
-          <PrimaryButton
-            onClick={() => router.push("/login/hanaCert")}
-            label="하나인증서로 로그인"
-            className="h-[3.2rem] text-[1.125rem]"
-            variant="primary"
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
           />
 
-          <PrimaryButton
-            onClick={() => router.push("/login")}
-            label="로그인"
-            className="h-[3.2rem] text-[1.125rem] border border-gray-200 bg-transparent !text-gray-900 hover:bg-gray-50"
-          />
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed bottom-0 left-1/2 z-50 flex w-full max-w-[375px] -translate-x-1/2 flex-col rounded-t-[1.5rem] bg-white px-[1.5rem] pb-[3.5rem] pt-[1.25rem] shadow-2xl"
+          >
+            <div className="mx-auto mb-[2rem] h-[0.375rem] w-[3rem] rounded-full bg-gray-200" />
 
-          <PrimaryButton
-            onClick={() => router.push("/signup")}
-            label="회원가입"
-            className="h-[3.2rem] text-[1.125rem] border border-border bg-white !text-gray-900 hover:bg-gray-50"
-          />
-        </div>
-      </div>
-    </>
+            <div className="mb-[2.5rem] w-full text-center">
+              <h2 className="text-[1.5rem] font-bold text-foreground">
+                처음 오셨나요?
+              </h2>
+            </div>
+
+            <div className="flex w-full flex-col gap-3">
+              <PrimaryButton
+                label="회원가입"
+                variant="secondary"
+                onClick={() => handleNavigation("/signup")}
+                className="!h-[4rem] !bg-white border border-gray-200 !text-gray-900 !text-[1.125rem]"
+              />
+
+              <PrimaryButton
+                label="하나인증서로 로그인"
+                variant="primary"
+                onClick={() => handleNavigation("/login/hanaCert")}
+                className="!h-[4rem] !text-[1.125rem]"
+              />
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }

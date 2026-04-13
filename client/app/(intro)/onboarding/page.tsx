@@ -36,7 +36,7 @@ export default function OnboardingPage() {
 				</>
 			),
 			subtitle: "부족한 만큼 딱 맞게 상품 설계까지!",
-			imagePath: "/images/onboarding/onboarding1.png",
+			imagePath: "/images/onboarding/onboarding1.svg",
 		},
 		{
 			title: (
@@ -47,7 +47,7 @@ export default function OnboardingPage() {
 				</>
 			),
 			subtitle: "내역 확인부터 한도 설정까지 간편하게",
-			imagePath: "/images/onboarding/onboarding2.png",
+			imagePath: "/images/onboarding/onboarding2.svg",
 		},
 		{
 			title: (
@@ -58,7 +58,7 @@ export default function OnboardingPage() {
 				</>
 			),
 			subtitle: "상속·신탁 설계부터 임의후견인 등록까지 한번에",
-			imagePath: "/images/onboarding/onboarding3.png",
+			imagePath: "/images/onboarding/onboarding3.svg",
 		},
 	];
 
