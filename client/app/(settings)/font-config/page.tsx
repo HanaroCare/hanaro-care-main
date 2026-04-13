@@ -23,7 +23,15 @@ export default function FontConfigPage() {
 	useEffect(() => {
 		setIsMounted(true);
 		const savedLevel = localStorage.getItem("font-level");
-		const level = savedLevel ? Number(savedLevel) : 2;
+		const parsed = Number(savedLevel);
+
+		// 1~5 사이의 정수인지 검증, 아니면 기본값 2 사용
+		const level = (savedLevel !== null &&
+			Number.isFinite(parsed) &&
+			Number.isInteger(parsed) &&
+			parsed >= 1 &&
+			parsed <= 5) ? parsed : 2;
+
 		setSelectedLevel(level);
 
 		setTimeout(() => {
@@ -40,14 +48,14 @@ export default function FontConfigPage() {
 	};
 
 	return (
-		<div className="app-shell bg-white shadow-2xl">
-			<div className="app-layout" style={{ fontSize: "16px" }}>
+		<div className="app-shell bg-white shadow-2xl font-scale-isolated">
+			<div className="app-layout">
 
 				<main
 					className="app-main flex flex-1 flex-col"
-					style={{ padding: "48px 24px 0", fontSize: "16px" }}
+					style={{ padding: "48px 24px 0" }}
 				>
-					<div className="text-center" style={{ marginBottom: "56px", fontSize: "16px" }}>
+					<div className="text-center" style={{ marginBottom: "56px" }}>
 						<h2
 							className="font-Hana Bold tracking-tight text-gray-900"
 							style={{ fontSize: "24px", marginBottom: "12px" }}
@@ -65,8 +73,7 @@ export default function FontConfigPage() {
 							minHeight: "180px",
 							marginBottom: "40px",
 							padding: "40px",
-							borderRadius: "24px",
-							fontSize: "16px"
+							borderRadius: "24px"
 						}}
 					>
 						<div className="space-y-2 text-center" style={{ fontSize: "16px" }}>
@@ -89,7 +96,7 @@ export default function FontConfigPage() {
 					</div>
 
 
-					<div className="mt-auto" style={{ padding: '0 24px 40px', fontSize: '16px' }}>
+					<div className="mt-auto" style={{ padding: '0 24px 40px' }}>
 						<div
 							className="flex items-center justify-between"
 							style={{ marginBottom: '16px', height: '32px' }}
@@ -105,6 +112,7 @@ export default function FontConfigPage() {
 								{isMounted ? (
 									<input
 										type="range"
+										aria-label="글자 크기"
 										min="1"
 										max="5"
 										step="1"
@@ -142,7 +150,7 @@ export default function FontConfigPage() {
 				>
 					<button
 						type="button"
-						onClick={() => router.push("/onboarding")}
+						onClick={() => router.push("/onboarding" as any)}
 						className="w-full bg-primary font-bold text-white transition-colors hover:bg-primary/90 active:scale-[0.98]"
 						style={{
 							height: "56px",
