@@ -9,11 +9,13 @@ import { TabNavigation } from '@/components/navigation/TabNavigation';
 
 const SLIDES = [
   {
+    idx: 0,
     image: '/images/inheritance/intro-slide-1.png',
     title: '상속 설계란?',
     description: '내 자산을 기반으로\n법적으로 안전한 상속 계획을 세워드려요',
   },
   {
+    idx: 1,
     image: '/images/inheritance/intro-slide-2.png',
     title: '법정상속분 vs 유류분',
     description:
@@ -92,7 +94,7 @@ export default function InheritanceIntroPage() {
                         alt={s.title}
                         fill
                         className="object-contain"
-                        priority={i === 0}
+                        priority={s.idx === 0}
                         unoptimized
                       />
                     </div>
@@ -108,7 +110,6 @@ export default function InheritanceIntroPage() {
             {/* 화살표 버튼 */}
             {activeSlide > 0 && (
               <button
-                type="button"
                 onClick={goPrev}
                 className="-translate-y-1/2 absolute top-1/2 left-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-gray-100 bg-white/90 shadow-md"
               >
@@ -128,7 +129,6 @@ export default function InheritanceIntroPage() {
             )}
             {activeSlide < SLIDES.length - 1 && (
               <button
-                type="button"
                 onClick={goNext}
                 className="-translate-y-1/2 absolute top-1/2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-gray-100 bg-white/90 shadow-md"
               >
