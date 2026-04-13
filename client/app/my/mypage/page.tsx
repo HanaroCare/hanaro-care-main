@@ -1,25 +1,25 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { 
-  ChevronDown, 
-  ChevronRight, 
-  Heart, 
-  Users, 
-  Shield, 
-  UserPlus, 
-  Dna, 
-  FileHeart, 
-  Handshake, 
-  Gift, 
+import {
+  ChevronDown,
+  ChevronRight,
+  Dna,
+  FileHeart,
+  Gift,
+  Handshake,
+  Heart,
+  type LucideIcon,
   Mail,
-  LucideIcon 
+  Shield,
+  UserPlus,
+  Users,
 } from 'lucide-react';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
-import { NavigationBar } from '@/components/navigation/NavigationBar';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import Header from '@/components/navigation/Header';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 
 /**
  * My하나 마이페이지
@@ -37,11 +37,11 @@ export default function MyHanaPage() {
     <div className="flex min-h-screen flex-col bg-white">
       <div className="flex h-full flex-col">
         {/* --- 상단 헤더 --- */}
-        <Header 
-          title="마이페이지" 
-          onBack={() => router.push('/' as Route)} 
+        <Header
+          title="마이페이지"
+          onBack={() => router.push('/' as Route)}
           showCloseButton={true}
-          onClose={() => router.push('/' as Route)} 
+          onClose={() => router.push('/' as Route)}
         />
 
         <main className="no-scrollbar flex-1 pb-28">
@@ -89,10 +89,10 @@ export default function MyHanaPage() {
 
           {/* --- 메뉴 리스트 영역 --- */}
           <section className="space-y-1.5 px-6">
-            <MenuItem 
-              Icon={Users} 
-              title="가족 관리" 
-              onClick={() => router.push('/myhana/family' as Route)} 
+            <MenuItem
+              Icon={Users}
+              title="가족 관리"
+              onClick={() => router.push('/my/family' as Route)}
             />
             {/* TODO: 가족 보험 관리 기능 구현 시 연결 필요 */}
             <MenuItem Icon={Shield} title="가족 보험 관리" disabled />
@@ -196,14 +196,14 @@ export default function MyHanaPage() {
 
 // --- 하위 컴포넌트 ---
 
-function MenuItem({ 
-  Icon, 
-  title, 
+function MenuItem({
+  Icon,
+  title,
   onClick,
-  disabled 
-}: { 
-  Icon: LucideIcon; 
-  title: string; 
+  disabled,
+}: {
+  Icon: LucideIcon;
+  title: string;
   onClick?: () => void;
   disabled?: boolean;
 }) {
@@ -213,12 +213,14 @@ function MenuItem({
       onClick={onClick}
       disabled={disabled}
       className={`group flex w-full items-center rounded-2xl p-4 transition-all ${
-        disabled 
-          ? 'opacity-50 cursor-not-allowed bg-gray-50/50' 
+        disabled
+          ? 'cursor-not-allowed bg-gray-50/50 opacity-50'
           : 'hover:bg-gray-50 active:bg-gray-100'
       }`}
     >
-      <Icon className={`mr-4 h-6 w-6 ${disabled ? 'text-gray-400' : 'text-hana-ez-600'} transition-transform ${!disabled && 'group-hover:scale-110'}`} />
+      <Icon
+        className={`mr-4 h-6 w-6 ${disabled ? 'text-gray-400' : 'text-hana-ez-600'} transition-transform ${!disabled && 'group-hover:scale-110'}`}
+      />
       <span className="flex-1 text-left font-semibold text-hana-black-800 tracking-tight">
         {title}
       </span>
