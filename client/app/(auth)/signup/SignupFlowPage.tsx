@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, KeyboardEvent } from "react";
 import { AnimatePresence } from "framer-motion";
 import NavigationBar from "./components/NavigationBar";
 import InputStep from "./components/InputStep";
@@ -41,7 +41,6 @@ export default function SignupFlowPage() {
   const [maxIdx, setMaxIdx] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
-
   const router = useRouter();
 
   const handleNext = () => {
@@ -60,13 +59,23 @@ export default function SignupFlowPage() {
     setCurrentIdx(index);
   };
 
+  const handleKeyDown = (e: KeyboardEvent, index: number) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      handleEdit(index);
+    }
+  };
+
   if (isFinished) {
     return (
       <CompleteStep
         title="가입이 완료되었어요!"
         description={`이제 하나케어의 특별한\n자산 관리 서비스를 시작해보세요.`}
         buttonText="시작하기"
-        onButtonClick={() => router.push("/login")}
+        onButtonClick={() => {
+          localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+          router.push("/login");
+        }}
       />
     );
   }
@@ -82,7 +91,17 @@ export default function SignupFlowPage() {
             const isActive = actualIdx === currentIdx;
 
             if (step.key === "otp") return (
-              <div key="otp" className={!isActive ? "opacity-40 hover:opacity-100 cursor-pointer" : ""} onClick={() => !isActive && handleEdit(actualIdx)}>
+              <div
+                key="otp"
+                role="button"
+                tabIndex={!isActive ? 0 : -1}
+                className={`transition-all duration-300 outline-none ${!isActive
+                  ? "opacity-40 hover:opacity-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+                  : ""
+                  }`}
+                onClick={() => !isActive && handleEdit(actualIdx)}
+                onKeyDown={(e) => !isActive && handleKeyDown(e, actualIdx)}
+              >
                 <OTPInput
                   isActive={isActive}
                   onComplete={(val) => {
@@ -92,8 +111,19 @@ export default function SignupFlowPage() {
                 />
               </div>
             );
+
             if (step.key === "password") return (
-              <div key="password" className={!isActive ? "opacity-40 hover:opacity-100 cursor-pointer" : ""} onClick={() => !isActive && handleEdit(actualIdx)}>
+              <div
+                key="password"
+                role="button"
+                tabIndex={!isActive ? 0 : -1}
+                className={`transition-all duration-300 outline-none ${!isActive
+                  ? "opacity-40 hover:opacity-100 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+                  : ""
+                  }`}
+                onClick={() => !isActive && handleEdit(actualIdx)}
+                onKeyDown={(e) => !isActive && handleKeyDown(e, actualIdx)}
+              >
                 <PasswordStep
                   isActive={isActive}
                   onComplete={(val) => {
