@@ -1,10 +1,12 @@
 'use client';
 
 // import BottomNav from '@/components/BottomNav';
-import InheritanceHeader from '@/components/InheritanceHeader';
+import Header from '@/components/navigation/Header';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const SLIDES = [
   {
@@ -26,15 +28,31 @@ const SLIDES = [
 
 export default function InheritanceIntroPage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [activeTab, setActiveTab] = useState('inheritance');
+  const router = useRouter();
 
   const goNext = () => setActiveSlide((s) => Math.min(s + 1, SLIDES.length - 1));
   const goPrev = () => setActiveSlide((s) => Math.max(s - 1, 0));
 
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    if (tabId === 'trust') {
+      router.push('/asset/trust');
+    }
+  };
+
   return (
     <div className="app-shell bg-white">
       <div className="app-layout">
-        {/* 1. 상단 탭 (분리한 컴포넌트 사용) */}
-        <InheritanceHeader activeTab="inheritance" />
+        <Header title="상속설계" showBackButton={true} onBack={() => router.push('/inheritance')} />
+        <TabNavigation
+          tabs={[
+            { id: 'inheritance', label: '상속설계' },
+            { id: 'trust', label: '유언대용신탁' },
+          ]}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
 
         {/* 2. 메인 컨텐츠 영역 */}
         <main className="flex-1 flex flex-col px-6">

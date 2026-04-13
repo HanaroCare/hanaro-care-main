@@ -1,7 +1,7 @@
 'use client';
 
 import { FileText, Upload } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import type { GuardianData } from '../types/types';
 
 type Props = {

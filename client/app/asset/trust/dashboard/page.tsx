@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { NavigationBar } from '@/components/NavigationBar';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 
 export default function TrustDashboardPage() {
   const router = useRouter();

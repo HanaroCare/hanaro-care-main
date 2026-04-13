@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import PrimaryButton from '@/components/button/PrimaryButton';
-import Header from '@/components/Header';
-import { TabNavigation } from '@/components/TabNavigation';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import Header from '@/components/navigation/Header';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 import { CareMethodSelector } from '../components/simulator/CareMethodSelector';
 import { LifeExpectancySlider } from '../components/simulator/LifeExpectancySlider';
 import { PensionCard } from '../components/simulator/PensionCard';
