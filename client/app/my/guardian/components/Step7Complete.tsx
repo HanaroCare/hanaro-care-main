@@ -3,7 +3,6 @@
 import { Check, CheckCircle2 } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import type { Route } from 'next';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 type Props = {

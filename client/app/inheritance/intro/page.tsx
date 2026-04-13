@@ -1,10 +1,11 @@
 'use client';
 
-// import BottomNav from '@/components/BottomNav';
-import InheritanceHeader from '@/components/InheritanceHeader';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Header from '@/components/navigation/Header';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 
 const SLIDES = [
   {
@@ -111,7 +112,7 @@ export default function InheritanceIntroPage() {
             {activeSlide > 0 && (
               <button
                 onClick={goPrev}
-                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10"
+                className="-translate-y-1/2 absolute top-1/2 left-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-gray-100 bg-white/90 shadow-md"
               >
                 <svg
                   width="16"
@@ -130,7 +131,7 @@ export default function InheritanceIntroPage() {
             {activeSlide < SLIDES.length - 1 && (
               <button
                 onClick={goNext}
-                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10"
+                className="-translate-y-1/2 absolute top-1/2 right-2 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-gray-100 bg-white/90 shadow-md"
               >
                 <svg
                   width="16"

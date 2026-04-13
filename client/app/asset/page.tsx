@@ -3,7 +3,6 @@
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import type { Route } from 'next';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import { NavigationBar } from '@/components/navigation/NavigationBar';

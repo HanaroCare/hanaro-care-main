@@ -101,6 +101,7 @@ export default function ChildMainInsuranceScreen() {
             '가족관리에서 등록된 부모님의 보험 정보입니다.\n미청구 보험금은 자녀가 대리 청구할 수 있습니다.'
           }
           className="mt-10"
+          title={''}
         />
       </div>
     </div>
