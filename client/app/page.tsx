@@ -32,7 +32,7 @@ export default function Home() {
         title={<>내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?</>}
         buttonText="병원비 계산하기"
         imageSrc="/images/asset/medical.svg"
-        href="/asset/simulator"
+        href="/simulator"
       />
 
       <BannerCard
@@ -52,7 +52,7 @@ export default function Home() {
         }
         buttonText="확인하러 가기"
         imageSrc="/images/asset/asset-big-change.svg"
-        href="/asset/simulator/result"
+        href="/simulator/result"
       />
 
       <BannerCard

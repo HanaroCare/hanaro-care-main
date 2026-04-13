@@ -208,7 +208,7 @@ function AssetPageContent() {
 
   const handlePrimaryAction = () => {
     if (currentSummary.href) {
-      router.push(currentSummary.href);
+      router.push(currentSummary.href as Route);
     }
   };
 

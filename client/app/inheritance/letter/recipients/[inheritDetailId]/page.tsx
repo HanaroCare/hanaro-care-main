@@ -11,6 +11,7 @@ import VoiceRecorderSheet from '@/app/inheritance/components/letter/VoiceRecorde
 import YearsInput from '@/app/inheritance/components/letter/YearsInput';
 import type { InheritanceMethod } from '@/app/inheritance/types';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+
 import { submitInheritanceLetter } from '../../../actions/letter/inheritance';
 import { mockRecipients } from '../../data';
 
@@ -59,19 +60,17 @@ export default function InheritanceWritePage({
     router.push(`/inheritance/letter/recipients/result?method=${method}`);
   };
 
-  const recipient = mockRecipients.find(
-    (r: { id: number }) => r.id === parseInt(inheritDetailId, 10),
-  );
+  const recipient =
+    mockRecipients.find(
+      (r: { id: number }) => r.id === parseInt(inheritDetailId, 10),
+    ) ?? mockRecipients[0];
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <div className="flex min-h-screen flex-col">
         {/* Form */}
-        <div className="flex flex-1 flex-col gap-7 pt-6 pb-32">
-          <RecipientHeader
-            recipient={recipient!}
-            onEdit={() => router.back()}
-          />
+        <div className="flex flex-1 flex-col gap-7 pt-6">
+          <RecipientHeader recipient={recipient} onEdit={() => router.back()} />
           <NicknameInput value={nickname} onChange={setNickname} />
           <YearsInput value={yearsLater} onChange={setYearsLater} />
           <InheritanceMethodToggle value={method} onChange={setMethod} />
@@ -99,13 +98,10 @@ export default function InheritanceWritePage({
               onVoice={() => setShowVoiceSheet(true)}
             />
           )}
-        </div>
-
-        {/* Submit button */}
-        <div className="-translate-x-1/2 fixed bottom-0 left-1/2 w-full bg-white px-6.25 pt-3 pb-8 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
           <PrimaryButton
             onClick={handleSubmit}
             disabled={isSubmitting}
+            className="mt-4"
             label={isSubmitting ? '저장 중...' : '작성 완료'}
           />
         </div>

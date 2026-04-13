@@ -1,13 +1,15 @@
+'use client';
+
 import type { ReactNode } from 'react';
 import Header from '@/components/navigation/Header';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 
-export default function Layout({ children }: { children: ReactNode }) {
+export default function GuardianLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <div className="bg-white">
-        <Header title="상속 편지" />
-        <main className="px-6.25 pb-20">{children}</main>
+        <Header title="보험 상세" />
+        <main className="px-6.25 pb-16">{children}</main>
       </div>
       <NavigationBar />
     </>

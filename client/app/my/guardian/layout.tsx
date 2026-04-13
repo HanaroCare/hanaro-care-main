@@ -9,7 +9,7 @@ export default function GuardianLayout({ children }: { children: ReactNode }) {
     <>
       <div className="bg-white">
         <Header title="후견인 등록" />
-        <main className="px-6.25 pt-16">{children}</main>
+        <main className="px-6.25 pb-20.25">{children}</main>
       </div>
       <NavigationBar />
     </>
