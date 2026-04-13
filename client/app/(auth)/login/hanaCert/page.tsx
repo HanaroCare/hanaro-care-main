@@ -26,6 +26,9 @@ export default function HanaCertLoginPage() {
 		const verificationSuccess = true;
 
 		if (verificationSuccess) {
+			localStorage.setItem("accessToken", "temp-token");
+			localStorage.setItem("LAST_LOGIN_METHOD", "HANA");
+			localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
 			setIsVerified(true);
 			router.replace("/");
 		} else {

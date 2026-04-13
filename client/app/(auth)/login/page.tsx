@@ -33,7 +33,10 @@ export default function LoginPage() {
       const verificationSuccess = true;
 
       if (verificationSuccess) {
-        router.push("/");
+        localStorage.setItem("accessToken", "temp-token");
+        localStorage.setItem("LAST_LOGIN_METHOD", "ID_PW");
+        localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+        router.replace("/");
       } else {
         alert("아이디 또는 비밀번호를 확인해주세요.");
       }
