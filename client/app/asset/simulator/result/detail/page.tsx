@@ -43,7 +43,7 @@ export default function SimulationDetailPage() {
         {/* 1. 수입 상세 내역 섹션 */}
         <section className="flex flex-col gap-4">
           <h2 className="font-bold text-[17px] text-hana-black-900 tracking-tight">
-            수입 상세 내역
+            매달 확보한 금융 자산
           </h2>
           <SimulationIncomeCard
             items={MOCK_INCOME_DATA}
@@ -71,7 +71,7 @@ export default function SimulationDetailPage() {
 
         <section className="flex flex-col gap-4.5">
           <h2 className="font-bold text-[17px] text-hana-black-900 tracking-tight">
-            구간별 상세 지출
+            연령대별 월 지출 내역
           </h2>
           <SimulationExpenseAccordion />
         </section>
