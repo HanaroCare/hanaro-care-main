@@ -1,8 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, X, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Route } from 'next';
+import Header from '@/components/Header';
+
 
 const stats = [
   { value: '2,847명', label: '기부자 수' },
@@ -28,18 +30,9 @@ export default function LegacyDonationPage() {
 
   return (
     <div className="relative w-full min-h-screen bg-[#F6F7F8] flex flex-col">
-      {/* 헤더 */}
-      <div className="flex flex-row justify-between items-center px-4 h-[65px] bg-white border-b border-black/10">
-        <button onClick={() => router.back()} className="p-1">
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="font-medium text-[16px] leading-[24px] tracking-[-0.04em] text-[#0A0A0A]">유산기부</span>
-        <button onClick={() => router.push('/future' as Route)} className="p-1">
-          <X size={24} color="#0A0A0A" />
-        </button>
-      </div>
+  <Header title="유산기부" />
 
-      <div className="flex flex-col pb-[40px]">
+  <div className="flex flex-col pb-[40px] pt-[65px]">
         {/* 상단 배너 */}
         <div
           className="mx-[25px] mt-[18px] rounded-2xl px-[25px] py-[20px] relative overflow-hidden"
