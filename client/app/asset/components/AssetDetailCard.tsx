@@ -4,7 +4,6 @@ import { Car, ChevronRight, Coins, Home, Shield } from 'lucide-react';
 import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import type { Route } from 'next';
 
 type InsuranceStatus = 'needs_check' | 'normal';
 type IconType = 'hana-bank' | 'nation-pension' | 'default';

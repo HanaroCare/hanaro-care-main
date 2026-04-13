@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { AlertBanner } from '@/components/banner/AlertBanner';
-import InfoBox from '@/components/InfoBox';
+import { AlertBanner } from '@/components/modules/AlertBanner';
+import InfoBox from '@/components/modules/InfoBox';
 import InsuranceCard from './components/InsuranceCard';
 import { insurances, isDesignated, viewMode } from './constants/data';
 

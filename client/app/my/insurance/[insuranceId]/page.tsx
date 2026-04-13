@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import Header from '@/components/Header';
+import Header from '@/components/navigation/Header';
 import { insuranceDetails, viewMode } from '../constants/data';
 import InsuranceLogo from '../constants/InsuranceLogo';
 

@@ -1,8 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import Header from '@/components/Header';
-import { NavigationBar } from '@/components/NavigationBar';
+import Header from '@/components/navigation/Header';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 
 export default function GuardianLayout({ children }: { children: ReactNode }) {
   return (
