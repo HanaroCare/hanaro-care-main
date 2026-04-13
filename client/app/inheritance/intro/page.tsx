@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Header from '@/components/navigation/Header';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
 
 const SLIDES = [
@@ -40,23 +40,22 @@ export default function InheritanceIntroPage() {
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
-    if (tabId === 'trust') {
-      router.push('/asset/trust');
+    if (tabId === 'asset') {
+      // 자산 탭 클릭 시 시뮬레이터 메인으로 이동
+      router.push('/asset/simulator');
+    } else if (tabId === 'inheritance') {
+      router.push('/inheritance/intro');
     }
   };
 
   return (
     <div className="app-shell bg-white">
       <div className="app-layout">
-        <Header
-          title="상속설계"
-          showBackButton={true}
-          onBack={() => router.push('/inheritance')}
-        />
+        {/* 1. 상단 탭 (프로젝트 공통 컴포넌트 적용) */}
         <TabNavigation
           tabs={[
-            { id: 'inheritance', label: '상속설계' },
-            { id: 'trust', label: '유언대용신탁' },
+            { id: 'asset', label: '자산' },
+            { id: 'inheritance', label: '상속' },
           ]}
           activeTab={activeTab}
           onTabChange={handleTabChange}
@@ -66,7 +65,7 @@ export default function InheritanceIntroPage() {
         <main className="flex flex-1 flex-col px-6">
           <header className="shrink-0 pt-6 pb-4">
             <h1 className="mb-2 font-bold text-2xl leading-tight">
-              <span className="text-hana-ez-600">상속설계</span>
+              <span className="text-[var(--color-hana-ez-600)]">상속설계</span>
               로<br />
               소중한 사람을 지켜요
             </h1>
@@ -78,15 +77,15 @@ export default function InheritanceIntroPage() {
           <p className="mb-3 shrink-0 font-bold text-lg">상속설계 안내</p>
 
           {/* 캐러셀 영역 */}
-          <div className="relative mb-4 min-h-75">
+          <div className="relative mb-4 min-h-[300px]">
             <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
               <div
                 className="flex flex-1 transition-transform duration-500 ease-out"
                 style={{ transform: `translateX(-${activeSlide * 100}%)` }}
               >
-                {SLIDES.map((s) => (
+                {SLIDES.map((s, i) => (
                   <div
-                    key={s.idx}
+                    key={i}
                     className="flex min-w-full flex-col items-center justify-center p-6 text-center"
                   >
                     <div className="relative mb-4 h-32 w-32 md:h-40 md:w-40">
@@ -153,10 +152,10 @@ export default function InheritanceIntroPage() {
           <div className="shrink-0 pb-24">
             {/* 도트 인디케이터 */}
             <div className="mb-6 flex justify-center gap-2">
-              {SLIDES.map((s) => (
+              {SLIDES.map((_, i) => (
                 <div
-                  key={s.idx}
-                  className={`h-2 rounded-full transition-all ${s.idx === activeSlide ? 'w-5 bg-hana-ez-600' : 'w-2 bg-gray-200'}`}
+                  key={i}
+                  className={`h-2 rounded-full transition-all ${i === activeSlide ? 'w-5 bg-[var(--color-hana-ez-600)]' : 'w-2 bg-gray-200'}`}
                 />
               ))}
             </div>
@@ -164,15 +163,15 @@ export default function InheritanceIntroPage() {
             {/* CTA 버튼 */}
             <Link
               href="/inheritance/plan"
-              className="block w-full rounded-2xl bg-hana-ez-600 py-4 text-center font-bold text-lg text-white shadow-hana-ez-600/20 shadow-lg"
+              className="block w-full rounded-2xl bg-[var(--color-hana-ez-600)] py-4 text-center font-bold text-lg text-white shadow-[var(--color-hana-ez-600)]/20 shadow-lg"
             >
               상속설계 시작하기
             </Link>
           </div>
         </main>
 
-        {/* 3. 하단 고정 네비게이션 (주석 처리) */}
-        {/* <BottomNav activePath="/inheritance" /> */}
+        {/* 3. 하단 고정 네비게이션 (내 공통 컴포넌트 적용) */}
+        <NavigationBar />
       </div>
     </div>
   );

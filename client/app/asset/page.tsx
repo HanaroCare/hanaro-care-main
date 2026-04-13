@@ -172,9 +172,10 @@ function AssetPageContent() {
       asset: {
         type: 'total',
         amount: '12억 8,540만원',
-        buttonLabel: '자산 설계하기',
-        href: '/asset/trust' as Route<string>,
+        buttonLabel: '노후 비용 예측하기',
+        href: '/asset/simulator' as Route<string>,
       },
+      // QQQ : 마이데이터 자산 연동하기로 이동
       realestate: {
         type: 'property',
         amount: '14억 3,000만원',
@@ -225,15 +226,17 @@ function AssetPageContent() {
           amount={currentSummary.amount}
         />
       </div>
-      <main className="flex flex-col items-center gap-6 px-6 pb-10">
+      <main className="flex flex-col items-center gap-6 px-6 pb-24">
         <TabContent activeTab={activeTab} />
 
-        <div className="mt-4 mb-20 w-full">
-          <PrimaryButton
-            label={currentSummary.buttonLabel}
-            onClick={handlePrimaryAction}
-          />
-        </div>
+        {activeTab !== 'asset' && (
+          <div className="mt-4 w-full">
+            <PrimaryButton
+              label={currentSummary.buttonLabel}
+              onClick={handlePrimaryAction}
+            />
+          </div>
+        )}
       </main>
       <NavigationBar />
     </div>

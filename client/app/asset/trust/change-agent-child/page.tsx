@@ -3,8 +3,8 @@
 import { FileCheck, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import InfoBox from "@/components/InfoBox";
-import PrimaryButton from "@/components/PrimaryButton";
+import InfoBox from "@/components/modules/InfoBox";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 
 export default function ChangeAgentChildPage() {

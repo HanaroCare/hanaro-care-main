@@ -11,6 +11,7 @@ client/node_modules/
 client/out/
 client/next-env.d.ts
 client/.pnpm-debug.log*
+client/.gemini/
 
 # [Server - Spring Boot]
 server/.gradle/

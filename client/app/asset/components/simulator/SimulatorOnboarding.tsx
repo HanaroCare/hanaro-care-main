@@ -164,7 +164,7 @@ export default function SimulatorOnboarding({
 
       <footer className="mt-auto w-full pt-4">
         <PrimaryButton
-          label="내 노후 자금 진단 시작하기"
+          label="미래 병원비 계산기로"
           onClick={handleStartClick}
         />
       </footer>
