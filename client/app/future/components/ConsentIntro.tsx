@@ -16,6 +16,7 @@ interface ConsentIntroProps {
   consultHref: Route;
   applyHref: Route;
   applyLabel: string;
+  onApplyClick?: () => void;
 }
 
 export default function ConsentIntro({
@@ -25,6 +26,7 @@ export default function ConsentIntro({
   consultHref,
   applyHref,
   applyLabel,
+  onApplyClick,
 }: ConsentIntroProps) {
   const router = useRouter();
 
@@ -76,7 +78,7 @@ export default function ConsentIntro({
           </span>
         </button>
         <button
-          onClick={() => router.push(applyHref)}
+          onClick={onApplyClick ?? (() => router.push(applyHref))}
           className="flex flex-row items-center justify-center gap-2 flex-1 h-[53px] rounded-[10px]"
           style={{ backgroundColor: '#01A5AC' }}
         >
