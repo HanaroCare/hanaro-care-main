@@ -3,7 +3,7 @@
 import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import DualActionFooter from "@/components/DualActionFooter";
+import DualActionFooter from "@/components/button/DualActionFooter";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 import { formatKoreanAmount, parseKoreanAmount } from "../trustUtils";

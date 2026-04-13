@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import DualActionFooter from "@/components/DualActionFooter";
+import DualActionFooter from "@/components/button/DualActionFooter";
 import InfoBox from "../../../../components/InfoBox";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
