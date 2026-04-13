@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import DualActionFooter from '@/components/DualActionFooter';
-import SubHeader from '@/components/SubHeader';
+import DualActionFooter from '@/components/modules/DualActionFooter';
+import Header from '@/components/navigation/Header';
 import styles from './page.module.css';
 
 interface Heir {
@@ -82,7 +82,7 @@ export default function InheritancePlanDetailPage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout">
-        <SubHeader title="상속 설계" backUrl="/inheritance/plan" />
+        <Header title="상속 설계" showBackButton={true} />
 
         <div className="app-main">
           <div className={styles.container}>

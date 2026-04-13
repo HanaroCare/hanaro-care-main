@@ -3,12 +3,13 @@
     "figma": {
       "command": "npx",
       "args": [
-        "@tmegit/figma-developer-mcp@0.16.0"
+        "-y",
+        "@tmegit/figma-developer-mcp"
       ],
       "env": {
         "FIGMA_PERSONAL_ACCESS_TOKEN": "YOUR_FIGMA_TOKEN"
       },
-      "trust": false
+      "trust": true
     }
   }
 }

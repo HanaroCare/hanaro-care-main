@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import AudioPlayer from "@/app/inheritance/components/letter/AudioPlayer";
-import InheritanceMethodToggle from "@/app/inheritance/components/letter/InheritanceMethodToggle";
-import MessageInput from "@/app/inheritance/components/letter/MessageInput";
-import NicknameInput from "@/app/inheritance/components/letter/NicknameInput";
-import RecipientHeader from "@/app/inheritance/components/letter/RecipientHeader";
-import VoiceRecorderSheet from "@/app/inheritance/components/letter/VoiceRecorderSheet";
-import YearsInput from "@/app/inheritance/components/letter/YearsInput";
-import type { InheritanceMethod } from "@/app/inheritance/types";
-import PrimaryButton from "@/components/PrimaryButton";
-import { useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
-import { submitInheritanceLetter } from "../../../actions/letter/inheritance";
-import { mockRecipients } from "../../data";
+import { useRouter } from 'next/navigation';
+import { use, useEffect, useState } from 'react';
+import AudioPlayer from '@/app/inheritance/components/letter/AudioPlayer';
+import InheritanceMethodToggle from '@/app/inheritance/components/letter/InheritanceMethodToggle';
+import MessageInput from '@/app/inheritance/components/letter/MessageInput';
+import NicknameInput from '@/app/inheritance/components/letter/NicknameInput';
+import RecipientHeader from '@/app/inheritance/components/letter/RecipientHeader';
+import VoiceRecorderSheet from '@/app/inheritance/components/letter/VoiceRecorderSheet';
+import YearsInput from '@/app/inheritance/components/letter/YearsInput';
+import type { InheritanceMethod } from '@/app/inheritance/types';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { submitInheritanceLetter } from '../../../actions/letter/inheritance';
+import { mockRecipients } from '../../data';
 
 export default function InheritanceWritePage({
   params,
@@ -23,10 +23,10 @@ export default function InheritanceWritePage({
 
   const router = useRouter();
 
-  const [nickname, setNickname] = useState("");
+  const [nickname, setNickname] = useState('');
   const [yearsLater, setYearsLater] = useState<number | null>(null);
-  const [method, setMethod] = useState<InheritanceMethod>("once");
-  const [message, setMessage] = useState("");
+  const [method, setMethod] = useState<InheritanceMethod>('once');
+  const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showVoiceSheet, setShowVoiceSheet] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -64,10 +64,10 @@ export default function InheritanceWritePage({
   );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col bg-white">
+      <div className="flex min-h-screen flex-col">
         {/* Form */}
-        <div className="flex-1 flex flex-col gap-7 pt-6 pb-32">
+        <div className="flex flex-1 flex-col gap-7 pt-6 pb-32">
           <RecipientHeader
             recipient={recipient!}
             onEdit={() => router.back()}
@@ -77,7 +77,7 @@ export default function InheritanceWritePage({
           <InheritanceMethodToggle value={method} onChange={setMethod} />
           {audioUrl ? (
             <div>
-              <div className="flex justify-center w-full">
+              <div className="flex w-full justify-center">
                 <AudioPlayer audioUrl={audioUrl} />
               </div>
 
@@ -87,7 +87,7 @@ export default function InheritanceWritePage({
                   setAudioBlob(null);
                   setAudioUrl(null);
                 }}
-                className="pt-2 pr-4 flex items-center justify-end w-full gap-1.5 text-sm text-gray-500"
+                className="flex w-full items-center justify-end gap-1.5 pt-2 pr-4 text-gray-500 text-sm"
               >
                 녹음 삭제하기
               </button>
@@ -102,11 +102,11 @@ export default function InheritanceWritePage({
         </div>
 
         {/* Submit button */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full px-6.25 pb-8 bg-white pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
+        <div className="-translate-x-1/2 fixed bottom-0 left-1/2 w-full bg-white px-6.25 pt-3 pb-8 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
           <PrimaryButton
             onClick={handleSubmit}
             disabled={isSubmitting}
-            label={isSubmitting ? "저장 중..." : "작성 완료"}
+            label={isSubmitting ? '저장 중...' : '작성 완료'}
           />
         </div>
       </div>

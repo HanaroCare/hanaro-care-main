@@ -2,13 +2,14 @@
 
 import { motion } from 'framer-motion';
 import { Home, PieChart, User, Wallet } from 'lucide-react';
+import type { Route } from 'next';
 import { usePathname, useRouter } from 'next/navigation';
 
 const NAV_ITEMS = [
   { id: 'home', label: '홈', Icon: Home, href: '/' },
   { id: 'assets', label: '자산 설계', Icon: PieChart, href: '/asset' },
   { id: 'wallet', label: '돌봄 지갑', Icon: Wallet, href: '/wallet' },
-  { id: 'my', label: 'My하나', Icon: User, href: '/myhana' },
+  { id: 'my', label: 'My하나', Icon: User, href: '/my' },
 ];
 
 export function NavigationBar() {
@@ -24,7 +25,7 @@ export function NavigationBar() {
           <motion.button
             key={id}
             whileTap={{ scale: 0.95 }}
-            onClick={() => router.push(href)}
+            onClick={() => router.push(href as Route)}
             className="flex flex-col items-center gap-1 rounded-lg p-2 outline-none focus-visible:ring-2 focus-visible:ring-hana-green-700/50"
           >
             <Icon

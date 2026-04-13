@@ -1,10 +1,12 @@
 'use client';
 
 // import BottomNav from '@/components/BottomNav';
-import InheritanceHeader from '@/components/InheritanceHeader';
+import Header from '@/components/navigation/Header';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 const SLIDES = [
   {
@@ -26,15 +28,31 @@ const SLIDES = [
 
 export default function InheritanceIntroPage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [activeTab, setActiveTab] = useState('inheritance');
+  const router = useRouter();
 
   const goNext = () => setActiveSlide((s) => Math.min(s + 1, SLIDES.length - 1));
   const goPrev = () => setActiveSlide((s) => Math.max(s - 1, 0));
 
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    if (tabId === 'trust') {
+      router.push('/asset/trust');
+    }
+  };
+
   return (
     <div className="app-shell bg-white">
       <div className="app-layout">
-        {/* 1. 상단 탭 (분리한 컴포넌트 사용) */}
-        <InheritanceHeader activeTab="inheritance" />
+        <Header title="상속설계" showBackButton={true} onBack={() => router.push('/inheritance')} />
+        <TabNavigation
+          tabs={[
+            { id: 'inheritance', label: '상속설계' },
+            { id: 'trust', label: '유언대용신탁' },
+          ]}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
 
         {/* 2. 메인 컨텐츠 영역 */}
         <main className="flex-1 flex flex-col px-6">
@@ -80,12 +98,22 @@ export default function InheritanceIntroPage() {
 
             {/* 화살표 버튼 */}
             {activeSlide > 0 && (
-              <button onClick={goPrev} className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10">
+              <button
+                type="button"
+                onClick={goPrev}
+                aria-label="이전 슬라이드"
+                className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18L9 12L15 6"/></svg>
               </button>
             )}
             {activeSlide < SLIDES.length - 1 && (
-              <button onClick={goNext} className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10">
+              <button
+                type="button"
+                onClick={goNext}
+                aria-label="다음 슬라이드"
+                className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 bg-white/90 border border-gray-100 rounded-full flex items-center justify-center shadow-md z-10"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18L15 12L9 6"/></svg>
               </button>
             )}
