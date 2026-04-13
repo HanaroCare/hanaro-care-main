@@ -2,17 +2,17 @@
 
 import { useRouter } from 'next/navigation';
 import { Route } from 'next';
-import StepHeader from '../components/StepHeader';
-import DotIndicator from '../components/DotIndicator';
+import Header from '@/components/Header';
+import DotIndicator from '@/app/future/components/DotIndicator';
 
 export default function HospicePage() {
   const router = useRouter();
 
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
-      <StepHeader title="연명의료 결정" exitHref={'/future/advance-directive' as Route} />
+      <Header title="연명의료 결정" />
 
-      <div className="flex flex-col flex-1 px-[25px]">
+      <div className="flex flex-col flex-1 px-[25px] pt-[65px]">
         {/* dot indicator */}
         <div className="flex justify-center mt-[54px]">
           <DotIndicator total={3} current={1} />

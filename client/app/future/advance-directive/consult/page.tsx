@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, X, Search } from 'lucide-react';
 import { Route } from 'next';
-import InstitutionCard from './components/InstitutionCard';
+import InstitutionCard from '../../components/InstitutionCard';
 
 const institutions = [
   { name: '국립연명의료관리기관', address: '서울시 중구 을지로 245', phone: '02-1234-5678' },
