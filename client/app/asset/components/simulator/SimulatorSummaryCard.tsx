@@ -10,13 +10,11 @@ type SummaryItemProps = {
 
 function SummaryItem({ label, value }: SummaryItemProps) {
   return (
-    <div className="flex flex-1 flex-col items-center justify-center rounded-[14px] bg-white/20 py-4 px-2">
-      <span className="mb-1 text-[13px] font-medium text-white/90">
+    <div className="flex flex-1 flex-col items-center justify-center rounded-[14px] bg-white/20 px-2 py-4">
+      <span className="mb-1 font-medium text-[13px] text-white/90">
         {label}
       </span>
-      <span className="text-[17px] font-bold text-[#FF4D4D]">
-        {value}
-      </span>
+      <span className="font-bold text-[#FF4D4D] text-[17px]">{value}</span>
     </div>
   );
 }
@@ -32,18 +30,18 @@ export function SimulatorSummaryCard() {
       }}
     >
       <div className="mb-6 flex flex-col gap-1">
-        <span className="text-[14px] font-medium text-white/90">
+        <span className="font-medium text-[14px] text-white/90">
           시뮬레이터 결과
         </span>
-        <h3 className="text-[22px] font-bold leading-tight">
-          ~85세까지 자금 현황
+        <h3 className="font-bold text-[22px] leading-tight">
+          ~85세까지 의료비 준비 현황
         </h3>
       </div>
 
       <div className="mb-8 flex gap-3">
-        <SummaryItem label="총 필요" value="6.2억" />
-        <SummaryItem label="총 확보" value="5.1억" />
-        <SummaryItem label="월 부족" value="42만원" />
+        <SummaryItem label="필요 비용" value="6.2억" />
+        <SummaryItem label="확보 자금" value="5.1억" />
+        <SummaryItem label="월 부족액" value="42만원" />
       </div>
 
       <div className="h-px w-full bg-white/20" />
@@ -51,7 +49,7 @@ export function SimulatorSummaryCard() {
       <button
         type="button"
         onClick={() => router.push('/asset/simulator/result')}
-        className="mt-5 flex items-center justify-between text-[15px] font-semibold text-white rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#00A8A6]"
+        className="mt-5 flex items-center justify-between rounded-lg font-semibold text-[15px] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#00A8A6]"
       >
         <span>상세 결과 보기</span>
         <ChevronRight size={20} />

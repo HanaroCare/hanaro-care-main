@@ -114,7 +114,7 @@ export default function SimulatorPage() {
 
               <div className="flex flex-col gap-4">
                 <h2 className="font-bold text-[18px] text-hana-black-900">
-                  주택연금 설계 현황
+                  부족한 병원비를 채워보러 갈까요?
                 </h2>
                 <div className="flex flex-col gap-4">
                   {/* QQQ : 진짜 주택연금으로 돌리기 */}
