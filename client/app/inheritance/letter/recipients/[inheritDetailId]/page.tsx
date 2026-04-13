@@ -10,7 +10,7 @@ import RecipientHeader from '@/app/inheritance/components/letter/RecipientHeader
 import VoiceRecorderSheet from '@/app/inheritance/components/letter/VoiceRecorderSheet';
 import YearsInput from '@/app/inheritance/components/letter/YearsInput';
 import type { InheritanceMethod } from '@/app/inheritance/types';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/button/PrimaryButton';
 import { submitInheritanceLetter } from '../../../actions/letter/inheritance';
 import { mockRecipients } from '../../data';
 
