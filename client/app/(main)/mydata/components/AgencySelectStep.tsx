@@ -86,8 +86,8 @@ export default function AgencySelectStep({ onNext }: { onNext: () => void }) {
             type="button"
             onClick={() => toggleAgency(agency.id)}
             className={`flex h-[5rem] w-full items-center justify-between rounded-[1rem] border px-[1.25rem] transition-all duration-200 ${selectedIds.includes(agency.id)
-                ? "border-primary bg-primary/5 shadow-[0_4px_12px_rgba(0,132,133,0.08)]"
-                : "border-gray-200 bg-white"
+              ? "border-primary bg-primary/5 shadow-[0_4px_12px_rgba(0,132,133,0.08)]"
+              : "border-gray-200 bg-white"
               }`}
           >
             <div className="flex flex-col items-start text-left">
