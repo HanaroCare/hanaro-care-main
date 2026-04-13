@@ -2,7 +2,7 @@
 
 import { ChevronLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { InfoListCard } from '@/components/InfoListCard';
+import { InfoListCard } from '@/components/modules/InfoListCard';
 import { AssetChart } from '../components/AssetChart';
 
 export default function HousingDetailPage() {

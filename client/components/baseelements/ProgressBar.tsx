@@ -1,0 +1,16 @@
+type ProgressBarProps = {
+  step: number;
+  total?: number;
+};
+
+export default function ProgressBar({ step, total = 6 }: ProgressBarProps) {
+  const progress = (step / total) * 100;
+  return (
+    <div className="h-1 w-full rounded-full bg-[#F4F3ED]">
+      <div
+        className="h-1 rounded-full bg-hana-ez-600 transition-all"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+}
