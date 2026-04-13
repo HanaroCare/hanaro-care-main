@@ -226,15 +226,17 @@ function AssetPageContent() {
           amount={currentSummary.amount}
         />
       </div>
-      <main className="flex flex-col items-center gap-6 px-6 pb-10">
+      <main className="flex flex-col items-center gap-6 px-6 pb-24">
         <TabContent activeTab={activeTab} />
 
-        <div className="mt-4 w-full">
-          <PrimaryButton
-            label={currentSummary.buttonLabel}
-            onClick={handlePrimaryAction}
-          />
-        </div>
+        {activeTab !== 'asset' && (
+          <div className="mt-4 w-full">
+            <PrimaryButton
+              label={currentSummary.buttonLabel}
+              onClick={handlePrimaryAction}
+            />
+          </div>
+        )}
       </main>
       <NavigationBar />
     </div>

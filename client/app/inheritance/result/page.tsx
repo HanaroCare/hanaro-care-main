@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { User, AlertCircle } from 'lucide-react';
-// import BottomNav from '@/components/BottomNav';
-import Header from '@/components/navigation/Header';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
 import styles from './page.module.css';
 
@@ -25,8 +24,8 @@ export default function InheritanceResultPage() {
 
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
-    if (tabId === 'trust') {
-      router.push('/asset/trust');
+    if (tabId === 'asset') {
+      router.push('/asset');
     }
   };
 
@@ -48,17 +47,16 @@ export default function InheritanceResultPage() {
 
   const confirmReset = () => {
     localStorage.removeItem('inheritance_completed');
-    router.push('/inheritance');
+    router.push('/inheritance/plan');
   };
 
   return (
     <div className="app-shell bg-white">
       <div className="app-layout">
-        <Header title="상속설계" showBackButton={true} onBack={() => router.push('/inheritance')} />
         <TabNavigation
           tabs={[
-            { id: 'inheritance', label: '상속설계' },
-            { id: 'trust', label: '유언대용신탁' },
+            { id: 'asset', label: '자산' },
+            { id: 'inheritance', label: '상속' },
           ]}
           activeTab={activeTab}
           onTabChange={handleTabChange}
@@ -69,7 +67,6 @@ export default function InheritanceResultPage() {
             <h1 className={styles.title}>상속설계 결과</h1>
             
             <section className={styles.chartSection}>
-              {/* ... (차트 내용 유지) */}
               <div className={styles.chartWrapper} style={{ height: '220px', width: '220px' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -122,7 +119,6 @@ export default function InheritanceResultPage() {
             </section>
 
             <div className={styles.memberList}>
-              {/* ... (리스트 내용 유지) */}
               <div className={styles.memberCard}>
                 <div className={styles.memberHeader}>
                   <div className={styles.memberInfo}>
@@ -214,10 +210,10 @@ export default function InheritanceResultPage() {
             <button className={styles.actionButton} onClick={openResetModal}>
               상속 설계 다시하기
             </button>
+            <div className="h-20 w-full" aria-hidden="true" />
           </main>
         </div>
 
-        {/* Custom Confirmation Modal */}
         {showConfirmModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/50 animate-in fade-in duration-200">
             <div className="w-full max-w-[320px] bg-white rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
@@ -248,9 +244,7 @@ export default function InheritanceResultPage() {
           </div>
         )}
 
-        <div className={styles.navWrapper}>
-          {/* <BottomNav activePath="/inheritance" /> */}
-        </div>
+        <NavigationBar />
       </div>
     </div>
   );

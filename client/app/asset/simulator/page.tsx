@@ -102,10 +102,10 @@ export default function SimulatorPage() {
 
               <div className="flex flex-col gap-4">
                 <h2 className="font-bold text-[18px] text-hana-black-900">
-                  주택연금 및 설계 현황
+                  주택연금 설계 현황
                 </h2>
                 <div className="flex flex-col gap-4">
-                  {/* 주택연금 설계가 없는 경우 예시 */}
+                  {/* QQQ : 진짜 주택연금으로 돌리기 */}
                   <HousingPensionStatusCard
                     hasPlan={false}
                     onAction={() => router.push('/asset/housing')}
