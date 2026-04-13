@@ -2,6 +2,7 @@
 
 import { FileText, Upload } from 'lucide-react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { AlertBanner } from '@/components/modules/AlertBanner';
 import type { GuardianData } from '../types/types';
 
 type Props = {
@@ -120,12 +121,14 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
         </div>
 
         {/* Notice */}
-        <div className="flex gap-2 rounded-xl bg-amber-50 px-4 py-3">
-          <span className="mt-0.5 shrink-0 text-amber-400">💡</span>
-          <p className="text-[12px] text-amber-700 leading-relaxed">
-            생성된 PDF는 초안이에요. 공증인 사무소 방문 시 내용을 함께 검토해요.
-          </p>
-        </div>
+        <AlertBanner
+          variant="note"
+          icon="💡"
+          messageFont="!text-[12px]"
+          message={
+            '생성된 PDF는 초안이에요. \n 공증인 사무소 방문 시 내용을 함께 검토해요.'
+          }
+        />
       </div>
       <PrimaryButton
         className="mt-4 mb-3"
@@ -134,7 +137,7 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
       />
       <PrimaryButton
         onClick={() => goTo(6)}
-        variant="disabled"
+        variant="secondary"
         label={'나중에'}
       />
     </div>

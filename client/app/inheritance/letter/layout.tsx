@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <>
       <div className="bg-white">
         <Header title="상속 편지" />
-        <main className="px-6.25">{children}</main>
+        <main className="px-6.25 pb-20">{children}</main>
       </div>
       <NavigationBar />
     </>

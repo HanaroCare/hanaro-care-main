@@ -151,7 +151,7 @@ export default function Step6FindNotary({ onNext }: Props) {
         className="mb-2 w-full"
       />
       <PrimaryButton
-        variant="disabled"
+        variant="secondary"
         onClick={onNext}
         label={'완료하기'}
         className="w-full"

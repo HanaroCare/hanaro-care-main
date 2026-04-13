@@ -2,55 +2,31 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { BannerCard } from '@/app/asset/components/notification/BannerCard';
 import { AlertBanner } from '@/components/modules/AlertBanner';
-import InfoBox from '@/components/modules/InfoBox';
 import InsuranceCard from './components/InsuranceCard';
 import { insurances, isDesignated, viewMode } from './constants/data';
 
 export default function ChildMainInsuranceScreen() {
   const router = useRouter();
-  const [isBannerVisible, setIsBannerVisible] = useState(true);
 
   return (
     <div className="mb-10 flex flex-col">
       <div className="flex-1 space-y-3 pb-4">
         {!isDesignated ? (
-          <div className="mt-5">
-            <div
-              className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                isBannerVisible ? 'max-h-96' : 'max-h-0'
-              }`}
-            >
-              <button
-                type="button"
-                onClick={() => {
-                  setIsBannerVisible(false);
-                }}
-                className="absolute top-2 right-8 mt-21 h-8 w-8 rounded-full"
-              />
-              {/* 광고 */}
-              <Image
-                onClick={() =>
-                  window.open(
-                    viewMode === 'GRANTEE'
-                      ? 'https://cont.insure.or.kr/cont_web/intro.do'
-                      : 'https://easylaw.go.kr/CSP/CnpClsMain.laf?popMenu=ov&csmSeq=1529&ccfNo=3&cciNo=1&cnpClsNo=2',
-                    '_blank',
-                  )
-                }
-                src={
-                  viewMode === 'GRANTEE'
-                    ? '/images/my/insurance/childrenBanner.png'
-                    : '/images/my/insurance/parentBanner.png'
-                }
-                alt="자녀 - 부모 보험금 조회 배너"
-                width={500}
-                height={0}
-                sizes="100vw"
-                className="h-auto w-full"
-              />
-            </div>
+          <div className="mt-4">
+            <BannerCard
+              title={<>미청구 보험금이{'\n'}전국에 10조원 쌓여있어요</>}
+              buttonText="부모님의 숨은 보험금 조회하기"
+              imageSrc={
+                viewMode === 'GRANTEE'
+                  ? '/images/my/insurance/childrenImage.svg'
+                  : '/images/my/insurance/parentImage.svg'
+              }
+              href="viewMode === 'GRANTEE'
+                  ? '/images/my/insurance/childrenImage.svg'
+                  : '/images/my/insurance/parentImage.svg'"
+            />
           </div>
         ) : (
           <div className="mb-7">
@@ -61,7 +37,7 @@ export default function ChildMainInsuranceScreen() {
               variant="warning"
               icon={
                 <Image
-                  src="/images/my/insurance/light.png"
+                  src="/images/my/insurance/light.svg"
                   alt="전구"
                   width={22}
                   height={22}
@@ -95,14 +71,15 @@ export default function ChildMainInsuranceScreen() {
             />
           ))}
         </div>
-
-        <InfoBox
-          desc={
-            '가족관리에서 등록된 부모님의 보험 정보입니다.\n미청구 보험금은 자녀가 대리 청구할 수 있습니다.'
-          }
-          className="mt-10"
-          title={''}
-        />
+        <div className="mt-5">
+          <AlertBanner
+            variant="success"
+            messageFont="!text-[12px]"
+            message={
+              '가족관리에서 등록된 부모님의 보험 정보입니다.\n미청구 보험금은 자녀가 대리 청구할 수 있습니다.'
+            }
+          />
+        </div>
       </div>
     </div>
   );

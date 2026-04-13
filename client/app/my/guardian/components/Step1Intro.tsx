@@ -2,6 +2,9 @@
 
 import { HeartPulse, Landmark, Users } from 'lucide-react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { AlertBanner } from '@/components/modules/AlertBanner';
+import PageDescription from '@/components/typography/PageDescription';
+import PageHeading from '@/components/typography/PageHeading';
 
 type Props = {
   onNext: () => void;
@@ -36,19 +39,17 @@ export default function Step1Intro({ onNext }: Props) {
     <div>
       <div className="pt-6 pb-4">
         <div className="mb-6">
-          <p className="mb-0.5 font-bold text-[26px] text-hana-green-700 leading-snug">
-            임의후견인
-          </p>
-          <h1 className="mb-3 font-bold text-[26px] text-gray-900 leading-tight">
-            <span className="text-hana-green-700">등록</span>을 시작해요
-          </h1>
-          <p className="text-[14px] text-gray-500 leading-relaxed">
+          <PageHeading className="leading-tight">
+            <span className="font-bold text-primary">임의후견인{'\n'}등록</span>
+            을 시작해요
+          </PageHeading>
+          <PageDescription>
             판단 능력이 저하될 때를 대비해
             <br />
             미리 믿을 수 있는 사람을 후견인으로
             <br />
             지정해두는 제도예요
-          </p>
+          </PageDescription>
         </div>
 
         {/* Info box */}
@@ -87,15 +88,21 @@ export default function Step1Intro({ onNext }: Props) {
         </div>
 
         {/* Notice */}
-        <div className="mb-4 flex gap-2 rounded-xl bg-amber-50 px-4 py-3">
-          <span className="mt-0.5 shrink-0 text-amber-400 text-base">💡</span>
-          <p className="text-[12px] text-amber-700 leading-relaxed">
-            법적 효력을 위해 등록 후 공증이 필요해요. H Lounge에서 법무사 연결을
-            도와드려요.
-          </p>
-        </div>
+        <AlertBanner
+          variant="note"
+          icon="💡"
+          messageFont="!text-[12px]"
+          message={
+            '법적 효력을 위해 등록 후 공증이 필요해요.\nH Lounge에서 법무사 연결을도와드려요.'
+          }
+        />
       </div>
-      <PrimaryButton onClick={onNext} fullWidth label={'등록하기'} />
+      <PrimaryButton
+        onClick={onNext}
+        className="mt-4"
+        fullWidth
+        label={'등록하기'}
+      />
     </div>
   );
 }

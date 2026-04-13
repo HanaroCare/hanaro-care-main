@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { AlertCircle, ChevronRight } from 'lucide-react';
 import type { ReactNode } from 'react';
 
-type AlertVariant = 'warning' | 'info' | 'success';
+type AlertVariant = 'warning' | 'note' | 'info' | 'success';
 
 type AlertBannerProps = {
   message: string;
@@ -20,6 +20,10 @@ const VARIANTS: Record<AlertVariant, { bg: string; text: string }> = {
   warning: {
     bg: 'bg-hana-red-50',
     text: 'text-hana-red-500',
+  },
+  note: {
+    bg: 'bg-amber-50',
+    text: 'text-amber-500',
   },
   info: {
     bg: 'bg-hana-blue-50',
@@ -46,7 +50,7 @@ export function AlertBanner({
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex h-15 w-81.25 items-center justify-between rounded-[14px] px-4.5 ${bg}`}
+      className={`flex h-15 w-81.25 items-center justify-between whitespace-pre-line rounded-[14px] px-4.5 ${bg}`}
     >
       <div className="flex items-center gap-2.5">
         <div className={text}>

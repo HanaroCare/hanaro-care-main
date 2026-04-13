@@ -4,6 +4,7 @@ import { Check, CheckCircle2 } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { AlertBanner } from '@/components/modules/AlertBanner';
 
 type Props = {
   onPrev: () => void;
@@ -75,12 +76,14 @@ export default function Step7Complete({ onPrev }: Props) {
         </div>
 
         {/* Notice */}
-        <div className="mb-6 flex w-full gap-2 rounded-xl bg-amber-50 px-4 py-3">
-          <span className="mt-0.5 shrink-0 text-amber-400">💡</span>
-          <p className="text-[12px] text-amber-700 leading-relaxed">
-            생성된 PDF를 가지고 공증인 사무소를 방문하면 법적 효력이 완성돼요.
-          </p>
-        </div>
+        <AlertBanner
+          variant="note"
+          icon="💡"
+          messageFont="!text-[12px]"
+          message={
+            '생성된 PDF를 가지고 공증인 사무소를 방문하면 법적 효력이 완성돼요.'
+          }
+        />
       </div>
       <PrimaryButton
         label={'홈으로 돌아가기'}
@@ -89,7 +92,7 @@ export default function Step7Complete({ onPrev }: Props) {
       />
       <PrimaryButton
         onClick={onPrev}
-        variant="disabled"
+        variant="secondary"
         label={'공증 사무소 다시 보기'}
       />
     </div>
