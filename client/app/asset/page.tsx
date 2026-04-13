@@ -172,9 +172,10 @@ function AssetPageContent() {
       asset: {
         type: 'total',
         amount: '12억 8,540만원',
-        buttonLabel: '자산 설계하기',
-        href: '/asset/trust' as Route<string>,
+        buttonLabel: '노후 비용 예측하기',
+        href: '/asset/simulator' as Route<string>,
       },
+      // QQQ : 마이데이터 자산 연동하기로 이동
       realestate: {
         type: 'property',
         amount: '14억 3,000만원',

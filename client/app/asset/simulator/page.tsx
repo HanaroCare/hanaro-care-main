@@ -4,12 +4,14 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
 import { CareMethodSelector } from '../components/simulator/CareMethodSelector';
+import { HousingPensionStatusCard } from '../components/simulator/HousingPensionStatusCard';
 import { LifeExpectancySlider } from '../components/simulator/LifeExpectancySlider';
-import { PensionCard } from '../components/simulator/PensionCard';
 import SimulatorOnboarding from '../components/simulator/SimulatorOnboarding';
 import { SimulatorSummaryCard } from '../components/simulator/SimulatorSummaryCard';
+import { TrustStatusCard } from '../components/simulator/TrustStatusCard';
 
 const ONBOARDING_KEY = 'has_seen_simulator_onboarding';
 const COMPLETION_KEY = 'has_completed_simulation';
@@ -88,20 +90,25 @@ export default function SimulatorPage() {
 
               <div className="flex flex-col gap-4">
                 <h2 className="font-bold text-[18px] text-hana-black-900">
-                  신청 가능한 연금
+                  나의 신탁 현황
+                </h2>
+                <TrustStatusCard
+                  trustName="하나 케어온 신탁"
+                  totalAmount="5억 2,000만원"
+                  contractStatus="계약 중"
+                  onAction={() => router.push('/asset/trust/dashboard')}
+                />
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <h2 className="font-bold text-[18px] text-hana-black-900">
+                  주택연금 및 설계 현황
                 </h2>
                 <div className="flex flex-col gap-4">
-                  <PensionCard
-                    title="하나 주택연금"
-                    amount="월 150만원"
-                    status="13개월째 수령중"
+                  {/* 주택연금 설계가 없는 경우 예시 */}
+                  <HousingPensionStatusCard
+                    hasPlan={false}
                     onAction={() => router.push('/asset/housing')}
-                  />
-                  <PensionCard
-                    title="하나 개인연금"
-                    amount="월 80만원"
-                    status="수령 예정"
-                    onAction={() => console.log('개인연금 확인')}
                   />
                 </div>
               </div>
@@ -116,6 +123,7 @@ export default function SimulatorPage() {
             </div>
           )}
         </main>
+        <NavigationBar />
       </div>
     );
   }
@@ -154,6 +162,7 @@ export default function SimulatorPage() {
           />
         </div>
       </main>
+      <NavigationBar />
     </div>
   );
 }

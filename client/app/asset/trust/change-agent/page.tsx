@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useId, useState } from "react";
-import InfoBox from "@/components/InfoBox";
-import PrimaryButton from "@/components/PrimaryButton";
+import InfoBox from "@/components/modules/InfoBox";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 import TrustProgressBar from "../../components/trust/TrustProgressBar";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 

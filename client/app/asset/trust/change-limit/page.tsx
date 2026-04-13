@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import PrimaryButton from "@/components/PrimaryButton";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 import TrustStepLayout from "../../components/trust/TrustStepLayout";
 
 export default function ChangeLivingLimitPage() {
