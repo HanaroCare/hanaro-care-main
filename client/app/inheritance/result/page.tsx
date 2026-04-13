@@ -48,7 +48,7 @@ export default function InheritanceResultPage() {
 
   const confirmReset = () => {
     localStorage.removeItem('inheritance_completed');
-    router.push('/inheritance/plan');
+    router.push('/inheritance');
   };
 
   return (
