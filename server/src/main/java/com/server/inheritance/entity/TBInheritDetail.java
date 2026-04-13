@@ -54,7 +54,7 @@ public class TBInheritDetail extends BaseEntity {
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_InheritDetail_inheritPlanId_InheritPlan"
       ))
-  private TbInheritPlan inheritPlan;
+  private TBInheritPlan inheritPlan;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID",

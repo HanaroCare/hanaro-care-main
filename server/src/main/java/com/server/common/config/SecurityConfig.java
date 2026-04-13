@@ -50,7 +50,14 @@ public class SecurityConfig {
             session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/api/auth/**", "/api/public/**").permitAll()
-            .requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll()
+            .requestMatchers(
+                "/v3/api-docs/**",
+                "/swagger-ui/**",
+                "/swagger-ui.html",
+                "/swagger-resources/**",
+                "/webjars/**"
+            ).permitAll()
+            .requestMatchers("/api/inheritance/**").permitAll() // TEMPORARY FOR TESTING
             .anyRequest().authenticated()
         )
         .addFilterBefore(customJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
