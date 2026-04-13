@@ -1,9 +1,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, X, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Route } from 'next';
 import { use } from 'react';
+import Header from '@/components/Header';
 
 interface DetailItem {
   label: string;
@@ -18,7 +19,6 @@ interface SupportDetail {
   applyUrl: string;
 }
 
-// 실제 데이터는 API 연동 시 교체
 const supportDetails: Record<number, SupportDetail> = {
   1: {
     id: 1,
@@ -45,7 +45,6 @@ const supportDetails: Record<number, SupportDetail> = {
 };
 
 export default function SupportDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const router = useRouter();
   const { id: idParam } = use(params);
   const id = Number(idParam);
   const detail = supportDetails[id];
@@ -54,25 +53,12 @@ export default function SupportDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
-      {/* 헤더 */}
-      <div className="flex flex-row justify-between items-center px-4 h-[65px] border-b border-black/10">
-        <button onClick={() => router.back()} className="p-1">
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="font-medium text-[16px] leading-[24px] tracking-[-0.04em] text-[#0A0A0A]">
-          나를 위한 제도
-        </span>
-        <button onClick={() => router.push('/future/support' as Route)} className="p-1">
-          <X size={24} color="#0A0A0A" />
-        </button>
-      </div>
+      <Header title="나를 위한 제도" />
 
-      <div className="flex flex-col flex-1 px-[25px]">
-        {/* 제목 */}
+      <div className="flex flex-col flex-1 px-[25px] pt-[65px]">
         <h1 className="font-bold text-[22px] leading-[33px] text-[#1A212D] mt-[87px]">{detail.title}</h1>
         <p className="font-normal text-[14px] leading-[21px] text-[#535C6A] mt-[8px]">{detail.subtitle}</p>
 
-        {/* 상세 카드 */}
         <div className="border border-[#E3E5E8] rounded-xl px-[17px] py-[24px] mt-[40px] flex flex-col gap-[25px]">
           {detail.details.map((item) => (
             <div key={item.label} className="flex flex-col gap-[3px]">
@@ -83,7 +69,6 @@ export default function SupportDetailPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {/* 신청하기 버튼 */}
       <div className="px-[25px] pb-[40px]">
         <button
           onClick={() => window.open(detail.applyUrl, '_blank')}

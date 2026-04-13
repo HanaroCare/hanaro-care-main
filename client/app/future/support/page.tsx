@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ChevronLeft, X, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Route } from 'next';
+import Header from '@/components/Header';
 
 type Tab = 'local' | 'hana';
 
@@ -62,94 +63,73 @@ export default function SupportPage() {
 
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
-      {/* 헤더 */}
-      <div className="flex flex-row justify-between items-center px-4 h-[65px] border-b border-black/10">
-        <button onClick={() => router.back()} className="p-1">
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="font-medium text-[16px] leading-[24px] tracking-[-0.04em] text-[#0A0A0A]">
-          나를 위한 제도
-        </span>
-        <button onClick={() => router.push('/future' as Route)} className="p-1">
-          <X size={24} color="#0A0A0A" />
-        </button>
-      </div>
+      <Header title="나를 위한 제도" />
 
-      {/* 탭 */}
-      <div className="flex flex-row w-full h-[47px] border-b border-[#E3E5E8]">
-        {/* 지자체 탭 */}
-        <button
-          onClick={() => setActiveTab('local')}
-          className="flex-1 flex items-center justify-center relative transition-colors duration-200"
-        >
-          <span
-            className="font-medium text-[15px] leading-[22px] transition-colors duration-200"
-            style={{ color: activeTab === 'local' ? '#008485' : '#3E454C' }}
-          >
-            지자체
-          </span>
-          {activeTab === 'local' && (
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008485] transition-all duration-300" />
-          )}
-        </button>
-
-        {/* 하나 the next 탭 */}
-        <button
-          onClick={() => setActiveTab('hana')}
-          className="flex-1 flex items-center justify-center relative transition-colors duration-200"
-        >
-          <span
-            className="font-medium text-[15px] leading-[22px] transition-colors duration-200"
-            style={{ color: activeTab === 'hana' ? '#008485' : '#3E454C' }}
-          >
-            하나 the next
-          </span>
-          {activeTab === 'hana' && (
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008485] transition-all duration-300" />
-          )}
-        </button>
-      </div>
-
-      {/* 카드 리스트 */}
-      <div
-        key={activeTab}
-        className="flex flex-col gap-[15px] px-[24px] mt-[30px] pb-[30px]"
-        style={{
-          animation: 'fadeSlideIn 0.25s ease-out',
-        }}
-      >
-        {filtered.map((item) => (
+      <div className="pt-[65px]">
+        {/* 탭 */}
+        <div className="flex flex-row w-full h-[47px] border-b border-[#E3E5E8]">
           <button
-            key={item.id}
-            onClick={() => router.push(`/future/support/detail/${item.id}` as Route)}
-            onMouseEnter={() => setHoveredId(item.id)}
-            onMouseLeave={() => setHoveredId(null)}
-            className="flex flex-row items-center justify-between w-full h-[97px] px-[17px] border border-[#E3E5E8] rounded-xl text-left transition-colors duration-200"
-            style={{
-              backgroundColor: hoveredId === item.id ? '#F0FAFA' : '#FFFFFF',
-            }}
+            onClick={() => setActiveTab('local')}
+            className="flex-1 flex items-center justify-center relative transition-colors duration-200"
           >
-            <div className="flex flex-col gap-[4px] flex-1 pr-[10px]">
-              <span className="font-medium text-[18px] leading-[22px] text-[#1A212D]">{item.title}</span>
-              <span className="font-normal text-[12px] leading-[18px] text-[#535C6A] line-clamp-2">
-                {item.description}
-              </span>
-            </div>
-            <ChevronRight size={20} color="#535C6A" />
+            <span
+              className="font-medium text-[15px] leading-[22px] transition-colors duration-200"
+              style={{ color: activeTab === 'local' ? '#008485' : '#3E454C' }}
+            >
+              지자체
+            </span>
+            {activeTab === 'local' && (
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008485] transition-all duration-300" />
+            )}
           </button>
-        ))}
+
+          <button
+            onClick={() => setActiveTab('hana')}
+            className="flex-1 flex items-center justify-center relative transition-colors duration-200"
+          >
+            <span
+              className="font-medium text-[15px] leading-[22px] transition-colors duration-200"
+              style={{ color: activeTab === 'hana' ? '#008485' : '#3E454C' }}
+            >
+              하나 the next
+            </span>
+            {activeTab === 'hana' && (
+              <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#008485] transition-all duration-300" />
+            )}
+          </button>
+        </div>
+
+        {/* 카드 리스트 */}
+        <div
+          key={activeTab}
+          className="flex flex-col gap-[15px] px-[24px] mt-[30px] pb-[30px]"
+          style={{ animation: 'fadeSlideIn 0.25s ease-out' }}
+        >
+          {filtered.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => router.push(`/future/support/detail/${item.id}` as Route)}
+              onMouseEnter={() => setHoveredId(item.id)}
+              onMouseLeave={() => setHoveredId(null)}
+              className="flex flex-row items-center justify-between w-full h-[97px] px-[17px] border border-[#E3E5E8] rounded-xl text-left transition-colors duration-200"
+              style={{ backgroundColor: hoveredId === item.id ? '#F0FAFA' : '#FFFFFF' }}
+            >
+              <div className="flex flex-col gap-[4px] flex-1 pr-[10px]">
+                <span className="font-medium text-[18px] leading-[22px] text-[#1A212D]">{item.title}</span>
+                <span className="font-normal text-[12px] leading-[18px] text-[#535C6A] line-clamp-2">
+                  {item.description}
+                </span>
+              </div>
+              <ChevronRight size={20} color="#535C6A" />
+            </button>
+          ))}
+        </div>
       </div>
 
       <style jsx>{`
         @keyframes fadeSlideIn {
-          from {
-            opacity: 0;
-            transform: translateX(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
+          from { opacity: 0; transform: translateX(12px); }
+          to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
     </div>
