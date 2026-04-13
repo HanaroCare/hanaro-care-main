@@ -29,6 +29,18 @@ export default function SimulatorPage() {
   const [activeTab, setActiveTab] = useState('asset');
   const [careMethod, setCareMethod] = useState('nursing-home');
 
+  const handleTabChange = (tabId: string) => {
+    if (tabId === 'asset') {
+      router.push('/asset/simulator');
+    } else if (tabId === 'inheritance') {
+      const isInheritanceCompleted =
+        localStorage.getItem('inheritance_completed') === 'true';
+      router.push(
+        isInheritanceCompleted ? '/inheritance/result' : '/inheritance/intro',
+      );
+    }
+  };
+
   useEffect(() => {
     const hasSeen = localStorage.getItem(ONBOARDING_KEY);
     const completed = localStorage.getItem(COMPLETION_KEY);
@@ -66,7 +78,7 @@ export default function SimulatorPage() {
         <TabNavigation
           tabs={DASHBOARD_TABS}
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
         />
         <main className="flex flex-1 flex-col gap-8 bg-linear-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-20">
           {activeTab === 'asset' ? (
