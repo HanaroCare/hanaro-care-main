@@ -1,9 +1,11 @@
 'use client';
 import { CircleCheck } from 'lucide-react';
+import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import SubHeader from '@/components/SubHeader';
+import ConfirmModal from '@/components/modules/ConfirmModal';
+import Header from '@/components/navigation/Header';
 import DualActionFooter from '../../../components/DualActionFooter';
 
 const benefits = [
@@ -19,7 +21,7 @@ export default function HomePensionPage() {
   return (
     <div className="app-shell">
       <div className="app-layout relative bg-white">
-        <SubHeader title="주택 연금" backUrl="/asset" closeUrl="/asset" />
+        <Header title="주택 연금" />
         <main className="app-main no-scrollbar">
           <section className="px-7 pt-9">
             <p className="mb-2 text-[12px] leading-[18px] font-normal text-[#6A7282]">
@@ -34,7 +36,7 @@ export default function HomePensionPage() {
 
             <div className="mt-9 flex justify-center">
               <Image
-                src="/images/asset/housing.png"
+                src="/images/asset/housing.svg"
                 alt="주택연금 건물 일러스트"
                 width={210}
                 height={180}
@@ -43,7 +45,7 @@ export default function HomePensionPage() {
               />
             </div>
 
-            <div className="mt-7 rounded-[24px] bg-hana-silver-50 px-6 py-6">
+            <div className="mt-5 rounded-[24px] bg-hana-silver-50 px-6 py-6">
               <div className="flex flex-col gap-5">
                 {benefits.map((item) => (
                   <div key={item} className="flex items-center gap-3">
@@ -59,7 +61,7 @@ export default function HomePensionPage() {
               </div>
             </div>
 
-            <div className="mt-12">
+            <div className="mt-5">
               <p className="text-[13px] leading-5 font-normal text-[#9CA3AF]">
                 최대 한도
               </p>
@@ -75,49 +77,27 @@ export default function HomePensionPage() {
           rightLabel="설계해보기"
           onLeftClick={() => setShowEmptyModal(true)}
           onRightClick={() => {
-            router.push('/asset/home-pension/check-home');
+            router.push('/asset/home-pension/check-home' as Route);
           }}
         />
 
-        {showEmptyModal && (
-          <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-10">
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="empty-home-modal-title"
-              className="w-full max-w-65 rounded-[24px] bg-white px-6 py-8 shadow-[0_10px_30px_rgba(0,0,0,0.16)]"
-            >
-              <p
-                id="empty-home-modal-title"
-                className="text-center text-[18px] leading-[30px] font-medium tracking-[-0.03em] text-[#1F2937]"
-              >
-                현재 조회되는
-                <br />
-                주택이 없습니다.
-              </p>
-
-              <div className="mt-8 flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setShowEmptyModal(false)}
-                  className="h-11 flex-1 rounded-[14px] bg-[#E9F8F9] text-[15px] font-semibold text-hana-ez-600"
-                >
-                  닫기
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowEmptyModal(false);
-                    // router.push('/asset/housing/register');
-                  }}
-                  className="h-11 flex-1 rounded-[14px] bg-hana-ez-600 text-[15px] font-semibold text-white"
-                >
-                  등록하러 가기
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfirmModal
+          isOpen={showEmptyModal}
+          title={
+            <>
+              현재 조회되는
+              <br />
+              주택이 없습니다.
+            </>
+          }
+          cancelLabel="닫기"
+          confirmLabel="등록하기"
+          onCancel={() => setShowEmptyModal(false)}
+          onConfirm={() => {
+            setShowEmptyModal(false);
+            // router.push('/asset/housing/register' as Route);
+          }}
+        />
       </div>
     </div>
   );

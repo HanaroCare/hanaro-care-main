@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import Header from '@/components/navigation/Header';
 import TrustChoiceStep from '../../components/trust/TrustChoiceStep';
 import TrustProgressBar from '../../components/trust/TrustProgressBar';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
@@ -51,11 +52,7 @@ export default function OperationTypePage() {
   return (
     <TrustStepLayout
       footer={
-<<<<<<< HEAD
-        <footer className="shrink-0 bg-white px-6 pt-10 pb-8">
-=======
         <footer className="shrink-0 bg-white px-6 pb-8 pt-10">
->>>>>>> 6124be8 (HN-22-fix/오류수정)
           <PrimaryButton
             label="다음으로"
             onClick={() => router.push('/asset/trust/payout-type')}
@@ -63,6 +60,8 @@ export default function OperationTypePage() {
         </footer>
       }
     >
+      <Header title="내맘대로신탁" />
+
       <section className="px-6 pt-8">
         <TrustProgressBar step={3} />
 

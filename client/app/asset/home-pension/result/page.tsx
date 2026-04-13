@@ -1,6 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import type { Route } from 'next';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import {
   Area,
@@ -12,8 +14,8 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import InfoBox from '@/components/InfoBox';
-import SubHeader from '@/components/SubHeader';
+import InfoBox from '@/components/modules/InfoBox';
+import Header from '@/components/navigation/Header';
 
 type PensionType = 'fixed' | 'boosted' | 'growing';
 
@@ -133,6 +135,7 @@ function AnimatedRangeBar({ color }: { color: string }) {
 }
 
 export default function PensionTypeComparePage() {
+  const router = useRouter();
   const [selectedType, setSelectedType] = useState<PensionType>('fixed');
 
   const current = useMemo(
@@ -143,10 +146,10 @@ export default function PensionTypeComparePage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
-        <SubHeader
+        <Header
           title="주택 연금"
-          backUrl="/asset/home-pension/predict"
-          closeUrl="/asset"
+          showCloseButton
+          onClose={() => router.push('/asset/simulator' as Route)}
         />
         <main className="app-main no-scrollbar px-5 pt-10 pb-6">
           <section>

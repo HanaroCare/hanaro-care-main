@@ -1,4 +1,4 @@
-import PrimaryButton from './PrimaryButton';
+import PrimaryButton from './baseelements/PrimaryButton';
 
 type DualActionFooterProps = {
   leftLabel: string;

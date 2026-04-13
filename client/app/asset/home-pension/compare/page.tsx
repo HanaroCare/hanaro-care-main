@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import PrimaryButton from '@/components/PrimaryButton';
-import SubHeader from '@/components/SubHeader';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import Header from '@/components/navigation/Header';
 
 function CompareBar({
   label,
@@ -96,11 +96,7 @@ export default function CompareSellVsPensionPage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
-        <SubHeader
-          title="주택연금 vs 매도"
-          backUrl="/asset/home-pension/predict"
-          closeUrl="/asset"
-        />
+        <Header title="주택연금 vs 매도" />
         <main className="app-main no-scrollbar px-6 pt-10 pb-8">
           <section>
             <h2 className="text-[22px] leading-8 font-bold tracking-tight text-[#1F2937]">

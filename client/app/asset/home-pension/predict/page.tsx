@@ -3,8 +3,8 @@
 import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import PrimaryButton from '@/components/PrimaryButton';
-import SubHeader from '@/components/SubHeader';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import Header from '@/components/navigation/Header';
 import { ForecastChart } from '../../components/home-pension/ForecastChart';
 import { ForecastLegend } from '../../components/home-pension/ForecastLegend';
 import { ScenarioValueCard } from '../../components/home-pension/ScenarioValueCard';
@@ -67,11 +67,7 @@ export default function HomeValueForecastPage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
-        <SubHeader
-          title="집값 예측"
-          backUrl="/asset/home-pension/check-home"
-          closeUrl="/asset"
-        />
+        <Header title="집값 예측" />
         <main className="app-main no-scrollbar px-5 pt-7 pb-6">
           <section>
             <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">

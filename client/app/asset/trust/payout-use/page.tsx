@@ -4,6 +4,7 @@ import { TriangleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import DualActionFooter from '@/components/modules/DualActionFooter';
+import Header from '@/components/navigation/Header';
 import TrustProgressBar from '../../components/trust/TrustProgressBar';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 import { formatKoreanAmount, parseKoreanAmount } from '../trustUtils';
@@ -42,6 +43,8 @@ export default function PayoutUsagePage() {
         />
       }
     >
+      <Header title="내맘대로신탁" />
+
       <section className="px-6 pt-8">
         <TrustProgressBar step={5} />
 

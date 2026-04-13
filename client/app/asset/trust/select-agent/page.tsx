@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import DualActionFooter from '@/components/modules/DualActionFooter';
+import Header from '@/components/navigation/Header';
 import InfoBox from '../../../../components/modules/InfoBox';
 import TrustProgressBar from '../../components/trust/TrustProgressBar';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
@@ -27,6 +28,8 @@ export default function SelectAgentPage() {
         />
       }
     >
+      <Header title="내맘대로신탁" />
+
       <section className="px-6 pt-8">
         <TrustProgressBar step={6} />
 
@@ -41,7 +44,7 @@ export default function SelectAgentPage() {
           </p>
         </div>
 
-        <div className="mt-12 flex flex-col gap-5">
+        <div className="mt-11 flex flex-col gap-5">
           {agents.map((agent) => {
             const isSelected = selected === agent.id;
             return (
@@ -74,7 +77,7 @@ export default function SelectAgentPage() {
         <InfoBox
           title="지급청구대리인이란?"
           desc="부득이한 경우, 본인이 자산 관리(운용/집행 등)를 하지 못할 때 사전 지정한 지급청구대리인이 관리를 할 수 있어요."
-          className="mt-8"
+          className="mt-5"
         />
       </section>
     </TrustStepLayout>
