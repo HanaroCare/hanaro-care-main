@@ -1,7 +1,7 @@
 'use client';
-
 import { motion } from 'framer-motion';
 import { Car, ChevronRight, Coins, Home, Shield } from 'lucide-react';
+import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
@@ -29,7 +29,7 @@ type DetailedAssetCardProps = {
   change?: string;
   changePercent?: string;
   isPositive?: boolean;
-  href?: string;
+  href?: Route<string>;
 };
 
 type InsuranceAssetCardProps = {
@@ -39,7 +39,7 @@ type InsuranceAssetCardProps = {
   insuranceName: string;
   monthlyPremium: string;
   status?: InsuranceStatus;
-  href?: string;
+  href?: Route<string>;
 };
 
 type AssetDetailCardProps = DetailedAssetCardProps | InsuranceAssetCardProps;
@@ -49,7 +49,7 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 
   const handleCardClick = () => {
     if (props.href) {
-      router.push(props.href);
+      router.push(props.href as Route);
     }
   };
 
