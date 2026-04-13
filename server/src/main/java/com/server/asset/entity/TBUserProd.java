@@ -52,7 +52,7 @@ public class TBUserProd extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "PRODUCT_ID", referencedColumnName = "PRODUCT_ID",
-		columnDefinition = "bigint unsigned not null",
+		columnDefinition = "int unsigned not null",
 		foreignKey = @ForeignKey(name = "fk_UserProd_prodId_Product"))
 	private TBProduct product;
 

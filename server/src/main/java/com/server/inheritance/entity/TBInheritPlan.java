@@ -3,7 +3,7 @@ package com.server.inheritance.entity;
 import java.math.BigDecimal;
 
 import com.server.common.entity.BaseEntity;
-import com.server.user.entity.User;
+import com.server.user.entity.TBUser;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "INHERIT_PLAN", uniqueConstraints = {
+@Table(name = "TB_INHERIT_PLAN", uniqueConstraints = {
     @UniqueConstraint(
         name = "unique_TbInheritPlan_userId",
         columnNames = {"USER_ID"}
@@ -36,7 +36,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class TbInheritPlan extends BaseEntity {
+public class TBInheritPlan extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,7 +49,7 @@ public class TbInheritPlan extends BaseEntity {
       nullable = false,
       foreignKey = @ForeignKey(name = "fk_TbInheritPlan_userId_TbUser")
   )
-  private User user;
+  private TBUser user;
 
   @Builder.Default
   @Column(name = "TOTAL_INHERIT_AMT", precision = 16, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")

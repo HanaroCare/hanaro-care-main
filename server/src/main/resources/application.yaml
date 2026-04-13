@@ -1,7 +1,50 @@
+jwt:
+  secret: dGhpcy1pcy1hLXZlcnktc3Ryb25nLXNlY3JldC1rZXktZm9yLWhhbmFyby1jYXJlLW1haW4tc2VydmVyLTM0Cg==
+  access-expiration: 600000
+  refresh-expiration: 604800000
+
 spring:
   application:
     name: server
 
-  config:
-    import: classpath:security.yaml
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3308/hanacare?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: hanacare
+    password: 12345678
 
+  jpa:
+    defer-datasource-initialization: true
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        use_sql_comments: false
+        jdbc:
+          time_zone: Asia/Seoul
+
+  sql:
+    init:
+      mode: never
+
+  web:
+    resources:
+      add-mappings: false
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080
+
+logging:
+  level:
+    com.server: debug
+    org.hibernate.SQL: info
