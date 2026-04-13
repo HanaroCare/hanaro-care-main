@@ -1,7 +1,8 @@
 "use client";
 
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
+import Header from "@/components/navigation/Header";
 import { useRouter } from "next/navigation";
-import PrimaryButton from "@/components/PrimaryButton";
 
 const maskId = (id: string): string => {
   if (!id) return "";
@@ -31,7 +32,7 @@ export default function FindIdResultPage() {
   return (
     <div className="app-shell bg-background">
       <div className="app-layout">
-        {/* <Header title="아이디 찾기 결과" showBackButton={true} showCloseButton={false} /> */}
+        <Header title="아이디 찾기 결과" showBackButton={true} showCloseButton={false} />
 
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[3rem] text-center">

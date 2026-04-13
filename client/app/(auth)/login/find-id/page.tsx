@@ -3,8 +3,9 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import AuthInput from "../components/AuthInput";
-import PrimaryButton from "@/components/PrimaryButton";
 import { validatePhone } from "../utils/validators";
+import Header from "@/components/navigation/Header";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 
 /**
  * 아이디 찾기 페이지
@@ -28,7 +29,7 @@ export default function FindIdPage() {
   return (
     <div className="app-shell bg-background">
       <div className="app-layout">
-        {/* <Header title="아이디 찾기" showBackButton={true} showCloseButton={false} /> */}
+        <Header title="아이디 찾기" showBackButton={true} showCloseButton={false} />
 
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[2rem]">

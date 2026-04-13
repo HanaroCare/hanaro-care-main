@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import PrimaryButton from "@/components/PrimaryButton";
 import AuthInput from "./AuthInput";
 import { validatePassword } from "../utils/validators";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 
 type LoginFormProps = {
   onSubmit: (data: { id: string; pw: string }) => void;

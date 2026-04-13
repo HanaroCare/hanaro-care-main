@@ -3,10 +3,11 @@
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import AuthInput from "../../components/AuthInput";
-import PrimaryButton from "@/components/PrimaryButton";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { validatePassword, validatePasswordMatch } from "../../utils/validators";
+import Header from "@/components/navigation/Header";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 
 /**
  * 새 비밀번호 설정 페이지
@@ -37,7 +38,7 @@ export default function NewPasswordPage() {
   return (
     <div className="app-shell bg-background">
       <div className="app-layout">
-        {/* <Header title="비밀번호 재설정" showBackButton={true} showCloseButton={false} /> */}
+        <Header title="비밀번호 재설정" showBackButton={true} showCloseButton={false} />
 
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[2rem]">

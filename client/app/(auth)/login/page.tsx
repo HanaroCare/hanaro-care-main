@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import LoginForm from "./components/LoginForm";
 import { useState } from "react";
+import Header from "@/components/navigation/Header";
 
 type LoginSubmitData = {
   id: string;
@@ -51,7 +52,7 @@ export default function LoginPage() {
   return (
     <div className="app-shell bg-background">
       <div className="app-layout">
-        {/* <Header title="로그인" showBackButton={true} showCloseButton={false} /> */}
+        <Header title="로그인" showBackButton={false} showCloseButton={false} />
 
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[2rem]">

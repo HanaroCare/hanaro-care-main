@@ -6,6 +6,7 @@ import FaceIdAuth from "../components/FaceIdAuth";
 import PatternAuth from "../components/PatternAuth";
 import SimplePasswordAuth from "../components/SimplePasswordAuth";
 import LoginMethodSheet from "../components/LoginMethodSheet";
+import Header from "@/components/navigation/Header";
 
 type AuthMode = "pattern" | "pin" | "faceid";
 
@@ -45,11 +46,11 @@ export default function HanaCertLoginPage() {
 	return (
 		<div className="app-shell bg-background">
 			<div className="app-layout relative overflow-hidden flex flex-col h-full">
-				{/* <Header
+				<Header
 					title="하나인증서 로그인"
-					showBackButton={true}
+					showBackButton={false}
 					showCloseButton={false}
-				/> */}
+				/>
 
 				<main className="app-main flex flex-1 flex-col items-center px-[1.5rem]">
 					<div className="pt-[4rem] pb-[3rem] text-center">
