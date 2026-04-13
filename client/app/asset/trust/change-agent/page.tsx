@@ -3,10 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import InfoBox from '@/components/modules/InfoBox';
 import ProgressBar from '@/components/baseelements/ProgressBar';
+import InfoBox from '@/components/modules/InfoBox';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
-
 export default function ChangeAgentPage() {
   const router = useRouter();
   const [openPermission, setOpenPermission] = useState(true);

@@ -6,7 +6,6 @@ import type { ReactNode } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import InfoBox from '@/components/modules/InfoBox';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
-
 export default function ChangeAgentChildPage() {
   const router = useRouter();
 
