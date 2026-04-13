@@ -58,7 +58,7 @@ export default function Page() {
                 />
             </main>
 
-            <div className="fixed bottom-0 w-full max-w-[23.4375rem] bg-white p-[1.25rem] pb-[2rem]">
+            <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[23.4375rem] bg-white p-[1.25rem] pb-[2rem]">
                 <PrimaryButton
                     label="동의하고 시작하기"
                     disabled={!isAllRequiredChecked}

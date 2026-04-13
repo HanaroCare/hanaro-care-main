@@ -10,6 +10,7 @@ export default function OTPInput({ isActive, onComplete }: { isActive: boolean; 
 
   useEffect(() => {
     if (isActive) {
+      setTimeLeft(166);
       inputs.current[0]?.focus();
       const timer = setInterval(() => setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0)), 1000);
       return () => clearInterval(timer);

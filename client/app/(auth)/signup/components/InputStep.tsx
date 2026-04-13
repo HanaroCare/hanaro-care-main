@@ -20,10 +20,17 @@ export default function InputStep({
   question, description, value, onChange, onSubmit, onEdit, type = "text", placeholder, isActive, isFocused
 }: InputStepProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (isFocused && inputRef.current) inputRef.current.focus();
   }, [isFocused]);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && value.trim().length > 0) onSubmit();
@@ -36,7 +43,18 @@ export default function InputStep({
     else if (question.includes("나이") || type === "number") val = val.replace(/[^0-9]/g, "").slice(0, 3);
 
     onChange(val);
-    if (type === "tel" && val.length === 11 && isActive) setTimeout(onSubmit, 100);
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    if (type === "tel" && val.length === 11 && isActive) {
+      timerRef.current = setTimeout(() => {
+        onSubmit();
+        timerRef.current = null;
+      }, 100);
+    }
   };
 
   return (

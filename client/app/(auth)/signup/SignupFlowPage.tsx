@@ -6,7 +6,8 @@ import NavigationBar from "./components/NavigationBar";
 import InputStep from "./components/InputStep";
 import OTPInput from "./components/OTPInput";
 import PasswordStep from "./components/PasswordStep";
-import SignupCompleted from "./components/SignupCompleted";
+import CompleteStep from "@/components/CompleteStep";
+import { useRouter } from "next/navigation";
 
 const STEPS = [
   {
@@ -40,6 +41,9 @@ export default function SignupFlowPage() {
   const [maxIdx, setMaxIdx] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
+
+  const router = useRouter();
+
   const handleNext = () => {
     if (currentIdx < STEPS.length - 1) {
       setCurrentIdx((prev) => {
@@ -56,13 +60,22 @@ export default function SignupFlowPage() {
     setCurrentIdx(index);
   };
 
-  if (isFinished) return <SignupCompleted />;
+  if (isFinished) {
+    return (
+      <CompleteStep
+        title="가입이 완료되었어요!"
+        description={`이제 하나케어의 특별한\n자산 관리 서비스를 시작해보세요.`}
+        buttonText="시작하기"
+        onButtonClick={() => router.push("/")}
+      />
+    );
+  }
 
   return (
     <div className="flex h-screen w-full flex-col bg-white max-w-[23.4375rem] mx-auto overflow-hidden shadow-sm">
       <NavigationBar title="회원가입" />
 
-      <main className="flex-1 flex flex-col gap-[1.25rem] px-[1.25rem] pt-[1.5rem] pb-[5rem] overflow-y-auto no-scrollbar scroll-smooth">
+      <main className="flex-1 flex flex-col gap-[2.5rem] px-[1.25rem] pt-[1.5rem] pb-[5rem] overflow-y-auto no-scrollbar scroll-smooth">
         <AnimatePresence initial={false}>
           {STEPS.slice(0, maxIdx + 1).reverse().map((step, idx) => {
             const actualIdx = maxIdx - idx;
@@ -70,12 +83,24 @@ export default function SignupFlowPage() {
 
             if (step.key === "otp") return (
               <div key="otp" className={!isActive ? "opacity-40 hover:opacity-100 cursor-pointer" : ""} onClick={() => !isActive && handleEdit(actualIdx)}>
-                <OTPInput isActive={isActive} onComplete={handleNext} />
+                <OTPInput
+                  isActive={isActive}
+                  onComplete={(val) => {
+                    setFormData((prev) => ({ ...prev, otp: val }));
+                    handleNext();
+                  }}
+                />
               </div>
             );
             if (step.key === "password") return (
               <div key="password" className={!isActive ? "opacity-40 hover:opacity-100 cursor-pointer" : ""} onClick={() => !isActive && handleEdit(actualIdx)}>
-                <PasswordStep isActive={isActive} onComplete={handleNext} />
+                <PasswordStep
+                  isActive={isActive}
+                  onComplete={(val) => {
+                    setFormData((prev) => ({ ...prev, password: val }));
+                    handleNext();
+                  }}
+                />
               </div>
             );
 
