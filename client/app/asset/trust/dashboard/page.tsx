@@ -1,32 +1,42 @@
 'use client';
-
 import { useRouter } from 'next/navigation';
-import { NavigationBar } from '@/components/NavigationBar';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import InfoBox from '@/components/modules/InfoBox';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
+import { ActionPanelCard } from '../../components/trust/ActionPanelCard';
+import { AssetDetailCard } from '../../components/trust/AssetDetailCard';
+import { AssetSummaryCard } from '../../components/trust/AssetSummaryCard';
+import { ExecutionListCard } from '../../components/trust/ExecutionListCard';
+import { PortfolioCard } from '../../components/trust/PortfolioCard';
 
-export default function TrustDashboardPage() {
+export default function DashboardPage() {
   const router = useRouter();
 
   return (
-    <div className="app-shell bg-white">
-      <div className="app-layout">
-        <main className="app-main no-scrollbar p-6 pt-10">
-          <h1 className="font-bold text-[#1F2937] text-[28px] leading-tight tracking-tight">
-            신탁 대시보드
-          </h1>
-          <p className="mt-2 font-medium text-[#6A7282] text-[15px]">
-            내 신탁 현황을 한눈에 확인해보세요.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center justify-center space-y-4">
-            <div className="flex size-40 items-center justify-center rounded-full bg-hana-silver-50">
-              <span className="text-[14px] text-hana-black-300">
-                준비 중인 서비스입니다
-              </span>
-            </div>
-          </div>
-        </main>
-        <NavigationBar />
+    <div className="min-h-screen bg-white pb-20">
+      <div className="space-y-4 p-4">
+        <AssetSummaryCard />
+        <AssetDetailCard />
+        <ActionPanelCard
+          onChangeLivingLimit={() => router.push('/asset/trust/change-limit')}
+          onChangePermission={() => router.push('/asset/trust/change-agent')}
+          onBookConsult={() => {
+            // 상담 예약
+          }}
+        />
+        <PortfolioCard />
+        <ExecutionListCard />
+        <InfoBox
+          title="전문가 코멘트"
+          desc="채권 비중을 높여 안정적으로 운용중입니다."
+        />
+        <PrimaryButton
+          label="설계 변경하기"
+          className="h-14 rounded-2xl"
+          onClick={() => router.push('/asset/trust/change-usage')}
+        />
       </div>
+      <NavigationBar />
     </div>
   );
 }

@@ -6,31 +6,31 @@
 
 /* ===== Fonts ===== */
 @font-face {
-	font-family: "Pretendard";
-	font-weight: 400;
-	font-display: swap;
-	src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-family: Pretendard;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Pretendard-Regular.woff2") format("woff2");
 }
 
 @font-face {
-	font-family: "Pretendard";
-	font-weight: 500;
-	font-display: swap;
-	src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
+  font-family: Pretendard;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/Pretendard-Medium.woff2") format("woff2");
 }
 
 @font-face {
-	font-family: "Pretendard";
-	font-weight: 600;
-	font-display: swap;
-	src: url("/fonts/Pretendard-SemiBold.woff2") format("woff2");
+  font-family: Pretendard;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/Pretendard-SemiBold.woff2") format("woff2");
 }
 
 @font-face {
-	font-family: "Pretendard";
-	font-weight: 700;
-	font-display: swap;
-	src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-family: Pretendard;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/Pretendard-Bold.woff2") format("woff2");
 }
 
 /* ===== Theme ===== */
@@ -43,13 +43,10 @@
 	--font-hana: "Hana 2.0", "Pretendard", sans-serif;
 
 	/* Font sizes & Text styles */
-	/* desc text: Regular 12px -1% */
-	--font-size-sm: 12px;
-	/* page header: Medium 16px -2% */
-	--font-size-base: 16px;
-	/* page title: SemiBold 20px -1% */
-	--font-size-lg: 20px;
-	--font-size-xl: 22px;
+	--font-size-sm: calc(12px * var(--font-scale));
+	--font-size-base: calc(16px * var(--font-scale));
+	--font-size-lg: calc(20px * var(--font-scale));
+	--font-size-xl: calc(22px * var(--font-scale));
 
 	/* Font weights */
 	--font-weight-regular: 400;
@@ -191,42 +188,46 @@
 }
 
 /* ===== Base ===== */
+.font-hana {
+	font-family: var(--font-hana);
+}
+
 body {
-	font-family: var(--font-sans);
+  font-family: var(--font-sans);
 }
 
 /* ===== App Shell (mobile 375px fixed) ===== */
 .app-shell {
-	width: 375px;
-	height: 100dvh;
-	margin: 0 auto;
+  width: 375px;
+  height: 100dvh;
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {
-	.app-shell {
-		width: 100%;
-	}
+  .app-shell {
+    width: 100%;
+  }
 }
 
 .app-layout {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .app-main {
-	flex: 1;
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* ===== Scrollbar ===== */
 .no-scrollbar::-webkit-scrollbar {
-	display: none;
+  display: none;
 }
 .no-scrollbar {
-	-ms-overflow-style: none;
-	scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* ===== Search input ===== */
@@ -234,11 +235,12 @@ input[type="search"]::-webkit-search-cancel-button,
 input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
-	display: none;
+  display: none;
 }
 
 /* ===== CSS Variables (Light) ===== */
 :root {
+	--font-scale: 1; /* 기본 배율 */
 	--radius: 0.625rem;
 	--background: oklch(1 0 0);
 	--foreground: oklch(0.145 0 0);
@@ -273,164 +275,210 @@ input[type="search"]::-webkit-search-results-decoration {
 	--sidebar-ring: #008485;
 }
 
+/* ===== 글자 설정에 따른 폰트 설정 ===== */
+html[data-font-level="1"] { --font-scale: 0.9; }   
+html[data-font-level="2"] { --font-scale: 1; }    
+html[data-font-level="3"] { --font-scale: 1.1; }   
+html[data-font-level="4"] { --font-scale: 1.2; }   
+html[data-font-level="5"] { --font-scale: 1.3; }
+
+/* ===== 폰트 설정 페이지 격리 ===== */
+.font-scale-isolated {
+	--font-scale: 1 !important;
+}
+
 /* ===== CSS Variables (Dark) ===== */
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: #00a8a6; /* hana-green-600 (lighter in dark mode) */
-	--primary-foreground: #ffffff;
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: #f04452;
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: #00a8a6;
-	--chart-1: #00d0cb;
-	--chart-2: #01a5ac;
-	--chart-3: #c1b483;
-	--chart-4: #f8747b;
-	--chart-5: #4593fc;
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: #00a8a6;
-	--sidebar-primary-foreground: #ffffff;
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: #00a8a6;
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: #00a8a6; /* hana-green-600 (lighter in dark mode) */
+  --primary-foreground: #ffffff;
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: #f04452;
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: #00a8a6;
+  --chart-1: #00d0cb;
+  --chart-2: #01a5ac;
+  --chart-3: #c1b483;
+  --chart-4: #f8747b;
+  --chart-5: #4593fc;
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: #00a8a6;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: #00a8a6;
 }
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
-	}
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    html {
+        font-size: calc(16px * var(--font-scale)) !important;
+        transition: font-size 0.2s ease-in-out;
+        scrollbar-gutter: stable;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-size: 1rem; 
+        line-height: 1.5;
+    }
 }
 
 /* ===== Animations ===== */
-@keyframes starFloat {
-	0% {
-		transform: translateY(0) scale(1);
-	}
-	50% {
-		transform: translateY(-8px) scale(1.02);
-	}
-	100% {
-		transform: translateY(0) scale(1);
-	}
+@keyframes star-float {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-8px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
 }
 
 .animate-star-float {
-	animation: starFloat 2.4s ease-in-out infinite;
+  animation: star-float 2.4s ease-in-out infinite;
 }
 
 /* ===== Page Transitions ===== */
 .page-hidden {
-	opacity: 0;
-	pointer-events: none;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .page-in {
-	animation: pageIn 360ms ease-out both;
+  animation: page-in 360ms ease-out both;
 }
 
-@keyframes pageIn {
-	from {
-		opacity: 0;
-		filter: blur(2px);
-	}
-	to {
-		opacity: 1;
-		filter: blur(0);
-	}
+@keyframes page-in {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
 }
 
 .splash-in {
-	position: absolute;
-	inset: 0;
-	animation: splashIn 220ms ease-out both;
+  position: absolute;
+  inset: 0;
+  animation: splash-in 220ms ease-out both;
 }
 
-@keyframes splashIn {
-	from {
-		opacity: 0;
-		filter: blur(2px);
-	}
-	to {
-		opacity: 1;
-		filter: blur(0);
-	}
+@keyframes splash-in {
+  from {
+    opacity: 0;
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
 }
 
 .splash-out {
-	position: absolute;
-	inset: 0;
-	animation: splashOut 100ms ease-in both;
+  position: absolute;
+  inset: 0;
+  animation: splash-out 100ms ease-in both;
 }
 
-@keyframes splashOut {
-	from {
-		opacity: 1;
-		filter: blur(0);
-	}
-	to {
-		opacity: 0;
-		filter: blur(2px);
-	}
+@keyframes splash-out {
+  from {
+    opacity: 1;
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    filter: blur(2px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.page-in,
-	.splash-in,
-	.splash-out {
-		animation: none !important;
-	}
-	.page-hidden {
-		opacity: 1;
-		pointer-events: auto;
-	}
+  .page-in,
+  .splash-in,
+  .splash-out {
+    animation: none !important;
+  }
+  .page-hidden {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* ===== QR Wave Background ===== */
-@keyframes waveGradient {
-	0% {
-		background-position: 0% 0%;
-	}
-	50% {
-		background-position: 100% 100%;
-	}
-	100% {
-		background-position: 0% 0%;
-	}
+@keyframes wave-gradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
 }
 
 .qr-wave-bg {
-	position: relative;
-	background: linear-gradient(135deg, #0a5657, #008485, #00d0cb, #eefffc);
-	background-size: 300% 200%;
-	animation: waveGradient 4s ease-in-out infinite;
-	overflow: hidden;
+  position: relative;
+  background: linear-gradient(135deg, #0a5657, #008485, #00d0cb, #eefffc);
+  background-size: 300% 200%;
+  animation: wave-gradient 4s ease-in-out infinite;
+  overflow: hidden;
 }
 
 .qr-wave-bg::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background-image: radial-gradient(
-		rgba(255, 255, 255, 0.05) 1px,
-		transparent 1px
-	);
-	background-size: 4px 4px;
-	opacity: 0.2;
-	pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.05) 1px,
+    transparent 1px
+  );
+  background-size: 4px 4px;
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+@layer utilities {
+  .page-center-text {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 30px;
+    letter-spacing: -0.2px;
+  }
+
+  .page-header-text {
+    color: #0a0a0a;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 24px;
+    letter-spacing: -0.64px;
+  }
+
+  .page-desc-text {
+    color: #4a5565;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 20px;
+    letter-spacing: -0.12px;
+  }
 }
