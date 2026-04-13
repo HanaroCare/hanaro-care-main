@@ -38,7 +38,7 @@ export function AlertBanner({
   variant = 'warning',
   icon,
   actionFont = 'font-medium',
-  messageFont = 'font-semi-bold',
+  messageFont = 'font-semibold',
 }: AlertBannerProps) {
   const { bg, text } = VARIANTS[variant];
 
