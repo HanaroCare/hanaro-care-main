@@ -1,12 +1,16 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 /**
  * 로딩 화면
  */
-export default function LoadingStep({ onComplete }: { onComplete: () => void }) {
+export default function LoadingStep({
+  onComplete,
+}: {
+  onComplete: () => void;
+}) {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -27,19 +31,18 @@ export default function LoadingStep({ onComplete }: { onComplete: () => void }) 
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden bg-[#F4FBFC] px-[1.5rem] pt-[4rem]">
-
       <motion.div
-        className="absolute bottom-0 left-0 right-0 bg-primary/5"
-        initial={{ height: "0%" }}
+        className="absolute right-0 bottom-0 left-0 bg-primary/5"
+        initial={{ height: '0%' }}
         animate={{ height: `${progress}%` }}
-        transition={{ ease: "linear" }}
+        transition={{ ease: 'linear' }}
       />
 
       <div className="relative z-10 flex flex-col">
         <motion.h2
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-[1.5rem] font-bold leading-tight tracking-tight text-foreground"
+          className="font-bold text-[1.5rem] text-foreground leading-tight tracking-tight"
         >
           하나님의 정보를
           <br />
@@ -52,10 +55,10 @@ export default function LoadingStep({ onComplete }: { onComplete: () => void }) 
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
         >
-          <span className="text-[1.125rem] font-bold text-primary">
+          <span className="font-bold text-[1.125rem] text-primary">
             {progress}%
           </span>
-          <span className="text-[1.125rem] font-medium text-primary/70">
+          <span className="font-medium text-[1.125rem] text-primary/70">
             완료
           </span>
         </motion.div>
@@ -69,16 +72,20 @@ export default function LoadingStep({ onComplete }: { onComplete: () => void }) 
             transition={{ duration: 2, repeat: Infinity }}
           />
           <motion.div
-            className="absolute inset-[1rem] rounded-full border-[1px] border-dashed border-primary/20"
+            className="absolute inset-[1rem] rounded-full border-[1px] border-primary/20 border-dashed"
             animate={{ rotate: 360 }}
-            transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
           />
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
               className="h-[1.5rem] w-[1.5rem] rounded-full bg-primary"
               animate={{
                 scale: [1, 1.2, 1],
-                boxShadow: ["0 0 0 0 rgba(0,132,133,0)", "0 0 0 20px rgba(0,132,133,0.1)", "0 0 0 0 rgba(0,132,133,0)"]
+                boxShadow: [
+                  '0 0 0 0 rgba(0,132,133,0)',
+                  '0 0 0 20px rgba(0,132,133,0.1)',
+                  '0 0 0 0 rgba(0,132,133,0)',
+                ],
               }}
               transition={{ duration: 2, repeat: Infinity }}
             />

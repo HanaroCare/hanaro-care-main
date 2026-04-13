@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import FormInput from '@/components/baseelements/FormInput';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -9,10 +10,10 @@ import DualActionFooter from '@/components/modules/DualActionFooter';
 import PageHeading from '@/components/typography/PageHeading';
 
 export default function CarPage() {
+  const router = useRouter();
   const [carNumber, setCarNumber] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // 차량번호 유효성: 7~8자리 한글/숫자 혼합 (간단하게 길이로만 체크)
   const isCarNumberValid = carNumber.length >= 7 && carNumber.length <= 8;
 
   if (isSubmitted) {
@@ -70,7 +71,7 @@ export default function CarPage() {
           leftLabel="다시 입력하기"
           rightLabel="다음으로"
           onLeftClick={() => setIsSubmitted(false)}
-          onRightClick={() => console.log('금 자산 이동')}
+          onRightClick={() => router.push('/mydata/gold')}
         />
       </div>
     );

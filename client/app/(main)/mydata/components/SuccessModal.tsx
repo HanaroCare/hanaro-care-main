@@ -2,12 +2,13 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { Wallet } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 type SuccessModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm?: () => void;
 };
 
 /**
@@ -18,6 +19,15 @@ export default function SuccessModal({
   onClose,
   onConfirm,
 }: SuccessModalProps) {
+  const router = useRouter(); // 2. router 인스턴스 생성
+
+  // 3. 확인 버튼 클릭 핸들러
+  const handleConfirm = () => {
+    if (onConfirm) {
+      onConfirm(); // 외부에서 넘겨준 로직이 있다면 실행
+    }
+    router.push('/mydata/house'); // 주택 정보(실물자산 시작점)로 이동
+  };
   return (
     <AnimatePresence>
       {isOpen && (
@@ -54,8 +64,8 @@ export default function SuccessModal({
               <div className="flex w-full flex-col gap-[0.5rem]">
                 <PrimaryButton
                   label="실물 자산 연동하기"
-                  onClick={onConfirm}
-                  className="!h-[3.2rem] text-[1rem]"
+                  onClick={handleConfirm}
+                  className="h-[3.2rem]! text-[1rem]"
                 />
                 <button
                   type="button"
