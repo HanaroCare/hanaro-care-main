@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { User, AlertCircle } from 'lucide-react';
 // import BottomNav from '@/components/BottomNav';
-import InheritanceHeader from '@/components/InheritanceHeader';
+import Header from '@/components/navigation/Header';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 import styles from './page.module.css';
 
 const COLORS = [
@@ -20,6 +21,14 @@ const COLORS = [
 export default function InheritanceResultPage() {
   const router = useRouter();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('inheritance');
+
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    if (tabId === 'trust') {
+      router.push('/asset/trust');
+    }
+  };
 
   const resultData = useMemo(() => [
     { name: '배우자', value: 30 },
@@ -45,7 +54,15 @@ export default function InheritanceResultPage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout">
-        <InheritanceHeader activeTab="inheritance" />
+        <Header title="상속설계" showBackButton={true} onBack={() => router.push('/inheritance')} />
+        <TabNavigation
+          tabs={[
+            { id: 'inheritance', label: '상속설계' },
+            { id: 'trust', label: '유언대용신탁' },
+          ]}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
 
         <div className={styles.scrollArea}>
           <main className={styles.content}>
