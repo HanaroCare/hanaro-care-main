@@ -12,7 +12,7 @@ export default function ChildMainInsuranceScreen() {
   return (
     <div className="mb-10 flex h-full flex-col">
       <div className="flex-1 space-y-3 overflow-y-auto pb-4">
-        {!isDesignated ? (
+        !isDesignated ? 
           <div className="mt-5">
             {/* 광고 */}
             <Image
@@ -57,7 +57,7 @@ export default function ChildMainInsuranceScreen() {
               </button>
             </div>
           </>
-        )}
+        )
 
         {/* 섹션 라벨 */}
         <div className="flex items-center gap-2 pt-1">
@@ -87,5 +87,5 @@ export default function ChildMainInsuranceScreen() {
         </div>
       </div>
     </div>
-  );
+  ;
 }

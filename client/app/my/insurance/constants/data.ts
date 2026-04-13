@@ -52,5 +52,5 @@ export const insuranceDetails: InsuranceDetail[] = [
     expiryDate: '2029.06.01',
   },
 ];
-export const viewMode: 'GRANTEE' | 'OWNER' = 'OWNER'; // 'GRANTEE' | 'OWNER'
+export const viewMode: 'GRANTEE' | 'OWNER' = 'GRANTEE'; // 'GRANTEE' | 'OWNER'
 export const isDesignated = false;
