@@ -51,7 +51,11 @@ export default function OperationTypePage() {
   return (
     <TrustStepLayout
       footer={
+<<<<<<< HEAD
         <footer className="shrink-0 bg-white px-6 pt-10 pb-8">
+=======
+        <footer className="shrink-0 bg-white px-6 pb-8 pt-10">
+>>>>>>> 6124be8 (HN-22-fix/오류수정)
           <PrimaryButton
             label="다음으로"
             disabled={!selected}
