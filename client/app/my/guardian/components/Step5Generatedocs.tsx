@@ -133,7 +133,6 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
         label={'가까운 공증인 사무소 찾기'}
       />
       <PrimaryButton
-        className="mb-22"
         onClick={() => goTo(6)}
         variant="disabled"
         label={'나중에'}

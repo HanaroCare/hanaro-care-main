@@ -95,12 +95,7 @@ export default function Step1Intro({ onNext }: Props) {
           </p>
         </div>
       </div>
-      <PrimaryButton
-        onClick={onNext}
-        className="mb-3"
-        fullWidth
-        label={'등록하기'}
-      />
+      <PrimaryButton onClick={onNext} fullWidth label={'등록하기'} />
     </div>
   );
 }

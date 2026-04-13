@@ -1,9 +1,10 @@
 'use client';
 
-import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { AlertBanner } from '@/components/banner/AlertBanner';
+import InfoBox from '@/components/InfoBox';
 import InsuranceCard from './components/InsuranceCard';
 import { insurances, isDesignated, viewMode } from './constants/data';
 
@@ -12,8 +13,8 @@ export default function ChildMainInsuranceScreen() {
   const [isBannerVisible, setIsBannerVisible] = useState(true);
 
   return (
-    <div className="mb-10 flex min-h-screen flex-col">
-      <div className="flex-1 space-y-3 overflow-y-auto pb-4">
+    <div className="mb-10 flex flex-col">
+      <div className="flex-1 space-y-3 pb-4">
         {!isDesignated ? (
           <div className="mt-5">
             <div
@@ -40,7 +41,7 @@ export default function ChildMainInsuranceScreen() {
                 }
                 src={
                   viewMode === 'GRANTEE'
-                    ? '/images/my/insurance/childrenBanner2.png'
+                    ? '/images/my/insurance/childrenBanner.png'
                     : '/images/my/insurance/parentBanner.png'
                 }
                 alt="자녀 - 부모 보험금 조회 배너"
@@ -52,28 +53,25 @@ export default function ChildMainInsuranceScreen() {
             </div>
           </div>
         ) : (
-          <>
+          <div className="mb-7">
             {/* 배너 */}
-            <div className="mt-3 mb-10 flex items-center justify-between rounded-2xl border border-red-100 bg-red-50 py-5">
-              <div className="flex items-center gap-2 pl-2.5">
+            <AlertBanner
+              actionText="인증하기"
+              onActionAction={() => {}}
+              variant="warning"
+              icon={
                 <Image
                   src="/images/my/insurance/light.png"
                   alt="전구"
                   width={22}
                   height={22}
                 />
-                <p className="font-semibold text-hana-red-500 text-sm">
-                  보험대리청구인으로 지정되셨나요?
-                </p>
-              </div>
-              <button
-                type="button"
-                className="flex items-center gap-0.5 whitespace-nowrap pr-1 font-bold text-hana-red-500 text-xs"
-              >
-                인증하기 <ChevronRight size={14} />
-              </button>
-            </div>
-          </>
+              }
+              actionFont="font-bold"
+              messageFont="font-semibold"
+              message={'보험대리청구인으로 지정되셨나요?'}
+            />
+          </div>
         )}
 
         {/* 섹션 라벨 */}
@@ -98,13 +96,12 @@ export default function ChildMainInsuranceScreen() {
           ))}
         </div>
 
-        <div className="mt-10 rounded-xl bg-teal-50 py-3">
-          <p className="pl-4 text-teal-700 text-xs leading-relaxed">
-            가족관리에서 등록된 부모님의 보험 정보입니다.
-            <br />
-            미청구 보험금은 자녀가 대리 청구할 수 있습니다.
-          </p>
-        </div>
+        <InfoBox
+          desc={
+            '가족관리에서 등록된 부모님의 보험 정보입니다.\n미청구 보험금은 자녀가 대리 청구할 수 있습니다.'
+          }
+          className="mt-10"
+        />
       </div>
     </div>
   );

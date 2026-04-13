@@ -142,7 +142,7 @@ export default function Step3SelectPermissions({
           )}
         </div>
       </div>
-      <PrimaryButton onClick={onNext} className="mb-5 w-full" label={'다음'} />
+      <PrimaryButton onClick={onNext} className="w-full" label={'다음'} />
     </div>
   );
 }

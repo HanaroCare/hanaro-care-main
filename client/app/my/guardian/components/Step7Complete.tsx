@@ -90,7 +90,6 @@ export default function Step7Complete({ onPrev }: Props) {
       <PrimaryButton
         onClick={onPrev}
         variant="disabled"
-        className="mb-4"
         label={'공증 사무소 다시 보기'}
       />
     </div>

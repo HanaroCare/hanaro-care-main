@@ -154,7 +154,7 @@ export default function Step6FindNotary({ onNext }: Props) {
         variant="disabled"
         onClick={onNext}
         label={'완료하기'}
-        className="mb-25 w-full"
+        className="w-full"
       />
     </div>
   );
