@@ -3,11 +3,11 @@
 import { Drawer } from "vaul";
 import { Lock, ScanFace, Grid3X3 } from "lucide-react";
 
-interface LoginMethodDrawerProps {
+type LoginMethodDrawerProps = {
 	onSelect: (mode: "password" | "faceid" | "pattern") => void;
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
-}
+};
 
 export default function LoginMethodDrawer({ onSelect, open, onOpenChange }: LoginMethodDrawerProps) {
 	const methods = [

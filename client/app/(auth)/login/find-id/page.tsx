@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import LoginHeader from "@/components/LoginHeader";
 import AuthInput from "../components/AuthInput";
 import PrimaryButton from "@/components/PrimaryButton";
+import { validatePhone } from "../utils/validators";
 
 /**
  * 아이디 찾기 페이지
@@ -14,11 +14,13 @@ export default function FindIdPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
-  const isFormValid = name.length > 0 && phone.length >= 10;
+  const isNameValid = useMemo(() => name.trim().length > 0, [name]);
+  const isPhoneValid = useMemo(() => validatePhone(phone), [phone]);
+
+  const isFormValid = useMemo(() => isNameValid && isPhoneValid, [isNameValid, isPhoneValid]);
 
   const handleFindId = () => {
     if (isFormValid) {
-      console.log("Find ID for:", { name, phone });
       router.push("/login/find-id/result");
     }
   };
@@ -26,7 +28,7 @@ export default function FindIdPage() {
   return (
     <div className="app-shell bg-background">
       <div className="app-layout">
-        <LoginHeader title="아이디 찾기" />
+        {/* <Header title="아이디 찾기" showBackButton={true} showCloseButton={false} /> */}
 
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[2rem]">
@@ -55,8 +57,13 @@ export default function FindIdPage() {
                 type="tel"
                 placeholder="'-' 없이 숫자만 입력"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
               />
+              {phone.length > 0 && !isPhoneValid && (
+                <p className="ml-[0.2rem] mt-[0.25rem] text-[0.75rem] text-hana-red-500">
+                  010으로 시작하는 11자리 숫자를 입력해주세요.
+                </p>
+              )}
             </div>
           </div>
 

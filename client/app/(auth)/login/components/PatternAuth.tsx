@@ -1,44 +1,69 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-interface Point {
+type Point = {
 	x: number;
 	y: number;
 	id: number;
-}
+};
 
-export default function PatternAuth() {
+type PatternAuthProps = {
+	onSuccess: () => void;
+};
+
+export default function PatternAuth({ onSuccess }: PatternAuthProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const dotsRef = useRef<(HTMLDivElement | null)[]>([]);
+
 	const [dots, setDots] = useState<Point[]>([]);
 	const [path, setPath] = useState<number[]>([]);
 	const [isDrawing, setIsDrawing] = useState(false);
 	const [currentPoint, setCurrentPoint] = useState<{ x: number; y: number } | null>(null);
 
 	useEffect(() => {
-		const updateDotCoords = () => {
-			const container = containerRef.current?.getBoundingClientRect();
-			if (!container) return;
+		const container = containerRef.current;
+		const canvas = canvasRef.current;
+		if (!container || !canvas) return;
+
+		const updateSize = () => {
+			const { width, height } = container.getBoundingClientRect();
+			const dpr = window.devicePixelRatio || 1;
+
+			canvas.width = Math.round(width * dpr);
+			canvas.height = Math.round(height * dpr);
+
+			canvas.style.width = `${width}px`;
+			canvas.style.height = `${height}px`;
+
+			const ctx = canvas.getContext("2d");
+			if (ctx) {
+				ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+			}
 
 			const newDots: Point[] = dotsRef.current.map((dot, index) => {
 				if (!dot) return { x: 0, y: 0, id: index };
 				const rect = dot.getBoundingClientRect();
+				const containerRect = container.getBoundingClientRect();
 				return {
-					x: rect.left + rect.width / 2 - container.left,
-					y: rect.top + rect.height / 2 - container.top,
+					x: rect.left + rect.width / 2 - containerRect.left,
+					y: rect.top + rect.height / 2 - containerRect.top,
 					id: index,
 				};
 			});
 			setDots(newDots);
 		};
 
-		updateDotCoords();
-		window.addEventListener("resize", updateDotCoords);
-		return () => window.removeEventListener("resize", updateDotCoords);
-	}, []);
+		const resizeObserver = new ResizeObserver(() => updateSize());
+		resizeObserver.observe(container);
 
+		updateSize(); // 초기 실행
+
+		return () => {
+			resizeObserver.disconnect();
+		};
+	}, []);
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
@@ -69,29 +94,39 @@ export default function PatternAuth() {
 		}
 	}, [dots, path, isDrawing, currentPoint]);
 
+	const checkCollision = useCallback((x: number, y: number) => {
+		const threshold = 25;
+
+		setPath((prevPath) => {
+			const collidingDot = dots.find((dot) => {
+				const dist = Math.sqrt((dot.x - x) ** 2 + (dot.y - y) ** 2);
+				return dist < threshold;
+			});
+
+			if (collidingDot && !prevPath.includes(collidingDot.id)) {
+				return [...prevPath, collidingDot.id];
+			}
+			return prevPath;
+		});
+	}, [dots]);
+
 	const handleStart = (x: number, y: number) => {
 		setIsDrawing(true);
 		setPath([]);
 		checkCollision(x, y);
 	};
 
-	const checkCollision = (x: number, y: number) => {
-		const threshold = 25;
-		for (const dot of dots) {
-			const dist = Math.sqrt((dot.x - x) ** 2 + (dot.y - y) ** 2);
-			if (dist < threshold && !path.includes(dot.id)) {
-				setPath((prev) => [...prev, dot.id]);
-			}
+	const handleEnd = () => {
+		setIsDrawing(false);
+		if (path.length >= 4) {
+			onSuccess();
 		}
 	};
 
 	return (
 		<div className="flex flex-col items-center justify-center pt-[2rem]">
-			<p className="mb-[3rem] text-center text-[1.125rem] font-medium text-foreground">
-				패턴을 그려주세요
-			</p>
-
 			<div ref={containerRef} className="relative mx-auto w-fit">
+
 				<div className="grid grid-cols-3 gap-[3.5rem] p-[1.5rem]">
 					{Array.from({ length: 9 }).map((_, i) => (
 						<div
@@ -112,8 +147,6 @@ export default function PatternAuth() {
 
 				<canvas
 					ref={canvasRef}
-					width={300}
-					height={300}
 					className="absolute inset-0 z-10 touch-none"
 					onMouseDown={(e) => {
 						const rect = canvasRef.current?.getBoundingClientRect();
@@ -129,7 +162,7 @@ export default function PatternAuth() {
 							checkCollision(x, y);
 						}
 					}}
-					onMouseUp={() => setIsDrawing(false)}
+					onMouseUp={handleEnd}
 					onTouchStart={(e) => {
 						const rect = canvasRef.current?.getBoundingClientRect();
 						if (rect) handleStart(e.touches[0].clientX - rect.left, e.touches[0].clientY - rect.top);
@@ -144,7 +177,7 @@ export default function PatternAuth() {
 							checkCollision(x, y);
 						}
 					}}
-					onTouchEnd={() => setIsDrawing(false)}
+					onTouchEnd={handleEnd}
 				/>
 			</div>
 

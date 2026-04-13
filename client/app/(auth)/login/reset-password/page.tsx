@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import LoginHeader from "@/components/LoginHeader";
 import AuthInput from "../components/AuthInput";
 import PrimaryButton from "@/components/PrimaryButton";
+import { validatePhone } from "../utils/validators";
 
 /**
  * 비밀번호 재설정 페이지
@@ -14,11 +14,13 @@ export default function ResetPasswordPage() {
   const [userId, setUserId] = useState("");
   const [phone, setPhone] = useState("");
 
-  const isFormValid = userId.length > 0 && phone.length >= 10;
+  const isIdValid = useMemo(() => userId.trim().length > 0, [userId]);
+  const isPhoneValid = useMemo(() => validatePhone(phone), [phone]);
+
+  const isFormValid = useMemo(() => isIdValid && isPhoneValid, [isIdValid, isPhoneValid]);
 
   const handleResetRequest = () => {
     if (isFormValid) {
-      console.log("Reset Password for:", { userId, phone });
       router.push("/login/reset-password/new");
     }
   };
@@ -26,7 +28,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="app-shell bg-background">
       <div className="app-layout">
-        <LoginHeader title="비밀번호 재설정" />
+        {/* <Header title="비밀번호 재설정" showBackButton={true} showCloseButton={false} /> */}
 
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[2rem]">
@@ -55,8 +57,13 @@ export default function ResetPasswordPage() {
                 type="tel"
                 placeholder="'-' 없이 숫자만 입력"
                 value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
               />
+              {phone.length > 0 && !isPhoneValid && (
+                <p className="ml-[0.2rem] mt-[0.25rem] text-[0.75rem] text-hana-red-500">
+                  010으로 시작하는 11자리 숫자를 입력해주세요.
+                </p>
+              )}
             </div>
           </div>
 

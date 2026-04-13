@@ -1,22 +1,37 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import LoginHeader from "@/components/LoginHeader";
 import PrimaryButton from "@/components/PrimaryButton";
 
-/**
- * 아이디 찾기 결과 페이지
- */
+const maskId = (id: string): string => {
+  if (!id) return "";
+  const len = id.length;
+
+  if (len <= 3) {
+    return id.charAt(0) + "*".repeat(len - 1);
+  }
+
+  const visibleStart = 3;
+  const visibleEnd = 2;
+
+  if (len <= visibleStart + visibleEnd) {
+    return id.substring(0, 2) + "*".repeat(len - 2);
+  }
+
+  const maskedPart = "*".repeat(len - (visibleStart + visibleEnd));
+  return id.substring(0, visibleStart) + maskedPart + id.substring(len - visibleEnd);
+};
+
 export default function FindIdResultPage() {
   const router = useRouter();
 
-  // TODO API를 통해 조회한 값을 표시
+  // TODO: 실제로는 API를 통해 조회한 값을 props나 상태로 받아와야 함
   const foundId = "hana1234";
 
   return (
     <div className="app-shell bg-background">
       <div className="app-layout">
-        <LoginHeader title="아이디 찾기 결과" />
+        {/* <Header title="아이디 찾기 결과" showBackButton={true} showCloseButton={false} /> */}
 
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[3rem] text-center">
@@ -29,7 +44,9 @@ export default function FindIdResultPage() {
           </div>
 
           <div className="rounded-[1rem] bg-gray-50 p-[2rem] text-center">
-            <span className="text-[1.25rem] font-bold text-primary">{foundId}</span>
+            <span className="text-[1.25rem] font-bold text-primary">
+              {maskId(foundId)}
+            </span>
           </div>
 
           <div className="mt-auto flex flex-col gap-[1rem] pb-[3rem]">

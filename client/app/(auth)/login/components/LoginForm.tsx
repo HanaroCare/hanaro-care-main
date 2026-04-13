@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PrimaryButton from "@/components/PrimaryButton";
 import AuthInput from "./AuthInput";
+import { validatePassword } from "../utils/validators";
 
 type LoginFormProps = {
   onSubmit: (data: { id: string; pw: string }) => void;
@@ -15,11 +16,14 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
   const [userId, setUserId] = useState("");
   const [userPw, setUserPw] = useState("");
 
-  const isFormValid = userId.length > 0 && userPw.length > 0;
+  const isIdValid = useMemo(() => userId.trim().length > 0, [userId]);
+  const isPwValid = useMemo(() => validatePassword(userPw), [userPw]);
+
+  const isFormValid = useMemo(() => isIdValid && isPwValid, [isIdValid, isPwValid]);
 
   const handleSubmit = () => {
     if (isFormValid) {
-      onSubmit({ id: userId, pw: userPw });
+      onSubmit({ id: userId.trim(), pw: userPw });
     }
   };
 
