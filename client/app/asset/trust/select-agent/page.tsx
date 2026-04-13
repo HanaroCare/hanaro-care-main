@@ -24,6 +24,7 @@ export default function SelectAgentPage() {
           leftLabel="지금 안할래요"
           rightLabel="결과보기"
           rightDisabled={!selected}
+          onLeftClick={() => router.push('/asset/trust/result')}
           onRightClick={() => router.push('/asset/trust/result')}
         />
       }

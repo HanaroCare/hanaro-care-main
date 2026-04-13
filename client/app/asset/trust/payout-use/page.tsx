@@ -39,6 +39,7 @@ export default function PayoutUsagePage() {
           leftLabel="지금 안할래요"
           rightLabel="다음으로"
           rightDisabled={selected.size === 0}
+          onLeftClick={() => router.push('/asset/trust/result')}
           onRightClick={() => router.push('/asset/trust/select-agent')}
         />
       }
