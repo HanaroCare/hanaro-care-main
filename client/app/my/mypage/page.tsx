@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ChevronDown,
   ChevronRight,
+  CircleUserRound, // Lucide 아이콘 추가
   Dna,
   FileHeart,
   Gift,
@@ -47,10 +48,13 @@ export default function MyHanaPage() {
         <main className="no-scrollbar flex-1 pb-28">
           {/* --- 프로필 섹션 --- */}
           <section className="flex flex-col items-center py-10">
+            {/* 이모티콘을 Lucide 아이콘으로 변경 */}
             <div className="mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-hana-green-100 bg-hana-green-50 shadow-sm">
-              <span className="text-5xl" role="img" aria-label="avatar">
-                👩🏼‍💼
-              </span>
+              <CircleUserRound
+                className="h-20 w-20 text-hana-ez-600"
+                role="img"
+                aria-label="권하나의 프로필"
+              />
             </div>
             <h2 className="font-bold text-2xl text-hana-black-900 tracking-tight">
               권하나
