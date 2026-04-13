@@ -4,6 +4,7 @@ import { BellRing } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { AlertBanner } from '@/components/AlertBanner';
 import PrimaryButton from '@/components/PrimaryButton';
+import SubHeader from '@/components/SubHeader';
 
 export default function CheckHomePage() {
   const router = useRouter();
@@ -11,6 +12,11 @@ export default function CheckHomePage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
+        <SubHeader
+          title="주택 연금"
+          backUrl="/asset/home-pension"
+          closeUrl="/asset"
+        />
         <main className="app-main no-scrollbar px-6 pt-8 pb-8">
           <section>
             <div className="flex items-center justify-between">

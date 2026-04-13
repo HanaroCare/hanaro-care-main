@@ -13,6 +13,7 @@ import {
   YAxis,
 } from 'recharts';
 import InfoBox from '@/components/InfoBox';
+import SubHeader from '@/components/SubHeader';
 
 type PensionType = 'fixed' | 'boosted' | 'growing';
 
@@ -142,6 +143,11 @@ export default function PensionTypeComparePage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
+        <SubHeader
+          title="주택 연금"
+          backUrl="/asset/home-pension/predict"
+          closeUrl="/asset"
+        />
         <main className="app-main no-scrollbar px-5 pt-10 pb-6">
           <section>
             <div>

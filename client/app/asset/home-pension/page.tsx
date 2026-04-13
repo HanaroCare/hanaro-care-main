@@ -3,6 +3,7 @@ import { CircleCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import SubHeader from '@/components/SubHeader';
 import DualActionFooter from '../../../components/DualActionFooter';
 
 const benefits = [
@@ -18,6 +19,7 @@ export default function HomePensionPage() {
   return (
     <div className="app-shell">
       <div className="app-layout relative bg-white">
+        <SubHeader title="주택 연금" backUrl="/asset" closeUrl="/asset" />
         <main className="app-main no-scrollbar">
           <section className="px-7 pt-9">
             <p className="mb-2 text-[12px] leading-[18px] font-normal text-[#6A7282]">
