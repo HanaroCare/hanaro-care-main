@@ -39,13 +39,18 @@ export default function SelectAgentStep() {
         </p>
       </div>
 
-      <div className="mt-11 flex flex-col gap-5">
+      <div
+        className="mt-11 flex flex-col gap-5"
+        role="radiogroup"
+        aria-label="지급청구대리인 선택"
+      >
         {agents.map((agent) => {
           const isSelected = selected === agent.id;
           return (
             <button
               key={agent.id}
               type="button"
+              aria-pressed={isSelected}
               onClick={() => setSelected(agent.id)}
               className={`flex items-center rounded-[28px] px-6 py-7 text-left shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition ${
                 isSelected

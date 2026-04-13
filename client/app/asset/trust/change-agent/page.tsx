@@ -75,7 +75,7 @@ export default function ChangeAgentPage() {
                 <button
                   type="button"
                   role="switch"
-                  aria-labelledby="permission-read-label"
+                  aria-labelledby={permissionId}
                   aria-checked={openPermission}
                   onClick={() => setOpenPermission((prev) => !prev)}
                   className={`relative h-5 w-10 rounded-full transition ${
