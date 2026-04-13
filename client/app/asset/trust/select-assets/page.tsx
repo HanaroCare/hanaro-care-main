@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import Header from '@/components/navigation/Header';
 import TrustProgressBar from '../../components/trust/TrustProgressBar';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 import { formatKoreanAmount, parseKoreanAmount } from '../trustUtils';
@@ -41,6 +42,8 @@ export default function TrustAssetSelectPage() {
         </footer>
       }
     >
+      <Header title="내맘대로신탁" />
+
       <section className="px-6 pt-8">
         <TrustProgressBar step={1} />
 
@@ -88,7 +91,7 @@ export default function TrustAssetSelectPage() {
         </div>
 
         {selected.size > 0 && (
-          <div className="mt-18 rounded-[24px] bg-[#EFF8F7] px-6 py-8">
+          <div className="mt-8 rounded-[24px] bg-[#EFF8F7] px-6 py-8">
             <div className="flex justify-between">
               <span className="font-semibold text-[16px] text-hana-ez-600">
                 선택 합계
