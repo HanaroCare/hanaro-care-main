@@ -3,10 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import Header from '@/components/navigation/Header';
-import TrustChoiceStep from '../../components/trust/TrustChoiceStep';
-import TrustProgressBar from '../../components/trust/TrustProgressBar';
-import TrustStepLayout from '../../components/trust/TrustStepLayout';
+import TrustChoiceStep from '../TrustChoiceStep';
+import TrustWizardStep from '../TrustWizardStep';
 
 const options = [
   {
@@ -23,12 +21,13 @@ const options = [
   },
 ];
 
-export default function PayoutTypePage() {
+export default function PayoutTypeStep() {
   const router = useRouter();
   const [selected, setSelected] = useState<string | null>('free');
 
   return (
-    <TrustStepLayout
+    <TrustWizardStep
+      step={4}
       footer={
         <footer className="shrink-0 bg-white px-6 pt-10 pb-8">
           <PrimaryButton
@@ -39,24 +38,18 @@ export default function PayoutTypePage() {
         </footer>
       }
     >
-      <Header title="내맘대로신탁" />
-
-      <section className="px-6 pt-8">
-        <TrustProgressBar step={4} />
-
-        <TrustChoiceStep
-          question={
-            <>
-              어떤 형태로
-              <br />
-              자산을 받을까요?
-            </>
-          }
-          options={options}
-          selected={selected}
-          onSelect={setSelected}
-        />
-      </section>
-    </TrustStepLayout>
+      <TrustChoiceStep
+        question={
+          <>
+            어떤 형태로
+            <br />
+            자산을 받을까요?
+          </>
+        }
+        options={options}
+        selected={selected}
+        onSelect={setSelected}
+      />
+    </TrustWizardStep>
   );
 }

@@ -3,10 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import Header from '@/components/navigation/Header';
-import TrustChoiceStep from '../../components/trust/TrustChoiceStep';
-import TrustProgressBar from '../../components/trust/TrustProgressBar';
-import TrustStepLayout from '../../components/trust/TrustStepLayout';
+import TrustChoiceStep from '../TrustChoiceStep';
+import TrustWizardStep from '../TrustWizardStep';
 
 const options = [
   {
@@ -28,13 +26,7 @@ const options = [
 
 type OperationType = (typeof options)[number]['id'];
 
-const infoBoxByType: Record<
-  OperationType,
-  {
-    title: string;
-    desc: string;
-  }
-> = {
+const infoBoxByType: Record<OperationType, { title: string; desc: string }> = {
   managed: {
     title: '일임형이란?',
     desc: '전문가가 채권, 주식, 펀드를 나눠서 자산을 운용해줍니다. 매 분기 결과를 앱에서 확인할 수 있습니다.',
@@ -45,12 +37,13 @@ const infoBoxByType: Record<
   },
 };
 
-export default function OperationTypePage() {
+export default function OperationTypeStep() {
   const router = useRouter();
   const [selected, setSelected] = useState<OperationType>('managed');
 
   return (
-    <TrustStepLayout
+    <TrustWizardStep
+      step={3}
       footer={
         <footer className="shrink-0 bg-white px-6 pb-8 pt-10">
           <PrimaryButton
@@ -60,25 +53,19 @@ export default function OperationTypePage() {
         </footer>
       }
     >
-      <Header title="내맘대로신탁" />
-
-      <section className="px-6 pt-8">
-        <TrustProgressBar step={3} />
-
-        <TrustChoiceStep
-          question={
-            <>
-              어떤 형태로
-              <br />
-              자산을 굴릴까요?
-            </>
-          }
-          options={options}
-          selected={selected}
-          onSelect={(id) => setSelected(id as OperationType)}
-          infoBox={infoBoxByType[selected]}
-        />
-      </section>
-    </TrustStepLayout>
+      <TrustChoiceStep
+        question={
+          <>
+            어떤 형태로
+            <br />
+            자산을 굴릴까요?
+          </>
+        }
+        options={options}
+        selected={selected}
+        onSelect={(id) => setSelected(id as OperationType)}
+        infoBox={infoBoxByType[selected]}
+      />
+    </TrustWizardStep>
   );
 }
