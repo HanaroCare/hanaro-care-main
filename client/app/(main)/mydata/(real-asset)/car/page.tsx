@@ -14,7 +14,10 @@ export default function CarPage() {
   const [carNumber, setCarNumber] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const isCarNumberValid = carNumber.length >= 7 && carNumber.length <= 8;
+  const normalizedCarNumber = carNumber.replace(/\s+/g, '').trim();
+  const isCarNumberValid = /^(?:\d{2}[가-힣]\d{4}|\d{3}[가-힣]\d{4})$/.test(
+    normalizedCarNumber,
+  );
 
   if (isSubmitted) {
     return (

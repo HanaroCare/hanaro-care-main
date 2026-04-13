@@ -80,7 +80,11 @@ const AGENCIES: Agency[] = [
 /**
  * 기관 선택 화면 (개별 선택 모드)
  */
-export default function AgencySelectStep({ onNext }: { onNext: () => void }) {
+export default function AgencySelectStep({
+  onNext,
+}: {
+  onNext: (selectedIds: string[]) => void;
+}) {
   const [selectedTab, setSelectedTab] = useState<Category>('bank');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
@@ -169,7 +173,7 @@ export default function AgencySelectStep({ onNext }: { onNext: () => void }) {
         <PrimaryButton
           label={`${selectedIds.length}개 기관 연결하기`}
           disabled={selectedIds.length === 0}
-          onClick={onNext}
+          onClick={() => onNext(selectedIds)}
         />
       </div>
     </div>

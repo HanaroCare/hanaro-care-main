@@ -18,7 +18,14 @@ export default function GoldPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAllDone, setIsAllDone] = useState(false);
 
-  const isFormValid = weight.trim() !== '' && purity.trim() !== '';
+  const weightNum = Number(weight);
+  const purityNum = Number(purity);
+  const isFormValid =
+    Number.isFinite(weightNum) &&
+    Number.isFinite(purityNum) &&
+    weightNum > 0 &&
+    purityNum > 0 &&
+    purityNum <= 24;
 
   const handleLoadingComplete = () => {
     setIsLoading(false);

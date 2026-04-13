@@ -175,7 +175,7 @@ export default function HouseDetailPage() {
             label="취득연도"
             id="year"
             type="number"
-            placeholder="2026"
+            placeholder={String(currentYear)}
             value={year}
             onChange={setYear}
             error={yearError}
