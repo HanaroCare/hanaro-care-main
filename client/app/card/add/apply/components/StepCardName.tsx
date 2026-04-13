@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { AlertBanner } from "@/components/AlertBanner";
+import { useState } from 'react';
+import { AlertBanner } from '@/components/modules/AlertBanner';
 
-const QUICK_PURPOSES = ["의료비", "간병비", "생활비"];
+const QUICK_PURPOSES = ['의료비', '간병비', '생활비'];
 
 interface StepCardNameProps {
   value: string;
@@ -18,20 +18,20 @@ export default function StepCardName({
   onNext,
   isActive,
 }: StepCardNameProps) {
-  const [name, setName] = useState("");
-  const [selectedPurpose, setSelectedPurpose] = useState("");
+  const [name, setName] = useState('');
+  const [selectedPurpose, setSelectedPurpose] = useState('');
 
-  const preview = `${name ? name + " " : ""}요양보호사 ${selectedPurpose || "카드"}${selectedPurpose ? " 카드" : ""}`;
+  const preview = `${name ? name + ' ' : ''}요양보호사 ${selectedPurpose || '카드'}${selectedPurpose ? ' 카드' : ''}`;
 
   const handleNameChange = (val: string) => {
     setName(val);
-    const cardName = `${val ? val + " " : ""}요양보호사 ${selectedPurpose || "카드"}${selectedPurpose ? " 카드" : ""}`;
+    const cardName = `${val ? val + ' ' : ''}요양보호사 ${selectedPurpose || '카드'}${selectedPurpose ? ' 카드' : ''}`;
     onChange(cardName);
   };
 
   const handlePurposeSelect = (purpose: string) => {
     setSelectedPurpose(purpose);
-    const cardName = `${name ? name + " " : ""}요양보호사 ${purpose} 카드`;
+    const cardName = `${name ? name + ' ' : ''}요양보호사 ${purpose} 카드`;
     onChange(cardName);
   };
 
@@ -46,7 +46,7 @@ export default function StepCardName({
       </div>
 
       <h2 className="text-lg font-semibold leading-[30px] tracking-snug text-black whitespace-pre-line">
-        {"카드 이름을\n설정해주세요"}
+        {'카드 이름을\n설정해주세요'}
       </h2>
 
       {/* 이름 입력 */}
@@ -75,8 +75,8 @@ export default function StepCardName({
               onClick={() => handlePurposeSelect(purpose)}
               className={`px-3 py-1.5 rounded-full text-xs transition-colors ${
                 selectedPurpose === purpose
-                  ? "bg-hana-green-700 text-white"
-                  : "bg-hana-silver-100 text-hana-black-900"
+                  ? 'bg-hana-green-700 text-white'
+                  : 'bg-hana-silver-100 text-hana-black-900'
               }`}
             >
               {purpose}

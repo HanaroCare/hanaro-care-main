@@ -5,8 +5,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import ConfirmModal from '@/components/modules/ConfirmModal';
+import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
-import DualActionFooter from '../../../components/DualActionFooter';
 
 const benefits = [
   'KB시세가 있는 아파트',
