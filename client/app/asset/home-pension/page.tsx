@@ -1,0 +1,104 @@
+'use client';
+import { CircleCheck } from 'lucide-react';
+import type { Route } from 'next';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import ConfirmModal from '@/components/modules/ConfirmModal';
+import Header from '@/components/navigation/Header';
+import DualActionFooter from '../../../components/DualActionFooter';
+
+const benefits = [
+  'KB시세가 있는 아파트',
+  '나를 위한 맞춤형 주택 매각 계획 알기',
+  '영업점 방문 없이 모바일로 간편하게',
+];
+
+export default function HomePensionPage() {
+  const [showEmptyModal, setShowEmptyModal] = useState(false);
+  const router = useRouter();
+
+  return (
+    <div className="app-shell">
+      <div className="app-layout relative bg-white">
+        <Header title="주택 연금" />
+        <main className="app-main no-scrollbar">
+          <section className="px-7 pt-9">
+            <p className="mb-2 text-[12px] leading-[18px] font-normal text-[#6A7282]">
+              하나은행 주택연금
+            </p>
+
+            <h2 className="text-[28px] leading-[42px] font-bold tracking-[-0.03em] text-[#101828]">
+              신청부터 약정까지
+              <br />
+              모바일로 간편하게
+            </h2>
+
+            <div className="mt-9 flex justify-center">
+              <Image
+                src="/images/asset/housing.svg"
+                alt="주택연금 건물 일러스트"
+                width={210}
+                height={180}
+                className="h-[180px] w-[210px] object-contain"
+                priority
+              />
+            </div>
+
+            <div className="mt-5 rounded-[24px] bg-hana-silver-50 px-6 py-6">
+              <div className="flex flex-col gap-5">
+                {benefits.map((item) => (
+                  <div key={item} className="flex items-center gap-3">
+                    <CircleCheck
+                      size={20}
+                      className="shrink-0 text-[#5E6B7A]"
+                    />
+                    <p className="text-[16px] leading-6 font-medium tracking-[-0.02em] text-[#4B5563]">
+                      {item}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <p className="text-[13px] leading-5 font-normal text-[#9CA3AF]">
+                최대 한도
+              </p>
+              <p className="mt-1 text-[22px] leading-8 font-bold tracking-[-0.02em] text-[#111827]">
+                4억원
+              </p>
+            </div>
+          </section>
+        </main>
+
+        <DualActionFooter
+          leftLabel="상담 신청"
+          rightLabel="설계해보기"
+          onLeftClick={() => setShowEmptyModal(true)}
+          onRightClick={() => {
+            router.push('/asset/home-pension/check-home' as Route);
+          }}
+        />
+
+        <ConfirmModal
+          isOpen={showEmptyModal}
+          title={
+            <>
+              현재 조회되는
+              <br />
+              주택이 없습니다.
+            </>
+          }
+          cancelLabel="닫기"
+          confirmLabel="등록하기"
+          onCancel={() => setShowEmptyModal(false)}
+          onConfirm={() => {
+            setShowEmptyModal(false);
+            // router.push('/asset/housing/register' as Route);
+          }}
+        />
+      </div>
+    </div>
+  );
+}
