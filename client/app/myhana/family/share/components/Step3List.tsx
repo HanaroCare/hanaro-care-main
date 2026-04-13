@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import PrimaryButton from '@/components/PrimaryButton';
 import { ShieldCheck, Info } from 'lucide-react';
 
-export default function Step3List({ onNext }: { onNext: () => void }) {
+export default function Step3List({ onNext }: { onNext: (count: number) => void }) {
   const [selected, setSelected] = useState<number[]>([]);
   const list = [
     { id: 1, name: '하나 건강보험', company: '하나생명', price: '월 150,000원', warning: true },
@@ -78,7 +78,7 @@ export default function Step3List({ onNext }: { onNext: () => void }) {
       <div className="mt-8">
         <PrimaryButton 
           label="권한 등록" 
-          onClick={onNext} 
+          onClick={() => onNext(selected.length)} 
           disabled={selected.length === 0} 
         />
       </div>

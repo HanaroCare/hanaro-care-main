@@ -37,7 +37,7 @@ export default function Step1Auth({ onNext }: { onNext: () => void }) {
               <p className={`font-bold text-[16px] leading-6 tracking-tight ${selected === item.id ? 'text-hana-ez-600' : 'text-[#1F2937]'}`}>
                 {item.title}
               </p>
-              <p className="text-[#6A7282] text-[12px] leading-5 font-normal tracking-snug">
+              <p className="text-[#6A7282] text-[12px] leading-5 font-normal tracking-tight">
                 {item.desc}
               </p>
             </div>

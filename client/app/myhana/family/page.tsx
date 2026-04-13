@@ -3,9 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
-import Link from 'next/link';
-import Image from 'next/image';
-import { ChevronLeft, X, PlusCircle, Check, Trash2, AlertCircle } from 'lucide-react';
+import { PlusCircle, Check, X } from 'lucide-react';
 import SubHeader from '@/components/SubHeader';
 import PrimaryButton from '@/components/PrimaryButton';
 
@@ -31,18 +29,21 @@ const initialFamilyMembers: FamilyMember[] = [
   { id: 4, lastName: '김', name: '김생명', relationship: '자녀', phone: '010-2468-1357', isSharing: false, circleColor: 'bg-hana-yellow-100', textColor: 'text-hana-yellow-700' },
 ];
 
-const statsData = {
-  registeredCount: 4,
-  requestedCount: 5,
-};
-
 // --- 하위 컴포넌트 ---
 
-const Stats = ({ sharingCount }: { sharingCount: number }) => (
+const Stats = ({ 
+  registeredCount, 
+  sharingCount, 
+  requestedCount 
+}: { 
+  registeredCount: number, 
+  sharingCount: number, 
+  requestedCount: number 
+}) => (
   <section className="grid grid-cols-3 bg-white rounded-3xl p-6 mb-6 shadow-sm border border-gray-100">
     <div className="flex flex-col items-center border-r border-gray-100 pr-2">
       <span className="text-[#333333] font-medium text-sm mb-1.5 text-center">등록된 가족</span>
-      <span className="text-hana-ez-600 font-bold text-3xl">{statsData.registeredCount}명</span>
+      <span className="text-hana-ez-600 font-bold text-3xl">{registeredCount}명</span>
     </div>
     <div className="flex flex-col items-center border-r border-gray-100 px-2">
       <span className="text-[#5A5A5A] text-sm mb-1.5 text-center">공유중</span>
@@ -50,19 +51,17 @@ const Stats = ({ sharingCount }: { sharingCount: number }) => (
     </div>
     <div className="flex flex-col items-center pl-2">
       <span className="text-[#5A5A5A] text-sm mb-1.5 text-center">공유 요청</span>
-      <span className="text-hana-ez-600 font-bold text-3xl">{statsData.requestedCount}</span>
+      <span className="text-hana-ez-600 font-bold text-3xl">{requestedCount}</span>
     </div>
   </section>
 );
 
 const FamilyCard = ({ 
   member, 
-  onToggleSharing,
-  onDelete
+  onToggleSharing
 }: { 
   member: FamilyMember, 
-  onToggleSharing: (id: number, currentStatus: boolean) => void,
-  onDelete: (id: number) => void
+  onToggleSharing: (id: number, currentStatus: boolean) => void
 }) => {
   return (
     <div className="bg-white rounded-2xl p-5 flex items-center gap-4 shadow-sm border border-gray-100 relative group active:scale-[0.99] transition-all mb-3">
@@ -83,15 +82,6 @@ const FamilyCard = ({
       {!member.isMe && (
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-2">
-            <button 
-              type="button" 
-              onClick={() => onDelete(member.id)}
-              className="w-7 h-7 rounded-full bg-white text-[#FF6363] border border-[#FF6363] text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-              aria-label="가족 삭제"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-            
             <label className="relative inline-flex items-center cursor-pointer">
               <input 
                 type="checkbox" 
@@ -112,7 +102,7 @@ const FamilyCard = ({
   );
 };
 
-const BottomSheetMemberCard = ({ member, isSelected, onSelect }: { member: any, isSelected: boolean, onSelect: () => void }) => (
+const BottomSheetMemberCard = ({ member, isSelected, onSelect }: { member: FamilyMember, isSelected: boolean, onSelect: () => void }) => (
   <div 
     className="flex items-center gap-4 py-4 border-b border-gray-100 group cursor-pointer" 
     onClick={onSelect}
@@ -153,7 +143,7 @@ const ConfirmPopup = ({
       <div className="relative w-full bg-white rounded-3xl p-8 shadow-xl animate-in fade-in zoom-in duration-200">
         <div className="flex flex-col items-center text-center">
           <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-6">
-            <AlertCircle className="w-8 h-8 text-hana-red-500" />
+            <Check className="w-8 h-8 text-hana-red-500" />
           </div>
           <h3 className="text-xl font-bold text-[#1A1A1A] mb-3">보험 공유 중단</h3>
           <p className="text-[#5A5A5A] text-sm leading-relaxed mb-8">
@@ -180,7 +170,7 @@ const ConfirmPopup = ({
   );
 };
 
-// 바텀 시트 컴포넌트 (추출됨)
+// 바텀 시트 컴포넌트
 const BottomSheet = ({ 
   isOpen, 
   onClose, 
@@ -194,7 +184,6 @@ const BottomSheet = ({
 }) => {
   const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  // 시트가 닫힐 때 선택 상태 초기화 (필요 시)
   useEffect(() => {
     if (!isOpen) setSelectedId(null);
   }, [isOpen]);
@@ -253,16 +242,26 @@ export default function FamilyManagementPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
 
-  // 공유 완료 상태 복구 (배열 구조)
+  // 공유 완료 상태 복구
   useEffect(() => {
-    const sharedIdsStr = localStorage.getItem('shared_family_ids');
-    if (sharedIdsStr) {
+    const sharedDataStr = localStorage.getItem('shared_family_ids');
+    if (sharedDataStr) {
       try {
-        const sharedIds = JSON.parse(sharedIdsStr) as number[];
-        if (Array.isArray(sharedIds)) {
-          setMembers(prev => prev.map(m => 
-            sharedIds.includes(m.id) ? { ...m, isSharing: true, sharingInsuranceCount: 3 } : m
-          ));
+        const sharedData = JSON.parse(sharedDataStr);
+        if (Array.isArray(sharedData)) {
+          setMembers(prev => prev.map(m => {
+            const sharedItem = sharedData.find((item: any) => 
+              (typeof item === 'number' ? item === m.id : item.id === m.id)
+            );
+            if (sharedItem) {
+              return { 
+                ...m, 
+                isSharing: true, 
+                sharingInsuranceCount: typeof sharedItem === 'number' ? 3 : sharedItem.insuranceCount 
+              };
+            }
+            return m;
+          }));
         }
       } catch (e) {
         console.warn('Failed to parse shared_family_ids from localStorage:', e);
@@ -278,45 +277,24 @@ export default function FamilyManagementPage() {
       setPendingToggleId(id);
       setIsConfirmOpen(true);
     } else {
-      return;
-    }
-  };
-
-  const handleDeleteFamily = (id: number) => {
-    const member = members.find(m => m.id === id);
-    if (!member) return;
-    
-    if (window.confirm(`${member.name}님을 가족 목록에서 삭제하시겠습니까?`)) {
-      setMembers(prev => prev.filter(m => m.id !== id));
-      
-      // 공유 중이었다면 localStorage에서도 제거
-      const sharedIdsStr = localStorage.getItem('shared_family_ids');
-      if (sharedIdsStr) {
-        try {
-          const sharedIds = JSON.parse(sharedIdsStr) as number[];
-          if (Array.isArray(sharedIds)) {
-            const newIds = sharedIds.filter(sharedId => sharedId !== id);
-            localStorage.setItem('shared_family_ids', JSON.stringify(newIds));
-          }
-        } catch (e) {
-          console.warn('Failed to parse shared_family_ids for deletion:', e);
-        }
-      }
+      // 공유 시작 로직 (필요 시 구현)
+      setIsBottomSheetOpen(true);
     }
   };
 
   const confirmToggleOff = () => {
     if (pendingToggleId) {
-      setMembers(prev => prev.map(m => m.id === pendingToggleId ? { ...m, isSharing: false } : m));
+      setMembers(prev => prev.map(m => m.id === pendingToggleId ? { ...m, isSharing: false, sharingInsuranceCount: 0 } : m));
       
-      // localStorage 배열에서 제거
-      const sharedIdsStr = localStorage.getItem('shared_family_ids');
-      if (sharedIdsStr) {
+      const sharedDataStr = localStorage.getItem('shared_family_ids');
+      if (sharedDataStr) {
         try {
-          const sharedIds = JSON.parse(sharedIdsStr) as number[];
-          if (Array.isArray(sharedIds)) {
-            const newIds = sharedIds.filter(id => id !== pendingToggleId);
-            localStorage.setItem('shared_family_ids', JSON.stringify(newIds));
+          const sharedData = JSON.parse(sharedDataStr);
+          if (Array.isArray(sharedData)) {
+            const newData = sharedData.filter((item: any) => 
+              (typeof item === 'number' ? item !== pendingToggleId : item.id !== pendingToggleId)
+            );
+            localStorage.setItem('shared_family_ids', JSON.stringify(newData));
           }
         } catch (e) {
           console.warn('Failed to parse shared_family_ids for toggle off:', e);
@@ -340,11 +318,15 @@ export default function FamilyManagementPage() {
         <SubHeader 
           title="가족 관리" 
           backUrl={'/myhana/mypage' as Route} 
-          closeUrl={'/myhana/mypage' as Route} 
+          closeUrl={'/' as Route} 
         />
 
         <main className="app-main px-6 pt-6 pb-24">
-          <Stats sharingCount={sharingCount} />
+          <Stats 
+            registeredCount={members.length} 
+            sharingCount={sharingCount} 
+            requestedCount={5} 
+          />
 
           <section className="mb-6">
             <div className="flex items-center justify-between mb-4 px-1">
@@ -357,7 +339,6 @@ export default function FamilyManagementPage() {
                   key={member.id} 
                   member={member} 
                   onToggleSharing={handleToggleSharing}
-                  onDelete={handleDeleteFamily}
                 />
               ))}
             </div>

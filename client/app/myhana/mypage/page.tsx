@@ -39,8 +39,8 @@ export default function MyHanaPage() {
         {/* --- 상단 헤더 --- */}
         <SubHeader 
           title="마이페이지" 
-          onBack={() => router.back()} 
-          onClose={() => router.push('/' as Route)} 
+          backUrl={'/' as Route} 
+          closeUrl={'/' as Route} 
         />
 
         <main className="no-scrollbar flex-1 pb-28">

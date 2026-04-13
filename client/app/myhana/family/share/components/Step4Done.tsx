@@ -6,7 +6,7 @@ import type { Route } from 'next';
 import PrimaryButton from '@/components/PrimaryButton';
 import { Check } from 'lucide-react';
 
-export default function Step4Done() {
+export default function Step4Done({ insuranceCount }: { insuranceCount: number }) {
   const router = useRouter();
 
   const handleFinish = () => {
@@ -14,25 +14,31 @@ export default function Step4Done() {
     const pendingIdStr = localStorage.getItem('pending_share_id');
     if (pendingIdStr) {
       const pendingId = Number(pendingIdStr);
-      const sharedIdsStr = localStorage.getItem('shared_family_ids');
-      let sharedIds: number[] = [];
+      const sharedDataStr = localStorage.getItem('shared_family_ids');
+      let sharedData: { id: number, insuranceCount: number }[] = [];
       
-      if (sharedIdsStr) {
+      if (sharedDataStr) {
         try {
-          const parsed = JSON.parse(sharedIdsStr);
+          const parsed = JSON.parse(sharedDataStr);
           if (Array.isArray(parsed)) {
-            sharedIds = parsed;
+            // 호환성을 위해 기존 number[] 형식 체크 및 변환
+            sharedData = parsed.map(item => 
+              typeof item === 'number' ? { id: item, insuranceCount: 3 } : item
+            );
           }
         } catch (e) {
           console.warn('Failed to parse shared_family_ids from localStorage in Step4Done:', e);
         }
       }
       
-      if (!sharedIds.includes(pendingId)) {
-        sharedIds.push(pendingId);
+      const existingIndex = sharedData.findIndex(item => item.id === pendingId);
+      if (existingIndex > -1) {
+        sharedData[existingIndex].insuranceCount = insuranceCount;
+      } else {
+        sharedData.push({ id: pendingId, insuranceCount });
       }
       
-      localStorage.setItem('shared_family_ids', JSON.stringify(sharedIds));
+      localStorage.setItem('shared_family_ids', JSON.stringify(sharedData));
       localStorage.removeItem('pending_share_id');
     }
     router.push('/myhana/family' as Route);
