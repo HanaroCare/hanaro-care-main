@@ -89,7 +89,7 @@ export default function HomePensionPage() {
             >
               <p
                 id="empty-home-modal-title"
-                className="text-center text-[18px] leading-[30px] font-medium tracking-[-0.03em] text-[`#1F2937`]"
+                className="text-center text-[18px] leading-[30px] font-medium tracking-[-0.03em] text-[#1F2937]"
               >
                 현재 조회되는
                 <br />
