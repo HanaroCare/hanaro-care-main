@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import InfoBox from '@/components/modules/InfoBox';
-import TrustProgressBar from '../../components/trust/TrustProgressBar';
+import ProgressBar from '@/components/baseelements/ProgressBar';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 
 export default function ChangeAgentPage() {
@@ -24,7 +24,7 @@ export default function ChangeAgentPage() {
       }
     >
       <section className="px-6 pt-8">
-        <TrustProgressBar step={6} />
+        <ProgressBar step={6} />
 
         <div className="mt-14">
           <h2 className="text-[22px] leading-[1.45] font-bold tracking-tight text-black">
