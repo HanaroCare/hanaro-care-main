@@ -1,9 +1,9 @@
 'use client';
 
-import { Check } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import CompleteStep from '@/components/modules/CompleteStep';
 
 export default function Step4Done({
   insuranceCount,
@@ -53,35 +53,30 @@ export default function Step4Done({
   };
 
   return (
-    <div className="flex flex-1 flex-col px-6 py-16 text-center">
-      <div className="flex flex-1 flex-col items-center justify-center gap-8">
-        <div className="flex h-24 w-24 animate-star-float items-center justify-center rounded-full border-4 border-hana-ez-600/10 bg-[#EFFFFE] text-hana-ez-600 shadow-sm">
-          <Check className="h-12 w-12" />
-        </div>
-        <div>
-          <h2 className="font-bold text-[#1A1A1A] text-[28px] leading-tight tracking-tight">
-            보험 정보 공유가
-            <br />
-            완료되었습니다
-          </h2>
-          <p className="mt-4 text-[#6A7282] text-[14px] leading-6">
-            이제 등록된 가족이 내 보험 내역을
-            <br />
-            함께 확인할 수 있어요.
-          </p>
-        </div>
+    <CompleteStep
+      footer={
+        <>
+          <PrimaryButton label="확인" onClick={handleFinish} />
+          <PrimaryButton
+            label="가족 추가 등록하기"
+            variant="secondary"
+            onClick={handleFinish}
+          />
+        </>
+      }
+    >
+      <div className="text-center">
+        <h2 className="font-bold text-[#1A1A1A] text-[28px] leading-tight tracking-tight">
+          보험 정보 공유가
+          <br />
+          완료되었습니다
+        </h2>
+        <p className="mt-4 text-[#6A7282] text-[14px] leading-6">
+          이제 등록된 가족이 내 보험 내역을
+          <br />
+          함께 확인할 수 있어요.
+        </p>
       </div>
-
-      <div className="mt-10 space-y-3">
-        <PrimaryButton label="확인" onClick={handleFinish} />
-        <button
-          type="button"
-          onClick={handleFinish}
-          className="h-14 w-full rounded-[10px] bg-[#E9F8F9] font-semibold text-[17px] text-hana-ez-600 transition active:scale-95"
-        >
-          가족 추가 등록하기
-        </button>
-      </div>
-    </div>
+    </CompleteStep>
   );
 }

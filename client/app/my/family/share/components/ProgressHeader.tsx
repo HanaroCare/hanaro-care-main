@@ -2,7 +2,8 @@
 
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import TrustProgressBar from '@/app/asset/components/trust/TrustProgressBar';
+// 공통 컴포넌트인 ProgressBar를 불러옵니다.
+import ProgressBar from '@/components/baseelements/ProgressBar';
 import Header from '@/components/navigation/Header';
 
 interface ProgressHeaderProps {
@@ -21,7 +22,8 @@ export default function ProgressHeader({ step }: ProgressHeaderProps) {
         onClose={() => router.push('/my/family' as Route)}
       />
       <div className="px-6 py-2">
-        <TrustProgressBar step={step} total={4} />
+        {/* 기존에 자신을 호출하던 코드를 공통 ProgressBar로 교체 */}
+        <ProgressBar step={step} total={4} />
       </div>
     </div>
   );
