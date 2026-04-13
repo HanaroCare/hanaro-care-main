@@ -1,4 +1,4 @@
-import PrimaryButton from './baseelements/PrimaryButton';
+import PrimaryButton from '../baseelements/PrimaryButton';
 
 type StackedActionFooterProps = {
   consultLabel?: string;

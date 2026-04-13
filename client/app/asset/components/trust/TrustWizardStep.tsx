@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
+import ProgressBar from "@/components/baseelements/ProgressBar";
 import Header from "@/components/navigation/Header";
-import TrustProgressBar from "./TrustProgressBar";
 import TrustStepLayout from "./TrustStepLayout";
 
 type TrustWizardStepProps = {
@@ -22,7 +22,7 @@ export default function TrustWizardStep({
     <TrustStepLayout footer={footer}>
       <Header title="내맘대로신탁" />
       <section className="px-6 pt-8">
-        <TrustProgressBar step={step} />
+        <ProgressBar step={step} />
         {children}
       </section>
     </TrustStepLayout>
