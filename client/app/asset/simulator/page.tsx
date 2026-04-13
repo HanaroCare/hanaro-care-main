@@ -1,5 +1,6 @@
 'use client';
 
+import { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -95,13 +96,13 @@ export default function SimulatorPage() {
                     title="하나 주택연금"
                     amount="월 150만원"
                     status="13개월째 수령중"
-                    onAction={() => router.push('/asset/housing')}
+                    onAction={() => router.push('/asset/home-pension' as Route)}
                   />
                   <PensionCard
                     title="하나 개인연금"
                     amount="월 80만원"
                     status="수령 예정"
-                    onAction={() => console.log('개인연금 확인')}
+                    onAction={() => router.push('/asset/trust' as Route)}
                   />
                 </div>
               </div>
