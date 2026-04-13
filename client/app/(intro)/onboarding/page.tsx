@@ -3,14 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ProgressBar from "@/components/ProgressBar";
-import OnboardingBottomSheet from "./components/OnboardingBottomSheet";
 import OnboardingSlide from "./components/OnboardingSlide";
 import PrimaryButton from "@/components/baseelements/PrimaryButton";
 import Header from "@/components/navigation/Header";
+import BottomSheet from "@/components/modules/BottomSheet";
 
-/**
- * 온보딩 페이지
- */
 export default function OnboardingPage() {
 	const router = useRouter();
 	const [currentSlide, setCurrentSlide] = useState(0);
@@ -20,8 +17,7 @@ export default function OnboardingPage() {
 		{
 			title: (
 				<>
-					내게 맞는
-					<br />
+					내게 맞는<br />
 					<span className="text-primary">진짜</span> 노후 설계
 				</>
 			),
@@ -30,8 +26,7 @@ export default function OnboardingPage() {
 		{
 			title: (
 				<>
-					의료비·간병비
-					<br />
+					의료비·간병비<br />
 					미리 계산해두세요
 				</>
 			),
@@ -41,8 +36,7 @@ export default function OnboardingPage() {
 		{
 			title: (
 				<>
-					요양보호사 전용 카드
-					<br />
+					요양보호사 전용 카드<br />
 					가족이 함께 관리해요
 				</>
 			),
@@ -52,8 +46,7 @@ export default function OnboardingPage() {
 		{
 			title: (
 				<>
-					건강할 때 챙겨야 하는
-					<br />
+					건강할 때 챙겨야 하는<br />
 					노후 준비 A to Z
 				</>
 			),
@@ -70,12 +63,10 @@ export default function OnboardingPage() {
 		}
 	};
 
-	const handleBack = () => {
-		if (currentSlide > 0) {
-			setCurrentSlide(currentSlide - 1);
-		} else {
-			router.back();
-		}
+	// 경로 이동 및 온보딩 확인 여부 저장
+	const handleNavigation = (path: string) => {
+		localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+		router.push(path);
 	};
 
 	return (
@@ -100,10 +91,32 @@ export default function OnboardingPage() {
 				</footer>
 			</div>
 
-			<OnboardingBottomSheet
+			<BottomSheet
 				isOpen={isBottomSheetOpen}
 				onClose={() => setIsBottomSheetOpen(false)}
-			/>
+			>
+				<div className="flex w-full flex-col">
+					<div className="mb-[2.5rem] w-full text-center">
+						<h2 className="text-[1.5rem] font-bold text-foreground">
+							처음 오셨나요?
+						</h2>
+					</div>
+
+					<div className="flex w-full flex-col gap-3">
+						<PrimaryButton
+							label="회원가입"
+							onClick={() => handleNavigation("/signup")}
+							className="!h-[4rem] !bg-white border border-gray-200 !text-gray-900 !text-[1.125rem]"
+						/>
+
+						<PrimaryButton
+							label="하나인증서로 로그인"
+							onClick={() => handleNavigation("/login/hanaCert")}
+							className="!h-[4rem] !text-[1.125rem]"
+						/>
+					</div>
+				</div>
+			</BottomSheet>
 		</div>
 	);
 }
