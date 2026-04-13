@@ -7,21 +7,21 @@ import Header from "@/components/navigation/Header";
 import DotIndicator from "@/app/future/components/DotIndicator";
 import YesNoSelector from "@/app/future/components/YesNoSelector";
 
-export default function ChildConsentPage() {
+export default function LicensePage() {
   const router = useRouter();
   const [selected, setSelected] = useState<"yes" | "no" | null>(null);
 
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
-      <Header title="연명의료 결정" />
+      <Header title="새생명 나눔" />
 
       <div className="flex flex-col flex-1 px-[25px] pt-[65px]">
         <div className="flex justify-center mt-[54px]">
-          <DotIndicator total={3} current={3} />
+          <DotIndicator total={3} current={2} />
         </div>
 
         <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px]">
-          자녀가 이 결정 내용을{"\n"}확인하는 것에 동의하시나요?
+          운전면허증에{"\n"}기증희망 의사표시 할까요?
         </h2>
 
         <div className="mt-[100px]">
@@ -32,7 +32,7 @@ export default function ChildConsentPage() {
       <div className="absolute bottom-0 left-0 right-0 px-[25px] pb-[30px] bg-white">
         <button
           onClick={() =>
-            router.push("/future/advance-directive/complete" as Route)
+            router.push("/future/organ-donation/certificate" as Route)
           }
           disabled={!selected}
           className="w-full h-[53px] rounded-[10px] font-medium text-[16px] text-white transition-all"
@@ -40,7 +40,7 @@ export default function ChildConsentPage() {
             backgroundColor: selected ? "#01A5AC" : "rgba(1,165,172,0.4)",
           }}
         >
-          완료하기
+          다음으로
         </button>
       </div>
     </div>

@@ -9,6 +9,7 @@ import StepCardName from "./components/StepCardName";
 import StepFamilyShare from "./components/StepFamilyShare";
 import CompleteModal from "./components/CompleteModal";
 import { Route } from "next";
+import Header from "@/components/navigation/Header";
 
 export default function CardIssuePage() {
   const router = useRouter();
@@ -35,18 +36,7 @@ export default function CardIssuePage() {
   return (
     <div className="relative bg-white" style={{ minHeight: "100dvh" }}>
       {/* 헤더 */}
-      <div
-        className="flex justify-between items-center px-4 bg-white z-20 border-b border-black/10"
-        style={{ position: "sticky", top: 0, height: "65px" }}
-      >
-        <button className="p-1" onClick={() => router.back()}>
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
-          카드 발급
-        </span>
-        <div className="w-8" />
-      </div>
+      <Header title="카드 발급" />
 
       {/* 섹션들 */}
       <div className="flex flex-col pb-12">
