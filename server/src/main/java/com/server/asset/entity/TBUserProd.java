@@ -1,5 +1,8 @@
 package com.server.asset.entity;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import com.server.asset.entity.enums.InvestType;
 import com.server.asset.entity.enums.PayoutType;
 import com.server.asset.entity.enums.ProdStat;
@@ -7,6 +10,7 @@ import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.StartType;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +22,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -103,6 +106,9 @@ public class TBUserProd extends BaseEntity {
   @Column(name = "START_TYPE", nullable = true)
   private StartType startType;
 
+  @Column(name = "START_DATE", nullable = true)
+  private LocalDate startDate;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "CLAIM_AGENT_ID", referencedColumnName = "USER_ID",
       columnDefinition = "bigint unsigned",
@@ -112,4 +118,7 @@ public class TBUserProd extends BaseEntity {
 
   @Column(name = "AGENT_VIEW_YN", length = 1)
   private String agentViewYn;
+
+  @Column(name = "PAYOUT_SETTINGS", columnDefinition = "JSON")
+  private String payoutSettings;
 }
