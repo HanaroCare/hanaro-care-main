@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { SimulationExpenseAccordion } from '@/app/asset/components/simulator/SimulationExpenseAccordion';
 import { SimulationIncomeCard } from '@/app/asset/components/simulator/SimulationIncomeCard';
 import { SimulationTrendChart } from '@/app/asset/components/simulator/SimulationTrendChart';
-import Header from '@/components/Header';
+import Header from '@/components/navigation/Header';
 
 const MOCK_INCOME_DATA = [
   { label: '국민 연금', amount: '80만원' },

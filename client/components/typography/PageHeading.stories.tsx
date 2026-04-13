@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import PageHeading from './PageHeading';
 
 const meta: Meta<typeof PageHeading> = {
-  title: 'Components/Typography/PageHeading',
+  title: 'Typography/PageHeading',
   component: PageHeading,
   parameters: {
     layout: 'centered',

@@ -1,6 +1,6 @@
 'use client';
 
-import { NavigationBar } from '@/components/NavigationBar';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { AssetDashboard } from './asset/components/AssetDashboard';
 import { MedicalBudgetCard } from './asset/components/MedicalBudgetCard';
 import { BannerCard } from './asset/components/notification/BannerCard';

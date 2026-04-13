@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import InfoBox from './InfoBox';
 
 const meta: Meta<typeof InfoBox> = {
-  title: 'Components/Common/InfoBox',
+  title: 'Modules/InfoBox',
   component: InfoBox,
   tags: ['autodocs'],
   argTypes: {

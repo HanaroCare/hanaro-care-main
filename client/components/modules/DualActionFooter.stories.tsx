@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import DualActionFooter from './DualActionFooter';
 
 const meta: Meta<typeof DualActionFooter> = {
-  title: 'Components/Common/DualActionFooter',
+  title: 'Modules/DualActionFooter',
   component: DualActionFooter,
   tags: ['autodocs'],
   argTypes: {

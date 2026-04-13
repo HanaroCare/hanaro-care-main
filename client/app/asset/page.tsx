@@ -2,10 +2,10 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { AlertBanner } from '@/components/banner/AlertBanner';
-import PrimaryButton from '@/components/button/PrimaryButton';
-import { NavigationBar } from '@/components/NavigationBar';
-import { TabNavigation } from '@/components/TabNavigation';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { AlertBanner } from '@/components/modules/AlertBanner';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 import { AssetChart } from './components/AssetChart';
 import { AssetDetailCard } from './components/AssetDetailCard';
 import { AssetListCard } from './components/AssetListCard';

@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
+import PrimaryButton from '../baseelements/PrimaryButton';
 import BottomSheet from './BottomSheet';
-import PrimaryButton from './button/PrimaryButton';
 
 const meta: Meta<typeof BottomSheet> = {
-  title: 'Components/Common/BottomSheet',
+  title: 'Modules/BottomSheet',
   component: BottomSheet,
   tags: ['autodocs'],
   render: (args) => {

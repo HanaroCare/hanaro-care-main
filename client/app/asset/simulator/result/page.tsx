@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import PrimaryButton from '@/components/button/PrimaryButton';
-import Header from '@/components/Header';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import Header from '@/components/navigation/Header';
 import { SimulationDetailCard } from '../../components/simulator/SimulationDetailCard';
 import { SimulationResultChart } from '../../components/simulator/SimulationResultChart';
 

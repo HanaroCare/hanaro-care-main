@@ -3,7 +3,7 @@ import { BellRing, CheckCircle2 } from 'lucide-react';
 import { AlertBanner } from './AlertBanner';
 
 const meta = {
-  title: 'Common/AlertBanner',
+  title: 'Modules/AlertBanner',
   component: AlertBanner,
   tags: ['autodocs'],
   parameters: {

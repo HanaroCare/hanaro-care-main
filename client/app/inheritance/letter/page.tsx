@@ -1,22 +1,21 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import Header from "../components/letter/Header";
-import PrimaryButton from "@/components/button/PrimaryButton";
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 const MockUser = {
-  name: "권하나",
+  name: '권하나',
 };
 // TODO: 공컴
 export default function InheritanceLetter() {
   const router = useRouter();
 
   return (
-    <div className="bg-white flex flex-col items-center font-pretendard">
-      <div className="w-full max-w-107.5 flex flex-col bg-white">
-        <main className="flex flex-col items-center flex-1 px-5.5">
-          <h2 className="mt-23 text-[#1A212D] text-center font-semibold leading-7.5 max-w-66.75 text-5">
+    <div className="flex flex-col items-center bg-white font-pretendard">
+      <div className="flex w-full max-w-107.5 flex-col bg-white">
+        <main className="flex flex-1 flex-col items-center px-5.5">
+          <h2 className="mt-23 max-w-66.75 text-center font-semibold text-5 text-[#1A212D] leading-7.5">
             {MockUser.name} 손님의 소중한 사람들에게
             <br />
             상속편지를 보내볼까요?
@@ -35,8 +34,8 @@ export default function InheritanceLetter() {
         </main>
       </div>
       <PrimaryButton
-        onClick={() => router.push("/inheritance/letter/recipients")}
-        label={"편지 작성하기"}
+        onClick={() => router.push('/inheritance/letter/recipients')}
+        label={'편지 작성하기'}
       />
     </div>
   );

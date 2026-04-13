@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import PageDescription from './PageDescription';
 
 const meta: Meta<typeof PageDescription> = {
-  title: 'Components/Typography/PageDescription',
+  title: 'Typography/PageDescription',
   component: PageDescription,
   parameters: {
     layout: 'centered',
