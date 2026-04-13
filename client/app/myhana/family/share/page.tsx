@@ -2,11 +2,11 @@
 'use client';
 
 import { useState } from 'react';
-import ProgressHeader from './_components/ProgressHeader';
-import Step1Auth from './_components/Step1Auth';
-import Step2Terms from './_components/Step2Terms';
-import Step3List from './_components/Step3List';
-import Step4Done from './_components/Step4Done';
+import ProgressHeader from './components/ProgressHeader';
+import Step1Auth from './components/Step1Auth';
+import Step2Terms from './components/Step2Terms';
+import Step3List from './components/Step3List';
+import Step4Done from './components/Step4Done';
 
 export default function InsuranceShareFlow() {
   const [step, setStep] = useState(1);

@@ -18,7 +18,14 @@ export default function Step4Done() {
       let sharedIds: number[] = [];
       
       if (sharedIdsStr) {
-        sharedIds = JSON.parse(sharedIdsStr);
+        try {
+          const parsed = JSON.parse(sharedIdsStr);
+          if (Array.isArray(parsed)) {
+            sharedIds = parsed;
+          }
+        } catch (e) {
+          console.warn('Failed to parse shared_family_ids from localStorage in Step4Done:', e);
+        }
       }
       
       if (!sharedIds.includes(pendingId)) {

@@ -20,14 +20,15 @@ interface FamilyMember {
   isSharing: boolean;
   sharingInsuranceCount?: number;
   circleColor: string; // Tailwind bg class
+  textColor: string;   // Tailwind text class
 }
 
 // 모든 가족 초기값 '공유 안함'으로 설정
 const initialFamilyMembers: FamilyMember[] = [
-  { id: 1, lastName: '권', name: '권하나', relationship: '본인', phone: '010-1234-5678', isMe: true, isSharing: false, circleColor: 'bg-[#9FEF9B]' },
-  { id: 2, lastName: '김', name: '김영웅', relationship: '배우자', phone: '010-5678-1234', isSharing: false, circleColor: 'bg-[#9DD3EF]' },
-  { id: 3, lastName: '김', name: '김유진', relationship: '자녀', phone: '010-9876-5432', isSharing: false, circleColor: 'bg-[#F9EF9B]' },
-  { id: 4, lastName: '김', name: '김생명', relationship: '자녀', phone: '010-2468-1357', isSharing: false, circleColor: 'bg-[#EFDEC2]' },
+  { id: 1, lastName: '권', name: '권하나', relationship: '본인', phone: '010-1234-5678', isMe: true, isSharing: false, circleColor: 'bg-hana-green-100', textColor: 'text-hana-green-700' },
+  { id: 2, lastName: '김', name: '김영웅', relationship: '배우자', phone: '010-5678-1234', isSharing: false, circleColor: 'bg-hana-green-100', textColor: 'text-hana-green-700' },
+  { id: 3, lastName: '김', name: '김유진', relationship: '자녀', phone: '010-9876-5432', isSharing: false, circleColor: 'bg-hana-yellow-100', textColor: 'text-hana-yellow-700' },
+  { id: 4, lastName: '김', name: '김생명', relationship: '자녀', phone: '010-2468-1357', isSharing: false, circleColor: 'bg-hana-yellow-100', textColor: 'text-hana-yellow-700' },
 ];
 
 const statsData = {
@@ -56,14 +57,16 @@ const Stats = ({ sharingCount }: { sharingCount: number }) => (
 
 const FamilyCard = ({ 
   member, 
-  onToggleSharing 
+  onToggleSharing,
+  onDelete
 }: { 
   member: FamilyMember, 
-  onToggleSharing: (id: number, currentStatus: boolean) => void 
+  onToggleSharing: (id: number, currentStatus: boolean) => void,
+  onDelete: (id: number) => void
 }) => {
   return (
     <div className="bg-white rounded-2xl p-5 flex items-center gap-4 shadow-sm border border-gray-100 relative group active:scale-[0.99] transition-all mb-3">
-      <div className={`w-14 h-14 ${member.circleColor} rounded-full flex items-center justify-center text-hana-ez-600 text-2xl font-bold`}>
+      <div className={`w-14 h-14 ${member.circleColor} rounded-full flex items-center justify-center ${member.textColor} text-2xl font-bold`}>
         {member.lastName}
       </div>
       
@@ -82,6 +85,7 @@ const FamilyCard = ({
           <div className="flex items-center gap-2">
             <button 
               type="button" 
+              onClick={() => onDelete(member.id)}
               className="w-7 h-7 rounded-full bg-white text-[#FF6363] border border-[#FF6363] text-xs font-bold flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
               aria-label="가족 삭제"
             >
@@ -113,7 +117,7 @@ const BottomSheetMemberCard = ({ member, isSelected, onSelect }: { member: any, 
     className="flex items-center gap-4 py-4 border-b border-gray-100 group cursor-pointer" 
     onClick={onSelect}
   >
-    <div className={`w-14 h-14 ${member.circleColor} rounded-full flex items-center justify-center text-hana-ez-600 text-2xl font-bold`}>
+    <div className={`w-14 h-14 ${member.circleColor} rounded-full flex items-center justify-center ${member.textColor} text-2xl font-bold`}>
       {member.lastName}
     </div>
     
@@ -176,6 +180,70 @@ const ConfirmPopup = ({
   );
 };
 
+// 바텀 시트 컴포넌트 (추출됨)
+const BottomSheet = ({ 
+  isOpen, 
+  onClose, 
+  nonSharingMembers,
+  onRequestShare
+}: { 
+  isOpen: boolean, 
+  onClose: () => void,
+  nonSharingMembers: FamilyMember[],
+  onRequestShare: (id: number) => void
+}) => {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  // 시트가 닫힐 때 선택 상태 초기화 (필요 시)
+  useEffect(() => {
+    if (!isOpen) setSelectedId(null);
+  }, [isOpen]);
+
+  return (
+    <div className={`fixed inset-0 z-50 transition-all duration-300 ease-out max-w-md mx-auto ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      
+      <div className={`absolute left-0 right-0 bottom-0 bg-white rounded-t-3xl transition-transform duration-300 ease-out shadow-lg z-10 pt-4 pb-8 px-6 ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
+        <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6"></div>
+        
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-bold text-[#1A1A1A]">공유할 가족 선택</h2>
+          <button type="button" onClick={onClose} className="p-1">
+            <X className="w-7 h-7 text-gray-400" />
+          </button>
+        </div>
+        
+        <div className="max-h-[50vh] overflow-y-auto no-scrollbar mb-8">
+          {nonSharingMembers.length > 0 ? (
+            nonSharingMembers.map((member) => (
+              <BottomSheetMemberCard 
+                key={member.id} 
+                member={member} 
+                isSelected={selectedId === member.id}
+                onSelect={() => setSelectedId(member.id)}
+              />
+            ))
+          ) : (
+            <div className="py-20 text-center">
+              <p className="text-gray-400 text-sm">공유 가능한 가족이 없습니다.</p>
+            </div>
+          )}
+        </div>
+
+        <PrimaryButton 
+          label="공유 요청하기" 
+          onClick={() => {
+            if (selectedId) {
+              onRequestShare(selectedId);
+            }
+          }} 
+          disabled={!selectedId}
+        />
+      </div>
+    </div>
+  );
+};
+
 // --- 메인 페이지 컴포넌트 ---
 
 export default function FamilyManagementPage() {
@@ -189,10 +257,16 @@ export default function FamilyManagementPage() {
   useEffect(() => {
     const sharedIdsStr = localStorage.getItem('shared_family_ids');
     if (sharedIdsStr) {
-      const sharedIds = JSON.parse(sharedIdsStr) as number[];
-      setMembers(prev => prev.map(m => 
-        sharedIds.includes(m.id) ? { ...m, isSharing: true, sharingInsuranceCount: 3 } : m
-      ));
+      try {
+        const sharedIds = JSON.parse(sharedIdsStr) as number[];
+        if (Array.isArray(sharedIds)) {
+          setMembers(prev => prev.map(m => 
+            sharedIds.includes(m.id) ? { ...m, isSharing: true, sharingInsuranceCount: 3 } : m
+          ));
+        }
+      } catch (e) {
+        console.warn('Failed to parse shared_family_ids from localStorage:', e);
+      }
     }
   }, []);
 
@@ -208,6 +282,29 @@ export default function FamilyManagementPage() {
     }
   };
 
+  const handleDeleteFamily = (id: number) => {
+    const member = members.find(m => m.id === id);
+    if (!member) return;
+    
+    if (window.confirm(`${member.name}님을 가족 목록에서 삭제하시겠습니까?`)) {
+      setMembers(prev => prev.filter(m => m.id !== id));
+      
+      // 공유 중이었다면 localStorage에서도 제거
+      const sharedIdsStr = localStorage.getItem('shared_family_ids');
+      if (sharedIdsStr) {
+        try {
+          const sharedIds = JSON.parse(sharedIdsStr) as number[];
+          if (Array.isArray(sharedIds)) {
+            const newIds = sharedIds.filter(sharedId => sharedId !== id);
+            localStorage.setItem('shared_family_ids', JSON.stringify(newIds));
+          }
+        } catch (e) {
+          console.warn('Failed to parse shared_family_ids for deletion:', e);
+        }
+      }
+    }
+  };
+
   const confirmToggleOff = () => {
     if (pendingToggleId) {
       setMembers(prev => prev.map(m => m.id === pendingToggleId ? { ...m, isSharing: false } : m));
@@ -215,9 +312,15 @@ export default function FamilyManagementPage() {
       // localStorage 배열에서 제거
       const sharedIdsStr = localStorage.getItem('shared_family_ids');
       if (sharedIdsStr) {
-        const sharedIds = JSON.parse(sharedIdsStr) as number[];
-        const newIds = sharedIds.filter(id => id !== pendingToggleId);
-        localStorage.setItem('shared_family_ids', JSON.stringify(newIds));
+        try {
+          const sharedIds = JSON.parse(sharedIdsStr) as number[];
+          if (Array.isArray(sharedIds)) {
+            const newIds = sharedIds.filter(id => id !== pendingToggleId);
+            localStorage.setItem('shared_family_ids', JSON.stringify(newIds));
+          }
+        } catch (e) {
+          console.warn('Failed to parse shared_family_ids for toggle off:', e);
+        }
       }
       
       setIsConfirmOpen(false);
@@ -225,55 +328,10 @@ export default function FamilyManagementPage() {
     }
   };
 
-  // 바텀 시트 컴포넌트
-  const BottomSheet = ({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
-    const [selectedId, setSelectedId] = useState<number | null>(null);
-
-    return (
-      <div className={`fixed inset-0 z-50 transition-all duration-300 ease-out max-w-md mx-auto ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-        
-        <div className={`absolute left-0 right-0 bottom-0 bg-white rounded-t-3xl transition-transform duration-300 ease-out shadow-lg z-10 pt-4 pb-8 px-6 ${isOpen ? 'translate-y-0' : 'translate-y-full'}`}>
-          <div className="w-12 h-1 bg-gray-200 rounded-full mx-auto mb-6"></div>
-          
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-[#1A1A1A]">공유할 가족 선택</h2>
-            <button type="button" onClick={onClose} className="p-1">
-              <X className="w-7 h-7 text-gray-400" />
-            </button>
-          </div>
-          
-          <div className="max-h-[50vh] overflow-y-auto no-scrollbar mb-8">
-            {nonSharingMembers.length > 0 ? (
-              nonSharingMembers.map((member) => (
-                <BottomSheetMemberCard 
-                  key={member.id} 
-                  member={member} 
-                  isSelected={selectedId === member.id}
-                  onSelect={() => setSelectedId(member.id)}
-                />
-              ))
-            ) : (
-              <div className="py-20 text-center">
-                <p className="text-gray-400 text-sm">공유 가능한 가족이 없습니다.</p>
-              </div>
-            )}
-          </div>
-
-          <PrimaryButton 
-            label="공유 요청하기" 
-            onClick={() => {
-              if (selectedId) {
-                localStorage.setItem('pending_share_id', String(selectedId));
-                router.push('/myhana/family/share' as Route);
-                onClose();
-              }
-            }} 
-            disabled={!selectedId}
-          />
-        </div>
-      </div>
-    );
+  const handleRequestShare = (selectedId: number) => {
+    localStorage.setItem('pending_share_id', String(selectedId));
+    router.push('/myhana/family/share' as Route);
+    setIsBottomSheetOpen(false);
   };
 
   return (
@@ -299,6 +357,7 @@ export default function FamilyManagementPage() {
                   key={member.id} 
                   member={member} 
                   onToggleSharing={handleToggleSharing}
+                  onDelete={handleDeleteFamily}
                 />
               ))}
             </div>
@@ -319,7 +378,12 @@ export default function FamilyManagementPage() {
           />
         </div>
 
-        <BottomSheet isOpen={isBottomSheetOpen} onClose={() => setIsBottomSheetOpen(false)} />
+        <BottomSheet 
+          isOpen={isBottomSheetOpen} 
+          onClose={() => setIsBottomSheetOpen(false)} 
+          nonSharingMembers={nonSharingMembers}
+          onRequestShare={handleRequestShare}
+        />
         
         <ConfirmPopup 
           isOpen={isConfirmOpen} 

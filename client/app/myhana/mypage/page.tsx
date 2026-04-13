@@ -1,11 +1,25 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowLeft, ChevronDown, ChevronRight, Heart, X } from 'lucide-react';
+import { 
+  ChevronDown, 
+  ChevronRight, 
+  Heart, 
+  Users, 
+  Shield, 
+  UserPlus, 
+  Dna, 
+  FileHeart, 
+  Handshake, 
+  Gift, 
+  Mail,
+  LucideIcon 
+} from 'lucide-react';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { NavigationBar } from '@/components/NavigationBar';
+import SubHeader from '@/components/SubHeader';
 
 /**
  * My하나 마이페이지
@@ -23,23 +37,11 @@ export default function MyHanaPage() {
     <div className="flex min-h-screen flex-col bg-white">
       <div className="flex h-full flex-col">
         {/* --- 상단 헤더 --- */}
-        <header className="sticky top-0 z-10 flex items-center justify-between border-gray-50 border-b bg-white px-6 py-4">
-          <button
-            type="button"
-            className="rounded-full transition-colors hover:bg-gray-50"
-          >
-            <ArrowLeft className="h-6 w-6 text-hana-black-900" />
-          </button>
-          <h1 className="font-semibold text-base text-hana-black-900 tracking-tight">
-            마이페이지
-          </h1>
-          <button
-            type="button"
-            className="rounded-full transition-colors hover:bg-gray-50"
-          >
-            <X className="h-6 w-6 text-hana-black-900" />
-          </button>
-        </header>
+        <SubHeader 
+          title="마이페이지" 
+          onBack={() => router.back()} 
+          onClose={() => router.push('/' as Route)} 
+        />
 
         <main className="no-scrollbar flex-1 pb-28">
           {/* --- 프로필 섹션 --- */}
@@ -87,16 +89,18 @@ export default function MyHanaPage() {
           {/* --- 메뉴 리스트 영역 --- */}
           <section className="space-y-1.5 px-6">
             <MenuItem 
-              icon="👥" 
+              Icon={Users} 
               title="가족 관리" 
               onClick={() => router.push('/myhana/family' as Route)} 
             />
-            <MenuItem icon="🛡️" title="가족 보험 관리" />
+            {/* TODO: 가족 보험 관리 기능 구현 시 연결 필요 */}
+            <MenuItem Icon={Shield} title="가족 보험 관리" disabled />
 
             {userRole === 'parent' ? (
               /* --- 부모 전용 메뉴 --- */
               <>
-                <MenuItem icon="📄" title="후견인 등록" />
+                {/* TODO: 후견인 등록 기능 구현 시 연결 필요 */}
+                <MenuItem Icon={UserPlus} title="후견인 등록" disabled />
 
                 {/* 내 미래 설계하기 (아코디언 슬라이드) */}
                 <div className="py-1">
@@ -107,9 +111,7 @@ export default function MyHanaPage() {
                     }
                     className="group flex w-full items-center rounded-2xl p-4 transition-all hover:bg-gray-50"
                   >
-                    <span className="mr-4 text-xl transition-transform group-hover:scale-110">
-                      🧬
-                    </span>
+                    <Dna className="mr-4 h-6 w-6 text-hana-ez-600 transition-transform group-hover:scale-110" />
                     <span className="flex-1 text-left font-semibold text-hana-black-800 tracking-tight">
                       내 미래 설계하기
                     </span>
@@ -133,17 +135,17 @@ export default function MyHanaPage() {
                       >
                         <div className="space-y-5 px-6 py-5">
                           <SubMenuItem
-                            icon="❤️"
+                            Icon={FileHeart}
                             title="연명의료 결정"
                             desc="사전연명의료의향서를 작성하세요"
                           />
                           <SubMenuItem
-                            icon="🤝"
+                            Icon={Handshake}
                             title="새생명 나눔"
                             desc="생명을 나누세요"
                           />
                           <SubMenuItem
-                            icon="🎁"
+                            Icon={Gift}
                             title="유산기부"
                             desc="당신의 이름이 희망이 됩니다"
                           />
@@ -176,7 +178,10 @@ export default function MyHanaPage() {
               </>
             ) : (
               /* --- 자녀 전용 메뉴 --- */
-              <MenuItem icon="✉️" title="부모님 편지 보기" />
+              <>
+                {/* TODO: 부모님 편지 보기 기능 구현 시 연결 필요 */}
+                <MenuItem Icon={Mail} title="부모님 편지 보기" disabled />
+              </>
             )}
           </section>
         </main>
@@ -190,30 +195,45 @@ export default function MyHanaPage() {
 
 // --- 하위 컴포넌트 ---
 
-function MenuItem({ icon, title, onClick }: { icon: string; title: string; onClick?: () => void }) {
+function MenuItem({ 
+  Icon, 
+  title, 
+  onClick,
+  disabled 
+}: { 
+  Icon: LucideIcon; 
+  title: string; 
+  onClick?: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group flex w-full items-center rounded-2xl p-4 transition-all hover:bg-gray-50 active:bg-gray-100"
+      disabled={disabled}
+      className={`group flex w-full items-center rounded-2xl p-4 transition-all ${
+        disabled 
+          ? 'opacity-50 cursor-not-allowed bg-gray-50/50' 
+          : 'hover:bg-gray-50 active:bg-gray-100'
+      }`}
     >
-      <span className="mr-4 text-xl transition-transform group-hover:scale-110">
-        {icon}
-      </span>
+      <Icon className={`mr-4 h-6 w-6 ${disabled ? 'text-gray-400' : 'text-hana-ez-600'} transition-transform ${!disabled && 'group-hover:scale-110'}`} />
       <span className="flex-1 text-left font-semibold text-hana-black-800 tracking-tight">
         {title}
       </span>
-      <ChevronRight className="h-5 w-5 text-hana-black-400 transition-transform group-hover:translate-x-1" />
+      {!disabled && (
+        <ChevronRight className="h-5 w-5 text-hana-black-400 transition-transform group-hover:translate-x-1" />
+      )}
     </button>
   );
 }
 
 function SubMenuItem({
-  icon,
+  Icon,
   title,
   desc,
 }: {
-  icon: string;
+  Icon: LucideIcon;
   title: string;
   desc: string;
 }) {
@@ -221,7 +241,7 @@ function SubMenuItem({
     <div className="group/sub flex cursor-pointer items-center justify-between">
       <div className="flex items-center space-x-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white shadow-sm">
-          <span className="text-lg">{icon}</span>
+          <Icon className="h-5 w-5 text-hana-ez-600" />
         </div>
         <div>
           <p className="font-bold text-[15px] text-hana-black-900 leading-tight tracking-tight">
