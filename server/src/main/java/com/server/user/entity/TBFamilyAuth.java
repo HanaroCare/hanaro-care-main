@@ -1,5 +1,6 @@
 package com.server.user.entity;
 
+import com.server.card.entity.TBCard;
 import com.server.common.entity.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
