@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
-import InfoBox from "@/components/modules/InfoBox";
-import PrimaryButton from "@/components/baseelements/PrimaryButton";
-import TrustProgressBar from "../../components/trust/TrustProgressBar";
-import TrustStepLayout from "../../components/trust/TrustStepLayout";
+import { useRouter } from 'next/navigation';
+import { useId, useState } from 'react';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import ProgressBar from '@/components/baseelements/ProgressBar';
+import InfoBox from '@/components/modules/InfoBox';
+import TrustStepLayout from '../../components/trust/TrustStepLayout';
 
 export default function ChangeAgentPage() {
   const router = useRouter();
