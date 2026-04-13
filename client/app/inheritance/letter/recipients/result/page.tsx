@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { use, useRef } from 'react';
 import LetterCard from '@/app/inheritance/components/letter/LetterCard';
 import LetterSummary from '@/app/inheritance/components/letter/LetterSummary';
-import DualActionFooter from '@/components/DualActionFooter';
+import DualActionFooter from '@/components/button/DualActionFooter';
 
 // TODO: 목데이터 정리 및 공컴
 // TODO: s3에서 음원 불러오기
