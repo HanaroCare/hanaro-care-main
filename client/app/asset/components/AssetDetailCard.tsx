@@ -1,10 +1,9 @@
 'use client';
-
 import { motion } from 'framer-motion';
 import { Car, ChevronRight, Coins, Home, Shield } from 'lucide-react';
+import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import type { Route } from 'next';
 
 type InsuranceStatus = 'needs_check' | 'normal';
 type IconType = 'hana-bank' | 'nation-pension' | 'default';
@@ -50,7 +49,7 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
 
   const handleCardClick = () => {
     if (props.href) {
-      router.push(props.href);
+      router.push(props.href as Route);
     }
   };
 

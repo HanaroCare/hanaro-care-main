@@ -14,11 +14,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import DualActionFooter from '@/components/DualActionFooter';
+import DualActionFooter from '@/components/modules/DualActionFooter';
 import InfoBox from '@/components/modules/InfoBox';
 import Header from '@/components/navigation/Header';
-import TrustStepLayout from '../../components/trust/TrustStepLayout';
 
 type PensionType = 'fixed' | 'boosted' | 'growing';
 
