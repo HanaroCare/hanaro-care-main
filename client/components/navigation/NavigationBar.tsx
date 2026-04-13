@@ -18,8 +18,8 @@ export function NavigationBar() {
 
   return (
     <>
-      {/* 1. 실제 콘텐츠를 위로 밀어올리는 투명 공간 (여백 역할) */}
-      <div className="h-16.25 w-full pb-6" aria-hidden="true" />
+      {/* <div className="h-16.25 w-full" aria-hidden="true" /> */}
+
       <nav className="-translate-x-1/2 fixed bottom-0 left-1/2 z-50 flex h-16.25 w-full max-w-93.75 items-center justify-around bg-white px-2 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
         {NAV_ITEMS.map(({ id, label, Icon, href }) => {
           const isActive =

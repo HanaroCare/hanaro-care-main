@@ -67,7 +67,6 @@ export default function Home() {
       <LivingExpenseCard />
       <InheritanceStepCard />
 
-      <div className="h-20 w-full" aria-hidden="true" />
       <NavigationBar />
     </main>
   );

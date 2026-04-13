@@ -45,18 +45,28 @@ export function InheritanceStepCard() {
           <div
             key={step.id}
             className={`flex items-center gap-3 rounded-[15px] px-4 py-2.5 ${
-              step.isActive ? 'bg-[#008585]/22' : 'bg-white'
+              step.isActive ? 'bg-hana-green-700/10' : 'bg-white'
             }`}
             style={{
               border: step.isActive ? 'none' : '1px solid #F2F3F5',
             }}
           >
-            <div className="flex size-5 items-center justify-center rounded-full bg-white shadow-sm">
+            <div
+              className={`flex size-5 items-center justify-center rounded-full shadow-sm ${
+                !step.isActive
+                  ? 'bg-hana-green-700'
+                  : 'border border-[#F2F3F5] bg-white'
+              }`}
+            >
               {!step.isActive && (
-                <Check size={12} className="text-[#008585]" strokeWidth={3} />
+                <Check size={12} className="text-white" strokeWidth={3} />
               )}
             </div>
-            <span className="font-medium text-[#4B5563] text-[12px]">
+            <span
+              className={`font-medium text-[12px] ${
+                step.isActive ? 'text-hana-green-700' : 'text-[#4B5563]'
+              }`}
+            >
               {step.label}
             </span>
           </div>

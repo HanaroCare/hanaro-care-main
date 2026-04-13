@@ -1,8 +1,8 @@
 'use client';
 
+import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import type { Route } from 'next';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
@@ -228,7 +228,7 @@ function AssetPageContent() {
       <main className="flex flex-col items-center gap-6 px-6 pb-10">
         <TabContent activeTab={activeTab} />
 
-        <div className="mt-4 mb-20 w-full">
+        <div className="mt-4 w-full">
           <PrimaryButton
             label={currentSummary.buttonLabel}
             onClick={handlePrimaryAction}
