@@ -1,40 +1,46 @@
-"use client";
+'use client';
 
-import PrimaryButton from "../../../../components/PrimaryButton";
-import { motion } from "framer-motion";
-import { Wallet } from "lucide-react";
+import { motion } from 'framer-motion';
+import { Wallet } from 'lucide-react';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 /**
  * 정보 불러오기 안내 (전체 연결 모드 전용)
  */
-export default function IntroStep({ onConfirm, onCustomMode }: { onConfirm: () => void; onCustomMode: () => void }) {
+export default function IntroStep({
+  onConfirm,
+  onCustomMode,
+}: {
+  onConfirm: () => void;
+  onCustomMode: () => void;
+}) {
   return (
-    <div className="flex flex-1 flex-col px-[1.5rem] pt-[4rem] pb-[3rem] items-center">
+    <div className="flex flex-1 flex-col items-center px-[1.5rem] pt-[4rem] pb-[3rem]">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", damping: 20 }}
+        transition={{ type: 'spring', damping: 20 }}
         className="mb-[2rem] flex h-[6rem] w-[6rem] items-center justify-center rounded-full bg-hana-ez-50 text-primary"
       >
         <Wallet size={48} />
       </motion.div>
 
-      <div className="text-center mb-[4rem]">
-        <h2 className="text-[1.5rem] font-bold leading-tight text-foreground tracking-tight">
+      <div className="mb-[4rem] text-center">
+        <h2 className="font-bold text-[1.5rem] text-foreground leading-tight tracking-tight">
           권하나님이 쓰고 있는
           <br />
           자산 정보를 불러올게요
         </h2>
-        <p className="mt-[1rem] text-[1rem] text-muted-foreground font-medium">
+        <p className="mt-[1rem] font-medium text-[1rem] text-muted-foreground">
           은행, 카드, 증권사 정보를 한눈에 관리하세요.
         </p>
       </div>
 
-      <div className="mt-auto w-full flex flex-col items-center gap-[1.25rem]">
+      <div className="mt-auto flex w-full flex-col items-center gap-[1.25rem]">
         <button
           type="button"
           onClick={onCustomMode}
-          className="text-[0.875rem] font-medium text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
+          className="font-medium text-[0.875rem] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
         >
           원하는 것만 선택하기
         </button>

@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
-import LoginHeader from "../../../../components/LoginHeader";
-import AssetTypeSelector from "./components/AssetTypeSelector";
-import HouseSection from "./components/HouseSection";
-import CarSection from "./components/CarSection";
-import GoldSection from "./components/GoldSection";
+import { AnimatePresence, motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import Header from '@/components/navigation/Header';
+import AssetTypeSelector from './components/AssetTypeSelector';
+import CarSection from './components/CarSection';
+import GoldSection from './components/GoldSection';
+import HouseSection from './components/HouseSection';
 
-export type AssetType = "house" | "car" | "gold";
-export type Step = "form" | "result";
+export type AssetType = 'house' | 'car' | 'gold';
+export type Step = 'form' | 'result';
 
 /**
  * 실물 자산(부동산, 자동차, 금) 조회 및 등록 메인 페이지
  */
 export default function RealAssetPage() {
   const router = useRouter();
-  const [assetType, setAssetType] = useState<AssetType>("house");
-  const [step, setStep] = useState<Step>("form");
+  const [assetType, setAssetType] = useState<AssetType>('house');
+  const [step, setStep] = useState<Step>('form');
 
   const getTitle = () => {
-    const titles = { house: "부동산", car: "자동차", gold: "금" };
+    const titles = { house: '부동산', car: '자동차', gold: '금' };
     return `${titles[assetType]} 조회`;
   };
 
   const handleBack = () => {
-    if (step === "result") {
-      setStep("form");
+    if (step === 'result') {
+      setStep('form');
     } else {
       router.back();
     }
@@ -36,23 +36,23 @@ export default function RealAssetPage() {
   return (
     <div className="app-shell bg-background">
       <div className="app-layout relative overflow-hidden">
-        <LoginHeader 
-          title={getTitle()} 
+        <Header
+          title={getTitle()}
           onBack={handleBack}
-          onClose={() => router.push("/asset")}
+          onClose={() => router.push('/asset')}
         />
 
         <main className="app-main flex flex-1 flex-col">
-          {step === "form" && (
+          {step === 'form' && (
             <div className="px-[1.5rem] pt-[1.5rem]">
-              <AssetTypeSelector 
-                currentType={assetType} 
-                onSelect={(type) => setAssetType(type)} 
+              <AssetTypeSelector
+                currentType={assetType}
+                onSelect={(type) => setAssetType(type)}
               />
             </div>
           )}
 
-          <div className="flex-1 flex flex-col relative overflow-hidden">
+          <div className="relative flex flex-1 flex-col overflow-hidden">
             <AnimatePresence mode="wait">
               <motion.div
                 key={`${assetType}-${step}`}
@@ -60,16 +60,25 @@ export default function RealAssetPage() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.2 }}
-                className="flex-1 flex flex-col h-full"
+                className="flex h-full flex-1 flex-col"
               >
-                {assetType === "house" && (
-                  <HouseSection step={step} onComplete={() => setStep("result")} />
+                {assetType === 'house' && (
+                  <HouseSection
+                    step={step}
+                    onComplete={() => setStep('result')}
+                  />
                 )}
-                {assetType === "car" && (
-                  <CarSection step={step} onComplete={() => setStep("result")} />
+                {assetType === 'car' && (
+                  <CarSection
+                    step={step}
+                    onComplete={() => setStep('result')}
+                  />
                 )}
-                {assetType === "gold" && (
-                  <GoldSection step={step} onComplete={() => setStep("result")} />
+                {assetType === 'gold' && (
+                  <GoldSection
+                    step={step}
+                    onComplete={() => setStep('result')}
+                  />
                 )}
               </motion.div>
             </AnimatePresence>
