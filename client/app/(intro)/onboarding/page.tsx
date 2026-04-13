@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import ProgressBar from "@/components/ProgressBar";
 import OnboardingBottomSheet from "./components/OnboardingBottomSheet";
-import OnboardingHeader from "./components/OnboardingHeader";
 import OnboardingSlide from "./components/OnboardingSlide";
-import PrimaryButton from "@/components/PrimaryButton";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
+import Header from "@/components/navigation/Header";
 
 /**
  * 온보딩 페이지
@@ -81,7 +81,7 @@ export default function OnboardingPage() {
 	return (
 		<div className="app-shell relative overflow-hidden bg-background">
 			<div className="app-layout">
-				<OnboardingHeader onBack={handleBack} />
+				<Header title="서비스 소개" />
 
 				<ProgressBar currentStep={currentSlide + 1} totalSteps={slides.length} />
 
