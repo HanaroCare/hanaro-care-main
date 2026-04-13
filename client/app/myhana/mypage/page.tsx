@@ -18,8 +18,8 @@ import {
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
-import { NavigationBar } from '@/components/NavigationBar';
-import SubHeader from '@/components/SubHeader';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
+import Header from '@/components/navigation/Header';
 
 /**
  * My하나 마이페이지
@@ -37,10 +37,11 @@ export default function MyHanaPage() {
     <div className="flex min-h-screen flex-col bg-white">
       <div className="flex h-full flex-col">
         {/* --- 상단 헤더 --- */}
-        <SubHeader 
+        <Header 
           title="마이페이지" 
-          backUrl={'/' as Route} 
-          closeUrl={'/' as Route} 
+          onBack={() => router.push('/' as Route)} 
+          showCloseButton={true}
+          onClose={() => router.push('/' as Route)} 
         />
 
         <main className="no-scrollbar flex-1 pb-28">

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { Route } from 'next';
-import SubHeader from '@/components/SubHeader';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/navigation/Header';
 import TrustProgressBar from '@/app/asset/components/trust/TrustProgressBar';
 
 interface ProgressHeaderProps {
@@ -10,12 +11,15 @@ interface ProgressHeaderProps {
 }
 
 export default function ProgressHeader({ step }: ProgressHeaderProps) {
+  const router = useRouter();
+  
   return (
     <div className="flex flex-col w-full bg-white z-20 shrink-0">
-      <SubHeader 
+      <Header 
         title="보험 내역 공유" 
-        backUrl={'/myhana/family' as Route} 
-        closeUrl={'/myhana/family' as Route} 
+        onBack={() => router.push('/myhana/family' as Route)} 
+        showCloseButton={true}
+        onClose={() => router.push('/myhana/family' as Route)} 
       />
       <div className="px-6 py-2">
         <TrustProgressBar step={step} total={4} />

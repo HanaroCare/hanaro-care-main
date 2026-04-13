@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { ShieldCheck, Info } from 'lucide-react';
 
 export default function Step3List({ onNext }: { onNext: (count: number) => void }) {

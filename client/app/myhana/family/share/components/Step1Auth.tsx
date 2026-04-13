@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 export default function Step1Auth({ onNext }: { onNext: () => void }) {
   const [selected, setSelected] = useState<string | null>(null);

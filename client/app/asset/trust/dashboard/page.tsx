@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
-import InfoBox from "@/components/InfoBox";
-import PrimaryButton from "@/components/PrimaryButton";
+import InfoBox from "@/components/modules/InfoBox";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 import { ActionPanelCard } from "../../components/trust/ActionPanelCard";
 import { AssetDetailCard } from "../../components/trust/AssetDetailCard";
 import { AssetSummaryCard } from "../../components/trust/AssetSummaryCard";

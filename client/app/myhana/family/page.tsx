@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import type { Route } from 'next';
 import { PlusCircle, Check, X } from 'lucide-react';
-import SubHeader from '@/components/SubHeader';
-import PrimaryButton from '@/components/PrimaryButton';
+import Header from '@/components/navigation/Header';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 // --- 임시 데이터 및 인터페이스 ---
 interface FamilyMember {
@@ -315,10 +315,11 @@ export default function FamilyManagementPage() {
   return (
     <div className="app-shell bg-[#F9F9F9]">
       <div className="app-layout">
-        <SubHeader 
+        <Header 
           title="가족 관리" 
-          backUrl={'/myhana/mypage' as Route} 
-          closeUrl={'/' as Route} 
+          onBack={() => router.push('/myhana/mypage' as Route)} 
+          showCloseButton={true}
+          onClose={() => router.push('/' as Route)} 
         />
 
         <main className="app-main px-6 pt-6 pb-24">

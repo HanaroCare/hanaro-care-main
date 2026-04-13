@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { Check } from 'lucide-react';
 
 export default function Step2Terms({ onNext }: { onNext: () => void }) {
