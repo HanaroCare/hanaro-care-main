@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import NavigationBar from "./components/NavigationBar";
 import TermsAgreement from "./components/TermsAgreement";
 import PrimaryButton from "@/components/PrimaryButton";
 import SignupFlowPage from "./SignupFlowPage";
@@ -38,7 +37,7 @@ export default function Page() {
 
     return (
         <div className="flex flex-col min-h-screen bg-white max-w-[23.4375rem] mx-auto shadow-sm overflow-hidden">
-            <NavigationBar title="서비스 가입" />
+            {/* <Header title="서비스 가입" /> */}
 
             <main className="flex-1 px-[1.25rem] pt-[2rem] pb-[8rem]">
                 <div className="mb-[2rem]">
