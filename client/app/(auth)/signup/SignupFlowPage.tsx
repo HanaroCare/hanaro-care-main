@@ -66,7 +66,7 @@ export default function SignupFlowPage() {
         title="가입이 완료되었어요!"
         description={`이제 하나케어의 특별한\n자산 관리 서비스를 시작해보세요.`}
         buttonText="시작하기"
-        onButtonClick={() => router.push("/")}
+        onButtonClick={() => router.push("/login")}
       />
     );
   }
