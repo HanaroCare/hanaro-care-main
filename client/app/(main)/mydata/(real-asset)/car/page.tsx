@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import FormInput from '@/components/baseelements/FormInput';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
 import DualActionFooter from '@/components/modules/DualActionFooter';
@@ -11,7 +12,8 @@ export default function CarPage() {
   const [carNumber, setCarNumber] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const isCarNumberValid = carNumber.length >= 7;
+  // 차량번호 유효성: 7~8자리 한글/숫자 혼합 (간단하게 길이로만 체크)
+  const isCarNumberValid = carNumber.length >= 7 && carNumber.length <= 8;
 
   if (isSubmitted) {
     return (
@@ -20,7 +22,6 @@ export default function CarPage() {
           <div className="mb-10">
             <ProgressBar step={5} total={6} />
           </div>
-
           <div className="mb-8">
             <PageHeading>
               <span className="text-hana-teal-500">차량 정보</span>를{'\n'}
@@ -37,7 +38,6 @@ export default function CarPage() {
                 className="object-contain"
               />
             </div>
-
             <div className="text-center">
               <p className="font-medium text-[20px] text-hana-black-600">
                 제네시스
@@ -45,7 +45,6 @@ export default function CarPage() {
               <p className="mb-8 font-bold text-[32px] text-hana-teal-500">
                 G70
               </p>
-
               <div className="flex justify-center gap-12">
                 <div className="flex flex-col gap-1">
                   <span className="text-[14px] text-hana-black-500">
@@ -67,12 +66,11 @@ export default function CarPage() {
             </div>
           </div>
         </div>
-
         <DualActionFooter
           leftLabel="다시 입력하기"
           rightLabel="다음으로"
           onLeftClick={() => setIsSubmitted(false)}
-          onRightClick={() => console.log('금 자산 연동으로 이동')}
+          onRightClick={() => console.log('금 자산 이동')}
         />
       </div>
     );
@@ -83,7 +81,6 @@ export default function CarPage() {
       <div className="mb-10">
         <ProgressBar step={4} total={6} />
       </div>
-
       <div className="mb-10">
         <PageHeading>
           <span className="text-hana-teal-500">차량 번호</span>를{'\n'}
@@ -91,18 +88,17 @@ export default function CarPage() {
         </PageHeading>
       </div>
 
-      <div className="flex flex-col">
-        <input
-          type="text"
-          placeholder="12가1234"
-          className="h-14 w-full rounded-[10px] border border-border-gray px-4 text-center font-bold text-[24px] tracking-widest outline-none transition-all placeholder:text-hana-silver-200 focus:border-hana-teal-400"
-          value={carNumber}
-          onChange={(e) => setCarNumber(e.target.value)}
-        />
-        <p className="mt-4 text-center text-[14px] text-hana-black-500">
-          차량번호 7자리나 8자리를 알려주세요
-        </p>
-      </div>
+      <FormInput
+        label="차량 번호"
+        id="carNumber"
+        placeholder="12가1234"
+        value={carNumber}
+        onChange={setCarNumber}
+        // className="text-center" <- 이 부분을 삭제하거나 "text-left"로 변경
+      />
+      <p className="mt-4 text-[14px] text-hana-black-500">
+        차량번호 7자리나 8자리를 알려주세요
+      </p>
 
       <div className="mt-auto">
         <PrimaryButton
