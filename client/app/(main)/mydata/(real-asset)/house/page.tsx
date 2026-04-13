@@ -1,6 +1,7 @@
 'use client';
 
 import { Check } from 'lucide-react';
+import { useRouter } from 'next/navigation'; // 1. useRouter 임포트
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
@@ -41,6 +42,8 @@ function CheckItem({ label }: { label: string }) {
 }
 
 export default function HouseMyDataPage() {
+  const router = useRouter(); // 2. router 인스턴스 생성
+
   const checkList = [
     '보유 주택 정보 (종류, 면적, 소재지)',
     'KB 부동산 시세',
@@ -73,13 +76,13 @@ export default function HouseMyDataPage() {
       <div className="mt-auto flex flex-col gap-3">
         <PrimaryButton
           label="다음으로"
-          onClick={() => console.log('다음 클릭')}
+          onClick={() => router.push('/mydata/house/detail')} // 3. 상세 페이지로 이동
         />
         <PrimaryButton
           label="처음으로"
           variant="secondary"
           className="bg-hana-silver-100 text-hana-black-500!"
-          onClick={() => console.log('처음 클릭')}
+          onClick={() => router.push('/mydata/main')} // 예시: 메인으로 이동하도록 수정 가능
         />
       </div>
     </div>
