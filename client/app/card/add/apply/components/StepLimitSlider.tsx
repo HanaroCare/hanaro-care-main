@@ -13,7 +13,12 @@ const MIN = 100000;
 const MAX = 600000;
 const STEP = 10000;
 
-export default function StepLimitSlider({ value, onChange, onNext, isActive }: StepLimitSliderProps) {
+export default function StepLimitSlider({
+  value,
+  onChange,
+  onNext,
+  isActive,
+}: StepLimitSliderProps) {
   const [touched, setTouched] = useState(false);
   const [bounce, setBounce] = useState(false);
 
@@ -57,7 +62,9 @@ export default function StepLimitSlider({ value, onChange, onNext, isActive }: S
 
       <div className={`mt-8 ${bounce ? "bounce" : ""}`}>
         <div className="flex justify-between mb-2">
-          <span className="text-sm font-medium text-hana-black-700">월 충전 한도</span>
+          <span className="text-sm font-medium text-hana-black-700">
+            월 충전 한도
+          </span>
           <span className="text-sm font-medium text-hana-green-700">
             {(value / 10000).toFixed(0)}만원
           </span>
@@ -87,7 +94,7 @@ export default function StepLimitSlider({ value, onChange, onNext, isActive }: S
             value={value}
             disabled={!isActive}
             onChange={(e) => handleChange(Number(e.target.value))}
-            className="relative w-full appearance-none bg-transparent cursor-pointer disabled:cursor-default slider-thumb"
+            className="relative w-full appearance-none bg-transparent cursor-pointer disabled:cursor-default slider-thumb touch-none"
           />
         </div>
 

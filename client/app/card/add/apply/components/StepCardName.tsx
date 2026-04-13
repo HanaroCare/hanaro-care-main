@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AlertBanner } from "@/components/AlertBanner";
 
 const QUICK_PURPOSES = ["의료비", "간병비", "생활비"];
 
@@ -11,7 +12,12 @@ interface StepCardNameProps {
   isActive: boolean;
 }
 
-export default function StepCardName({ value, onChange, onNext, isActive }: StepCardNameProps) {
+export default function StepCardName({
+  value,
+  onChange,
+  onNext,
+  isActive,
+}: StepCardNameProps) {
   const [name, setName] = useState("");
   const [selectedPurpose, setSelectedPurpose] = useState("");
 
@@ -32,10 +38,11 @@ export default function StepCardName({ value, onChange, onNext, isActive }: Step
   return (
     <div className="page-in px-8 pt-8 pb-6 border-t border-border-gray">
       {/* 알림 배너 */}
-      <div className="mb-6 px-4 py-3 bg-hana-red-50 rounded-[14px]">
-        <p className="text-xs text-hana-red-500 leading-5">
-          카드별 한도와 알림을 따로 설정할 수 있어요
-        </p>
+      <div className="mb-6">
+        <AlertBanner
+          message="카드별 한도와 알림을 따로 설정할 수 있어요"
+          variant="warning"
+        />
       </div>
 
       <h2 className="text-lg font-semibold leading-[30px] tracking-snug text-black whitespace-pre-line">
@@ -44,7 +51,9 @@ export default function StepCardName({ value, onChange, onNext, isActive }: Step
 
       {/* 이름 입력 */}
       <div className="mt-6">
-        <p className="text-xs text-hana-black-800 mb-2">요양보호사 이름 (선택)</p>
+        <p className="text-xs text-hana-black-800 mb-2">
+          요양보호사 이름 (선택)
+        </p>
         <input
           type="text"
           value={name}

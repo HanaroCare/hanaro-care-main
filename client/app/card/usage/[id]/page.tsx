@@ -22,7 +22,9 @@ const MOCK_USAGE = {
 export default function CardUsageDetailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isAbnormal = searchParams.get("abnml") === "Y";
+  const queryAbnml = searchParams.get("abnml") === "Y";
+  // TODO: 백엔드 연동 후에는 서버 응답의 abnmlYn(또는 동등 필드)만 신뢰
+  const isAbnormal = MOCK_USAGE.aprvlYn === "N" || queryAbnml;
 
   const [showBlockModal, setShowBlockModal] = useState(false);
   const [showEvidenceSheet, setShowEvidenceSheet] = useState(false);
@@ -67,7 +69,9 @@ export default function CardUsageDetailPage() {
         <div className="flex flex-col gap-4">
           <div className="flex justify-between">
             <span className="text-base font-medium text-black">결제 일자</span>
-            <span className="text-base font-medium text-black">{MOCK_USAGE.createdAt}</span>
+            <span className="text-base font-medium text-black">
+              {MOCK_USAGE.createdAt}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-base font-medium text-black">승인상태</span>
@@ -80,17 +84,25 @@ export default function CardUsageDetailPage() {
 
       {/* 위치 */}
       <div className="px-6 mt-6">
-        <p className="text-sm font-medium text-black leading-5">{MOCK_USAGE.usageLoc}</p>
+        <p className="text-sm font-medium text-black leading-5">
+          {MOCK_USAGE.usageLoc}
+        </p>
       </div>
 
       {/* 지도 영역 - TODO: 백엔드 연동 시 네이버맵 API로 교체 */}
       <div className="mx-6 mt-4 h-[257px] bg-hana-silver-50 rounded-xl overflow-hidden">
         {MOCK_USAGE.mapImageUrl ? (
-          <img src={MOCK_USAGE.mapImageUrl} alt="지도" className="w-full h-full object-cover" />
+          <img
+            src={MOCK_USAGE.mapImageUrl}
+            alt="지도"
+            className="w-full h-full object-cover"
+          />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center gap-2">
             <p className="text-sm text-hana-black-500">지도 준비 중</p>
-            <p className="text-xs text-hana-black-500 opacity-50">{MOCK_USAGE.usageLoc}</p>
+            <p className="text-xs text-hana-black-500 opacity-50">
+              {MOCK_USAGE.usageLoc}
+            </p>
           </div>
         )}
       </div>

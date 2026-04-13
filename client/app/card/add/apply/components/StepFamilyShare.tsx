@@ -45,7 +45,9 @@ export default function StepFamilyShare({
 
       {/* 전체 가족 공유 토글 */}
       <div className="mt-6 flex items-center justify-between px-4 py-3 bg-hana-green-50 rounded-[14px]">
-        <span className="text-xs font-semibold text-hana-green-700">전체 가족 공유</span>
+        <span className="text-xs font-semibold text-hana-green-700">
+          전체 가족 공유
+        </span>
         <Switch
           checked={shareAll}
           disabled={!isActive}
@@ -63,16 +65,22 @@ export default function StepFamilyShare({
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-hana-green-50 flex items-center justify-center">
-                <span className="text-lg font-semibold text-hana-ez-600">{m.initial}</span>
+                <span className="text-lg font-semibold text-hana-ez-600">
+                  {m.initial}
+                </span>
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-base font-semibold text-black">{m.name}</span>
+                  <span className="text-base font-semibold text-black">
+                    {m.name}
+                  </span>
                   <span className="px-2 py-0.5 bg-hana-green-50 rounded-full text-[8px] font-semibold text-hana-ez-600">
                     {m.relation}
                   </span>
                 </div>
-                <span className="text-[10px] font-medium text-[#9DA3AF]">내역 열람</span>
+                <span className="text-[10px] font-medium text-[#9DA3AF]">
+                  내역 열람
+                </span>
               </div>
             </div>
             <Switch
@@ -86,24 +94,34 @@ export default function StepFamilyShare({
       </div>
 
       {/* 이상 감지 알림 */}
-      <div
-        className={`mt-4 px-4 py-3 rounded-[14px] border transition-colors cursor-pointer ${
-          alertAgreed
-            ? "bg-hana-blue-50 border-hana-blue-300"
-            : "bg-hana-red-50 border-hana-red-100"
+      {/* 이상 감지 알림 */}
+      <button
+        type="button"
+        disabled={!isActive}
+        aria-pressed={alertAgreed}
+        onClick={() => isActive && setAlertAgreed(!alertAgreed)}
+        className={`mt-4 w-full px-4 py-3 rounded-[14px] border transition-colors text-left ${
+          !isActive
+            ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-60"
+            : alertAgreed
+              ? "bg-hana-blue-50 border-hana-blue-300 cursor-pointer"
+              : "bg-hana-red-50 border-hana-red-100 cursor-pointer"
         }`}
-        onClick={() => setAlertAgreed(!alertAgreed)}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
-            <p className={`text-xs font-medium ${alertAgreed ? "text-hana-blue-600" : "text-hana-red-500"}`}>
+            <p
+              className={`text-xs font-medium ${alertAgreed ? "text-hana-blue-600" : "text-hana-red-500"}`}
+            >
               이상 감지 알림
             </p>
-            <p className={`text-[11px] mt-1 leading-5 ${alertAgreed ? "text-hana-blue-500" : "text-hana-red-500"}`}>
-              차단 카테고리 결제 시도, 한도 초과, 심야 결제 등 이상 지출이 감지되면 선택한 가족 전체에게 즉시 알림이 가요.
+            <p
+              className={`text-[11px] mt-1 leading-5 ${alertAgreed ? "text-hana-blue-500" : "text-hana-red-500"}`}
+            >
+              차단 카테고리 결제 시도, 한도 초과, 심야 결제 등 이상 지출이
+              감지되면 선택한 가족 전체에게 즉시 알림이 가요.
             </p>
           </div>
-          {/* 큰 체크박스 */}
           <div
             className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-colors ${
               alertAgreed
@@ -113,12 +131,18 @@ export default function StepFamilyShare({
           >
             {alertAgreed && (
               <svg width="14" height="11" viewBox="0 0 14 11" fill="none">
-                <path d="M1 5.5L5 9.5L13 1" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M1 5.5L5 9.5L13 1"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             )}
           </div>
         </div>
-      </div>
+      </button>
 
       {isActive && (
         <button

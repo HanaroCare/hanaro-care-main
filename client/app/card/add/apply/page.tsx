@@ -8,6 +8,7 @@ import StepAccountSelect from "./components/StepAccountSelect";
 import StepCardName from "./components/StepCardName";
 import StepFamilyShare from "./components/StepFamilyShare";
 import CompleteModal from "./components/CompleteModal";
+import { Route } from "next";
 
 export default function CardIssuePage() {
   const router = useRouter();
@@ -24,7 +25,7 @@ export default function CardIssuePage() {
   } = useIssueSteps();
 
   const handleConfirm = () => {
-    router.push("/card/add/complete");
+    router.push("/card/add/complete" as Route);
   };
 
   const handleReset = () => {
@@ -41,7 +42,9 @@ export default function CardIssuePage() {
         <button className="p-1" onClick={() => router.back()}>
           <ChevronLeft size={24} color="#0A0A0A" />
         </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">카드 발급</span>
+        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
+          카드 발급
+        </span>
         <div className="w-8" />
       </div>
 
@@ -57,7 +60,7 @@ export default function CardIssuePage() {
             onToggleMember={(id, val) =>
               updateFormData({
                 familyMembers: formData.familyMembers.map((m) =>
-                  m.id === id ? { ...m, shareEnabled: val } : m
+                  m.id === id ? { ...m, shareEnabled: val } : m,
                 ),
               })
             }
@@ -77,6 +80,8 @@ export default function CardIssuePage() {
 
         {visibleSteps.includes("account") && (
           <StepAccountSelect
+            value={formData.accountId}
+            onChange={(accountId) => updateFormData({ accountId })}
             onNext={nextStep}
             isActive={currentStep === "account"}
           />

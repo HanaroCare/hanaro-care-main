@@ -3,10 +3,23 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronDown } from "lucide-react";
+import { Route } from "next";
 
 const CARDS = [
-  { id: 1, cardNm: "김복자 요양사의 카드", accountNm: "하나은행 123-123456-12345", balance: 1454927, limitAmt: 600000 },
-  { id: 2, cardNm: "한금순 요양사의 카드", accountNm: "하나은행 987-654321-98765", balance: 820000, limitAmt: 600000 },
+  {
+    id: 1,
+    cardNm: "김복자 요양사의 카드",
+    accountNm: "하나은행 123-123456-12345",
+    balance: 1454927,
+    limitAmt: 600000,
+  },
+  {
+    id: 2,
+    cardNm: "한금순 요양사의 카드",
+    accountNm: "하나은행 987-654321-98765",
+    balance: 820000,
+    limitAmt: 600000,
+  },
 ];
 
 const QUICK_AMOUNTS = [
@@ -32,18 +45,18 @@ export default function CardChargePage() {
   };
 
   const handleKeypad = (val: string) => {
-  if (val === "delete") {
-    setAmount((prev) => prev.slice(0, -1));
-    return;
-  }
-  const next = amount + val;
-  if (Number(next) > selectedCard.limitAmt) {
-    setAmount(next); // 일단 넣고
-    triggerShake();
-    return;
-  }
-  setAmount(next);
-};
+    if (val === "delete") {
+      setAmount((prev) => prev.slice(0, -1));
+      return;
+    }
+    const next = amount + val;
+    if (Number(next) > selectedCard.limitAmt) {
+      setAmount(next); // 일단 넣고
+      triggerShake();
+      return;
+    }
+    setAmount(next);
+  };
 
   const handleQuick = (val: number) => {
     const next = numericAmount + val;
@@ -73,7 +86,9 @@ export default function CardChargePage() {
         <button className="p-1" onClick={() => router.back()}>
           <ChevronLeft size={24} color="#0A0A0A" />
         </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">카드 관리</span>
+        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
+          카드 관리
+        </span>
         <div className="w-8" />
       </div>
 
@@ -91,7 +106,9 @@ export default function CardChargePage() {
           ref={amountRef}
           className={`border-b-2 pb-2 ${shake ? "shake" : ""} ${isOverLimit ? "border-hana-red-500" : "border-hana-black-900"}`}
         >
-          <p className={`text-[30px] font-medium tracking-tight ${isOverLimit ? "text-hana-red-500" : "text-hana-black-900"}`}>
+          <p
+            className={`text-[30px] font-medium tracking-tight ${isOverLimit ? "text-hana-red-500" : "text-hana-black-900"}`}
+          >
             {formatted ? `${formatted}원` : "0원"}
           </p>
         </div>
@@ -119,7 +136,11 @@ export default function CardChargePage() {
           <ChevronDown
             size={16}
             color="#E5E5E5"
-            className={showCardSelect ? "rotate-180 transition-transform" : "transition-transform"}
+            className={
+              showCardSelect
+                ? "rotate-180 transition-transform"
+                : "transition-transform"
+            }
           />
         </button>
 
@@ -138,10 +159,16 @@ export default function CardChargePage() {
                 }`}
               >
                 <div>
-                  <p className="text-sm font-medium text-hana-black-800">{c.cardNm}</p>
-                  <p className="text-xs text-hana-black-500 mt-0.5">{c.accountNm}</p>
+                  <p className="text-sm font-medium text-hana-black-800">
+                    {c.cardNm}
+                  </p>
+                  <p className="text-xs text-hana-black-500 mt-0.5">
+                    {c.accountNm}
+                  </p>
                 </div>
-                <p className="text-sm font-medium text-hana-black-800">{c.balance.toLocaleString()}원</p>
+                <p className="text-sm font-medium text-hana-black-800">
+                  {c.balance.toLocaleString()}원
+                </p>
               </button>
             ))}
           </div>
@@ -167,7 +194,10 @@ export default function CardChargePage() {
         <div className="px-6 pb-4">
           <button
             disabled={!amount || amount === "0" || isOverLimit}
-            onClick={() => router.push(`/card/charge/complete?cardNm=${selectedCard.cardNm}&amount=${amount}`)}
+            onClick={() => {
+              const url = `/card/charge/complete?cardNm=${encodeURIComponent(selectedCard.cardNm)}&amount=${encodeURIComponent(amount)}`;
+              router.push(url as Route);
+            }}
             className="w-full h-[53px] rounded-xl bg-hana-ez-600 text-white text-base font-medium disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
           >
             확인
@@ -176,23 +206,51 @@ export default function CardChargePage() {
 
         {/* 번호 키패드 */}
         <div className="grid grid-cols-3 gap-2 px-4 pb-6">
-          {["1","2","3","4","5","6","7","8","9","","0","delete"].map((key, i) => (
-            <button
-              key={i}
-              onClick={() => key && handleKeypad(key)}
-              className={`h-[60px] flex items-center justify-center text-xl font-semibold text-hana-black-900 rounded-xl ${
-                key === "" ? "" : "bg-white active:bg-hana-silver-50"
-              }`}
-            >
-              {key === "delete" ? (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z" stroke="#01A5AC" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <line x1="18" y1="9" x2="12" y2="15" stroke="#01A5AC" strokeWidth="2" strokeLinecap="round"/>
-                  <line x1="12" y1="9" x2="18" y2="15" stroke="#01A5AC" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              ) : key === "" ? "" : key}
-            </button>
-          ))}
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "delete"].map(
+            (key, i) => (
+              <button
+                key={i}
+                onClick={() => key && handleKeypad(key)}
+                className={`h-[60px] flex items-center justify-center text-xl font-semibold text-hana-black-900 rounded-xl ${
+                  key === "" ? "" : "bg-white active:bg-hana-silver-50"
+                }`}
+              >
+                {key === "delete" ? (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="M21 4H8l-7 8 7 8h13a2 2 0 002-2V6a2 2 0 00-2-2z"
+                      stroke="#01A5AC"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <line
+                      x1="18"
+                      y1="9"
+                      x2="12"
+                      y2="15"
+                      stroke="#01A5AC"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                    <line
+                      x1="12"
+                      y1="9"
+                      x2="18"
+                      y2="15"
+                      stroke="#01A5AC"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                ) : key === "" ? (
+                  ""
+                ) : (
+                  key
+                )}
+              </button>
+            ),
+          )}
         </div>
       </div>
     </div>

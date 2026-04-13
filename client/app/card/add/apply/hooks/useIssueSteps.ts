@@ -1,15 +1,32 @@
 import { useState, useRef, useEffect } from "react";
 
-export type Step = "limit" | "account" | "cardName" | "familyShare" | "complete";
+export type Step =
+  | "limit"
+  | "account"
+  | "cardName"
+  | "familyShare"
+  | "complete";
 
-const STEP_ORDER: Step[] = ["limit", "account", "cardName", "familyShare", "complete"];
+const STEP_ORDER: Step[] = [
+  "limit",
+  "account",
+  "cardName",
+  "familyShare",
+  "complete",
+];
 
 export interface IssueFormData {
   limitAmt: number;
   accountId: number | null;
   cardNm: string;
   familyShareAll: boolean;
-  familyMembers: { id: number; name: string; initial: string; relation: string; shareEnabled: boolean }[];
+  familyMembers: {
+    id: number;
+    name: string;
+    initial: string;
+    relation: string;
+    shareEnabled: boolean;
+  }[];
 }
 
 export function useIssueSteps() {
@@ -24,9 +41,27 @@ export function useIssueSteps() {
     cardNm: "",
     familyShareAll: true,
     familyMembers: [
-      { id: 1, name: "권하나", initial: "김", relation: "배우자", shareEnabled: true },
-      { id: 2, name: "권하나", initial: "김", relation: "배우자", shareEnabled: true },
-      { id: 3, name: "권하나", initial: "김", relation: "배우자", shareEnabled: true },
+      {
+        id: 1,
+        name: "권하나",
+        initial: "김",
+        relation: "배우자",
+        shareEnabled: true,
+      },
+      {
+        id: 2,
+        name: "권하나",
+        initial: "김",
+        relation: "배우자",
+        shareEnabled: true,
+      },
+      {
+        id: 3,
+        name: "권하나",
+        initial: "김",
+        relation: "배우자",
+        shareEnabled: true,
+      },
     ],
   });
 
@@ -65,7 +100,10 @@ export function useIssueSteps() {
     setFormData((prev) => ({
       ...prev,
       familyShareAll: val,
-      familyMembers: prev.familyMembers.map((m) => ({ ...m, shareEnabled: val })),
+      familyMembers: prev.familyMembers.map((m) => ({
+        ...m,
+        shareEnabled: val,
+      })),
     }));
   };
 

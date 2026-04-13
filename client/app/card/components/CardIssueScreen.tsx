@@ -25,10 +25,18 @@ export default function CardIssueScreen({ onIssue }: CardIssueScreenProps) {
     setTouchStartX(e.touches[0].clientX);
   };
 
+  const [dragX, setDragX] = useState(0);
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const diff = touchStartX - e.touches[0].clientX;
+    setDragX(-diff);
+  };
+
   const handleTouchEnd = (e: React.TouchEvent) => {
     const diff = touchStartX - e.changedTouches[0].clientX;
     if (diff > 50) setCurrentIndex(next);
     else if (diff < -50) setCurrentIndex(prev);
+    setDragX(0);
   };
 
   return (
@@ -56,6 +64,7 @@ export default function CardIssueScreen({ onIssue }: CardIssueScreenProps) {
         className="absolute w-full top-[260px]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
+        onTouchMove={handleTouchMove}
       >
         {/* 인디케이터 - 카드 위 */}
         <div className="flex justify-center gap-1.5 mb-3">
@@ -101,7 +110,11 @@ export default function CardIssueScreen({ onIssue }: CardIssueScreenProps) {
           {/* 가운데 카드 */}
           <div
             className="card-item relative"
-            style={{ width: "262px", zIndex: 10 }}
+            style={{
+              width: "262px",
+              zIndex: 10,
+              transform: `translateX(${dragX * 0.3}px)`,
+            }}
           >
             <img
               src={CARD_DESIGNS[currentIndex].src}
@@ -147,7 +160,11 @@ export default function CardIssueScreen({ onIssue }: CardIssueScreenProps) {
       <button
         onClick={() => onIssue(CARD_DESIGNS[currentIndex].id)}
         className="absolute h-[53px] rounded-xl text-white text-base font-medium bg-hana-ez-600 hover:bg-hana-green-700 transition-colors"
-        style={{ width: "327px", left: "calc(50% - 327px/2 + 1px)", top: "585px" }}
+        style={{
+          width: "327px",
+          left: "calc(50% - 327px/2 + 1px)",
+          top: "585px",
+        }}
       >
         이 디자인이 좋아요
       </button>

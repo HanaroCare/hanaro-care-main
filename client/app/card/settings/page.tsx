@@ -28,7 +28,8 @@ export default function CardSettingsPage() {
   const [bounce, setBounce] = useState(false);
   const [isCancelled, setIsCancelled] = useState(false);
 
-  const isChanged = limitAmt !== INITIAL_LIMIT || selectedAccount.id !== INITIAL_ACCOUNT_ID;
+  const isChanged =
+    limitAmt !== INITIAL_LIMIT || selectedAccount.id !== INITIAL_ACCOUNT_ID;
   const isMax = limitAmt >= MAX;
   const percent = Math.min(((limitAmt - MIN) / (MAX - MIN)) * 100, 100);
 
@@ -72,12 +73,16 @@ export default function CardSettingsPage() {
         <button className="p-1" onClick={() => router.back()}>
           <ChevronLeft size={24} color="#0A0A0A" />
         </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">카드 관리</span>
+        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
+          카드 관리
+        </span>
         <div className="w-8" />
       </div>
 
       {/* 카드 미리보기 */}
-      <div className={`flex justify-center mt-6 transition-opacity ${isCancelled ? "opacity-40" : ""}`}>
+      <div
+        className={`flex justify-center mt-6 transition-opacity ${isCancelled ? "opacity-40" : ""}`}
+      >
         <CardView cardNm="김복자 요양사의 카드" />
       </div>
 
@@ -95,8 +100,9 @@ export default function CardSettingsPage() {
       </div>
 
       {/* 설정 섹션 */}
-      <div className={`px-6 mt-8 flex flex-col gap-10 transition-opacity ${isCancelled ? "opacity-40 pointer-events-none" : ""}`}>
-
+      <div
+        className={`px-6 mt-8 flex flex-col gap-10 transition-opacity ${isCancelled ? "opacity-40 pointer-events-none" : ""}`}
+      >
         {/* 월 충전 한도 변경 */}
         <div>
           <p className="text-base font-medium tracking-tight text-black mb-4">
@@ -104,7 +110,9 @@ export default function CardSettingsPage() {
           </p>
           <div className={bounce ? "bounce" : ""}>
             <div className="flex justify-between mb-2">
-              <span className="text-xs font-medium text-hana-black-700">월 충전 한도</span>
+              <span className="text-xs font-medium text-hana-black-700">
+                월 충전 한도
+              </span>
               <span className="text-xs font-medium text-hana-green-700">
                 {(limitAmt / 10000).toFixed(0)}만원
               </span>
@@ -125,6 +133,8 @@ export default function CardSettingsPage() {
                 }}
               />
               <input
+                id="limit-slider"
+                aria-label="월 충전 한도"
                 type="range"
                 min={MIN}
                 max={MAX}
@@ -162,7 +172,11 @@ export default function CardSettingsPage() {
               <ChevronDown
                 size={16}
                 color="#E5E5E5"
-                className={showAccountSelect ? "rotate-180 transition-transform" : "transition-transform"}
+                className={
+                  showAccountSelect
+                    ? "rotate-180 transition-transform"
+                    : "transition-transform"
+                }
               />
             </button>
 
@@ -179,8 +193,12 @@ export default function CardSettingsPage() {
                       selectedAccount.id === a.id ? "bg-hana-green-50" : ""
                     }`}
                   >
-                    <p className="text-sm font-medium text-hana-black-800">{a.label}</p>
-                    <p className="text-sm text-hana-black-500">{a.balance.toLocaleString()}원</p>
+                    <p className="text-sm font-medium text-hana-black-800">
+                      {a.label}
+                    </p>
+                    <p className="text-sm text-hana-black-500">
+                      {a.balance.toLocaleString()}원
+                    </p>
                   </button>
                 ))}
               </div>

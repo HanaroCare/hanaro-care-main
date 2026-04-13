@@ -6,6 +6,7 @@ import CardView from "./CardView";
 import UsageList from "./UsageList";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { Route } from "next";
 
 interface CardDashboardScreenProps {
   card: CardData;
@@ -19,11 +20,14 @@ const MOCK_CARDS = [
 ];
 
 const THRESHOLD = 80;
-const ALL_SLIDES = [...MOCK_CARDS, null]; // null = 추가 슬라이드
+const ALL_SLIDES = [...MOCK_CARDS, null];
 
-export default function CardDashboardScreen({ card, usages, onAddCard }: CardDashboardScreenProps) {
+export default function CardDashboardScreen({
+  card,
+  usages,
+  onAddCard,
+}: CardDashboardScreenProps) {
   const router = useRouter();
-  const monthlyTotal = usages.reduce((sum, u) => sum + u.usageAmt, 0);
   const touchStartY = useRef<number>(0);
   const touchStartX = useRef<number>(0);
   const [dragY, setDragY] = useState(0);
@@ -31,8 +35,30 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
 
   const isAddSlide = currentCardIndex >= MOCK_CARDS.length;
   const currentCard = isAddSlide ? null : MOCK_CARDS[currentCardIndex];
-  const prevCard = currentCardIndex > 0 ? ALL_SLIDES[currentCardIndex - 1] : null;
-  const nextSlide = currentCardIndex < ALL_SLIDES.length - 1 ? ALL_SLIDES[currentCardIndex + 1] : null;
+  const prevCard =
+    currentCardIndex > 0 ? ALL_SLIDES[currentCardIndex - 1] : null;
+  const nextSlide =
+    currentCardIndex < ALL_SLIDES.length - 1
+      ? ALL_SLIDES[currentCardIndex + 1]
+      : null;
+
+  const filteredUsages = isAddSlide ? [] : usages;
+  const monthlyTotal = filteredUsages.reduce((sum, u) => sum + u.usageAmt, 0);
+
+  const handleSheetTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleSheetTouchMove = (e: React.TouchEvent) => {
+    const diffY = touchStartY.current - e.touches[0].clientY;
+    if (diffY > 0) setDragY(diffY);
+  };
+
+  const handleSheetTouchEnd = (e: React.TouchEvent) => {
+    const diffY = touchStartY.current - e.changedTouches[0].clientY;
+    if (diffY > THRESHOLD) router.push("/card/usage" as Route);
+    setDragY(0);
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
@@ -55,19 +81,21 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
         setCurrentCardIndex((prev) => prev - 1);
       }
     } else if (diffY > THRESHOLD) {
-      router.push("/card/usage");
+      router.push("/card/usage" as Route);
     }
     setDragY(0);
   };
 
   return (
-    <div className="relative w-[375px] min-h-[812px] bg-white">
+    <div className="relative w-[375px] min-h-screen bg-white">
       {/* 헤더 */}
       <div className="flex justify-between items-center px-4 h-[65px] border-b border-black/10">
         <button className="p-1" onClick={() => router.back()}>
           <ChevronLeft size={24} color="#0A0A0A" />
         </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">카드 관리</span>
+        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
+          카드 관리
+        </span>
         <button className="p-1" onClick={() => router.back()}>
           <X size={24} color="#0A0A0A" />
         </button>
@@ -85,7 +113,7 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
         <div className="flex justify-end px-4 pt-4 h-9">
           {!isAddSlide && (
             <button
-              onClick={() => router.push("/card/settings")}
+              onClick={() => router.push("/card/settings" as Route)}
               className="flex items-center gap-1 px-3 py-1 bg-hana-silver-100 rounded-xl text-xs font-medium text-black"
             >
               <Settings size={14} />
@@ -95,8 +123,10 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
         </div>
 
         {/* 카드 슬라이더 영역 */}
-        <div className="relative flex items-center justify-center mt-2" style={{ height: "165px" }}>
-          {/* 이전 카드 빼꼼 */}
+        <div
+          className="relative flex items-center justify-center mt-2"
+          style={{ height: "165px" }}
+        >
           {prevCard && (
             <div
               className="absolute left-0 opacity-40 cursor-pointer"
@@ -107,13 +137,13 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
                 className="w-full rounded-xl"
                 style={{
                   height: "140px",
-                  background: "linear-gradient(111.45deg, #008485 2.93%, #C5FFFA 98.1%)",
+                  background:
+                    "linear-gradient(111.45deg, #008485 2.93%, #C5FFFA 98.1%)",
                 }}
               />
             </div>
           )}
 
-          {/* 현재 카드 or 추가 슬라이드 */}
           <div
             className="relative transition-all duration-300"
             style={{ width: prevCard ? "220px" : "262px", zIndex: 10 }}
@@ -127,22 +157,22 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
                 <div className="w-14 h-14 rounded-full bg-hana-green-50 flex items-center justify-center">
                   <Plus size={28} color="#008485" />
                 </div>
-                <p className="text-sm font-medium text-hana-black-700 mt-3">카드 추가하기</p>
+                <p className="text-sm font-medium text-hana-black-700 mt-3">
+                  카드 추가하기
+                </p>
               </div>
             ) : (
               <CardView cardNm={currentCard!.cardNm} />
             )}
           </div>
 
-          {/* 다음 카드/슬라이드 빼꼼 */}
-          {nextSlide !== undefined && nextSlide !== null && (
+          {nextSlide !== undefined && (
             <div
               className="absolute right-0 opacity-40 cursor-pointer"
               style={{ width: "60px", zIndex: 1 }}
               onClick={() => setCurrentCardIndex((prev) => prev + 1)}
             >
               {nextSlide === null ? (
-                // 추가 슬라이드 미리보기
                 <div
                   className="w-full rounded-xl border-2 border-dashed border-hana-silver-100 bg-hana-silver-50 flex items-center justify-center"
                   style={{ height: "140px" }}
@@ -154,7 +184,8 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
                   className="w-full rounded-xl"
                   style={{
                     height: "140px",
-                    background: "linear-gradient(111.45deg, #008485 2.93%, #C5FFFA 98.1%)",
+                    background:
+                      "linear-gradient(111.45deg, #008485 2.93%, #C5FFFA 98.1%)",
                   }}
                 />
               )}
@@ -162,7 +193,7 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
           )}
         </div>
 
-        {/* 인디케이터 - 항상 표시 */}
+        {/* 인디케이터 */}
         <div className="flex justify-center gap-1.5 mt-3">
           {ALL_SLIDES.map((_, i) => (
             <button
@@ -192,7 +223,7 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
                 </p>
               </div>
               <button
-                onClick={() => router.push("/card/charge")}
+                onClick={() => router.push("/card/charge" as Route)}
                 className="px-3 py-1 bg-hana-green-50 rounded-[15px] text-xs font-medium text-hana-ez-600"
               >
                 송금하기
@@ -204,41 +235,39 @@ export default function CardDashboardScreen({ card, usages, onAddCard }: CardDas
 
       {/* 바텀시트 */}
       <div
-        className="absolute w-[375px] top-[513px] bg-white rounded-t-[20px] pb-24"
+        className="fixed w-full left-0 bottom-0 bg-white rounded-t-[20px] min-h-screen"
         style={{
           boxShadow: "0px -4px 20px rgba(0,0,0,0.15)",
-          transform: `translateY(-${Math.min(dragY * 0.3, 30)}px)`,
+          transform: `translateY(calc(100% - 299px - ${Math.min(dragY * 0.3, 30)}px))`,
           transition: dragY === 0 ? "transform 0.3s ease" : "none",
         }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
+        onTouchStart={handleSheetTouchStart}
+        onTouchMove={handleSheetTouchMove}
+        onTouchEnd={handleSheetTouchEnd}
       >
         {dragY > 20 && (
-          <p className="text-xl font-medium text-hana-black-500 text-center pt-2">더보기</p>
+          <p className="text-xl font-medium text-hana-black-500 text-center pt-2">
+            더보기
+          </p>
         )}
         <div className="flex justify-center pt-3">
           <div className="w-10 h-1 bg-[#D1D5DB] rounded-full" />
         </div>
         <div className="px-6 mt-6">
-          <p className="text-xl font-medium text-[#101828] tracking-tight">4월 소비 내역</p>
+          <p className="text-xl font-medium text-[#101828] tracking-tight">
+            4월 소비 내역
+          </p>
           <p className="text-2xl font-medium text-[#101828] tracking-tight mt-1">
             {monthlyTotal.toLocaleString()}원
           </p>
         </div>
         <div className="px-[34px] mt-6">
-          <UsageList usages={usages} cardNm={currentCard?.cardNm ?? "카드"} />
+          <UsageList
+            usages={filteredUsages}
+            cardNm={currentCard?.cardNm ?? "카드"}
+          />
         </div>
       </div>
-
-      {/* 추가 발급 버튼 */}
-      <button
-        onClick={onAddCard}
-        className="fixed bottom-6 h-[53px] rounded-xl text-white text-base font-medium bg-hana-ez-600 hover:bg-hana-green-700 transition-colors"
-        style={{ width: "327px", left: "calc(50% - 327px/2)" }}
-      >
-        + 카드 추가 발급
-      </button>
     </div>
   );
 }

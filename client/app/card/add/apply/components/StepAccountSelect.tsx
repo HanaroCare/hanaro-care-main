@@ -4,6 +4,8 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 interface StepAccountSelectProps {
+  value: number | null;
+  onChange: (accountId: number) => void;
   onNext: () => void;
   isActive: boolean;
 }
@@ -14,8 +16,15 @@ const ACCOUNTS = [
   { id: 3, label: "신한은행 789-012345-67890", balance: 320000 },
 ];
 
-export default function StepAccountSelect({ onNext, isActive }: StepAccountSelectProps) {
-  const [selectedAccount, setSelectedAccount] = useState(ACCOUNTS[0]);
+export default function StepAccountSelect({
+  value,
+  onChange,
+  onNext,
+  isActive,
+}: StepAccountSelectProps) {
+  const [selectedAccount, setSelectedAccount] = useState(
+    ACCOUNTS.find((a) => a.id === value) ?? ACCOUNTS[0],
+  );
   const [showDropdown, setShowDropdown] = useState(false);
   const [touched, setTouched] = useState(false);
 
@@ -42,7 +51,11 @@ export default function StepAccountSelect({ onNext, isActive }: StepAccountSelec
           <ChevronDown
             size={16}
             color="#E5E5E5"
-            className={showDropdown ? "rotate-180 transition-transform" : "transition-transform"}
+            className={
+              showDropdown
+                ? "rotate-180 transition-transform"
+                : "transition-transform"
+            }
           />
         </button>
 
@@ -53,6 +66,7 @@ export default function StepAccountSelect({ onNext, isActive }: StepAccountSelec
                 key={a.id}
                 onClick={() => {
                   setSelectedAccount(a);
+                  onChange(a.id); // 추가
                   setShowDropdown(false);
                   setTouched(true);
                 }}
@@ -60,8 +74,12 @@ export default function StepAccountSelect({ onNext, isActive }: StepAccountSelec
                   selectedAccount.id === a.id ? "bg-hana-green-50" : ""
                 }`}
               >
-                <p className="text-sm font-medium text-hana-black-800">{a.label}</p>
-                <p className="text-sm text-hana-black-500">{a.balance.toLocaleString()}원</p>
+                <p className="text-sm font-medium text-hana-black-800">
+                  {a.label}
+                </p>
+                <p className="text-sm text-hana-black-500">
+                  {a.balance.toLocaleString()}원
+                </p>
               </button>
             ))}
           </div>
@@ -70,7 +88,7 @@ export default function StepAccountSelect({ onNext, isActive }: StepAccountSelec
 
       {isActive && (
         <button
-          onClick={onNext}
+          onClick={() => onNext()}
           disabled={!touched}
           className="mt-6 w-full h-[53px] rounded-xl text-white text-base font-medium transition-colors disabled:bg-gray-200 disabled:text-gray-400 bg-hana-ez-600 hover:bg-hana-green-700"
         >
