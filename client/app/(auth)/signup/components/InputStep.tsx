@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { validatePhone } from "../utils/validators";
 
 interface InputStepProps {
   question: string;
@@ -21,6 +22,7 @@ export default function InputStep({
 }: InputStepProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (isFocused && inputRef.current) inputRef.current.focus();
@@ -33,11 +35,20 @@ export default function InputStep({
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && value.trim().length > 0) onSubmit();
+    if (e.key === "Enter" && value.trim().length > 0) {
+      if (type === "tel" && !validatePhone(value)) {
+        setError("010으로 시작하는 11자리 숫자를 입력해주세요.");
+        return;
+      }
+      setError("");
+      onSubmit();
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value;
+    setError("");
+
     if (type === "tel") val = val.replace(/[^0-9]/g, "").slice(0, 11);
     else if (question.includes("이름")) val = val.replace(/[^a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]/g, "");
     else if (question.includes("나이") || type === "number") val = val.replace(/[^0-9]/g, "").slice(0, 3);
@@ -50,10 +61,12 @@ export default function InputStep({
     }
 
     if (type === "tel" && val.length === 11 && isActive) {
-      timerRef.current = setTimeout(() => {
-        onSubmit();
-        timerRef.current = null;
-      }, 100);
+      if (validatePhone(val)) {
+        timerRef.current = setTimeout(() => {
+          onSubmit();
+          timerRef.current = null;
+        }, 100);
+      }
     }
   };
 
@@ -72,7 +85,6 @@ export default function InputStep({
         {question}
       </label>
 
-      {/* 박스 형태 상시 유지 */}
       <div className="relative">
         <input
           ref={inputRef}
@@ -91,7 +103,13 @@ export default function InputStep({
         {!isActive && <div className="absolute inset-0 z-10" />}
       </div>
 
-      {isActive && description && (
+      {isActive && error && (
+        <p className="text-[0.75rem] font-medium text-red-500 mt-1 px-[0.125rem] animate-in fade-in slide-in-from-top-1">
+          {error}
+        </p>
+      )}
+
+      {isActive && description && !error && (
         <p className="text-[0.75rem] font-medium text-gray-500 px-[0.125rem] mt-[0.125rem] animate-in fade-in slide-in-from-top-1">
           {description}
         </p>

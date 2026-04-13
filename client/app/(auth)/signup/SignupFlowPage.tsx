@@ -7,6 +7,7 @@ import OTPInput from "./components/OTPInput";
 import PasswordStep from "./components/PasswordStep";
 import CompleteStep from "@/components/CompleteStep";
 import { useRouter } from "next/navigation";
+import Header from "@/components/navigation/Header";
 
 const STEPS = [
   {
@@ -81,7 +82,7 @@ export default function SignupFlowPage() {
 
   return (
     <div className="flex h-screen w-full flex-col bg-white max-w-[23.4375rem] mx-auto overflow-hidden shadow-sm">
-      {/* <Header title="회원가입" /> */}
+      <Header title="회원가입" />
 
       <main className="flex-1 flex flex-col gap-[2.5rem] px-[1.25rem] pt-[1.5rem] pb-[5rem] overflow-y-auto no-scrollbar scroll-smooth">
         <AnimatePresence initial={false}>

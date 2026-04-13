@@ -2,18 +2,18 @@
 
 import { Check } from "lucide-react";
 
-interface Term {
+type Term = {
   id: string;
   label: string;
   required: boolean;
-}
+};
 
-interface TermsAgreementProps {
+type TermsAgreementProps = {
   terms: Term[];
   checkedIds: string[];
   onToggleAll: (checked: boolean) => void;
   onToggleItem: (id: string) => void;
-}
+};
 
 export default function TermsAgreement({
   terms,

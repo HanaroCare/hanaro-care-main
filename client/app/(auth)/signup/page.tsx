@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import TermsAgreement from "./components/TermsAgreement";
-import PrimaryButton from "@/components/PrimaryButton";
 import SignupFlowPage from "./SignupFlowPage";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
+import Header from "@/components/navigation/Header";
 
 const TERMS_DATA = [
     { id: "term1", label: "개인정보 수집 및 이용 동의", required: true },
@@ -37,7 +38,7 @@ export default function Page() {
 
     return (
         <div className="flex flex-col min-h-screen bg-white max-w-[23.4375rem] mx-auto shadow-sm overflow-hidden">
-            {/* <Header title="서비스 가입" /> */}
+            <Header title="서비스 가입" />
 
             <main className="flex-1 px-[1.25rem] pt-[2rem] pb-[8rem]">
                 <div className="mb-[2rem]">

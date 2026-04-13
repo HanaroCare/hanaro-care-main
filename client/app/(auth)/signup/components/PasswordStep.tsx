@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { validatePassword, validatePasswordMatch } from "../utils/validators";
 
 export default function PasswordStep({ isActive, onComplete }: { isActive: boolean; onComplete: (val: string) => void }) {
   const [pw, setPw] = useState("");
@@ -9,14 +10,11 @@ export default function PasswordStep({ isActive, onComplete }: { isActive: boole
   const [error, setError] = useState("");
   const confirmRef = useRef<HTMLInputElement>(null);
 
-  const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-
   const handleKeyDown = (e: React.KeyboardEvent, type: "pw" | "confirm") => {
     if (e.key === "Enter") {
-
       if (type === "pw") {
-        if (!pwRegex.test(pw)) {
-          setError("6자리 이상의 영문과 숫자를 혼합하여 입력해주세요.");
+        if (!validatePassword(pw)) {
+          setError("6~8자 영문 포함하여 입력해주세요.");
           return;
         }
         setError("");
@@ -24,11 +22,11 @@ export default function PasswordStep({ isActive, onComplete }: { isActive: boole
       }
 
       if (type === "confirm") {
-        if (!pwRegex.test(pw)) {
+        if (!validatePassword(pw)) {
           setError("비밀번호 정책에 맞지 않습니다. 다시 설정해주세요.");
           return;
         }
-        if (pw === confirm) {
+        if (validatePasswordMatch(pw, confirm)) {
           onComplete(pw);
         } else {
           setError("비밀번호가 일치하지 않습니다. 다시 확인해주세요.");
@@ -49,7 +47,7 @@ export default function PasswordStep({ isActive, onComplete }: { isActive: boole
           비밀번호를 설정해주세요
         </label>
         <p className="text-[0.75rem] font-medium text-gray-500 px-[0.125rem] mb-[0.25rem]">
-          6자리 이상의 영문/숫자 혼합 비밀번호를 만들어주세요
+          6~8자 영문 포함하여 입력해주세요
         </p>
 
         <div className="flex flex-col gap-[0.5rem]">

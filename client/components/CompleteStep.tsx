@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
-import PrimaryButton from "@/components/PrimaryButton";
+import PrimaryButton from "./baseelements/PrimaryButton";
 
 interface CompleteStepProps {
   title: string;
