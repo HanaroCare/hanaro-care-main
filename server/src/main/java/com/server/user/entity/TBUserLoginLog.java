@@ -15,14 +15,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -49,13 +51,12 @@ public class TBUserLoginLog extends BaseEntity {
   private LoginMeans userMeansCd;
 
   @Builder.Default
-  @Column(name = "USER_RESULT_YN", nullable = false, length = 1)
-  private String userResultYn = "Y";
+  @Column(name = "USER_RESULT_YN", nullable = false)
+  private boolean userResultYn = true;
 
   @Column(name = "ACCESS_IP_ADDR", length = 50)
   private String accessIpAddr;
 
   @Column(name = "ACCESS_DEV_NM", length = 255)
   private String accessDevNm;
-
 }
