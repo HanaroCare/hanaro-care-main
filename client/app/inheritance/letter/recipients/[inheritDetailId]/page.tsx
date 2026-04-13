@@ -1,18 +1,18 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
-import AudioPlayer from '@/app/inheritance/components/letter/AudioPlayer';
-import InheritanceMethodToggle from '@/app/inheritance/components/letter/InheritanceMethodToggle';
-import MessageInput from '@/app/inheritance/components/letter/MessageInput';
-import NicknameInput from '@/app/inheritance/components/letter/NicknameInput';
-import RecipientHeader from '@/app/inheritance/components/letter/RecipientHeader';
-import VoiceRecorderSheet from '@/app/inheritance/components/letter/VoiceRecorderSheet';
-import YearsInput from '@/app/inheritance/components/letter/YearsInput';
-import type { InheritanceMethod } from '@/app/inheritance/types';
-import PrimaryButton from '@/components/button/PrimaryButton';
-import { submitInheritanceLetter } from '../../../actions/letter/inheritance';
-import { mockRecipients } from '../../data';
+import AudioPlayer from "@/app/inheritance/components/letter/AudioPlayer";
+import InheritanceMethodToggle from "@/app/inheritance/components/letter/InheritanceMethodToggle";
+import MessageInput from "@/app/inheritance/components/letter/MessageInput";
+import NicknameInput from "@/app/inheritance/components/letter/NicknameInput";
+import RecipientHeader from "@/app/inheritance/components/letter/RecipientHeader";
+import VoiceRecorderSheet from "@/app/inheritance/components/letter/VoiceRecorderSheet";
+import YearsInput from "@/app/inheritance/components/letter/YearsInput";
+import type { InheritanceMethod } from "@/app/inheritance/types";
+import PrimaryButton from "@/components/button/PrimaryButton";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
+import { submitInheritanceLetter } from "../../../actions/letter/inheritance";
+import { mockRecipients } from "../../data";
 
 export default function InheritanceWritePage({
   params,
@@ -68,8 +68,11 @@ export default function InheritanceWritePage({
     <div className="flex min-h-screen flex-col bg-white">
       <div className="flex min-h-screen flex-col">
         {/* Form */}
-        <div className="flex flex-1 flex-col gap-7 pt-6">
-          <RecipientHeader recipient={recipient} onEdit={() => router.back()} />
+        <div className="flex-1 flex flex-col gap-7 pt-6 pb-32">
+          <RecipientHeader
+            recipient={recipient!}
+            onEdit={() => router.back()}
+          />
           <NicknameInput value={nickname} onChange={setNickname} />
           <YearsInput value={yearsLater} onChange={setYearsLater} />
           <InheritanceMethodToggle value={method} onChange={setMethod} />
@@ -98,11 +101,12 @@ export default function InheritanceWritePage({
             />
           )}
 
+        {/* Submit button */}
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full px-6.25 pb-8 bg-white pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0)]">
           <PrimaryButton
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="mt-4"
-            label={isSubmitting ? '저장 중...' : '작성 완료'}
+            label={isSubmitting ? "저장 중..." : "작성 완료"}
           />
         </div>
       </div>

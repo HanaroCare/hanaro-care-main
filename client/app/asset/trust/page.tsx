@@ -3,7 +3,7 @@
 import { CircleCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import DualActionFooter from '@/components/button/DualActionFooter';
+import DualActionFooter from '@/components/modules/DualActionFooter';
 
 const benefits = [
   {

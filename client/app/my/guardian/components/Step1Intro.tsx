@@ -1,7 +1,7 @@
 'use client';
 
 import { HeartPulse, Landmark, Users } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 type Props = {
   onNext: () => void;

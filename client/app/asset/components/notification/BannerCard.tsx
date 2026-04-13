@@ -14,7 +14,7 @@ type BannerCardProps = {
   buttonText: string;
   imageSrc: string;
   onClick?: () => void;
-  href?: string;
+  href?: Route<string>;
 };
 
 export function BannerCard({

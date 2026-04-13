@@ -4,8 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import PrimaryButton from '@/components/button/PrimaryButton';
-import { StepIndicator } from '@/components/indicator/StepIndicator';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { StepIndicator } from '@/components/baseelements/StepIndicator';
 import ConsentBottomSheet from './ConsentBottomSheet';
 
 const ONBOARDING_CONTENT = {

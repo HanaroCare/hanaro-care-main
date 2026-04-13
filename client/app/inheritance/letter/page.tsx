@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import PrimaryButton from '@/components/button/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 const MockUser = {
   name: '권하나',

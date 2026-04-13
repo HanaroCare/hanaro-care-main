@@ -6,7 +6,7 @@ import { TabNavigation } from './TabNavigation';
 type TabNavigationProps = React.ComponentProps<typeof TabNavigation>;
 
 const meta = {
-  title: 'Simulator/TabNavigation',
+  title: 'Navigation/TabNavigation',
   component: TabNavigation,
   parameters: {
     layout: 'fullscreen',

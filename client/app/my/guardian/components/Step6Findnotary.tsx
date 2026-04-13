@@ -2,7 +2,7 @@
 
 import { Clock, MapPin, Phone } from 'lucide-react';
 import { useRef, useState } from 'react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { useKakaoMap } from '../hooks/useKakaoMap';
 
 type Props = {

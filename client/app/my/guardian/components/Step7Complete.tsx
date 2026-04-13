@@ -3,7 +3,8 @@
 import { Check, CheckCircle2 } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import PrimaryButton from '@/components/PrimaryButton';
+import type { Route } from 'next';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
 type Props = {
   onPrev: () => void;
@@ -84,7 +85,7 @@ export default function Step7Complete({ onPrev }: Props) {
       </div>
       <PrimaryButton
         label={'홈으로 돌아가기'}
-        onClick={() => router.push('/my' as Route)}
+        onClick={() => router.push('/my' as Route<string>)}
         className="mb-3"
       />
       <PrimaryButton

@@ -2,8 +2,8 @@
 
 import { Check, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
-import BottomSheet from '@/components/BottomSheet';
-import PrimaryButton from '@/components/button/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import BottomSheet from '@/components/modules/BottomSheet';
 
 const CONSENT_ITEMS = [
   { id: 'personal', label: '개인정보 수집·이용 동의', required: true },
