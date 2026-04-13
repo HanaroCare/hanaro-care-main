@@ -29,13 +29,13 @@ export default function OnboardingSlide({
       </div>
 
       <div className="mb-[2rem] flex flex-1 flex-col items-center justify-center">
-        <div className="flex min-h-[20rem] w-full flex-col items-center justify-center overflow-hidden rounded-[1.5rem] bg-card p-[0.5rem] shadow-lg">
+        <div className="flex min-h-[20rem] w-full flex-col items-center justify-center overflow-hidden rounded-[1.5rem] bg-card shadow-lg">
           {isFirst ? (
             <div className="flex h-[10rem] w-[10rem] flex-col items-center justify-center rounded-[1rem] bg-gray-50">
               <span className="text-gray-400 text-[0.875rem] font-bold">하나로케어</span>
             </div>
           ) : (
-            <div className="relative h-full w-full">
+            <div className="relative w-full aspect-square scale-110">
               <Image
                 src={imagePath ?? "/images/default-thumbnail.png"}
                 alt="Onboarding"

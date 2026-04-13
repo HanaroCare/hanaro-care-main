@@ -14,7 +14,7 @@ export default function ProgressBar({
   className = "",
   barClassName = "",
 }: ProgressBarProps) {
-  const progress = Math.min(Math.max((currentStep / totalSteps) * 100, 0), 100);
+  const progress = totalSteps > 0 ? Math.min(Math.max((currentStep / totalSteps) * 100, 0), 100) : 0;
 
   return (
     <div className={`h-[0.25rem] w-full shrink-0 bg-border ${className}`}>

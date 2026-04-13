@@ -188,6 +188,10 @@
 }
 
 /* ===== Base ===== */
+.font-hana {
+	font-family: var(--font-hana);
+}
+
 body {
 	font-family: var(--font-sans);
 }
@@ -319,12 +323,21 @@ html[data-font-level="5"] { --font-scale: 1.3; }
 }
 
 @layer base {
-	* {
-		@apply border-border outline-ring/50;
-	}
-	body {
-		@apply bg-background text-foreground;
-	}
+    * {
+        @apply border-border outline-ring/50;
+    }
+
+    html {
+        font-size: calc(16px * var(--font-scale)) !important;
+        transition: font-size 0.2s ease-in-out;
+        scrollbar-gutter: stable;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-size: 1rem; 
+        line-height: 1.5;
+    }
 }
 
 /* ===== Animations ===== */

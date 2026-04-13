@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import PrimaryButton from "@/components/PrimaryButton";
 import ProgressBar from "@/components/ProgressBar";
 import OnboardingBottomSheet from "./components/OnboardingBottomSheet";
 import OnboardingHeader from "./components/OnboardingHeader";
 import OnboardingSlide from "./components/OnboardingSlide";
+import PrimaryButton from "@/components/PrimaryButton";
 
 /**
  * 온보딩 페이지
@@ -94,8 +94,8 @@ export default function OnboardingPage() {
 
 				<footer className="shrink-0 bg-background p-[1.5rem] pb-[3rem]">
 					<PrimaryButton
-						label={currentSlide === slides.length - 1 ? "시작하기" : "다음"}
 						onClick={handleNext}
+						label={currentSlide === slides.length - 1 ? "시작하기" : "다음"}
 					/>
 				</footer>
 			</div>
