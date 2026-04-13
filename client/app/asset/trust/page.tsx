@@ -4,6 +4,7 @@ import { CircleCheck } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import DualActionFooter from '@/components/modules/DualActionFooter';
+import Header from '@/components/navigation/Header';
 
 const benefits = [
   {
@@ -25,6 +26,7 @@ export default function TrustPage() {
   return (
     <div className="app-shell">
       <div className="app-layout">
+        <Header title="내맘대로신탁" />
         <main className="app-main no-scrollbar">
           <section className="px-6.25 pt-6">
             <p className="mb-1 font-normal text-[#6A7282] text-[12px] leading-4.5">
@@ -38,7 +40,7 @@ export default function TrustPage() {
 
             <div className="mt-2 flex justify-center">
               <Image
-                src="/images/trust.png"
+                src="/images/asset/trust.svg"
                 alt="가족 일러스트"
                 width={240}
                 height={226}

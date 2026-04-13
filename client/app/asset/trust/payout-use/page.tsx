@@ -4,6 +4,7 @@ import { TriangleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import DualActionFooter from '@/components/modules/DualActionFooter';
+import Header from '@/components/navigation/Header';
 import TrustProgressBar from '../../components/trust/TrustProgressBar';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 import { formatKoreanAmount, parseKoreanAmount } from '../trustUtils';
@@ -38,10 +39,13 @@ export default function PayoutUsagePage() {
           leftLabel="지금 안할래요"
           rightLabel="다음으로"
           rightDisabled={selected.size === 0}
+          onLeftClick={() => router.push('/asset/trust/result')}
           onRightClick={() => router.push('/asset/trust/select-agent')}
         />
       }
     >
+      <Header title="내맘대로신탁" />
+
       <section className="px-6 pt-8">
         <TrustProgressBar step={5} />
 
