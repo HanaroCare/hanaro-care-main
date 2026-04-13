@@ -15,7 +15,8 @@ export default function PrimaryButton({
   fullWidth = true,
   className = '',
 }: PrimaryButtonProps) {
-  const resolvedVariant = disabled ? 'disabled' : variant;
+  const isDisabled = disabled || variant === 'disabled';
+  const resolvedVariant = isDisabled ? 'disabled' : variant;
 
   const variantClass =
     resolvedVariant === 'primary'
@@ -27,11 +28,11 @@ export default function PrimaryButton({
   return (
     <button
       type="button"
-      disabled={disabled}
+      disabled={isDisabled}
       onClick={onClick}
       className={`
-				${fullWidth ? 'w-full' : ''} h-14 rounded-[10px] text-[17px] ${variantClass} font-semibold transition ${className}
-			`}
+        ${fullWidth ? 'w-full' : ''} h-14 rounded-[10px] text-[17px] ${variantClass} font-semibold transition ${className}
+      `}
     >
       {label}
     </button>
