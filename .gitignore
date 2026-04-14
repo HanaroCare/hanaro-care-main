@@ -9,6 +9,7 @@ db.properties
 secure/
 *.bak
 backup/
+*.sock
 
 # === Java & Gradle (빌드 결과물) ===
 .gradle/
