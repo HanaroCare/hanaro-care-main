@@ -1,9 +1,12 @@
 package com.server.user.entity;
 
 import com.server.common.entity.BaseEntity;
+import com.server.user.enums.FamilyRelation;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
@@ -50,25 +53,26 @@ public class TBFamilyAuth extends BaseEntity {
   )
   private TBUser grantee;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "CARD_ID",
-      referencedColumnName = "CARD_ID",
-      columnDefinition = "bigint unsigned",
-      foreignKey = @ForeignKey(name = "fk_FamilyAuth_cardId_Card"))
-  private TBCard card;
-
-  @Column(name = "INS_VIEW_YN", nullable = false, length = 1)
-  private String insViewYn;
+  @Builder.Default
+  @Column(name = "IS_INS_VIEW", nullable = false)
+  private Boolean isInsView = false;
 
   @Column(name = "AUTH_STATUS", nullable = false)
   private Boolean authStatus; // BOOLEAN (true: 승인, false: 거절/대기)
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "RELATION_CD", nullable = false)
-  private Boolean relationCd; // BOOLEAN (부모/자녀 구분용)
+  private FamilyRelation relationCd; // ENUM (01: 배우자, 02: 자녀, 03: 부모, 04: 기타 가족)
 
-  @Column(name = "CARD_VIEW_YN", nullable = false, length = 1)
-  private String cardViewYn;
+  @Builder.Default
+  @Column(name = "IS_CARD_VIEW", nullable = false)
+  private Boolean isCardView = false;
 
+  @Builder.Default
+  @Column(name = "IS_PROXY_CLAIM", nullable = false)
+  private Boolean isProxyClaim = false; // 대리청구 가능 여부
 
+  @Builder.Default
+  @Column(name = "IS_TRUST_VIEW", nullable = false)
+  private Boolean isTrustView = false; // 신탁 조회 권한 여부
 }

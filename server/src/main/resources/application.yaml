@@ -1,7 +1,46 @@
 spring:
+  config:
+    import: classpath:security.yaml
   application:
     name: server
 
-  config:
-    import: classpath:security.yaml
+  jpa:
+    hibernate:
+      ddl-auto: create
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
+    defer-datasource-initialization: true
+    show-sql: false
+
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+          time_zone: Asia/Seoul
+        order_inserts: true
+        order_updates: true
+        format_sql: true
+        use_sql_comments: true
+
+  sql:
+    init:
+      mode: always
+
+  web:
+    resources:
+      add-mappings: false
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080
+
+logging:
+  level:
+    com.server: debug
+    org.hibernate.SQL: info

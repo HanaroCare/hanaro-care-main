@@ -14,7 +14,7 @@
   flex: 1; /* 남은 공간을 다 차지 */
   overflow-y: auto; /* 여기서만 스크롤 발생 */
   -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
-  padding-bottom: 40px; /* 마지막 버튼 아래 충분한 여백 확보 */
+  padding-bottom: 20px; /* 네비바 높이(약 65px)보다 큰 여백 확보 */
 }
 
 .header {

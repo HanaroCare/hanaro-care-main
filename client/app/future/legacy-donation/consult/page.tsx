@@ -1,24 +1,44 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { Route } from 'next';
-import Header from '@/components/Header';
-import InstitutionCard from '@/app/future/components/InstitutionCard';
-import { Search } from 'lucide-react';
+import { useState } from "react";
+import { Route } from "next";
+import Header from "@/components/navigation/Header";
+import InstitutionCard from "@/app/future/components/InstitutionCard";
+import { Search } from "lucide-react";
 
 const institutions = [
-  { name: '국립연명의료관리기관', address: '서울시 중구 을지로 245', phone: '02-1234-5678' },
-  { name: '서울대병원 완화의료센터', address: '서울시 중구 을지로 245', phone: '02-1234-5679' },
-  { name: '세브란스병원 호스피스팀', address: '서울시 중구 을지로 245', phone: '02-1234-5680' },
-  { name: '삼성서울병원 완화의료팀', address: '서울시 중구 을지로 245', phone: '02-1234-5681' },
-  { name: '아산병원 호스피스센터', address: '서울시 중구 을지로 245', phone: '02-1234-5682' },
+  {
+    name: "국립연명의료관리기관",
+    address: "서울시 중구 을지로 245",
+    phone: "02-1234-5678",
+  },
+  {
+    name: "서울대병원 완화의료센터",
+    address: "서울시 중구 을지로 245",
+    phone: "02-1234-5679",
+  },
+  {
+    name: "세브란스병원 호스피스팀",
+    address: "서울시 중구 을지로 245",
+    phone: "02-1234-5680",
+  },
+  {
+    name: "삼성서울병원 완화의료팀",
+    address: "서울시 중구 을지로 245",
+    phone: "02-1234-5681",
+  },
+  {
+    name: "아산병원 호스피스센터",
+    address: "서울시 중구 을지로 245",
+    phone: "02-1234-5682",
+  },
 ];
 
 export default function LegacyDonationConsultPage() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const filtered = institutions.filter(
-    (item) => item.name.includes(search) || item.address.includes(search)
+    (item) => item.name.includes(search) || item.address.includes(search),
   );
 
   const handleCall = (phone: string) => {
@@ -35,10 +55,12 @@ export default function LegacyDonationConsultPage() {
             <Search size={15} color="#D1D5DB" />
             <input
               type="text"
+              id="institution-search"
+              aria-label="기관명 또는 주소 검색"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="기관명 또는 주소 검색"
-              className="flex-1 font-normal text-[14px] leading-[21px] text-[#D1D5DB] placeholder:text-[#D1D5DB] outline-none"
+              className="flex-1 font-normal text-[14px] leading-[21px] text-[#1A212D] placeholder:text-[#D1D5DB] outline-none"
             />
           </div>
         </div>

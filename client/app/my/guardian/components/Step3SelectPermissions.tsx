@@ -1,7 +1,7 @@
 'use client';
 
 import { FileText, HeartPulse, Home, Landmark, Shield } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import type { GuardianData } from '../types/types';
 
 type Props = {
@@ -142,7 +142,7 @@ export default function Step3SelectPermissions({
           )}
         </div>
       </div>
-      <PrimaryButton onClick={onNext} className="mb-5 w-full" label={'다음'} />
+      <PrimaryButton onClick={onNext} className="w-full" label={'다음'} />
     </div>
   );
 }

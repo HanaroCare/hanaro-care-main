@@ -7,9 +7,3 @@ export const ASSET_DATA = [
   { name: '계좌', value: '1,000만', percentage: 13.1, color: '#BDAE7F' },
 ] as const;
 
-export const NAV_ITEMS = [
-  { id: 'home', label: '홈', href: '/' },
-  { id: 'assets', label: '자산 설계', href: '/asset' },
-  { id: 'wallet', label: '돌봄 지갑', href: '/wallet' },
-  { id: 'my', label: 'My하나', href: '/my' },
-] as const;
