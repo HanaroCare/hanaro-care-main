@@ -40,47 +40,10 @@ export default function OrganDonationPage() {
         videoTitle="영상으로 알아보기"
         faqItems={faqItems}
         consultHref={"/future/organ-donation/consult" as Route}
-        applyHref={"/future/organ-donation/consult" as Route}
+        applyHref={"/future/organ-donation/delivery" as Route}
         applyLabel="신청서 작성하기"
         onApplyClick={() => setShowPopup(true)}
       />
-
-      {/* 팝업 */}
-      {showPopup && (
-        <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="relative bg-white rounded-3xl w-[283px] px-[16px] pt-[50px] pb-[20px]">
-            {/* 닫기 */}
-            <button
-              onClick={() => setShowPopup(false)}
-              className="absolute top-[17px] right-[16px]"
-            >
-              <X size={20} color="#3E454C" />
-            </button>
-
-            {/* 텍스트 */}
-            <div className="flex flex-col items-center gap-[8px] mb-[24px]">
-              <span className="font-medium text-[16px] leading-[24px] tracking-[-0.04em] text-[#22262B]">
-                신청 방법을 선택해주세요
-              </span>
-              <p className="font-medium text-[12px] leading-[18px] tracking-[-0.04em] text-[#535C6A] text-center">
-                신청서를 작성하고 방문할 수 있어요.
-              </p>
-            </div>
-
-            {/* 버튼 */}
-            <button
-              onClick={() => {
-                setShowPopup(false);
-                router.push("/future/organ-donation/delivery" as Route);
-              }}
-              className="w-full h-[61px] rounded-[10px] font-semibold text-[14px] leading-[20px] tracking-[-0.15px] text-white"
-              style={{ backgroundColor: "#01A5AC" }}
-            >
-              신청서 작성 후 방문
-            </button>
-          </div>
-        </div>
-      )}
     </>
   );
 }
