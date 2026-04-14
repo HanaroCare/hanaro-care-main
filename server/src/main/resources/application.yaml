@@ -1,17 +1,13 @@
 spring:
+  config:
+    import: security.yaml
   application:
     name: server
-
-  config:
-    import: classpath:security.yaml
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     defer-datasource-initialization: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     show-sql: false
