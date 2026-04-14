@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.server.asset.dto.response.AssetDashboardResponse;
 import com.server.asset.dto.response.AssetDashboardResponse.FinancialAssetSummary;
 import com.server.asset.dto.response.AssetDashboardResponse.RealAssetSummary;
+import com.server.asset.dto.response.FinancialAssetResponse;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.RealAssetCategory;
+import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
 
@@ -23,6 +25,8 @@ public class AssetService {
 
 	private final TBAccountRepository tbAccountRepository;
 	private final TBRealAssetRepository tbRealAssetRepository;
+	private final AssetMapper assetMapper;
+
 
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
 		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
@@ -53,5 +57,9 @@ public class AssetService {
 			.financialAssets(financialAssets)
 			.realAssets(realAssets)
 			.build();
+	}
+
+	public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
+		return assetMapper.toFinancialAssetResponseList(tbAccountRepository.findAllByUser_UserId(userId));
 	}
 }

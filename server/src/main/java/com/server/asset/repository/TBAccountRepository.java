@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import com.server.asset.entity.TBAccount;
 
 public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
+	List<TBAccount> findAllByUser_UserId(Long userId);
+
 	@Query("""
         SELECT a.assetCateCd, SUM(a.balanceAmt)
         FROM TBAccount a
