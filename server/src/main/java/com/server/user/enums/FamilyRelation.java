@@ -3,6 +3,7 @@ package com.server.user.enums;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@lombok.Getter
 public enum FamilyRelation {
   SPOUSE("01", "배우자"),
   CHILD("02", "자녀"),
