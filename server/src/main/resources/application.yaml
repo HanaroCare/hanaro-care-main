@@ -1,17 +1,6 @@
-jwt:
-  secret: dGhpcy1pcy1hLXZlcnktc3Ryb25nLXNlY3JldC1rZXktZm9yLWhhbmFyby1jYXJlLW1haW4tc2VydmVyLTM0Cg==
-  access-expiration: 600000
-  refresh-expiration: 604800000
-
 spring:
   application:
     name: server
-
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3308/hanacare?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: hanacare
-    password: 12345678
 
   jpa:
     defer-datasource-initialization: true
