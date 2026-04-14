@@ -27,11 +27,17 @@ public enum ErrorStatus implements BaseErrorCode {
 
     //card
 
-    //asset ( 예시 )
-    _PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_1", "상품을 찾을 수 없습니다."),
-    _PRODUCT_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "PRODUCT_2", "이미 가입된 상품입니다."),
-    _PRODUCT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "PRODUCT_3", "가입 불가능한 상품입니다."),
-    _PRODUCT_INVALID_TYPE(HttpStatus.BAD_REQUEST, "PRODUCT_4", "유효하지 않은 상품 타입입니다.");
+    //asset
+    PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_001", "가입한 상품 정보를 찾을 수 없습니다."),
+
+    TRUST_SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_001", "시뮬레이션 정보를 찾을 수 없습니다."),
+    TRUST_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_002", "유저를 찾을 수 없습니다."),
+    TRUST_CLAIM_AGENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_003", "대리인을 찾을 수 없습니다."),
+    TRUST_START_DATE_REQUIRED(HttpStatus.BAD_REQUEST, "TRUST_004", "날짜 지정 시 시작일은 필수입니다."),
+    TRUST_JSON_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "TRUST_005", "설정 데이터 처리 중 오류가 발생했습니다."),
+    TRUST_FIXED_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_006", "신탁 상품 정보를 찾을 수 없습니다."),
+    TRUST_PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "TRUST_007", "이미 가입된 신탁 상품이 있습니다."),
+    TRUST_INVALID_PAYOUT_SETTINGS(HttpStatus.BAD_REQUEST, "TRUST_008", "집행 설정 정보가 올바르지 않습니다.");
 
     //inheritance
 
