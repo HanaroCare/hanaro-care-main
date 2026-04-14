@@ -25,8 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class TrustAdminService {
 
-	private static final String TRUST_PRODUCT_NAME = "내맘대로신탁";
-
 	private final TBUserRepository userRepository;
 	private final TrustRepository trustRepository;
 	private final UserProdRepository userProdRepository;
@@ -42,7 +40,7 @@ public class TrustAdminService {
 			.orElseThrow(() -> new ApiException(ErrorStatus.TRUST_SIMULATION_NOT_FOUND));
 
 		TBProduct product = productRepository
-			.findByProdCateAndProdNm(ProdCate.TRUST, TRUST_PRODUCT_NAME)
+			.findByProdCate(ProdCate.TRUST)
 			.orElseThrow(() -> new ApiException(ErrorStatus.TRUST_FIXED_PRODUCT_NOT_FOUND));
 
 		if (userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
@@ -58,5 +56,20 @@ public class TrustAdminService {
 		TBUserProd userProd = trustMapper.toUserProd(simulation, user, product, principal, detail);
 
 		return userProdRepository.save(userProd).getUserProdId();
+	}
+
+	@Transactional
+	public void enableAgentView(Long userId) {
+		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+			userId,
+			ProdCate.TRUST,
+			ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
+
+		if (userProd.getClaimAgent() == null) {
+			throw new ApiException(ErrorStatus.TRUST_CLAIM_AGENT_NOT_FOUND);
+		}
+
+		userProd.setIsAgentView(true);
 	}
 }

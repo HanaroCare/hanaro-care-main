@@ -6,6 +6,8 @@ import com.server.asset.dto.trust.TrustSimulationResultResponse.AmountResultDto;
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.entity.TBTrustSimulation;
 import com.server.asset.entity.TBUserProd;
+import com.server.asset.entity.enums.ProdCate;
+import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.StartType;
 import com.server.asset.entity.enums.TrustAccessLevel;
 import com.server.asset.entity.enums.TrustType;
@@ -126,8 +128,11 @@ public class TrustService {
 	public TrustProductResponse getFamilyTrustDetail(Long granteeUserId, Long grantorUserId) {
 		validateTrustAccess(granteeUserId, grantorUserId);
 
-		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(grantorUserId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
+		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+			grantorUserId,
+			ProdCate.TRUST,
+			ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
 		return convertToProductResponse(userProd);
 	}
