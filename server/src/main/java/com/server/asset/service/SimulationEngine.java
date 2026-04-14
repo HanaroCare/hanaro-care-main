@@ -59,12 +59,16 @@ public class SimulationEngine {
         try {
             String apiKey = apiProperties.getKosis().getApiKey();
             if (isValidKey(apiKey)) {
+                log.info("[KOSIS Request] API Key: {}, Base URL: {}", apiKey.substring(0, 5) + "...", apiProperties.getKosis().getBaseUrl());
                 List<PublicDataResponse.KosisData> data = kosisClient.getMedicalInflation(
                     apiKey, "getList", "json", "101", "Y", "2023", "2023");
-                if (data != null && !data.isEmpty()) return new BigDecimal(data.get(0).getValue());
+                if (data != null && !data.isEmpty()) {
+                    log.info("[KOSIS Success] Value: {}", data.get(0).getValue());
+                    return new BigDecimal(data.get(0).getValue());
+                }
             }
         } catch (Exception e) {
-            log.warn("KOSIS API failed: {}", e.getMessage());
+            log.warn("[KOSIS Failed] Error: {}", e.getMessage());
         }
         return new BigDecimal("4.5");
     }
@@ -73,18 +77,20 @@ public class SimulationEngine {
         try {
             String apiKey = apiProperties.getPublicData().getApiKey();
             if (isValidKey(apiKey)) {
+                log.info("[Bokjiro Request] API Key: {}, Base URL: {}", apiKey.substring(0, 5) + "...", apiProperties.getPublicData().getBaseUrl());
                 // 중앙부처 복지서비스 목록조회 (노인 대상)
                 PublicDataResponse.WelfareListResponse response = bokjiroClient.getWelfareServices(
                     apiKey, "L", 1, 5, "003", "노인", "006", "json");
                 
                 if (response != null && response.getWantedList() != null && response.getWantedList().getServList() != null) {
+                    log.info("[Bokjiro Success] Count: {}", response.getWantedList().getServList().size());
                     return response.getWantedList().getServList().stream()
                         .map(PublicDataResponse.WelfareService::getServNm)
                         .collect(Collectors.toList());
                 }
             }
         } catch (Exception e) {
-            log.warn("Bokjiro API failed: {}", e.getMessage());
+            log.warn("[Bokjiro Failed] Error: {}", e.getMessage());
         }
         return Arrays.asList("기초연금", "노인 장기요양 보험");
     }

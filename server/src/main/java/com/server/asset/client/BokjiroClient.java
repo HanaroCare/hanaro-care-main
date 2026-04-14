@@ -14,7 +14,7 @@ public interface BokjiroClient {
      * callTp: L (목록), D (상세)
      * srchKeyCode: 001 제목, 002 내용, 003 제목+내용
      */
-    @GetMapping("/B553077/rest/SocialWelfareInstService/getWelfareServiceList")
+    @GetMapping("/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001")
     PublicDataResponse.WelfareListResponse getWelfareServices(
         @RequestParam("serviceKey") String apiKey,
         @RequestParam("callTp") String callTp,
