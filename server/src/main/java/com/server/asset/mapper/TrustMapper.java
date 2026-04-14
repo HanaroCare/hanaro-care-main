@@ -28,25 +28,17 @@ public abstract class TrustMapper {
   @Autowired
   protected ObjectMapper objectMapper;
 
-  // ── 시뮬레이션 조건 저장/수정 ──────────────────────────────────────
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
   @Mapping(target = "trustSimulationId", ignore = true)
   @Mapping(target = "user", ignore = true)
-  @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "payoutSettings", expression = "java(toJson(request.payoutSettings()))")
   @Mapping(target = "claimAgent", source = "claimAgent")
-  @Mapping(target = "principalAmount", source = "request.principalAmount")
-  @Mapping(target = "startType", source = "request.startType")
-  @Mapping(target = "startDate", source = "request.startDate")
-  @Mapping(target = "investType", source = "request.investType")
-  @Mapping(target = "payoutType", source = "request.payoutType")
   public abstract void updateSimulation(
       TrustSimulationSaveRequest request,
       TBUser claimAgent,
       @MappingTarget TBTrustSimulation simulation
   );
 
-  // ── 신탁 상품 가입 시 TBUserProd 생성 ──────────────────────────────
   @Mapping(target = "userProdId", ignore = true)
   @Mapping(target = "user", source = "user")
   @Mapping(target = "product", source = "product")
@@ -61,10 +53,7 @@ public abstract class TrustMapper {
   @Mapping(target = "startDate", source = "simulation.startDate")
   @Mapping(target = "claimAgent", source = "simulation.claimAgent")
   @Mapping(target = "payoutSettings", source = "simulation.payoutSettings")
-  @Mapping(target = "targetAsset", ignore = true)
-  @Mapping(target = "monthlyPayout", ignore = true)
-  @Mapping(target = "period", ignore = true)
-  @Mapping(target = "isAgentView", ignore = true)
+  @Mapping(target = "isAgentView", constant = "true")
   public abstract TBUserProd toUserProd(
       TBTrustSimulation simulation,
       TBUser user,
@@ -73,7 +62,6 @@ public abstract class TrustMapper {
       SimulationDetailDto detail
   );
 
-  // ── 운용현황 응답 생성 ─────────────────────────────────────────────
   @Mapping(target = "userProdId", source = "userProd.userProdId")
   @Mapping(target = "productName", source = "userProd.product.prodNm")
   @Mapping(target = "prodStatus", expression = "java(userProd.getProdStat().name())")
@@ -93,6 +81,7 @@ public abstract class TrustMapper {
       TrustProductResponse.ExecutionSetting executionSetting
   );
 
+  // JSON 변환 헬퍼 메서드
   protected String toJson(Object obj) {
     if (obj == null) return null;
     try {
