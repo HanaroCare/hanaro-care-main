@@ -7,10 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import com.server.common.response.code.BaseErrorCode;
+import com.server.common.response.code.ErrorReasonDTO;
+
 @Getter
 @AllArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
-  //일반 응답
+  // 일반 응답
   _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
   _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
   _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
@@ -28,9 +31,9 @@ public enum ErrorStatus implements BaseErrorCode {
   FAMILY_AUTH_NOT_APPROVED(HttpStatus.FORBIDDEN, "FAMILY4031", "아직 승인되지 않은 가족 권한입니다."),
   TRUST_VIEW_FORBIDDEN(HttpStatus.FORBIDDEN, "TRUST4032", "신탁 조회 권한이 없습니다."),
 
-  //card
+  // card
 
-  //asset
+  // asset
   PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_001", "가입한 상품 정보를 찾을 수 없습니다."),
 
   TRUST_SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_001", "시뮬레이션 정보를 찾을 수 없습니다."),
@@ -51,7 +54,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
   // asset
   ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
-  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
+  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다.");
 
   //inheritance
   INHERIT_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_4041", "상속 설계 내역을 찾을 수 없습니다."),
