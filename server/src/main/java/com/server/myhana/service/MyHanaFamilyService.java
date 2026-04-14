@@ -30,7 +30,7 @@ public class MyHanaFamilyService {
     private final JwtUtil jwtUtil;
 
     /**
-     * 가족 목록 조회 (본인 포함, 승인된 가족만)
+     * 가족 목록 조회 (본인 포함)
      */
     public List<FamilyMemberResponse> getFamilyMembers(Long userId) {
         TBUser user = userRepository.findById(userId)
@@ -48,11 +48,10 @@ public class MyHanaFamilyService {
                 .isMe(true)
                 .build());
 
-        // 2. 입증된(authStatus=true) 가족만 조회
-        List<TBFamilyAuth> approvedFamilies = familyRepository.findAllByGrantorAndAuthStatusTrue(user);
+        // 2. 가족 목록 조회
+        List<TBFamilyAuth> familyAuths = familyRepository.findAllByGrantor_UserId(userId);
         
-        // 타입 추론 문제를 방지하기 위해 제네릭 명시
-        List<FamilyMemberResponse> families = approvedFamilies.stream()
+        List<FamilyMemberResponse> families = familyAuths.stream()
                 .map(auth -> FamilyMemberResponse.builder()
                         .userId(auth.getGrantee().getUserId())
                         .name(auth.getGrantee().getUserNm())
@@ -70,22 +69,19 @@ public class MyHanaFamilyService {
 
     /**
      * 가족 초대용 토큰 발급
-     * DB에 아무것도 저장하지 않고, 토큰 안에 초대 정보만 담아서 반환
      */
     public String inviteFamily(Long grantorId, FamilyInviteRequest request) {
         userRepository.findById(grantorId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
 
-        // 토큰에 초대한 사람 ID와 관계 정보를 담음
         return jwtUtil.createInviteToken(grantorId, request.getRelation().name());
     }
 
     /**
-     * 초대 수락 (가족 입증 및 관계 생성 시점)
+     * 초대 수락 (가족 관계 생성 시점)
      */
     @Transactional
     public void acceptInvitation(Long granteeId, FamilyInviteAcceptRequest request) {
-        // 토큰 해독 및 정보 추출
         Map<String, Object> inviteInfo = jwtUtil.getInfoFromInviteToken(request.getToken());
         Long grantorId = (Long) inviteInfo.get("grantorId");
         FamilyRelation relation = FamilyRelation.valueOf((String) inviteInfo.get("relation"));
@@ -95,18 +91,17 @@ public class MyHanaFamilyService {
         TBUser grantee = userRepository.findById(granteeId)
                 .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
 
-        // 이미 입증된 관계인지 확인 (중복 생성 방지)
-        familyRepository.findByGrantorAndGrantee(grantor, grantee)
+        // 이미 존재하는 관계인지 확인
+        familyRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
                 .ifPresent(auth -> {
                     throw new ApiException(ErrorStatus._BAD_REQUEST);
                 });
 
-        // 이 시점에 비로소 DB에 가족 관계 레코드가 생성됨
+        // 가족 관계 레코드 생성 (authStatus 없음)
         TBFamilyAuth newAuth = TBFamilyAuth.builder()
                 .grantor(grantor)
                 .grantee(grantee)
                 .relationCd(relation)
-                .authStatus(true) // 입증 완료
                 .isInsView(false)
                 .isCardView(false)
                 .isProxyClaim(false)
@@ -121,15 +116,11 @@ public class MyHanaFamilyService {
      */
     @Transactional
     public void updateInsuranceViewPermission(Long grantorId, GrantInsuranceViewRequest request) {
-        TBUser grantor = userRepository.findById(grantorId)
-                .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
-        TBUser grantee = userRepository.findById(request.getGranteeId())
-                .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        Long granteeId = request.getGranteeId();
 
-        // 입증된 가족(authStatus=true)만 권한 변경 가능
-        TBFamilyAuth familyAuth = familyRepository.findByGrantorAndGrantee(grantor, grantee)
-                .filter(TBFamilyAuth::getAuthStatus)
-                .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        // 가족 권한 조회 (authStatus 체크 제거)
+        TBFamilyAuth familyAuth = familyRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
+                .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
         familyAuth.setIsInsView(request.getIsInsView());
     }
