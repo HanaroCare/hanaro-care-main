@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 기존 데이터 삭제
+-- 2. 이제 안전하게 비웁니다.
 TRUNCATE TABLE TB_USER_SIMPLE_AUTH;
 TRUNCATE TABLE TB_ASSET_TRANS;
 TRUNCATE TABLE TB_USER_PROD;
@@ -19,22 +19,28 @@ TRUNCATE TABLE TB_PRODUCT;
 TRUNCATE TABLE TB_USER;
 
 SET FOREIGN_KEY_CHECKS = 1;
-SET time_zone = 'Asia/Seoul';
 
 -- ========================
 -- TB_USER
 -- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
-INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT, USER_STAT_CD,
-                     USER_ROLE)
-VALUES (1001, '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01011112222',
-        65, 1, 'ACTIVE', 'ROLE_USER'),
-       (1002, '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01022223333',
-        40, 0, 'ACTIVE', 'ROLE_USER'),
-       (1003, '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01033334444',
-        63, 1, 'ACTIVE', 'ROLE_USER'),
-       (1004, '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01055556666',
-        35, 1, 'ACTIVE', 'ROLE_ADMIN');
+INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
+                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
+VALUES
+    -- 1. 정상 유저 (최근 로그인)
+    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+    -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
+    (1002, 'chulsoo7', '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH),
+     DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+    -- 3. 이미 휴면 상태인 유저
+    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
+     DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+    -- 4. 관리자
+    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
 
 -- ========================
 -- TB_PRODUCT
@@ -81,13 +87,59 @@ VALUES (4001, 2001, '하나 시니어 행복카드', 5000000.00, 0.00, 1),
 -- ========================
 -- TB_ASSET_SIMULATION
 -- ========================
-INSERT INTO TB_ASSET_SIMULATION (SIMULATION_ID, USER_ID, TARGET_AGE, LIVING_COST, MEDICAL_COST,
-                                 CARE_COST, MONTHLY_COST, AGE_RANGE_DETAILS)
-VALUES (1, 1001, 85, 1500000.00, 500000.00, 300000.00, 2300000.00, '{
-  "details": "60대 후반 기준 월 평균 지출 설계"
-}'),
-       (2, 1003, 90, 1200000.00, 400000.00, 200000.00, 1800000.00, '{
-         "details": "배우자 단독 생활 기준 지출 설계"
+INSERT INTO TB_ASSET_SIMULATION (SIMULATION_ID, USER_ID, TARGET_AGE, CARE_TYPE_CD, TOTAL_INCOME_AMT,
+                                 SHORTAGE_AMT, IS_SUFFICIENT, LIVING_COST, MEDICAL_COST, CARE_COST,
+                                 MONTHLY_COST, AGE_RANGE_DETAILS)
+VALUES (1, 1001, 85, 'CENTER', 1450000.00, 850000.00, 0, 1500000.00, 500000.00, 300000.00,
+        2300000.00, '{
+    "income_breakdown": {
+      "national_pension": 1300000,
+      "local_subsidy": 150000,
+      "subsidy_name": "서울시 고령자 지원금"
+    },
+    "segments": [
+      {
+        "age_range": "65-70",
+        "monthly_income": 1450000,
+        "monthly_expense": 2300000,
+        "details": {
+          "living": 1500000,
+          "medical": 500000,
+          "care": 300000
+        }
+      },
+      {
+        "age_range": "70-75",
+        "monthly_income": 1450000,
+        "monthly_expense": 2600000,
+        "details": {
+          "living": 1400000,
+          "medical": 700000,
+          "care": 500000
+        }
+      }
+    ],
+    "ai_opinion": "현재 자산으로는 70세 이후 병원비 상승 폭을 감당하기에 월 약 85만원이 부족할 것으로 예측됩니다."
+  }'),
+       (2, 1003, 90, 'HOME', 1800000.00, 0.00, 1, 1200000.00, 400000.00, 200000.00, 1800000.00, '{
+         "income_breakdown": {
+           "national_pension": 1600000,
+           "local_subsidy": 200000,
+           "subsidy_name": "경기도 노인 기본소득"
+         },
+         "segments": [
+           {
+             "age_range": "63-68",
+             "monthly_income": 1800000,
+             "monthly_expense": 1800000,
+             "details": {
+               "living": 1200000,
+               "medical": 400000,
+               "care": 200000
+             }
+           }
+         ],
+         "ai_opinion": "현재 연금 수령액만으로도 계획하신 재가 요양 생활비를 충분히 충당 가능합니다. 여유 자산은 신탁을 통해 관리하시는 것을 추천합니다."
        }');
 
 -- ========================
@@ -121,7 +173,7 @@ INSERT INTO TB_USER_PROD (USER_PROD_ID,
                           IS_AGENT_VIEW)
 VALUES (5001, 1001, 1, 1002, NULL, 50000000.00, 1500000.00, 120, 5000000.00, 3.20, 'IN_PROGRESS',
         'TRUST', 'LUMP_SUM', 'PENSION', 'NOW', 1),
-       (5002, 1001, 2, 1002, 3001, 920000000.00, 2500000.00, 0, 0.00, 2.80, 'IN_PROGRESS',
+       (5002, 1002, 2, 1002, 3001, 920000000.00, 2500000.00, 0, 0.00, 2.80, 'IN_PROGRESS',
         'HOUSING_PENSION', 'DIRECT', 'FLEXIBLE', 'NOW', 1);
 
 -- ========================
@@ -155,9 +207,9 @@ VALUES (1, 1, '아들아, 건강하게 잘 살아라.', 'https://s3.aws.com/voic
 -- ========================
 -- TB_FAMILY_AUTH
 -- =====================
-INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID, AUTH_STATUS,
+INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
-VALUES (1, 1001, 1002, 1, 'CHILD', 1, 1, 1, 1);
+VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1);
 
 -- ========================
 -- TB_USER_LOGIN_LOG
@@ -171,7 +223,8 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- TB_USER_SIMPLE_AUTH
 -- ========================
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
-VALUES (8001, 1001, 'HASHED_PIN_VALUE', 'SIMPLE_PASSWORD'),
+VALUES (8001, 1001, '$2a$12$R9h/lSAbvI7.Ctf386zUn.9v78RREI7K7T9I.X06C58L4iFm3lG8i',
+        'SIMPLE_PASSWORD'),
        (8002, 1002, 'BIO_TOKEN_VALUE', 'FACEID');
 
 -- ========================
