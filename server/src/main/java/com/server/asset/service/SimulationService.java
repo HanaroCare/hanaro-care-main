@@ -15,9 +15,9 @@ import com.server.asset.dto.response.SimulationSummaryResponse;
 import com.server.asset.entity.TBAssetSimulation;
 import com.server.asset.mapper.SimulationMapper;
 import com.server.asset.repository.TBAssetSimulationRepository;
+import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
-import com.server.user.entity.TBUser;
 import com.server.user.repository.TBUserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -33,9 +33,8 @@ public class SimulationService {
     private final ObjectMapper objectMapper;
 
     @Transactional
+    @CheckUser(key = "#userId")
     public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
-        validateUser(userId);
-
         // AI 분석 결과를 시뮬레이션하는 가상 로직
         BigDecimal totalIncomeAmt = new BigDecimal("1450000.00");
         BigDecimal monthlyCost = new BigDecimal("2300000.00");
@@ -89,7 +88,7 @@ public class SimulationService {
 
         // DB 저장
         TBAssetSimulation simulation = TBAssetSimulation.builder()
-            .user(tbUserRepository.getReferenceById(userId)) // findById 대신 referenceById 사용 가능 (이미 존재 확인했으므로)
+            .user(tbUserRepository.getReferenceById(userId))
             .targetAge(request.getTargetAge())
             .careType(request.getCareType())
             .totalIncomeAmt(totalIncomeAmt)
@@ -107,9 +106,8 @@ public class SimulationService {
         return simulationMapper.toSimulationResponse(savedSimulation);
     }
 
+    @CheckUser(key = "#userId")
     public SimulationSummaryResponse getSimulationSummary(Long userId) {
-        validateUser(userId);
-
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
@@ -123,9 +121,8 @@ public class SimulationService {
         return simulationMapper.toSimulationSummaryResponse(simulation, detailData.getAgeSegments(), detailData.getAiOpinion());
     }
 
+    @CheckUser(key = "#userId")
     public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
-        validateUser(userId);
-
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(userId, request.getTargetAge(), request.getCareType())
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
@@ -133,12 +130,6 @@ public class SimulationService {
             return objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
         } catch (JsonProcessingException e) {
             throw new ApiException(ErrorStatus._INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private void validateUser(Long userId) {
-        if (!tbUserRepository.existsById(userId)) {
-            throw new ApiException(ErrorStatus.USER_NOT_FOUND);
         }
     }
 }
