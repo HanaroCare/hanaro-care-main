@@ -1,9 +1,11 @@
 package com.server.asset.entity;
 
+import java.math.BigDecimal;
+
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
-import io.hypersistence.utils.hibernate.id.Tsid;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,7 +16,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,9 +34,11 @@ import lombok.ToString;
 public class TBRealAsset extends BaseEntity {
 
   @Id
-  @Tsid
-  @Column(name = "REAL_ASSET_ID", columnDefinition = "bigint unsigned")
-  private Long realAssetId;
+
+
+  // @Tsid
+  @Column(name = "REAL_ASSET_ID", columnDefinition = "int unsigned")
+  private Integer realAssetId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID",

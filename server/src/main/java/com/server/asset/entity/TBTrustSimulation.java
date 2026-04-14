@@ -1,13 +1,14 @@
 package com.server.asset.entity;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import com.server.asset.entity.enums.InvestType;
 import com.server.asset.entity.enums.PayoutType;
 import com.server.asset.entity.enums.StartType;
 import com.server.common.entity.BaseCreatedEntity;
 import com.server.user.entity.TBUser;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,7 +48,7 @@ public class TBTrustSimulation extends BaseCreatedEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(columnDefinition = "bigint unsigned")
+	@Column(name = "TRUST_SIMULATION_ID", columnDefinition = "bigint unsigned")
 	private Long trustSimulationId;
 
 	@OneToOne(fetch = FetchType.LAZY)
@@ -66,7 +67,7 @@ public class TBTrustSimulation extends BaseCreatedEntity {
 	private StartType startType;
 
 	@Column(name = "START_DATE")
-	private LocalDate startDate;
+	private LocalDateTime startDate;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "INVEST_TYPE", nullable = false)
