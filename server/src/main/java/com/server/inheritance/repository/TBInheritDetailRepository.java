@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface InheritDetailRepository extends JpaRepository<TBInheritDetail, Long> {
+public interface TBInheritDetailRepository extends JpaRepository<TBInheritDetail, Long> {
 
 }
