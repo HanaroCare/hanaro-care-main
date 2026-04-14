@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { CheckCircle } from "lucide-react";
-import { ChevronLeft } from "lucide-react";
 import CardView from "../../components/CardView";
+import Header from "@/components/navigation/Header";
 
 export default function CardIssueCompletePage() {
   const router = useRouter();
@@ -11,13 +11,7 @@ export default function CardIssueCompletePage() {
   return (
     <div className="relative min-h-screen bg-white">
       {/* 헤더 */}
-      <div className="flex justify-between items-center px-4 h-[65px] border-b border-black/10">
-        <button className="p-1" onClick={() => router.back()}>
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">카드 발급</span>
-        <div className="w-8" />
-      </div>
+      <Header title="카드 발급" />
 
       {/* 완료 */}
       <div className="flex flex-col items-center justify-center mt-24">
