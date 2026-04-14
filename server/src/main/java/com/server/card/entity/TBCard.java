@@ -5,12 +5,11 @@ import java.math.BigDecimal;
 import com.server.asset.entity.TBAccount;
 import com.server.common.entity.BaseEntity;
 
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -32,21 +31,20 @@ import lombok.ToString;
 @Table(name = "TB_CARD")
 public class TBCard extends BaseEntity {
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	// @Tsid
+	@Tsid
 	@Column(name = "CARD_ID", columnDefinition = "bigint unsigned")
 	private Long cardId;
 
-	@Column(name = "CARD_NM", nullable = false, length = 255)
+	@Column(name = "CARD_NM", nullable = false, length = 50)
 	private String cardNm;
 
-	@Column(name = "AUTO_TRANS_AMT", nullable = false, precision = 18, scale = 2)
+	@Column(name = "AUTO_TRANS_AMT", nullable = false, precision = 13, scale = 2)
 	@Builder.Default
 	private BigDecimal autoTransAmt = BigDecimal.ZERO;
 
-	@Column(name = "USE_YN", nullable = false, length = 1)
 	@Builder.Default
-	private String useYn = "Y";
+	@Column(name = "IS_USE", nullable = false)
+	private Boolean isUse = true;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ACCOUNT_ID",
@@ -54,7 +52,7 @@ public class TBCard extends BaseEntity {
 		foreignKey = @ForeignKey(name = "fk_Card_accountId_Account"))
 	private TBAccount account;
 
-	@Column(name = "LIMIT_AMT", nullable = false, precision = 18, scale = 2)
+	@Column(name = "LIMIT_AMT", nullable = false, precision = 13, scale = 2)
 	@Builder.Default
 	private BigDecimal limitAmt = BigDecimal.ZERO;
 
