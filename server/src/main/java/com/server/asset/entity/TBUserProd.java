@@ -11,13 +11,14 @@ import com.server.asset.entity.enums.StartType;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
 
-import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -40,7 +41,8 @@ import lombok.ToString;
 public class TBUserProd extends BaseEntity {
 
 	@Id
-	@Tsid
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	// @Tsid
 	@Column(name = "USER_PROD_ID", columnDefinition = "bigint unsigned")
 	private Long userProdId;
 
@@ -70,7 +72,7 @@ public class TBUserProd extends BaseEntity {
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "TARGET_ASSET_ID", referencedColumnName = "REAL_ASSET_ID",
-		columnDefinition = "bigint unsigned",
+		columnDefinition = "int unsigned",
 		nullable = true,
 		foreignKey = @ForeignKey(name = "fk_UserProd_targetAssetId_RealAsset"))
 	private TBRealAsset targetAsset;
@@ -117,7 +119,8 @@ public class TBUserProd extends BaseEntity {
 	private TBUser claimAgent;
 
 	@Column(name = "AGENT_VIEW_YN", length = 1)
-	private String agentViewYn;
+	@Builder.Default
+	private String agentViewYn = "N";
 
 	@Column(name = "PAYOUT_SETTINGS", columnDefinition = "JSON")
 	private String payoutSettings;

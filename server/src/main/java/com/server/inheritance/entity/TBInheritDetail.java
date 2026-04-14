@@ -48,7 +48,7 @@ public class TBInheritDetail extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private FamilyRelation relationCd;
 
-  @Column(name = "DIST_RATIO", nullable = false, precision = 15, scale = 2)
+  @Column(name = "DIST_RATIO", nullable = false, precision = 5, scale = 2)
   private BigDecimal distRatio;
 
   @ManyToOne(fetch = FetchType.LAZY)

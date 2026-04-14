@@ -52,11 +52,11 @@ public class TBInheritPlan extends BaseEntity {
   private TBUser user;
 
   @Builder.Default
-  @Column(name = "TOTAL_INHERIT_AMT", precision = 16, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
+  @Column(name = "TOTAL_INHERIT_AMT", precision = 13, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
   private BigDecimal totalInheritAmt = BigDecimal.ZERO;
 
   @Builder.Default
-  @Column(name = "ESTI_TAX_AMT", precision = 16, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
+  @Column(name = "ESTI_TAX_AMT", precision = 13, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
   private BigDecimal estiTaxAmt = BigDecimal.ZERO;
 
 }
