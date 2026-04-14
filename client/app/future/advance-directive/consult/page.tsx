@@ -37,7 +37,6 @@ const institutions = [
 export default function ConsultPage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
-
   const filtered = institutions.filter(
     (item) => item.name.includes(search) || item.address.includes(search),
   );
@@ -62,7 +61,7 @@ export default function ConsultPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="기관명 또는 주소 검색"
-            className="flex-1 font-normal text-[14px] leading-[21px] text-[#D1D5DB] placeholder:text-[#D1D5DB] outline-none"
+            className="flex-1 font-normal text-[14px] leading-[21px] text-[#1A212D] placeholder:text-[#D1D5DB] outline-none"
           />
         </div>
       </div>
