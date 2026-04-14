@@ -43,6 +43,15 @@ public enum ErrorStatus implements BaseErrorCode {
     TRUST_PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "TRUST_007", "이미 가입된 신탁 상품이 있습니다."),
     TRUST_INVALID_PAYOUT_SETTINGS(HttpStatus.BAD_REQUEST, "TRUST_008", "집행 설정 정보가 올바르지 않습니다.");
 
+    // simulation
+    SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "SIMULATION_404", "시뮬레이션 결과를 찾을 수 없습니다."),
+    SIMULATION_JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SIMULATION_501", "시뮬레이션 상세 리포트 생성 중 오류가 발생했습니다."),
+    SIMULATION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SIMULATION_400", "이미 진행 중인 시뮬레이션이 있습니다."),
+
+    // asset
+    ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
+    ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다.");
+
     //inheritance
 
     //myhana
