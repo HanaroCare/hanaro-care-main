@@ -2,9 +2,14 @@ package com.server.auth.controller;
 
 import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
+import com.server.auth.dto.SmsRequestDTO;
+import com.server.auth.dto.SmsVerifyRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
 import com.server.auth.dto.UnlockDormantRequestDTO;
+import com.server.auth.response.ApiSmsVerifyResponse;
 import com.server.auth.service.AuthService;
+import com.server.auth.service.SmsAuthService;
+import com.server.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
   private final AuthService authService;
+  private final SmsAuthService smsAuthService;
 
   @Operation(summary = "회원가입 API", description = "신규 회원을 등록한다.")
   @PostMapping("/signup")
@@ -54,5 +60,26 @@ public class AuthController {
   public ResponseEntity<Void> unlockDormant(@Valid @RequestBody UnlockDormantRequestDTO request) {
     authService.unlockDormant(request);
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(summary = "SMS 인증번호 발송", description = "입력한 전화번호로 6자리 인증번호를 슬랙으로 발송한다.")
+  @PostMapping("/sms/send")
+  public ResponseEntity<Void> sendSms(@Valid @RequestBody SmsRequestDTO request) {
+    smsAuthService.sendAuthCode(request);
+    return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "SMS 인증번호 확인",
+      description = """
+          사용자가 입력한 6자리 인증번호를 검증합니다.
+          성공 시 해당 번호는 5분간 '인증 완료' 상태로 유지되어 회원가입 시 참조됩니다.
+          """
+  )
+  @ApiSmsVerifyResponse
+  @PostMapping("/sms/verify")
+  public ApiResponse<String> verifySms(@Valid @RequestBody SmsVerifyRequestDTO request) {
+    smsAuthService.verifySms(request);
+    return ApiResponse.onSuccess("인증에 성공하였습니다.");
   }
 }

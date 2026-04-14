@@ -41,6 +41,7 @@ public class AuthService {
   private final RefreshTokenRepository refreshTokenRepository;
   private final LoginLogService loginLogService;
   private final UserSimpleAuthRepository simpleAuthRepository;
+  private final SmsAuthService smsAuthService;
   private final JwtUtil jwtUtil;
   private final BCryptPasswordEncoder passwordEncoder;
 
@@ -49,6 +50,10 @@ public class AuthService {
 
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public void signUp(SignUpRequestDTO request) {
+    if (!smsAuthService.isVerified(request.getUserPhone())) {
+      throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
+    }
+
     if (userRepository.findByLoginId(request.getLoginId()).isPresent()) {
       throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
@@ -72,6 +77,7 @@ public class AuthService {
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
       @Override
       public void afterCommit() {
+        smsAuthService.clearVerification(request.getUserPhone());
         log.info("[회원가입 성공] loginId={}, userId={}, role={}", user.getLoginId(), user.getUserId(),
             user.getUserRole());
       }
