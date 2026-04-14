@@ -47,10 +47,12 @@ export default function HospicePage() {
           동의하고 도움 받기
         </button>
         <button
-          onClick={() => router.back()}
+          onClick={() =>
+            router.push("/future/advance-directive/view-consent" as Route)
+          }
           className="w-full h-[53px] rounded-[10px] font-semibold text-[16px] text-[#99A1AF] bg-[#E5E7EB]"
         >
-          닫기
+          건너뛰기
         </button>
       </div>
     </div>
