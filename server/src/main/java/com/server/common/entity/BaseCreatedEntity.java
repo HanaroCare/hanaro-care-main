@@ -12,7 +12,7 @@ import lombok.Getter;
 @MappedSuperclass
 public class BaseCreatedEntity {
 	@CreationTimestamp
-	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
+	@Column(name = "CREATED_AT", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", nullable = false)
 	private LocalDateTime createdAt;
 
 	@Override

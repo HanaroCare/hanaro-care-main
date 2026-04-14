@@ -3,12 +3,11 @@ package com.server.user.entity;
 import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
 
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -29,8 +28,7 @@ import lombok.ToString;
 public class TBUser {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  // @Tsid
+  @Tsid
   @Column(name = "USER_ID", columnDefinition = "bigint unsigned")
   private Long userId;
 
@@ -43,12 +41,12 @@ public class TBUser {
   @Column(name = "USER_PHONE", nullable = false, length = 11)
   private String userPhone;
 
-  @Column(name = "USER_PWD", nullable = false, length = 255)
+  @Column(name = "USER_PWD", nullable = false)
   private String userPwd;
 
   @Builder.Default
-  @Column(name = "HANA_CERT_YN", nullable = false)
-  private Boolean hanaCertYn = false;
+  @Column(name = "IS_HANA_CERT", nullable = false)
+  private Boolean isHanaCert = false;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "USER_STAT_CD", nullable = false, length = 20)

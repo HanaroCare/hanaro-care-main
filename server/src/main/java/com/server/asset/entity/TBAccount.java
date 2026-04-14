@@ -7,14 +7,13 @@ import com.server.asset.entity.enums.AssetCategory;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
 
+import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -37,8 +36,7 @@ import lombok.ToString;
 public class TBAccount extends BaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  // @Tsid
+  @Tsid
   @Column(name = "ACCOUNT_ID", columnDefinition = "bigint unsigned")
   private Long accountId;
 
@@ -65,7 +63,7 @@ public class TBAccount extends BaseEntity {
   @Column(name = "ASSET_CATE_CD", nullable = false)
   private AssetCategory assetCateCd;
 
-  @Column(name = "PROFIT_RATE", precision = 4, scale = 2)
+  @Column(name = "PROFIT_RATE", precision = 5, scale = 2)
   private BigDecimal profitRate;
 
   @Column(name = "LIMIT_AMT", precision = 13, scale = 2)
