@@ -19,5 +19,5 @@ services:
       - --log_bin_trust_function_creators=1
       - --innodb_ft_server_stopword_table=hanacare/StopWord
 
-    volumes:
-      - ./mysql:/var/lib/mysql
+#    volumes:
+#      - ./mysql:/var/lib/mysql

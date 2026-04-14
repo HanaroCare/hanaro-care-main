@@ -1,6 +1,5 @@
 package com.server.user.entity;
 
-import com.server.card.entity.TBCard;
 import com.server.common.entity.BaseEntity;
 
 import io.hypersistence.utils.hibernate.id.Tsid;
@@ -52,16 +51,9 @@ public class TBFamilyAuth extends BaseEntity {
   )
   private TBUser grantee;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "CARD_ID",
-      referencedColumnName = "CARD_ID",
-      columnDefinition = "bigint unsigned",
-      foreignKey = @ForeignKey(name = "fk_FamilyAuth_cardId_Card"))
-  private TBCard card;
-
-  @Column(name = "INS_VIEW_YN", nullable = false, length = 1)
-  private String insViewYn;
+  @Builder.Default
+  @Column(name = "IS_INS_VIEW", nullable = false)
+  private Boolean isInsView = false;
 
   @Column(name = "AUTH_STATUS", nullable = false)
   private Boolean authStatus; // BOOLEAN (true: 승인, false: 거절/대기)
@@ -69,8 +61,7 @@ public class TBFamilyAuth extends BaseEntity {
   @Column(name = "RELATION_CD", nullable = false)
   private Boolean relationCd; // BOOLEAN (부모/자녀 구분용)
 
-  @Column(name = "CARD_VIEW_YN", nullable = false, length = 1)
-  private String cardViewYn;
-
-
+  @Builder.Default
+  @Column(name = "IS_CARD_VIEW", nullable = false)
+  private Boolean isCardView = false;
 }

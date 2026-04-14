@@ -54,14 +54,14 @@ export default function LegacyDonationConsultPage() {
           <div className="flex flex-row items-center gap-[5px] h-[50px] px-[17px] border border-[#E3E5E8] rounded-[10px] bg-white">
             <Search size={15} color="#D1D5DB" />
             <input
-  type="text"
-  id="institution-search"
-  aria-label="기관명 또는 주소 검색"
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  placeholder="기관명 또는 주소 검색"
-  className="flex-1 font-normal text-[14px] leading-[21px] text-[#D1D5DB] placeholder:text-[#D1D5DB] outline-none"
-/>
+              type="text"
+              id="institution-search"
+              aria-label="기관명 또는 주소 검색"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="기관명 또는 주소 검색"
+              className="flex-1 font-normal text-[14px] leading-[21px] text-[#D1D5DB] placeholder:text-[#D1D5DB] outline-none"
+            />
           </div>
         </div>
 

@@ -2,6 +2,7 @@ package com.server.user.entity;
 
 import com.server.common.entity.BaseEntity;
 import com.server.user.enums.LoginMeans;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -50,13 +51,12 @@ public class TBUserLoginLog extends BaseEntity {
   @Column(name = "USER_MEANS_CD", nullable = false, length = 20)
   private LoginMeans userMeansCd;
 
-  @Builder.Default
-  @Column(name = "USER_RESULT_YN", nullable = false)
-  private boolean userResultYn = true;
+  @Column(name = "IS_SUCCESS", nullable = false)
+  private Boolean isSuccess;
 
   @Column(name = "ACCESS_IP_ADDR", length = 50)
   private String accessIpAddr;
 
-  @Column(name = "ACCESS_DEV_NM", length = 255)
+  @Column(name = "ACCESS_DEV_NM")
   private String accessDevNm;
 }
