@@ -32,11 +32,6 @@ public class AssetService {
         BigDecimal others = BigDecimal.ZERO;
 
         for (TBAccount acc : accounts) {
-            // Exclude CARD
-            if (acc.getAssetCateCd() == AssetCategory.CARD) {
-                continue;
-            }
-            
             switch (acc.getAssetCateCd()) {
                 case CASH -> savings = savings.add(acc.getBalanceAmt());
                 case STOCK -> stocks = stocks.add(acc.getBalanceAmt());
@@ -46,11 +41,6 @@ public class AssetService {
         }
 
         for (TBRealAsset ra : realAssets) {
-            // Exclude VEHICLE
-            if (ra.getAssetCateCd() == RealAssetCategory.VEHICLE) {
-                continue;
-            }
-
             if (ra.getAssetCateCd() == RealAssetCategory.REAL_ESTATE) {
                 realEstate = realEstate.add(ra.getEvalAmt());
             } else {
@@ -72,5 +62,23 @@ public class AssetService {
 
     public BigDecimal getTotalAssetByUserId(Long userId) {
         return getAssetSummaryByUserId(userId).getTotalAsset();
+    }
+
+    public BigDecimal getExcludedInheritAmtByUserId(Long userId) {
+        List<TBAccount> accounts = accountRepository.findByUserId(userId);
+        List<TBRealAsset> realAssets = realAssetRepository.findByUserId(userId);
+
+        BigDecimal excluded = BigDecimal.ZERO;
+        for (TBAccount acc : accounts) {
+            if (acc.getAssetCateCd() == AssetCategory.CARD) {
+                excluded = excluded.add(acc.getBalanceAmt());
+            }
+        }
+        for (TBRealAsset ra : realAssets) {
+            if (ra.getAssetCateCd() == RealAssetCategory.VEHICLE) {
+                excluded = excluded.add(ra.getEvalAmt());
+            }
+        }
+        return excluded;
     }
 }

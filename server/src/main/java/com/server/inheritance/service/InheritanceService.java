@@ -54,13 +54,15 @@ public class InheritanceService {
 
         TBUser user = userService.getUserById(userId);
         BigDecimal totalAsset = assetService.getTotalAssetByUserId(userId);
-        BigDecimal tax = calculateEstimatedTax(totalAsset);
+        BigDecimal excludedAmt = assetService.getExcludedInheritAmtByUserId(userId);
+        BigDecimal totalInheritAmt = totalAsset.subtract(excludedAmt);
+        BigDecimal tax = calculateEstimatedTax(totalInheritAmt);
 
         // Save or update plan
         TBInheritPlan plan = planRepository.findByUserId(userId)
                 .orElse(TBInheritPlan.builder().user(user).build());
         
-        plan.setTotalInheritAmt(totalAsset);
+        plan.setTotalInheritAmt(totalInheritAmt);
         plan.setEstiTaxAmt(tax);
         plan = planRepository.save(plan);
 
@@ -82,7 +84,7 @@ public class InheritanceService {
             
             detail = detailRepository.save(detail);
 
-            BigDecimal distributedAmt = totalAsset.subtract(tax)
+            BigDecimal distributedAmt = totalInheritAmt.subtract(tax)
                     .multiply(BigDecimal.valueOf(dist.getDistRatio()))
                     .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 
@@ -99,7 +101,7 @@ public class InheritanceService {
 
         return InheritanceResponseDTO.builder()
                 .planId(plan.getId())
-                .totalInheritAmt(totalAsset)
+                .totalInheritAmt(totalInheritAmt)
                 .estiTaxAmt(tax)
                 .heirs(heirSummaries)
                 .build();
