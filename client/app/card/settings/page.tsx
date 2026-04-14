@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import CardView from "../components/CardView";
 import CancelModal from "./components/CancelModal";
+import Header from "@/components/navigation/Header";
 
 const MIN = 100000;
 const MAX = 600000;
@@ -69,15 +70,7 @@ export default function CardSettingsPage() {
       `}</style>
 
       {/* 헤더 */}
-      <div className="flex justify-between items-center px-4 h-[65px] border-b border-black/10 sticky top-0 bg-white z-10">
-        <button className="p-1" onClick={() => router.back()}>
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
-          카드 관리
-        </span>
-        <div className="w-8" />
-      </div>
+      <Header title="카드 관리" />
 
       {/* 카드 미리보기 */}
       <div

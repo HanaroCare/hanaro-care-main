@@ -30,25 +30,25 @@ import lombok.ToString;
 @Table(name = "TB_USER_SIMPLE_AUTH")
 public class TBUserSimpleAuth extends BaseEntity {
 
-  @Id
-  @Tsid
-  @Column(name = "SIMPLE_AUTH_ID", columnDefinition = "bigint unsigned")
-  private Long simpleAuthId;
+	@Id
+	@Tsid
+	@Column(name = "SIMPLE_AUTH_ID", columnDefinition = "bigint unsigned")
+	private Long simpleAuthId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "USER_ID",
-      referencedColumnName = "USER_ID",
-      columnDefinition = "bigint unsigned not null",
-      foreignKey = @ForeignKey(name = "fk_UserSimpleAuth_userId_User")
-  )
-  private TBUser user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(
+		name = "USER_ID",
+		referencedColumnName = "USER_ID",
+		columnDefinition = "bigint unsigned not null",
+		foreignKey = @ForeignKey(name = "fk_UserSimpleAuth_userId_User")
+	)
+	private TBUser user;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "AUTH_MEANS_CD", nullable = false, length = 20)
-  private LoginMeans authMeansCd;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "AUTH_MEANS_CD", nullable = false, length = 20)
+	private LoginMeans authMeansCd;
 
-  @Column(name = "AUTH_VALUE", nullable = false, length = 255)
-  private String authValue;
+	@Column(name = "AUTH_VALUE", nullable = false, length = 255)
+	private String authValue;
 
 }
