@@ -21,7 +21,7 @@ public record FinancialAssetResponse(
     @Schema(description = "계좌명", example = "하나 자유입출금")
     String accountNm,
     
-    @Schema(description = "계좌번호", example = "111-222-333333")
+    @Schema(description = "계좌번호", example = "***-***-333333")
     String accountNum,
     
     @Schema(description = "잔액", example = "50000000.00")

@@ -49,7 +49,9 @@ public class AssetService {
 	}
 
 	public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
-		return assetMapper.toFinancialAssetResponseList(tbAccountRepository.findAllByUser_UserId(userId));
+		return assetMapper.toFinancialAssetResponseList(
+			tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNot(userId, AssetCategory.INSURANCE)
+		);
 	}
 
 	public List<AssetDetailResponse> getRealEstateAssets(Long userId) {

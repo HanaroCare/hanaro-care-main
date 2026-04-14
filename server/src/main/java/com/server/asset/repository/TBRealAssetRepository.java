@@ -13,7 +13,7 @@ public interface TBRealAssetRepository extends JpaRepository<TBRealAsset, Long> 
 	List<TBRealAsset> findAllByUser_UserIdAndAssetCateCd(Long userId, RealAssetCategory assetCateCd);
 
 	@Query("""
-        SELECT r.assetCateCd, SUM(r.evalAmt)
+        SELECT r.assetCateCd, COALESCE(SUM(r.evalAmt), 0)
         FROM TBRealAsset r
         WHERE r.user.userId = :userId
         GROUP BY r.assetCateCd
