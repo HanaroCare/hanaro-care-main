@@ -50,14 +50,6 @@ public class TBFamilyAuth extends BaseEntity {
   )
   private TBUser grantee;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "CARD_ID",
-      referencedColumnName = "CARD_ID",
-      columnDefinition = "bigint unsigned",
-      foreignKey = @ForeignKey(name = "fk_FamilyAuth_cardId_Card"))
-  private TBCard card;
-
   @Column(name = "INS_VIEW_YN", nullable = false, length = 1)
   private String insViewYn;
 

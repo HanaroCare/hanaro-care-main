@@ -3,6 +3,7 @@ package com.server.inheritance.entity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.server.common.entity.BaseEntity;
 import com.server.inheritance.enums.FamilyRelation;
+import com.server.user.entity.TBUser;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

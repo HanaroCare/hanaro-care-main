@@ -36,7 +36,7 @@ public class TBUserProd extends BaseEntity {
 	private TBUser user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "PROD_ID", referencedColumnName = "PRODUCT_ID",
+	@JoinColumn(name = "PROD_ID", referencedColumnName = "productId",
 		columnDefinition = "bigint unsigned not null",
 		foreignKey = @ForeignKey(name = "fk_UserProd_prodId_Product"))
 	private TBProduct product;
