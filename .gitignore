@@ -33,3 +33,7 @@ out/
 node_modules/
 tmp/
 coverage/
+
+# === Next.js ===
+.next/
+next-env.d.ts
