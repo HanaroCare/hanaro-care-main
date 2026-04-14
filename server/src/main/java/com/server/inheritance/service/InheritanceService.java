@@ -5,6 +5,8 @@ import com.server.asset.dto.response.AssetDashboardResponse;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.service.AssetService;
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 import com.server.inheritance.dto.InheritanceContextDTO;
 import com.server.inheritance.dto.InheritanceRequestDTO;
 import com.server.inheritance.dto.InheritanceResponseDTO;
@@ -57,8 +59,7 @@ public class InheritanceService {
         .sum();
 
     if (Math.abs(totalRatio - 100.0) > 0.001) {
-      throw new IllegalArgumentException(
-          "Total distribution ratio must be 100%. Current: " + totalRatio + "%");
+      throw new ApiException(ErrorStatus.INHERIT_INVALID_RATIO);
     }
 
     TBUser user = userService.getUserById(userId);
@@ -87,17 +88,17 @@ public class InheritanceService {
 
     for (InheritanceRequestDTO.HeirDistributionDTO dist : request.getDistributions()) {
       TBUser heir = null;
-      String heirName = dist.getHeirName();
+      String hName = dist.getHeirName();
 
       if (dist.getHeirUserId() != null) {
         heir = userService.getUserById(dist.getHeirUserId());
-        heirName = heir.getUserNm();
+        hName = heir.getUserNm();
       }
 
       TBInheritDetail detail = TBInheritDetail.builder()
           .inheritPlan(plan)
           .user(heir)
-          .heirName(heirName)
+          .heirName(hName)
           .relationCd(dist.getRelation())
           .distRatio(BigDecimal.valueOf(dist.getDistRatio()))
           .build();
@@ -111,7 +112,7 @@ public class InheritanceService {
       heirSummaries.add(InheritanceResponseDTO.HeirSummaryDTO.builder()
           .inheritDetailId(detail.getInheritDetailId())
           .heirUserId(heir != null ? heir.getUserId() : null)
-          .heirName(heirName)
+          .heirName(hName)
           .relation(dist.getRelation())
           .distRatio(dist.getDistRatio())
           .distributedAmt(distributedAmt)
@@ -130,7 +131,7 @@ public class InheritanceService {
   public InheritanceResponseDTO getPlanSummary(Long userId) {
     TBInheritPlan plan = planRepository.findByUserId(userId)
         .orElseThrow(
-            () -> new IllegalArgumentException("Inheritance plan not found for user: " + userId));
+            () -> new ApiException(ErrorStatus.INHERIT_PLAN_NOT_FOUND));
 
     List<TBInheritDetail> details = detailRepository.findByInheritPlanId(plan.getId());
 
@@ -166,7 +167,7 @@ public class InheritanceService {
 
   public LetterDTO getLetter(Long letterId) {
     TBInheritLetter letter = letterRepository.findById(letterId)
-        .orElseThrow(() -> new IllegalArgumentException("Letter not found: " + letterId));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
     return LetterDTO.builder()
         .letterId(letter.getLetterId())
@@ -179,8 +180,7 @@ public class InheritanceService {
 
   public LetterDTO createOrUpdateLetter(LetterDTO dto) {
     TBInheritDetail detail = detailRepository.findById(dto.getInheritDetailId())
-        .orElseThrow(() -> new IllegalArgumentException(
-            "Inherit detail not found: " + dto.getInheritDetailId()));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_HEIR_NOT_FOUND));
 
     TBInheritLetter letter = detail.getInheritLetter();
     if (letter == null) {
@@ -216,7 +216,6 @@ public class InheritanceService {
   }
 
   // Dashboard 데이터를 AssetSummaryDTO로 변환하는 헬퍼 메서드
-  // car, card 제외 로직 포함
   private AssetSummaryDTO convertToAssetSummary(AssetDashboardResponse dashboard) {
     BigDecimal savings = BigDecimal.ZERO;
     BigDecimal stocks = BigDecimal.ZERO;
@@ -224,26 +223,28 @@ public class InheritanceService {
     BigDecimal others = BigDecimal.ZERO;
     BigDecimal realEstate = BigDecimal.ZERO;
 
-    for (AssetDashboardResponse.FinancialAssetSummary fa : dashboard.getFinancialAssets()) {
-      // CARD 제외
-      if (fa.getAssetCateCd() == AssetCategory.CARD) continue;
+    if (dashboard.financialAssets() != null) {
+      for (AssetDashboardResponse.FinancialAssetSummary fa : dashboard.financialAssets()) {
+        if (fa.assetCateCd() == AssetCategory.CARD) continue;
 
-      switch (fa.getAssetCateCd()) {
-        case CASH -> savings = savings.add(fa.getTotalBalance());
-        case STOCK -> stocks = stocks.add(fa.getTotalBalance());
-        case PENSION -> pensions = pensions.add(fa.getTotalBalance());
-        default -> others = others.add(fa.getTotalBalance());
+        switch (fa.assetCateCd()) {
+          case CASH -> savings = savings.add(fa.totalBalance());
+          case STOCK -> stocks = stocks.add(fa.totalBalance());
+          case PENSION -> pensions = pensions.add(fa.totalBalance());
+          default -> others = others.add(fa.totalBalance());
+        }
       }
     }
 
-    for (AssetDashboardResponse.RealAssetSummary ra : dashboard.getRealAssets()) {
-      // VEHICLE(CAR) 제외
-      if (ra.getAssetCateCd() == RealAssetCategory.VEHICLE) continue;
+    if (dashboard.realAssets() != null) {
+      for (AssetDashboardResponse.RealAssetSummary ra : dashboard.realAssets()) {
+        if (ra.assetCateCd() == RealAssetCategory.VEHICLE) continue;
 
-      if (ra.getAssetCateCd() == RealAssetCategory.REAL_ESTATE) {
-        realEstate = realEstate.add(ra.getTotalValue());
-      } else {
-        others = others.add(ra.getTotalValue());
+        if (ra.assetCateCd() == RealAssetCategory.REAL_ESTATE) {
+          realEstate = realEstate.add(ra.totalValue());
+        } else {
+          others = others.add(ra.totalValue());
+        }
       }
     }
 

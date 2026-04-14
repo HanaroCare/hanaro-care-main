@@ -25,7 +25,7 @@ public class FamilyService {
         .map(f -> FamilyMemberDTO.builder()
             .userId(f.getGrantor().getUserId())
             .name(f.getGrantor().getUserNm())
-            .relation(f.getRelationCd() ? FamilyRelation.PARENT : FamilyRelation.CHILD)
+            .relation(FamilyRelation.valueOf(f.getRelationCd().name()))
             .build())
         .collect(Collectors.toList());
 
@@ -33,8 +33,7 @@ public class FamilyService {
         .map(f -> FamilyMemberDTO.builder()
             .userId(f.getGrantee().getUserId())
             .name(f.getGrantee().getUserNm())
-            .relation(f.getRelationCd() ? FamilyRelation.CHILD
-                : FamilyRelation.PARENT) // Simple flip logic
+            .relation(FamilyRelation.valueOf(f.getRelationCd().name()))
             .build())
         .collect(Collectors.toList()));
 
