@@ -1,0 +1,35 @@
+# === DB & Security  ===
+server/mysql/
+**/#innodb_redo/
+**/#ib_redo*
+*.dblwr
+db.properties
+*security.yaml
+.env*
+secure/
+*.bak
+backup/
+
+# === Java & Gradle (빌드 결과물) ===
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+bin/
+out/
+*.jar
+*.war
+
+# === IntelliJ IDEA ===
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# === VS Code ===
+.vscode/
+
+# === OS & Etc ===
+.DS_Store
+node_modules/
+tmp/
+coverage/
