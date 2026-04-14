@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 기존 데이터 삭제
+-- 2. 이제 안전하게 비웁니다.
 TRUNCATE TABLE TB_USER_SIMPLE_AUTH;
 TRUNCATE TABLE TB_ASSET_TRANS;
 TRUNCATE TABLE TB_USER_PROD;
@@ -19,7 +19,6 @@ TRUNCATE TABLE TB_PRODUCT;
 TRUNCATE TABLE TB_USER;
 
 SET FOREIGN_KEY_CHECKS = 1;
-SET time_zone = 'Asia/Seoul';
 
 -- ========================
 -- TB_USER
@@ -81,14 +80,9 @@ VALUES (4001, 2001, '하나 시니어 행복카드', 5000000.00, 0.00, 1),
 -- ========================
 -- TB_ASSET_SIMULATION
 -- ========================
-INSERT INTO TB_ASSET_SIMULATION (SIMULATION_ID, USER_ID, TARGET_AGE, LIVING_COST, MEDICAL_COST,
-                                 CARE_COST, MONTHLY_COST, AGE_RANGE_DETAILS)
-VALUES (1, 1001, 85, 1500000.00, 500000.00, 300000.00, 2300000.00, '{
-  "details": "60대 후반 기준 월 평균 지출 설계"
-}'),
-       (2, 1003, 90, 1200000.00, 400000.00, 200000.00, 1800000.00, '{
-         "details": "배우자 단독 생활 기준 지출 설계"
-       }');
+INSERT INTO TB_ASSET_SIMULATION (SIMULATION_ID, USER_ID, TARGET_AGE, CARE_TYPE_CD, TOTAL_INCOME_AMT, SHORTAGE_AMT, IS_SUFFICIENT, LIVING_COST, MEDICAL_COST, CARE_COST, MONTHLY_COST, AGE_RANGE_DETAILS) VALUES
+                                                                                                                                                                                                             (1, 1001, 85, 'CENTER', 1450000.00, 850000.00, 0, 1500000.00, 500000.00, 300000.00, 2300000.00, '{"income_breakdown":{"national_pension":1300000,"local_subsidy":150000,"subsidy_name":"서울시 고령자 지원금"},"segments":[{"age_range":"65-70","monthly_income":1450000,"monthly_expense":2300000,"details":{"living":1500000,"medical":500000,"care":300000}},{"age_range":"70-75","monthly_income":1450000,"monthly_expense":2600000,"details":{"living":1400000,"medical":700000,"care":500000}}],"ai_opinion":"현재 자산으로는 70세 이후 병원비 상승 폭을 감당하기에 월 약 85만원이 부족할 것으로 예측됩니다."}'),
+                                                                                                                                                                                                             (2, 1003, 90, 'HOME', 1800000.00, 0.00, 1, 1200000.00, 400000.00, 200000.00, 1800000.00, '{"income_breakdown":{"national_pension":1600000,"local_subsidy":200000,"subsidy_name":"경기도 노인 기본소득"},"segments":[{"age_range":"63-68","monthly_income":1800000,"monthly_expense":1800000,"details":{"living":1200000,"medical":400000,"care":200000}}],"ai_opinion":"현재 연금 수령액만으로도 계획하신 재가 요양 생활비를 충분히 충당 가능합니다. 여유 자산은 신탁을 통해 관리하시는 것을 추천합니다."}');
 
 -- ========================
 -- TB_TRUST_SIMULATION

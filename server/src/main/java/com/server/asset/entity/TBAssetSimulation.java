@@ -2,11 +2,14 @@ package com.server.asset.entity;
 
 import java.math.BigDecimal;
 
+import com.server.asset.entity.enums.CareType;
 import com.server.common.entity.BaseCreatedEntity;
 import com.server.user.entity.TBUser;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -53,6 +56,20 @@ public class TBAssetSimulation extends BaseCreatedEntity {
   @Column(name = "TARGET_AGE", nullable = false)
   private Integer targetAge;
 
+  @Enumerated(EnumType.STRING) // Enum 사용을 위해 추가
+  @Column(name = "CARE_TYPE_CD", nullable = false)
+  private CareType careType;
+
+  // [AI 분석 결과 요약]
+  @Column(name = "TOTAL_INCOME_AMT", nullable = false, precision = 13, scale = 2)
+  private BigDecimal totalIncomeAmt;
+
+  @Column(name = "SHORTAGE_AMT", nullable = false, precision = 13, scale = 2)
+  private BigDecimal shortageAmt;
+
+  @Column(name = "IS_SUFFICIENT", nullable = false)
+  private Boolean isSufficient;
+
   @Column(name = "LIVING_COST", nullable = false, precision = 13, scale = 2)
   private BigDecimal livingCost;
 
@@ -65,6 +82,7 @@ public class TBAssetSimulation extends BaseCreatedEntity {
   @Column(name = "MONTHLY_COST", nullable = false, precision = 13, scale = 2)
   private BigDecimal monthlyCost;
 
+  // [AI 상세 리포트 JSON]
   @Column(name = "AGE_RANGE_DETAILS", nullable = false, columnDefinition = "JSON")
   private String ageRangeDetails;
 
