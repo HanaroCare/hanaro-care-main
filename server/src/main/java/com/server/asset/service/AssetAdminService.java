@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class TrustAdminService {
+public class AssetAdminService {
 
 	private final TBUserRepository userRepository;
 	private final TrustRepository trustRepository;

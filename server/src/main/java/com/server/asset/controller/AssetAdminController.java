@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.asset.service.TrustAdminService;
+import com.server.asset.service.AssetAdminService;
 import com.server.common.response.ApiResponse;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @PreAuthorize("hasRole('ADMIN')")
 public class AssetAdminController {
 
-	private final TrustAdminService trustAdminService;
+	private final AssetAdminService trustAdminService;
 
 	@PostMapping("/trust/subscribe")
 	@Operation(
