@@ -41,7 +41,7 @@ public enum ErrorStatus implements BaseErrorCode {
     TRUST_JSON_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "TRUST_005", "설정 데이터 처리 중 오류가 발생했습니다."),
     TRUST_FIXED_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_006", "신탁 상품 정보를 찾을 수 없습니다."),
     TRUST_PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "TRUST_007", "이미 가입된 신탁 상품이 있습니다."),
-    TRUST_INVALID_PAYOUT_SETTINGS(HttpStatus.BAD_REQUEST, "TRUST_008", "집행 설정 정보가 올바르지 않습니다.");
+    TRUST_INVALID_PAYOUT_SETTINGS(HttpStatus.BAD_REQUEST, "TRUST_008", "집행 설정 정보가 올바르지 않습니다."),
 
     // simulation
     SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "SIMULATION_404", "시뮬레이션 결과를 찾을 수 없습니다."),
