@@ -22,9 +22,6 @@ public class PensionPayoutPlanDto {
 	@Schema(description = "수령 방식 한글명", example = "정액형")
 	private String label;
 
-	@Schema(description = "수령 방식 설명", example = "고정된 금액을 평생 수령하는 방식이에요")
-	private String description;
-
 	@Schema(description = "20년 총 누적 수령액 (원) — 추천 방식 선정 기준", example = "720000000")
 	private BigDecimal totalCumulativeAmount;
 

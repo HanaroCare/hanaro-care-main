@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Schema(description = "주택 집값 예측 응답")
 @Getter
 @Builder
@@ -29,26 +30,20 @@ public class PensionForecastResponse {
 	@Schema(description = "예측 기간 (년)", example = "5", allowableValues = {"5", "10", "20"})
 	private Integer periodYears;
 
-	@Schema(description = "확률 가중 기댓값 — 각 시나리오의 예상 금액 × 확률의 합 (원)", example = "893629000")
+	@Schema(description = "확률 가중 기댓값 — 각 시나리오의 예상 금액 × 확률의 합 (원)", example = "883265000")
 	private BigDecimal expectedPrice;
 
-	@Schema(description = "과거 시세 추이 (최근 7년) — 차트 회색선 데이터")
-	private List<PensionHistoricalPriceDto> historicalPrices;
-
-	@Schema(description = "시나리오별 예측 결과 (낙관 / 중립 / 비관)")
+	@Schema(description = "시나리오별 예측 결과 (낙관 / 중립 / 비관) — periodYears 기준 예상 집값 및 확률")
 	private List<PensionForecastScenarioDto> scenarios;
 
-	@Schema(description = "연도별 예측 차트 데이터 — X축은 실제 연도")
+	@Schema(description = "집값 추이 차트 데이터 — 2020년부터 현재+10년까지 2년 단위, 3개 시나리오 동시 표시")
 	private List<PensionForecastChartPointDto> chartPoints;
 
 	@Schema(description = "AI 추천 시나리오 타입", example = "BASE", allowableValues = {"UP", "BASE", "DOWN"})
 	private String recommendedScenario;
 
-	@Schema(description = "AI 추천 제목", example = "중립 시나리오 추천")
-	private String recommendedTitle;
-
-	@Schema(description = "AI 추천 설명 (지역 특성 및 시장 상황 반영)", example = "대치동은 학군 수요 기반의 안정적인 시세를 유지해왔으나 금리 부담으로 단기 상승은 제한적입니다.")
-	private String recommendedDescription;
+	@Schema(description = "AI 추천 이유 — 지역 특성(학군·위치·교통 등) 및 국내 부동산 시장 상황 반영 (1~2문장)", example = "대치동은 학군 수요 기반의 안정적인 시세를 유지해왔으나 금리 부담으로 단기 상승은 제한적입니다.")
+	private String recommendedReason;
 
 	@Schema(description = "예측에 사용된 AI 모델", example = "gemini-2.0-flash")
 	private String modelVersion;

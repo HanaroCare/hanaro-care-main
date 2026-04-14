@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -30,11 +31,20 @@ public class PensionController {
 		description = """
 			보유 주택의 주소와 현재 평가금액을 기반으로 Gemini AI가 집값을 예측합니다.
 
-			- 시나리오 연율은 고정값 (낙관 +4%/년, 중립 +2%/년, 비관 0%/년)
-			- 각 시나리오의 발생 확률은 Gemini가 지역 시장 상황을 분석해 결정
-			- expectedPrice: 세 시나리오를 확률로 가중 평균한 기댓값 (가장 가능성 높은 집값)
-			- historicalPrices: 최근 7년 시세 추이 (차트 회색선용)
-			- chartPoints: 예측 기간 동안 연도별 3개 시나리오 집값 (차트 예측선용)
+			시나리오 연율 (서버 고정값):
+			- 낙관(UP): 연 +4%
+			- 중립(BASE): 연 +2%
+			- 비관(DOWN): 연 0%
+
+			Gemini AI 역할:
+			- 각 시나리오 발생 확률 결정 (지역 특성·국내 부동산 시황 반영)
+			- 가장 가능성 높은 시나리오 추천 + 짧은 이유 1~2문장
+
+			응답 구성:
+			- scenarios: periodYears 기준 각 시나리오 예상 집값·확률·상승률
+			- expectedPrice: 세 시나리오를 확률로 가중 평균한 기댓값
+			- chartPoints: 2020년 ~ 현재+10년, 2년 단위, 3개 시나리오 동시 표시 (과거는 현재가 기준 역산)
+			- recommendedReason: 추천 시나리오 이유 (학군·위치·교통·개발호재 등 반영)
 			"""
 	)
 	@ApiResponses({
@@ -50,16 +60,7 @@ public class PensionController {
 				    "assetNm": "대치동 OO아파트",
 				    "currentPrice": 800000000,
 				    "periodYears": 5,
-				    "expectedPrice": 893629000,
-				    "historicalPrices": [
-				      { "year": 2020, "price": 580000000 },
-				      { "year": 2021, "price": 660000000 },
-				      { "year": 2022, "price": 750000000 },
-				      { "year": 2023, "price": 720000000 },
-				      { "year": 2024, "price": 740000000 },
-				      { "year": 2025, "price": 775000000 },
-				      { "year": 2026, "price": 800000000 }
-				    ],
+				    "expectedPrice": 883265000,
 				    "scenarios": [
 				      {
 				        "scenarioType": "UP",
@@ -87,15 +88,18 @@ public class PensionController {
 				      }
 				    ],
 				    "chartPoints": [
-				      { "year": 2027, "upPrice": 832000000, "basePrice": 816000000, "downPrice": 800000000 },
+				      { "year": 2020, "upPrice": 632000000, "basePrice": 710000000, "downPrice": 800000000 },
+				      { "year": 2022, "upPrice": 684000000, "basePrice": 739000000, "downPrice": 800000000 },
+				      { "year": 2024, "upPrice": 739000000, "basePrice": 769000000, "downPrice": 800000000 },
+				      { "year": 2026, "upPrice": 800000000, "basePrice": 800000000, "downPrice": 800000000 },
 				      { "year": 2028, "upPrice": 865280000, "basePrice": 832320000, "downPrice": 800000000 },
-				      { "year": 2029, "upPrice": 899891000, "basePrice": 848966000, "downPrice": 800000000 },
-				      { "year": 2030, "upPrice": 935887000, "basePrice": 865946000, "downPrice": 800000000 },
-				      { "year": 2031, "upPrice": 973322000, "basePrice": 883265000, "downPrice": 800000000 }
+				      { "year": 2030, "upPrice": 935887000, "basePrice": 865944000, "downPrice": 800000000 },
+				      { "year": 2032, "upPrice": 1012256000, "basePrice": 900928000, "downPrice": 800000000 },
+				      { "year": 2034, "upPrice": 1094856000, "basePrice": 937328000, "downPrice": 800000000 },
+				      { "year": 2036, "upPrice": 1184192000, "basePrice": 975192000, "downPrice": 800000000 }
 				    ],
 				    "recommendedScenario": "BASE",
-				    "recommendedTitle": "중립 시나리오 추천",
-				    "recommendedDescription": "대치동은 학군 수요 기반의 안정적인 시세를 유지해왔으나 금리 부담으로 단기 상승은 제한적입니다. 중립 시나리오가 가장 현실적인 기준입니다.",
+				    "recommendedReason": "대치동은 학군 수요 기반의 안정적인 시세를 유지해왔으나 금리 부담으로 단기 상승은 제한적입니다.",
 				    "modelVersion": "gemini-2.0-flash",
 				    "predictedAt": "2026-04-14T21:00:00"
 				  }
@@ -136,10 +140,11 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionForecastResponse>> getForecast(
+		@AuthenticationPrincipal Long userId,
 		@PathVariable Long realAssetId,
 		@RequestParam(defaultValue = "5") Integer periodYears
 	) {
-		PensionForecastResponse response = pensionForecastService.getForecast(realAssetId, periodYears);
+		PensionForecastResponse response = pensionForecastService.getForecast(userId, realAssetId, periodYears);
 		return ResponseEntity.ok(ApiResponse.onSuccess(response));
 	}
 
@@ -155,8 +160,6 @@ public class PensionController {
 			- 정기증가형 (GROWING): 기본의 70%로 시작해 매년 3.5%씩 증가
 
 			추천 기준: 20년 누적 수령액이 가장 많은 방식을 추천
-
-			월 수령액 기준: 집값 × 0.38% (예: 8억 → 약 304만원/월)
 			"""
 	)
 	@ApiResponses({
@@ -170,41 +173,50 @@ public class PensionController {
 				  "result": {
 				    "recommendedType": "FIXED",
 				    "recommendedLabel": "정액형",
-				    "recommendedDescription": "고정된 금액을 평생 수령하는 방식이에요",
 				    "plans": [
 				      {
 				        "type": "FIXED",
 				        "label": "정액형",
-				        "description": "고정된 금액을 평생 수령하는 방식이에요",
 				        "totalCumulativeAmount": 729600000,
 				        "yearlyData": [
 				          { "year": 1,  "monthlyAmount": 3040000, "cumulativeAmount": 36480000 },
-				          { "year": 2,  "monthlyAmount": 3040000, "cumulativeAmount": 72960000 },
+				          { "year": 4,  "monthlyAmount": 3040000, "cumulativeAmount": 145920000 },
+				          { "year": 7,  "monthlyAmount": 3040000, "cumulativeAmount": 255360000 },
 				          { "year": 10, "monthlyAmount": 3040000, "cumulativeAmount": 364800000 },
+				          { "year": 13, "monthlyAmount": 3040000, "cumulativeAmount": 474240000 },
+				          { "year": 16, "monthlyAmount": 3040000, "cumulativeAmount": 583680000 },
+				          { "year": 19, "monthlyAmount": 3040000, "cumulativeAmount": 693120000 },
 				          { "year": 20, "monthlyAmount": 3040000, "cumulativeAmount": 729600000 }
 				        ]
 				      },
 				      {
 				        "type": "FRONT_LOADED",
 				        "label": "초기증액형",
-				        "description": "초기 10년은 더 많이 받고 이후 줄어드는 방식이에요",
 				        "totalCumulativeAmount": 700224000,
 				        "yearlyData": [
 				          { "year": 1,  "monthlyAmount": 3648000, "cumulativeAmount": 43776000 },
+				          { "year": 4,  "monthlyAmount": 3648000, "cumulativeAmount": 175104000 },
+				          { "year": 7,  "monthlyAmount": 3648000, "cumulativeAmount": 306432000 },
 				          { "year": 10, "monthlyAmount": 3648000, "cumulativeAmount": 437760000 },
-				          { "year": 11, "monthlyAmount": 2219000, "cumulativeAmount": 464388000 },
+				          { "year": 13, "monthlyAmount": 2219000, "cumulativeAmount": 517524000 },
+				          { "year": 16, "monthlyAmount": 2219000, "cumulativeAmount": 597288000 },
+				          { "year": 19, "monthlyAmount": 2219000, "cumulativeAmount": 677052000 },
 				          { "year": 20, "monthlyAmount": 2219000, "cumulativeAmount": 700224000 }
 				        ]
 				      },
 				      {
 				        "type": "GROWING",
 				        "label": "정기증가형",
-				        "description": "처음엔 적지만 매년 3.5%씩 늘어나는 방식이에요",
 				        "totalCumulativeAmount": 698112000,
 				        "yearlyData": [
 				          { "year": 1,  "monthlyAmount": 2128000, "cumulativeAmount": 25536000 },
-				          { "year": 10, "monthlyAmount": 2993000, "cumulativeAmount": 304560000 },
-				          { "year": 20, "monthlyAmount": 4236000, "cumulativeAmount": 698112000 }
+				          { "year": 4,  "monthlyAmount": 2352000, "cumulativeAmount": 110880000 },
+				          { "year": 7,  "monthlyAmount": 2602000, "cumulativeAmount": 213072000 },
+				          { "year": 10, "monthlyAmount": 2878000, "cumulativeAmount": 334800000 },
+				          { "year": 13, "monthlyAmount": 3183000, "cumulativeAmount": 478524000 },
+				          { "year": 16, "monthlyAmount": 3520000, "cumulativeAmount": 648240000 },
+				          { "year": 19, "monthlyAmount": 3893000, "cumulativeAmount": 842136000 },
+				          { "year": 20, "monthlyAmount": 4032000, "cumulativeAmount": 890520000 }
 				        ]
 				      }
 				    ]
@@ -236,9 +248,10 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionPayoutComparisonResponse>> getPayoutComparison(
+		@AuthenticationPrincipal Long userId,
 		@PathVariable Long realAssetId
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.compare(realAssetId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.compare(userId, realAssetId)));
 	}
 
 	@GetMapping("/{realAssetId}/payout-summary")
@@ -276,8 +289,9 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionSimulationSummaryResponse>> getPayoutSummary(
+		@AuthenticationPrincipal Long userId,
 		@PathVariable Long realAssetId
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.getSummary(realAssetId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.getSummary(userId, realAssetId)));
 	}
 }

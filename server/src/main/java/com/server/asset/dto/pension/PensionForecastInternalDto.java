@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 public class PensionForecastInternalDto {
 
 	@Getter
@@ -29,23 +30,12 @@ public class PensionForecastInternalDto {
 	public static class Result {
 		private Integer periodYears;
 		private BigDecimal expectedPrice;  // 확률 가중 기댓값
-		private List<HistoricalPrice> historicalPrices;
 		private List<Scenario> scenarios;
 		private List<ChartPoint> chartPoints;
 		private String recommendedScenario;
-		private String recommendedTitle;
-		private String recommendedDescription;
+		private String recommendedReason;  // Gemini 생성 추천 이유 (1~2문장)
 		private String modelVersion;
 		private LocalDateTime predictedAt;
-	}
-
-	@Getter
-	@Builder
-	@NoArgsConstructor
-	@AllArgsConstructor
-	public static class HistoricalPrice {
-		private Integer year;
-		private BigDecimal price;
 	}
 
 	@Getter

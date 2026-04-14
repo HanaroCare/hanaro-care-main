@@ -82,11 +82,10 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 
 	private String buildPrompt(PensionForecastInternalDto.Command command) {
 		int currentYear = LocalDate.now().getYear();
-		int startHistoryYear = currentYear - 6; // 최근 7년
 
 		return """
 			당신은 한국 부동산 시장 전문가입니다.
-			아래 부동산 정보를 바탕으로 %d년 후 시세를 분석해 주세요.
+			아래 부동산 정보를 바탕으로 %d년 후 시장 전망을 분석해 주세요.
 
 			- 주소: %s
 			- 현재 평가금액: %s원 (%d년 기준)
@@ -99,42 +98,25 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 
 			다음 JSON 형식으로만 응답하세요. 설명 없이 JSON만 출력하세요:
 			{
-			  "historicalPrices": [
-			    { "year": %d, "price": 600000000 },
-			    { "year": %d, "price": 650000000 },
-			    { "year": %d, "price": 680000000 },
-			    { "year": %d, "price": 720000000 },
-			    { "year": %d, "price": 760000000 },
-			    { "year": %d, "price": 790000000 },
-			    { "year": %d, "price": %s }
-			  ],
 			  "scenarios": [
 			    { "type": "UP",   "probability": 0.30 },
 			    { "type": "BASE", "probability": 0.50 },
 			    { "type": "DOWN", "probability": 0.20 }
 			  ],
 			  "recommendedScenario": "BASE",
-			  "recommendedTitle": "중립 시나리오 추천",
-			  "recommendedDescription": "현재 시장 상황과 지역 특성을 고려한 분석 내용."
+			  "recommendedReason": "학군 수요 기반의 안정적인 시세를 유지해왔으나 금리 부담으로 단기 상승은 제한적입니다."
 			}
 
 			조건:
-			- historicalPrices: %d년부터 %d년까지 7개 항목, 해당 주소의 실제 시세 흐름을 추정해 작성 (price 단위: 원)
-			- probability: UP/BASE/DOWN 세 값의 합이 반드시 1.0, 해당 지역 시장 상황을 반영해 결정
-			- recommendedDescription: 해당 주소의 지역 특성과 시장 상황을 반영해 2문장 이내로 작성
+			- probability: UP/BASE/DOWN 세 값의 합이 반드시 1.0, 해당 지역 시장 상황과 %d년 전망을 반영해 결정
+			- recommendedScenario: probability가 가장 높은 시나리오의 type
+			- recommendedReason: 해당 주소의 지역 특성(학군·위치·교통·개발호재 등)과 국내 부동산 시장 상황을 반영한 추천 이유 (1~2문장, 한국어)
 			""".formatted(
 			command.getPeriodYears(),
 			command.getAddr(),
 			command.getCurrentPrice().toPlainString(), currentYear,
 			command.getAssetSize() != null ? command.getAssetSize().toPlainString() : "미제공",
-			startHistoryYear,
-			startHistoryYear + 1,
-			startHistoryYear + 2,
-			startHistoryYear + 3,
-			startHistoryYear + 4,
-			startHistoryYear + 5,
-			currentYear, command.getCurrentPrice().toPlainString(),
-			startHistoryYear, currentYear
+			command.getPeriodYears()
 		);
 	}
 
@@ -148,24 +130,16 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 		int currentYear = LocalDate.now().getYear();
 		BigDecimal currentPrice = command.getCurrentPrice();
 
-		List<PensionForecastInternalDto.HistoricalPrice> historicalPrices = geminiResult.historicalPrices()
-			.stream()
-			.map(h -> PensionForecastInternalDto.HistoricalPrice.builder()
-				.year(h.year())
-				.price(h.price())
-				.build())
-			.toList();
-
 		List<PensionForecastInternalDto.Scenario> scenarios = geminiResult.scenarios().stream()
 			.map(s -> {
 				BigDecimal rate = SCENARIO_RATES.getOrDefault(s.type(), BigDecimal.ZERO);
 				BigDecimal predicted = compoundGrowth(currentPrice, rate, years);
-				BigDecimal totalGrowthRate = totalGrowthRate(rate, years);
+				BigDecimal growth = totalGrowthRate(rate, years);
 				return PensionForecastInternalDto.Scenario.builder()
 					.scenarioType(s.type())
 					.scenarioLabel(SCENARIO_LABELS.getOrDefault(s.type(), s.type()))
 					.annualRate(rate)
-					.totalGrowthRate(totalGrowthRate)
+					.totalGrowthRate(growth)
 					.predictedPrice(predicted)
 					.probability(s.probability())
 					.build();
@@ -176,13 +150,20 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 		BigDecimal baseRate = SCENARIO_RATES.get("BASE");
 		BigDecimal downRate = SCENARIO_RATES.get("DOWN");
 
-		List<PensionForecastInternalDto.ChartPoint> chartPoints = IntStream.rangeClosed(1, years)
-			.mapToObj(i -> PensionForecastInternalDto.ChartPoint.builder()
-				.year(currentYear + i)          // 실제 연도
-				.upPrice(compoundGrowth(currentPrice, upRate, i))
-				.basePrice(compoundGrowth(currentPrice, baseRate, i))
-				.downPrice(compoundGrowth(currentPrice, downRate, i))
-				.build())
+		// 차트: 2020년 ~ currentYear+10년, 2년 단위 (과거는 현재가 기준 역산)
+		int chartStartYear = 2020;
+		int chartEndYear   = currentYear + 10;
+		List<PensionForecastInternalDto.ChartPoint> chartPoints = IntStream.iterate(
+				chartStartYear, y -> y <= chartEndYear, y -> y + 2)
+			.mapToObj(y -> {
+				int offset = y - currentYear; // 음수=과거, 0=현재, 양수=미래
+				return PensionForecastInternalDto.ChartPoint.builder()
+					.year(y)
+					.upPrice(compoundGrowth(currentPrice, upRate, offset))
+					.basePrice(compoundGrowth(currentPrice, baseRate, offset))
+					.downPrice(compoundGrowth(currentPrice, downRate, offset))
+					.build();
+			})
 			.toList();
 
 		BigDecimal expectedPrice = scenarios.stream()
@@ -193,12 +174,10 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 		return PensionForecastInternalDto.Result.builder()
 			.periodYears(years)
 			.expectedPrice(expectedPrice)
-			.historicalPrices(historicalPrices)
 			.scenarios(scenarios)
 			.chartPoints(chartPoints)
 			.recommendedScenario(geminiResult.recommendedScenario())
-			.recommendedTitle(geminiResult.recommendedTitle())
-			.recommendedDescription(geminiResult.recommendedDescription())
+			.recommendedReason(geminiResult.recommendedReason())
 			.modelVersion(MODEL_VERSION)
 			.predictedAt(LocalDateTime.now())
 			.build();
@@ -222,28 +201,14 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 	}
 
 	private GeminiScenarioResult fallbackResult(PensionForecastInternalDto.Command command) {
-		int currentYear = LocalDate.now().getYear();
-		BigDecimal price = command.getCurrentPrice();
-
-		// 과거 7년 시세: 현재 금액 기준 역산 (연 2% 역성장 가정)
-		List<GeminiScenarioResult.HistoricalPriceItem> historicalPrices = IntStream.range(0, 7)
-			.mapToObj(i -> {
-				int yearsAgo = 6 - i;
-				BigDecimal historicalPrice = compoundGrowth(price, new BigDecimal("-0.02"), yearsAgo);
-				return new GeminiScenarioResult.HistoricalPriceItem(currentYear - yearsAgo, historicalPrice);
-			})
-			.toList();
-
 		return new GeminiScenarioResult(
-			historicalPrices,
 			List.of(
 				new GeminiScenarioResult.ScenarioItem("UP",   new BigDecimal("0.30")),
 				new GeminiScenarioResult.ScenarioItem("BASE", new BigDecimal("0.50")),
 				new GeminiScenarioResult.ScenarioItem("DOWN", new BigDecimal("0.20"))
 			),
 			"BASE",
-			"중립 시나리오 추천",
-			"현재 평가금액 기준으로 가장 안정적으로 참고할 수 있는 예측이에요."
+			"현재 평가금액 기준으로 중립 시나리오가 가장 안정적으로 참고할 수 있는 예측입니다."
 		);
 	}
 
@@ -261,15 +226,10 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
 	private record GeminiScenarioResult(
-		List<HistoricalPriceItem> historicalPrices,
 		List<ScenarioItem> scenarios,
 		String recommendedScenario,
-		String recommendedTitle,
-		String recommendedDescription
+		String recommendedReason
 	) {
-		@JsonIgnoreProperties(ignoreUnknown = true)
-		private record HistoricalPriceItem(Integer year, BigDecimal price) {}
-
 		@JsonIgnoreProperties(ignoreUnknown = true)
 		private record ScenarioItem(String type, BigDecimal probability) {}
 	}

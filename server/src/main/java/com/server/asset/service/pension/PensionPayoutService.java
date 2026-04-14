@@ -9,8 +9,12 @@ import com.server.asset.dto.pension.PensionSimulationSummaryResponse;
 import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.PensionPayoutType;
+import com.server.asset.mapper.PensionMapper;
 import com.server.asset.repository.TBPensionSimulationRepository;
 import com.server.asset.repository.TBRealAssetRepository;
+import com.server.common.annotation.CheckUser;
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,7 +27,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -38,26 +41,38 @@ public class PensionPayoutService {
 	private static final BigDecimal GROWING_START_RATIO = new BigDecimal("0.70");
 	private static final BigDecimal GROWING_ANNUAL_RATE = new BigDecimal("0.035");
 
+	// 차트용 연도: 1년부터 3년 단위, 마지막은 20년 포함
+	private static final List<Integer> CHART_YEARS = buildChartYears();
+
+	private static List<Integer> buildChartYears() {
+		List<Integer> years = new java.util.ArrayList<>();
+		for (int y = 1; y <= COMPARISON_YEARS; y += 3) {
+			years.add(y);
+		}
+		if (!years.contains(COMPARISON_YEARS)) {
+			years.add(COMPARISON_YEARS);
+		}
+		return List.copyOf(years);
+	}
+
 	private static final Map<String, String> TYPE_LABELS = Map.of(
 		"FIXED",        "정액형",
 		"FRONT_LOADED", "초기증액형",
 		"GROWING",      "정기증가형"
 	);
-	private static final Map<String, String> TYPE_DESCRIPTIONS = Map.of(
-		"FIXED",        "고정된 금액을 평생 수령하는 방식이에요",
-		"FRONT_LOADED", "초기 10년은 더 많이 받고 이후 줄어드는 방식이에요",
-		"GROWING",      "처음엔 적지만 매년 3.5%씩 늘어나는 방식이에요"
-	);
 
 	private final TBRealAssetRepository realAssetRepository;
 	private final TBPensionSimulationRepository pensionSimulationRepository;
 	private final ObjectMapper objectMapper;
+	private final PensionMapper pensionMapper;
 
 	// ── 상세 비교 (저장/캐시) ─────────────────────────────────────────────────────
 
+	@CheckUser(key = "#userId")
 	@Transactional
-	public PensionPayoutComparisonResponse compare(Long realAssetId) {
+	public PensionPayoutComparisonResponse compare(Long userId, Long realAssetId) {
 		TBRealAsset asset = findAsset(realAssetId);
+		validateOwner(userId, asset);
 		BigDecimal currentEvalAmt = asset.getEvalAmt();
 
 		Optional<TBPensionSimulation> existing =
@@ -84,18 +99,15 @@ public class PensionPayoutService {
 
 	// ── 요약 카드 (빠른 조회) ─────────────────────────────────────────────────────
 
+	@CheckUser(key = "#userId")
 	@Transactional(readOnly = true)
-	public PensionSimulationSummaryResponse getSummary(Long realAssetId) {
+	public PensionSimulationSummaryResponse getSummary(Long userId, Long realAssetId) {
 		TBPensionSimulation simulation = pensionSimulationRepository
 			.findByRealAsset_RealAssetId(realAssetId)
-			.orElseThrow(() -> new IllegalArgumentException("저장된 주택연금 시뮬레이션이 없습니다. 먼저 비교 조회를 실행해 주세요."));
+			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND));
+		validateOwner(userId, simulation.getRealAsset());
 
-		return PensionSimulationSummaryResponse.builder()
-			.recommendedType(simulation.getRecommendedType().name())
-			.recommendedLabel(simulation.getRecommendedType().getLabel())
-			.recommendedMonthlyAmount(simulation.getRecommendedMonthlyAmt())
-			.recommendedCumulativeAmount(simulation.getRecommendedCumulativeAmt())
-			.build();
+		return pensionMapper.toSummaryResponse(simulation);
 	}
 
 	// ── 계산 로직 ────────────────────────────────────────────────────────────────
@@ -118,7 +130,6 @@ public class PensionPayoutService {
 		return PensionPayoutComparisonResponse.builder()
 			.recommendedType(recommended.getType())
 			.recommendedLabel(recommended.getLabel())
-			.recommendedDescription(recommended.getDescription())
 			.plans(plans)
 			.build();
 	}
@@ -167,25 +178,28 @@ public class PensionPayoutService {
 	// ── 공통 유틸 ────────────────────────────────────────────────────────────────
 
 	private List<PensionPayoutYearlyDto> buildYearlyData(java.util.function.IntFunction<BigDecimal> monthlyByYear) {
-		BigDecimal[] cumulative = {BigDecimal.ZERO};
-		return IntStream.rangeClosed(1, COMPARISON_YEARS)
-			.mapToObj(year -> {
-				BigDecimal monthly = monthlyByYear.apply(year);
-				cumulative[0] = cumulative[0].add(monthly.multiply(BigDecimal.valueOf(12)));
-				return PensionPayoutYearlyDto.builder()
+		List<PensionPayoutYearlyDto> result = new java.util.ArrayList<>();
+		BigDecimal cumulative = BigDecimal.ZERO;
+
+		for (int year = 1; year <= COMPARISON_YEARS; year++) {
+			BigDecimal monthly = monthlyByYear.apply(year);
+			cumulative = cumulative.add(monthly.multiply(BigDecimal.valueOf(12)));
+
+			if (CHART_YEARS.contains(year)) {
+				result.add(PensionPayoutYearlyDto.builder()
 					.year(year)
 					.monthlyAmount(monthly)
-					.cumulativeAmount(cumulative[0])
-					.build();
-			})
-			.toList();
+					.cumulativeAmount(cumulative)
+					.build());
+			}
+		}
+		return List.copyOf(result);
 	}
 
 	private PensionPayoutPlanDto toPlan(String type, List<PensionPayoutYearlyDto> yearlyData) {
 		return PensionPayoutPlanDto.builder()
 			.type(type)
 			.label(TYPE_LABELS.get(type))
-			.description(TYPE_DESCRIPTIONS.get(type))
 			.totalCumulativeAmount(yearlyData.get(yearlyData.size() - 1).getCumulativeAmount())
 			.yearlyData(yearlyData)
 			.build();
@@ -193,11 +207,17 @@ public class PensionPayoutService {
 
 	private TBRealAsset findAsset(Long realAssetId) {
 		TBRealAsset asset = realAssetRepository.findByRealAssetId(realAssetId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 주택 자산이 없습니다."));
+			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_ASSET_NOT_FOUND));
 		if (asset.getEvalAmt() == null || asset.getEvalAmt().compareTo(BigDecimal.ZERO) <= 0) {
-			throw new IllegalArgumentException("현재 평가금액이 없어 연금을 계산할 수 없습니다.");
+			throw new ApiException(ErrorStatus.PENSION_NO_EVAL_AMT);
 		}
 		return asset;
+	}
+
+	private void validateOwner(Long userId, TBRealAsset asset) {
+		if (!asset.getUser().getUserId().equals(userId)) {
+			throw new ApiException(ErrorStatus._FORBIDDEN);
+		}
 	}
 
 	private String serializePlans(List<PensionPayoutPlanDto> plans) {
@@ -218,7 +238,6 @@ public class PensionPayoutService {
 			return PensionPayoutComparisonResponse.builder()
 				.recommendedType(simulation.getRecommendedType().name())
 				.recommendedLabel(simulation.getRecommendedType().getLabel())
-				.recommendedDescription(TYPE_DESCRIPTIONS.get(simulation.getRecommendedType().name()))
 				.plans(plans)
 				.build();
 		} catch (Exception e) {

@@ -15,6 +15,7 @@ import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
+import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBFamilyAuth;
@@ -50,6 +51,7 @@ public class TrustService {
 	private final TrustMapper trustMapper;
 	private final ObjectMapper objectMapper;
 
+	@CheckUser(key = "#userId")
 	@Transactional
 	public void saveSimulation(Long userId, TrustSimulationSaveRequest request) {
 		TBUser user = userRepository.findById(userId)
@@ -73,6 +75,7 @@ public class TrustService {
 		trustRepository.save(simulation);
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional(readOnly = true)
 	public TrustSimulationResultResponse getSimulationResult(Long userId) {
 		TBTrustSimulation simulation = trustRepository
@@ -115,6 +118,7 @@ public class TrustService {
 		);
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional(readOnly = true)
 	public TrustProductResponse getProductSummary(Long userId, Long userProdId) {
 		TBUserProd userProd = userProdRepository.findById(userProdId)
@@ -124,6 +128,7 @@ public class TrustService {
 		return convertToProductResponse(userProd);
 	}
 
+	@CheckUser(key = "#granteeUserId")
 	@Transactional(readOnly = true)
 	public TrustProductResponse getFamilyTrustDetail(Long granteeUserId, Long grantorUserId) {
 		validateTrustAccess(granteeUserId, grantorUserId);
@@ -137,6 +142,7 @@ public class TrustService {
 		return convertToProductResponse(userProd);
 	}
 
+	@CheckUser(key = "#granteeUserId")
 	@Transactional(readOnly = true)
 	public TrustAccessResponse getTrustAccess(Long granteeUserId, Long grantorUserId) {
 		TBFamilyAuth familyAuth = familyAuthRepository
@@ -162,6 +168,7 @@ public class TrustService {
 		);
 	}
 
+	@CheckUser(key = "#granteeUserId")
 	@Transactional(readOnly = true)
 	public void validateTrustAccess(Long granteeUserId, Long grantorUserId) {
 		TBFamilyAuth familyAuth = familyAuthRepository
@@ -173,6 +180,7 @@ public class TrustService {
 		}
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional
 	public void updatePayoutSettings(Long userId, Long userProdId, TrustPayoutSettingsUpdateRequest request) {
 		TBUserProd userProd = userProdRepository.findById(userProdId)
@@ -186,6 +194,7 @@ public class TrustService {
 		}
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional
 	public void updateAgentView(Long userId, Long userProdId, TrustAgentViewUpdateRequest request) {
 		TBUserProd userProd = userProdRepository.findById(userProdId)

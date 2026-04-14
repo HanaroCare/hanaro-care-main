@@ -1,20 +1,19 @@
 package com.server.asset.service.pension;
 
-import com.server.asset.dto.pension.PensionForecastChartPointDto;
 import com.server.asset.dto.pension.PensionForecastInternalDto;
 import com.server.asset.dto.pension.PensionForecastResponse;
-import com.server.asset.dto.pension.PensionForecastScenarioDto;
-import com.server.asset.dto.pension.PensionHistoricalPriceDto;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.RealAssetCategory;
+import com.server.asset.mapper.PensionMapper;
 import com.server.asset.repository.TBRealAssetRepository;
 import com.server.common.annotation.CheckUser;
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,13 +22,18 @@ public class PensionForecastService {
 
 	private final TBRealAssetRepository realAssetRepository;
 	private final PensionPricePredictor pensionPricePredictor;
+	private final PensionMapper pensionMapper;
 
-	@CheckUser
-	public PensionForecastResponse getForecast(Long realAssetId, Integer periodYears) {
+	@CheckUser(key = "#userId")
+	public PensionForecastResponse getForecast(Long userId, Long realAssetId, Integer periodYears) {
 		validatePeriodYears(periodYears);
 
 		TBRealAsset asset = realAssetRepository.findByRealAssetId(realAssetId)
-			.orElseThrow(() -> new IllegalArgumentException("해당 주택 자산이 없습니다."));
+			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_ASSET_NOT_FOUND));
+
+		if (!asset.getUser().getUserId().equals(userId)) {
+			throw new ApiException(ErrorStatus._FORBIDDEN);
+		}
 
 		validateForecastable(asset);
 
@@ -41,71 +45,21 @@ public class PensionForecastService {
 			.build();
 
 		PensionForecastInternalDto.Result result = pensionPricePredictor.predict(command);
-
-		return PensionForecastResponse.builder()
-			.realAssetId(asset.getRealAssetId())
-			.assetNm(asset.getAssetNm())
-			.currentPrice(asset.getEvalAmt())
-			.periodYears(result.getPeriodYears())
-			.expectedPrice(result.getExpectedPrice())
-			.historicalPrices(toHistoricalPriceDtos(result.getHistoricalPrices()))
-			.scenarios(toScenarioDtos(result.getScenarios()))
-			.chartPoints(toChartPointDtos(result.getChartPoints()))
-			.recommendedScenario(result.getRecommendedScenario())
-			.recommendedTitle(result.getRecommendedTitle())
-			.recommendedDescription(result.getRecommendedDescription())
-			.modelVersion(result.getModelVersion())
-			.predictedAt(result.getPredictedAt())
-			.build();
+		return pensionMapper.toForecastResponse(asset, result);
 	}
 
 	private void validateForecastable(TBRealAsset asset) {
 		if (asset.getAssetCateCd() != RealAssetCategory.REAL_ESTATE) {
-			throw new IllegalArgumentException("부동산 자산만 예측할 수 있습니다.");
+			throw new ApiException(ErrorStatus.PENSION_NOT_REAL_ESTATE);
 		}
-
 		if (asset.getEvalAmt() == null || asset.getEvalAmt().compareTo(BigDecimal.ZERO) <= 0) {
-			throw new IllegalArgumentException("현재 평가금액이 없어 예측할 수 없습니다.");
+			throw new ApiException(ErrorStatus.PENSION_NO_EVAL_AMT);
 		}
 	}
 
 	private void validatePeriodYears(Integer periodYears) {
 		if (periodYears == null || (periodYears != 5 && periodYears != 10 && periodYears != 20)) {
-			throw new IllegalArgumentException("조회 기간은 5년, 10년, 20년만 가능합니다.");
+			throw new ApiException(ErrorStatus.PENSION_INVALID_PERIOD);
 		}
-	}
-
-	private List<PensionHistoricalPriceDto> toHistoricalPriceDtos(List<PensionForecastInternalDto.HistoricalPrice> historicalPrices) {
-		if (historicalPrices == null) return List.of();
-		return historicalPrices.stream()
-			.map(h -> PensionHistoricalPriceDto.builder()
-				.year(h.getYear())
-				.price(h.getPrice())
-				.build())
-			.toList();
-	}
-
-	private List<PensionForecastScenarioDto> toScenarioDtos(List<PensionForecastInternalDto.Scenario> scenarios) {
-		return scenarios.stream()
-			.map(s -> PensionForecastScenarioDto.builder()
-				.scenarioType(s.getScenarioType())
-				.scenarioLabel(s.getScenarioLabel())
-				.annualRate(s.getAnnualRate())
-				.totalGrowthRate(s.getTotalGrowthRate())
-				.predictedPrice(s.getPredictedPrice())
-				.probability(s.getProbability())
-				.build())
-			.toList();
-	}
-
-	private List<PensionForecastChartPointDto> toChartPointDtos(List<PensionForecastInternalDto.ChartPoint> chartPoints) {
-		return chartPoints.stream()
-			.map(p -> PensionForecastChartPointDto.builder()
-				.year(p.getYear())
-				.downPrice(p.getDownPrice())
-				.basePrice(p.getBasePrice())
-				.upPrice(p.getUpPrice())
-				.build())
-			.toList();
 	}
 }
