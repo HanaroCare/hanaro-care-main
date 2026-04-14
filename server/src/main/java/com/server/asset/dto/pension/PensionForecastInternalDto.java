@@ -28,6 +28,8 @@ public class PensionForecastInternalDto {
 	@AllArgsConstructor
 	public static class Result {
 		private Integer periodYears;
+		private BigDecimal expectedPrice;  // 확률 가중 기댓값
+		private List<HistoricalPrice> historicalPrices;
 		private List<Scenario> scenarios;
 		private List<ChartPoint> chartPoints;
 		private String recommendedScenario;
@@ -41,9 +43,20 @@ public class PensionForecastInternalDto {
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	public static class HistoricalPrice {
+		private Integer year;
+		private BigDecimal price;
+	}
+
+	@Getter
+	@Builder
+	@NoArgsConstructor
+	@AllArgsConstructor
 	public static class Scenario {
-		private String scenarioType;
-		private BigDecimal annualRate;
+		private String scenarioType;        // UP | BASE | DOWN
+		private String scenarioLabel;       // 낙관 | 중립 | 비관
+		private BigDecimal annualRate;      // 연간 상승률
+		private BigDecimal totalGrowthRate; // 기간 전체 상승률 %
 		private BigDecimal predictedPrice;
 		private BigDecimal probability;
 	}

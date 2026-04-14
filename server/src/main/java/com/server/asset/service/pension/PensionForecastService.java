@@ -4,6 +4,7 @@ import com.server.asset.dto.pension.PensionForecastChartPointDto;
 import com.server.asset.dto.pension.PensionForecastInternalDto;
 import com.server.asset.dto.pension.PensionForecastResponse;
 import com.server.asset.dto.pension.PensionForecastScenarioDto;
+import com.server.asset.dto.pension.PensionHistoricalPriceDto;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.repository.TBRealAssetRepository;
@@ -46,6 +47,8 @@ public class PensionForecastService {
 			.assetNm(asset.getAssetNm())
 			.currentPrice(asset.getEvalAmt())
 			.periodYears(result.getPeriodYears())
+			.expectedPrice(result.getExpectedPrice())
+			.historicalPrices(toHistoricalPriceDtos(result.getHistoricalPrices()))
 			.scenarios(toScenarioDtos(result.getScenarios()))
 			.chartPoints(toChartPointDtos(result.getChartPoints()))
 			.recommendedScenario(result.getRecommendedScenario())
@@ -72,11 +75,23 @@ public class PensionForecastService {
 		}
 	}
 
+	private List<PensionHistoricalPriceDto> toHistoricalPriceDtos(List<PensionForecastInternalDto.HistoricalPrice> historicalPrices) {
+		if (historicalPrices == null) return List.of();
+		return historicalPrices.stream()
+			.map(h -> PensionHistoricalPriceDto.builder()
+				.year(h.getYear())
+				.price(h.getPrice())
+				.build())
+			.toList();
+	}
+
 	private List<PensionForecastScenarioDto> toScenarioDtos(List<PensionForecastInternalDto.Scenario> scenarios) {
 		return scenarios.stream()
 			.map(s -> PensionForecastScenarioDto.builder()
 				.scenarioType(s.getScenarioType())
+				.scenarioLabel(s.getScenarioLabel())
 				.annualRate(s.getAnnualRate())
+				.totalGrowthRate(s.getTotalGrowthRate())
 				.predictedPrice(s.getPredictedPrice())
 				.probability(s.getProbability())
 				.build())
