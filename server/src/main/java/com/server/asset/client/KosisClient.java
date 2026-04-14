@@ -1,14 +1,16 @@
 package com.server.asset.client;
 
 import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import com.server.asset.dto.external.PublicDataResponse;
+
+import com.server.asset.dto.external.publicdata.PublicDataResponse;
 
 @FeignClient(name = "kosisClient", url = "${external.kosis.base-url}")
 public interface KosisClient {
-    @GetMapping("/statisticsData.do")
+    @GetMapping("/openapi/statisticsData.do")
     List<PublicDataResponse.KosisData> getMedicalInflation(
         @RequestParam("apiKey") String apiKey,
         @RequestParam("method") String method,

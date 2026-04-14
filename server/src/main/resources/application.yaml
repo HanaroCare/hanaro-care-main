@@ -47,7 +47,7 @@ external:
     base-url: https://generativelanguage.googleapis.com
     api-key: ${GEMINI_API_KEY:YOUR_GEMINI_KEY}
   kosis:
-    base-url: https://kosis.kr/openapi
+    base-url: https://kosis.kr
     api-key: ${KOSIS_API_KEY:YOUR_KOSIS_KEY}
   public-data:
     base-url: http://apis.data.go.kr

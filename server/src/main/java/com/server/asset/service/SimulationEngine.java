@@ -3,19 +3,16 @@ package com.server.asset.service;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Component;
 
 import com.server.asset.client.BokjiroClient;
 import com.server.asset.client.KosisClient;
 import com.server.asset.dto.external.AIAnalysisInput;
-import com.server.asset.dto.external.PublicDataResponse;
+import com.server.asset.dto.external.publicdata.PublicDataResponse;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
 import com.server.common.config.external.ExternalApiProperties;
-import com.server.common.exception.ApiException;
-import com.server.common.response.code.status.ErrorStatus;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,73 +29,103 @@ public class SimulationEngine {
     private final ExternalApiProperties apiProperties;
 
     public SimulationDetailResponse run(AIAnalysisInput input) {
+        // 1. 핵심 지표 산출
+        BigDecimal medicalInflation = fetchMedicalInflation();
+        BigDecimal estimatedPension = pensionService.estimateMonthlyPension(
+            input.getUserAge(), input.getAverageMonthlySpending(), 20);
+        List<String> welfareServices = fetchWelfareServices(input.getUserAddr());
+
+        log.info("[Simulation Start] User Age: {}, Target Age: {}, Care Type: {}", 
+            input.getUserAge(), input.getTargetAge(), input.getCareType());
+        log.info("[Simulation Metrics] Medical Inflation: {}%, Estimated Pension: {} KRW, Welfare Services Count: {}", 
+            medicalInflation, estimatedPension, welfareServices.size());
+
+        // 2. AI 분석 시도
         try {
-            // 1. 외부 데이터 병렬 수집 시작
-            CompletableFuture<BigDecimal> inflationFuture = CompletableFuture.supplyAsync(this::fetchMedicalInflation);
-            CompletableFuture<List<String>> welfareFuture = CompletableFuture.supplyAsync(() -> fetchWelfareServices(input.getUserAddr()));
-
-            // 2. 내부 연금 시뮬레이션
-            BigDecimal estimatedPension = pensionService.estimateMonthlyPension(
-                input.getUserAge(), input.getAverageMonthlySpending(), 20);
-
-            // 3. 결과 대기 및 에러 핸들링
-            BigDecimal medicalInflation = inflationFuture.join();
-            List<String> welfareServices = welfareFuture.join();
-
-            // 4. 최종 AI 분석 요청
-            return aiService.analyzeFutureCosts(input, medicalInflation, welfareServices, estimatedPension);
-
-        } catch (CompletionException e) {
-            log.error("Simulation Engine failed due to async task error: {}", e.getMessage());
-            if (e.getCause() instanceof ApiException apiException) {
-                throw apiException;
-            }
-            throw new ApiException(ErrorStatus.EXTERNAL_API_ERROR);
+            log.info("[Simulation Path] Attempting AI Analysis via Gemini...");
+            SimulationDetailResponse aiResult = aiService.analyzeFutureCosts(input, medicalInflation, welfareServices, estimatedPension);
+            log.info("[Simulation Success] AI Analysis completed successfully.");
+            return aiResult;
+        } catch (Exception e) {
+            // 3. AI 실패 시 통계 기반 Rule-based 시뮬레이션으로 즉시 전환
+            log.warn("[Simulation Path] AI Analysis failed. Falling back to Rule-based simulation. Error: {}", e.getMessage());
+            SimulationDetailResponse ruleResult = runRuleBasedSimulation(input, medicalInflation, estimatedPension);
+            log.info("[Simulation Success] Rule-based simulation completed as fallback.");
+            return ruleResult;
         }
     }
 
     private BigDecimal fetchMedicalInflation() {
-        String apiKey = apiProperties.getKosis().getApiKey();
-        
-        // API 키가 설정되지 않았거나 기본값인 경우 Fallback 데이터 사용
-        if (apiKey == null || apiKey.contains("YOUR_KOSIS_KEY") || apiKey.contains("${")) {
-            log.warn("KOSIS API Key is missing. Using default inflation rate (4.5%)");
-            return new BigDecimal("4.5");
-        }
-
         try {
-            List<PublicDataResponse.KosisData> data = kosisClient.getMedicalInflation(
-                apiKey, "getList", "json", "101", "Y", "2023", "2023");
-            
-            if (data == null || data.isEmpty()) {
-                throw new ApiException(ErrorStatus.EXTERNAL_API_BAD_REQUEST);
+            String apiKey = apiProperties.getKosis().getApiKey();
+            if (isValidKey(apiKey)) {
+                List<PublicDataResponse.KosisData> data = kosisClient.getMedicalInflation(
+                    apiKey, "getList", "json", "101", "Y", "2023", "2023");
+                if (data != null && !data.isEmpty()) return new BigDecimal(data.get(0).getValue());
             }
-            return new BigDecimal(data.getFirst().getValue());
         } catch (Exception e) {
-            log.error("KOSIS API call failed: {}. Falling back to 4.5%", e.getMessage());
-            return new BigDecimal("4.5"); // 통계 데이터는 시뮬레이션 중단보다 기본값 사용이 나음
+            log.warn("KOSIS API failed: {}", e.getMessage());
         }
+        return new BigDecimal("4.5");
     }
 
     private List<String> fetchWelfareServices(String addr) {
-        String apiKey = apiProperties.getPublicData().getApiKey();
-
-        if (apiKey == null || apiKey.contains("YOUR_PUBLIC_KEY") || apiKey.contains("${")) {
-            log.warn("Public Data API Key is missing. Using default welfare services.");
-            return Arrays.asList("기초연금", "노인 장기요양 보험");
-        }
-
         try {
-            String region = addr.split(" ")[0];
-            String rawResponse = bokjiroClient.getWelfareServices(apiKey, 1, 5, region + " 노인", "006");
-            
-            if (rawResponse == null || rawResponse.contains("err")) {
-                throw new ApiException(ErrorStatus.EXTERNAL_API_BAD_REQUEST);
+            String apiKey = apiProperties.getPublicData().getApiKey();
+            if (isValidKey(apiKey)) {
+                // 중앙부처 복지서비스 목록조회 (노인 대상)
+                PublicDataResponse.WelfareListResponse response = bokjiroClient.getWelfareServices(
+                    apiKey, "L", 1, 5, "003", "노인", "006", "json");
+                
+                if (response != null && response.getWantedList() != null && response.getWantedList().getServList() != null) {
+                    return response.getWantedList().getServList().stream()
+                        .map(PublicDataResponse.WelfareService::getServNm)
+                        .collect(Collectors.toList());
+                }
             }
-            return Arrays.asList("기초연금", "노인 장기요양 보험", region + " 노인 일자리 사업");
         } catch (Exception e) {
-            log.error("Bokjiro API call failed: {}. Using default services.", e.getMessage());
-            return Arrays.asList("기초연금", "노인 장기요양 보험");
+            log.warn("Bokjiro API failed: {}", e.getMessage());
         }
+        return Arrays.asList("기초연금", "노인 장기요양 보험");
+    }
+
+    private boolean isValidKey(String key) {
+        return key != null && !key.contains("YOUR") && !key.contains("${");
+    }
+
+    private SimulationDetailResponse runRuleBasedSimulation(AIAnalysisInput input, BigDecimal inflation, BigDecimal pension) {
+        // 요양 방식별 월평균 비용 (재가: 60만, 요양원: 180만, 요양병원: 250만)
+        BigDecimal careCostBase = switch (input.getCareType()) {
+            case HOME -> new BigDecimal("600000");
+            case CENTER -> new BigDecimal("1800000");
+            case HOSPITAL -> new BigDecimal("2500000");
+            default -> new BigDecimal("1000000");
+        };
+
+        // 70세 기준 시뮬레이션 (현재 소비 + 의료물가상승 반영 의료비 + 요양비)
+        // 기본 의료비를 월 30만원으로 가정하고 물가상승률 적용
+        BigDecimal futureMedical = new BigDecimal("300000")
+            .multiply(BigDecimal.ONE.add(inflation.divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)));
+
+        SimulationDetailResponse.AgeSegment segment1 = SimulationDetailResponse.AgeSegment.builder()
+            .range("70-75세")
+            .income(pension.add(new BigDecimal("300000")))
+            .expense(input.getAverageMonthlySpending().add(futureMedical).add(careCostBase))
+            .detail(SimulationDetailResponse.AgeDetail.builder()
+                .living(input.getAverageMonthlySpending())
+                .medical(futureMedical)
+                .care(careCostBase)
+                .build())
+            .build();
+
+        return SimulationDetailResponse.builder()
+            .incomeDetails(SimulationDetailResponse.IncomeDetails.builder()
+                .nationalPension(pension)
+                .localSubsidyAmt(new BigDecimal("300000"))
+                .totalMonthlyIncome(pension.add(new BigDecimal("300000")))
+                .build())
+            .ageSegments(Arrays.asList(segment1))
+            .aiOpinion("현재 통계 기반 시뮬레이션 결과입니다. " + input.getCareType().getDescription() + " 중심의 노후 자금 준비가 필요합니다.")
+            .build();
     }
 }

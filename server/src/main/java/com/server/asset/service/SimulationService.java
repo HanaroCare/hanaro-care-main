@@ -45,13 +45,14 @@ public class SimulationService {
         SimulationDetailResponse aiResult = simulationEngine.run(input);
 
         // 3. 분석 결과를 DB 엔티티로 변환 및 요약 정보 계산
-        BigDecimal totalIncomeAmt = aiResult.getIncomeDetails().getTotalMonthlyIncome();
-        
+        BigDecimal totalIncomeAmt = (aiResult.getIncomeDetails() != null && aiResult.getIncomeDetails().getTotalMonthlyIncome() != null)
+            ? aiResult.getIncomeDetails().getTotalMonthlyIncome() : BigDecimal.ZERO;
+
         // 첫 번째 세그먼트 데이터를 기본 요약 정보로 사용
-        SimulationDetailResponse.AgeSegment firstSegment = aiResult.getAgeSegments().isEmpty() ?
-            null : aiResult.getAgeSegments().get(0);
-        
-        BigDecimal monthlyCost = (firstSegment != null) ? firstSegment.getExpense() : BigDecimal.ZERO;
+        SimulationDetailResponse.AgeSegment firstSegment = (aiResult.getAgeSegments() != null && !aiResult.getAgeSegments().isEmpty())
+            ? aiResult.getAgeSegments().getFirst() : null;
+
+        BigDecimal monthlyCost = (firstSegment != null && firstSegment.getExpense() != null) ? firstSegment.getExpense() : BigDecimal.ZERO;
         BigDecimal shortageAmt = monthlyCost.subtract(totalIncomeAmt);
         boolean isSufficient = shortageAmt.compareTo(BigDecimal.ZERO) <= 0;
 
