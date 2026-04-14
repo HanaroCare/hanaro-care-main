@@ -1,6 +1,7 @@
 package com.server.asset.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import com.server.asset.entity.enums.InvestType;
 import com.server.asset.entity.enums.PayoutType;
@@ -74,13 +75,13 @@ public class TBUserProd extends BaseEntity {
 		foreignKey = @ForeignKey(name = "fk_UserProd_targetAssetId_RealAsset"))
 	private TBRealAsset targetAsset;
 
-	@Column(name = "EXPECTED_MONTHLY_PAYOUT",
+	@Column(name = "MONTHLY_PAYOUT",
 		precision = 13, scale = 2,
 		nullable = true)
-	private BigDecimal expectedMonthlyPayout;
+	private BigDecimal monthlyPayout;
 
-	@Column(name = "EXPECTED_PERIOD", nullable = true)
-	private Byte expectedPeriod;
+	@Column(name = "PERIOD", nullable = true)
+	private Byte period;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "INVEST_TYPE_CD", nullable = true)
@@ -91,19 +92,22 @@ public class TBUserProd extends BaseEntity {
 		nullable = true)
 	private BigDecimal principalAmount;
 
-	@Column(name = "EXPECTED_RATE",
+	@Column(name = "PROFIT_RATE",
 		precision = 5, scale = 2,
 		nullable = true)
-	private BigDecimal expectedRate;
+	private BigDecimal profitRate;
 
-	@Column(name = "EXPECTED_PROFIT",
+	@Column(name = "PROFIT",
 		precision = 13, scale = 2,
 		nullable = true)
-	private BigDecimal expectedProfit;
+	private BigDecimal profit;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "START_TYPE", nullable = true)
 	private StartType startType;
+
+	@Column(name = "START_DATE", nullable = true)
+	private LocalDate startDate;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CLAIM_AGENT_ID", referencedColumnName = "USER_ID",
@@ -114,4 +118,7 @@ public class TBUserProd extends BaseEntity {
 
 	@Column(name = "AGENT_VIEW_YN", length = 1)
 	private String agentViewYn;
+
+	@Column(name = "PAYOUT_SETTINGS", columnDefinition = "JSON")
+	private String payoutSettings;
 }
