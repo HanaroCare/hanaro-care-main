@@ -16,6 +16,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import com.server.simulation.dto.response.SimulationDetailResponse;
+import com.server.simulation.dto.response.SimulationSummaryResponse;
+
 @Tag(name = "Simulation", description = "AI 시뮬레이션 관련 API")
 @RestController
 @RequestMapping("/api/asset/simulation")
@@ -31,5 +35,22 @@ public class SimulationController {
         @RequestBody SimulationRequest request
     ) {
         return ApiResponse.onSuccess(simulationService.createSimulation(subscriberDTO.getUserId(), request));
+    }
+
+    @Operation(summary = "시뮬레이션 요약 조회", description = "가장 최근에 완료된 시뮬레이션의 요약 정보를 조회합니다.")
+    @GetMapping("/summary")
+    public ApiResponse<SimulationSummaryResponse> getSimulationSummary(
+        @AuthenticationPrincipal SubscriberDTO subscriberDTO
+    ) {
+        return ApiResponse.onSuccess(simulationService.getSimulationSummary(subscriberDTO.getUserId()));
+    }
+
+    @Operation(summary = "시뮬레이션 상세 조회", description = "특정 조건의 시뮬레이션 상세 내역(연령대별 지출 등)을 조회합니다.")
+    @PostMapping("/detail")
+    public ApiResponse<SimulationDetailResponse> getSimulationDetail(
+        @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+        @RequestBody SimulationRequest request
+    ) {
+        return ApiResponse.onSuccess(simulationService.getSimulationDetail(subscriberDTO.getUserId(), request));
     }
 }
