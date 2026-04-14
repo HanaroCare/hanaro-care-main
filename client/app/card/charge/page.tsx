@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronDown } from "lucide-react";
 import { Route } from "next";
+import Header from "@/components/navigation/Header";
 
 const CARDS = [
   {
@@ -82,15 +83,7 @@ export default function CardChargePage() {
       `}</style>
 
       {/* 헤더 */}
-      <div className="flex justify-between items-center px-4 h-[65px] border-b border-black/10 sticky top-0 bg-white z-10">
-        <button className="p-1" onClick={() => router.back()}>
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
-          카드 관리
-        </span>
-        <div className="w-8" />
-      </div>
+      <Header title="카드 관리" />
 
       {/* 카드명 */}
       <div className="px-6 mt-8">
