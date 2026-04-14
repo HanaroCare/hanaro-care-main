@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
+import ShareSheet from '@/components/modules/ShareSheet';
 
 // --- 임시 데이터 및 인터페이스 ---
 interface FamilyMember {
@@ -323,6 +324,7 @@ export default function FamilyManagementPage() {
   const router = useRouter();
   const [members, setMembers] = useState<FamilyMember[]>(initialFamilyMembers);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
 
@@ -426,6 +428,15 @@ export default function FamilyManagementPage() {
             requestedCount={5}
           />
 
+          <div className="mb-8">
+            <PrimaryButton
+              label="가족 추가하기"
+              variant="secondary"
+              icon={<PlusCircle className="h-5 w-5" />}
+              onClick={() => setIsAddSheetOpen(true)}
+            />
+          </div>
+
           <section className="mb-6">
             <div className="mb-4 flex items-center justify-between px-1">
               <h2 className="font-bold text-[#1A1A1A] text-lg">가족 목록</h2>
@@ -465,6 +476,13 @@ export default function FamilyManagementPage() {
           nonSharingMembers={nonSharingMembers}
           onRequestShare={handleRequestShare}
         />
+
+        {isAddSheetOpen && (
+          <ShareSheet 
+            title="가족 추가하기" 
+            onClose={() => setIsAddSheetOpen(false)} 
+          />
+        )}
 
         <ConfirmPopup
           isOpen={isConfirmOpen}

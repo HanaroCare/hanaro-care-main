@@ -138,7 +138,10 @@ export default function CardUsageDetailPage() {
 
       {/* 증빙 요청 바텀시트 */}
       {showEvidenceSheet && (
-        <EvidenceSheet onClose={() => setShowEvidenceSheet(false)} />
+        <ShareSheet 
+          title="증빙 요청 보내기" 
+          onClose={() => setShowEvidenceSheet(false)} 
+        />
       )}
     </div>
   );
