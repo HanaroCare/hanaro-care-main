@@ -83,8 +83,8 @@ export default function GuardianPage() {
   ];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
-      <div className="min-h-screen w-full bg-white">{steps[step]}</div>
+    <div className="flex min-h-screen items-start justify-center bg-white">
+      <div className="w-full">{steps[step]}</div>
     </div>
   );
 }

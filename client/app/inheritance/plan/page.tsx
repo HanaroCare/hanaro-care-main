@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
-import SubHeader from '@/components/SubHeader';
+import Header from '@/components/navigation/Header';
 import styles from './page.module.css';
 
 const COLORS = [
@@ -27,7 +27,7 @@ export default function InheritancePlanPage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout">
-        <SubHeader title="상속 설계" backUrl="/inheritance/intro" />
+        <Header title="상속 설계" showBackButton={true} />
 
         <div className={styles.scrollArea}>
           <main className={styles.content}>

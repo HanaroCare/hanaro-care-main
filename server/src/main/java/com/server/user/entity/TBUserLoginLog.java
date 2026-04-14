@@ -2,27 +2,31 @@ package com.server.user.entity;
 
 import com.server.common.entity.BaseEntity;
 import com.server.user.enums.LoginMeans;
-import io.hypersistence.utils.hibernate.id.Tsid;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,7 +35,8 @@ import lombok.ToString;
 public class TBUserLoginLog extends BaseEntity {
 
   @Id
-  @Tsid
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  // @Tsid
   @Column(name = "USER_LOG_ID", columnDefinition = "bigint unsigned")
   private Long userLogId;
 
@@ -49,13 +54,12 @@ public class TBUserLoginLog extends BaseEntity {
   private LoginMeans userMeansCd;
 
   @Builder.Default
-  @Column(name = "USER_RESULT_YN", nullable = false, length = 1)
-  private String userResultYn = "Y";
+  @Column(name = "USER_RESULT_YN", nullable = false)
+  private Boolean userResultYn = true;
 
   @Column(name = "ACCESS_IP_ADDR", length = 50)
   private String accessIpAddr;
 
   @Column(name = "ACCESS_DEV_NM", length = 255)
   private String accessDevNm;
-
 }

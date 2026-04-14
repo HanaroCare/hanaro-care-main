@@ -2,7 +2,7 @@
 
 import { Clock, MapPin, Phone } from 'lucide-react';
 import { useRef, useState } from 'react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { useKakaoMap } from '../hooks/useKakaoMap';
 
 type Props = {
@@ -151,10 +151,10 @@ export default function Step6FindNotary({ onNext }: Props) {
         className="mb-2 w-full"
       />
       <PrimaryButton
-        variant="disabled"
+        variant="secondary"
         onClick={onNext}
         label={'완료하기'}
-        className="mb-25 w-full"
+        className="w-full"
       />
     </div>
   );

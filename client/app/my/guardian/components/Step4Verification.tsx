@@ -1,7 +1,7 @@
 'use client';
 
 import { Shield, Smartphone } from 'lucide-react';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import type { GuardianData } from '../types/types';
 
 type Props = {
@@ -92,8 +92,8 @@ export default function Step4Verification({ data, onChange, onNext }: Props) {
 
         {/* Notice */}
         <div className="mb-10 rounded-xl bg-gray-50 px-4 py-3 text-[12px] text-gray-500 leading-relaxed">
-          인증 완료 후 공증 절차가 필요해요. 법무사 연결은 H Lounge에서
-          도와드려요.
+          인증 완료 후 공증 절차가 필요해요. <p />
+          법무사 연결은 H Lounge에서 도와드려요.
         </div>
       </div>
 
