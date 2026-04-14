@@ -4,6 +4,13 @@ spring:
   application:
     name: server
 
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
+      exclude: static/**, public/**, .git/**
+
   jpa:
     hibernate:
       ddl-auto: update
