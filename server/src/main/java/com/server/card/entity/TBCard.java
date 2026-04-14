@@ -42,9 +42,9 @@ public class TBCard extends BaseEntity {
 	@Builder.Default
 	private BigDecimal autoTransAmt = BigDecimal.ZERO;
 
-	@Column(name = "USE_YN", nullable = false, length = 1)
 	@Builder.Default
-	private String useYn = "Y";
+	@Column(name = "IS_USE", nullable = false)
+	private Boolean isUse = true;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "ACCOUNT_ID",

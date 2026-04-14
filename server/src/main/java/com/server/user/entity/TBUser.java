@@ -45,8 +45,8 @@ public class TBUser {
   private String userPwd;
 
   @Builder.Default
-  @Column(name = "HANA_CERT_YN", nullable = false)
-  private Boolean hanaCertYn = false;
+  @Column(name = "IS_HANA_CERT", nullable = false)
+  private Boolean isHanaCert = false;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "USER_STAT_CD", nullable = false, length = 20)

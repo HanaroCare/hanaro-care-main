@@ -51,9 +51,8 @@ public class TBUserLoginLog extends BaseEntity {
   @Column(name = "USER_MEANS_CD", nullable = false, length = 20)
   private LoginMeans userMeansCd;
 
-  @Builder.Default
-  @Column(name = "USER_RESULT_YN", nullable = false)
-  private Boolean userResultYn = true;
+  @Column(name = "IS_SUCCESS", nullable = false)
+  private Boolean isSuccess;
 
   @Column(name = "ACCESS_IP_ADDR", length = 50)
   private String accessIpAddr;

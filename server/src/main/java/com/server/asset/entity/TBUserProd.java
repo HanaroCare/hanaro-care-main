@@ -116,8 +116,9 @@ public class TBUserProd extends BaseEntity {
 		foreignKey = @ForeignKey(name = "fk_UserProd_claimAgentId_User"))
 	private TBUser claimAgent;
 
-	@Column(name = "AGENT_VIEW_YN", length = 1)
-	private String agentViewYn;
+	@Builder.Default
+	@Column(name = "IS_AGENT_VIEW", nullable = false)
+	private Boolean isAgentView = false;
 
 	@Column(name = "PAYOUT_SETTINGS", columnDefinition = "JSON")
 	private String payoutSettings;
