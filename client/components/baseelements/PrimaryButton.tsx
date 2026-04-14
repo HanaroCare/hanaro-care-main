@@ -5,6 +5,7 @@ type PrimaryButtonProps = {
   variant?: 'primary' | 'secondary' | 'disabled';
   fullWidth?: boolean;
   className?: string;
+  icon?: React.ReactNode;
 };
 
 export default function PrimaryButton({
@@ -14,6 +15,7 @@ export default function PrimaryButton({
   variant = 'primary',
   fullWidth = true,
   className = '',
+  icon,
 }: PrimaryButtonProps) {
   const isDisabled = disabled || variant === 'disabled';
   const resolvedVariant = isDisabled ? 'disabled' : variant;
@@ -31,9 +33,10 @@ export default function PrimaryButton({
       disabled={isDisabled}
       onClick={onClick}
       className={`
-        ${fullWidth ? 'w-full' : ''} h-14 rounded-[10px] text-[17px] ${variantClass} font-semibold transition ${className}
+        ${fullWidth ? 'w-full' : ''} h-14 rounded-[10px] text-[17px] ${variantClass} font-semibold transition flex items-center justify-center gap-2 ${className}
       `}
     >
+      {icon && <span className="shrink-0">{icon}</span>}
       {label}
     </button>
   );

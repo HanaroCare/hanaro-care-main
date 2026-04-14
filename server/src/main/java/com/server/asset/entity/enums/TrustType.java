@@ -5,10 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum StartType {
-	NOW("01", "지금"),
-	SCHEDULED("02", "아플때"),
-	CUSTOM("03", "직접지정");
+public enum TrustType {
+	HOSPITAL("01", "병원비"),
+	LIVING("02", "생활비");
 
 	private final String code;
 	private final String description;
