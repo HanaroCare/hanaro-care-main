@@ -1,9 +1,7 @@
-package com.server.simulation.dto.external.gemini;
+package com.server.asset.dto.external;
 
 import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -13,23 +11,15 @@ import lombok.NoArgsConstructor;
 public class GeminiResponse {
     private List<Candidate> candidates;
 
-    @Getter
-    @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Getter @NoArgsConstructor @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Candidate {
         private Content content;
     }
-
-    @Getter
-    @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Getter @NoArgsConstructor @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Content {
         private List<Part> parts;
     }
-
-    @Getter
-    @NoArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Getter @NoArgsConstructor @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Part {
         private String text;
     }

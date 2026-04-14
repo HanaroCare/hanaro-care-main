@@ -1,4 +1,4 @@
-package com.server.simulation.util;
+package com.server.asset.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,20 +10,17 @@ import java.util.Map;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.asset.dto.request.SimulationRequest;
+import com.server.asset.dto.external.AIAnalysisInput;
+import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.entity.TBAssetTrans;
 import com.server.asset.entity.enums.TransType;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBAssetTransRepository;
-import com.server.simulation.dto.ai.AIAnalysisInput;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.TBUserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * AI 분석에 필요한 사용자 컨텍스트(소비, 거주지, 자산 등)를 수집하고 가공하는 유틸리티 컴포넌트
- */
 @Component
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,19 +34,16 @@ public class UserContextUtil {
         TBUser user = tbUserRepository.findById(userId)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 1. 소비 내역 집계
         LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
         List<TBAssetTrans> paymentHistory = tbAssetTransRepository.findAllByUser_UserIdAndTransTypeAndTransDtAfter(
             userId, TransType.PAYMENT, oneYearAgo);
 
         Map<String, BigDecimal> spendingByCategory = aggregateSpending(paymentHistory);
 
-        // 2. 월평균 지출 계산
         BigDecimal totalSpending = spendingByCategory.values().stream()
             .reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal averageMonthlySpending = totalSpending.divide(new BigDecimal("12"), 2, RoundingMode.HALF_UP);
 
-        // 3. 자산 정보
         BigDecimal totalAssetAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
         totalAssetAmt = (totalAssetAmt != null) ? totalAssetAmt : BigDecimal.ZERO;
 
@@ -72,7 +66,6 @@ public class UserContextUtil {
             .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         if (total.compareTo(BigDecimal.ZERO) == 0) {
-            // 더미 데이터 (마이데이터 부재 시 시뮬레이션용)
             categories.put("LIVING", new BigDecimal("1000000"));
             categories.put("FOOD", new BigDecimal("500000"));
             categories.put("MEDICAL", new BigDecimal("200000"));

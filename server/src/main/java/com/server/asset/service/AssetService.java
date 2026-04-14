@@ -6,11 +6,11 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.server.asset.dto.response.AssetDashboardResponse;
-import com.server.asset.dto.response.AssetDashboardResponse.FinancialAssetSummary;
-import com.server.asset.dto.response.AssetDashboardResponse.RealAssetSummary;
-import com.server.asset.dto.response.AssetDetailResponse;
-import com.server.asset.dto.response.FinancialAssetResponse;
+import com.server.asset.dto.dashboard.AssetDashboardResponse;
+import com.server.asset.dto.dashboard.AssetDashboardResponse.FinancialAssetSummary;
+import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
+import com.server.asset.dto.dashboard.AssetDetailResponse;
+import com.server.asset.dto.dashboard.FinancialAssetResponse;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.AssetMapper;

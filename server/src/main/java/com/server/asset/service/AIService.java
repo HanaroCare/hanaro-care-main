@@ -1,19 +1,18 @@
-package com.server.simulation.service;
+package com.server.asset.service;
 
 import java.util.Collections;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.asset.dto.response.SimulationDetailResponse;
+import com.server.asset.client.GeminiClient;
+import com.server.asset.dto.external.AIAnalysisInput;
+import com.server.asset.dto.external.GeminiRequest;
+import com.server.asset.dto.external.GeminiResponse;
+import com.server.asset.dto.simulation.SimulationDetailResponse;
+import com.server.common.config.external.ExternalApiProperties;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
-import com.server.simulation.client.GeminiClient;
-import com.server.simulation.dto.ai.AIAnalysisInput;
-import com.server.simulation.dto.external.gemini.GeminiRequest;
-import com.server.simulation.dto.external.gemini.GeminiResponse;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +24,8 @@ public class AIService {
 
     private final GeminiClient geminiClient;
     private final ObjectMapper objectMapper;
+    private final ExternalApiProperties externalApiProperties;
 
-    @Value("${external.gemini.api-key}")
-    private String apiKey;
-
-    /**
-     * Gemini LLM을 통해 미래 비용 및 노후 소비 패턴 분석
-     */
     public SimulationDetailResponse analyzeFutureCosts(AIAnalysisInput input) {
         String prompt = buildPrompt(input);
 
@@ -46,7 +40,8 @@ public class AIService {
             .build();
 
         try {
-            GeminiResponse response = geminiClient.generateContent(apiKey, requestBody);
+            GeminiResponse response = geminiClient.generateContent(
+                externalApiProperties.getGemini().getApiKey(), requestBody);
             String aiJsonText = extractJsonFromText(response.getText());
             return objectMapper.readValue(aiJsonText, SimulationDetailResponse.class);
         } catch (Exception e) {
@@ -99,7 +94,6 @@ public class AIService {
     }
 
     private String extractJsonFromText(String text) {
-        // AI가 마크다운 형식(```json ... ```)으로 줄 경우를 대비해 JSON 부분만 추출
         if (text.contains("```json")) {
             return text.substring(text.indexOf("```json") + 7, text.lastIndexOf("```")).trim();
         } else if (text.contains("```")) {

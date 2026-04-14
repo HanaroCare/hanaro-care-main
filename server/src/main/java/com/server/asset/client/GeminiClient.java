@@ -1,16 +1,15 @@
-package com.server.simulation.client;
+package com.server.asset.client;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.server.simulation.dto.external.gemini.GeminiRequest;
-import com.server.simulation.dto.external.gemini.GeminiResponse;
+import com.server.asset.dto.external.GeminiRequest;
+import com.server.asset.dto.external.GeminiResponse;
 
 @FeignClient(name = "geminiClient", url = "${external.gemini.base-url}")
 public interface GeminiClient {
-
     @PostMapping("/gemini-1.5-flash:generateContent")
     GeminiResponse generateContent(
         @RequestParam("key") String apiKey,

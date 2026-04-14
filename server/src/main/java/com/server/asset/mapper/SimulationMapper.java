@@ -4,9 +4,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.server.asset.entity.TBAssetSimulation;
-import com.server.asset.dto.response.SimulationResponse;
-import com.server.asset.dto.response.SimulationSummaryResponse;
-import com.server.asset.dto.response.SimulationDetailResponse;
+import com.server.asset.dto.simulation.SimulationResponse;
+import com.server.asset.dto.simulation.SimulationSummaryResponse;
+import com.server.asset.dto.simulation.SimulationDetailResponse;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
