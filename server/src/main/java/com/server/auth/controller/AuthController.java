@@ -1,27 +1,35 @@
 package com.server.auth.controller;
 
 import com.server.auth.dto.LoginRequestDTO;
+import com.server.auth.dto.PasswordFindRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.SmsRequestDTO;
 import com.server.auth.dto.SmsVerifyRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
 import com.server.auth.dto.UnlockDormantRequestDTO;
+import com.server.auth.response.ApiPasswordFindResponse;
 import com.server.auth.response.ApiSmsVerifyResponse;
 import com.server.auth.service.AuthService;
 import com.server.auth.service.SmsAuthService;
 import com.server.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "인증 API")
+@Validated
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -62,11 +70,40 @@ public class AuthController {
     return ResponseEntity.ok().build();
   }
 
+  @Operation(
+      summary = "아이디 중복 체크",
+      description = "회원가입 전 loginId 사용 가능 여부를 확인한다. 이미 사용 중이면 409를 반환한다."
+  )
+  @GetMapping("/check-id")
+  public ApiResponse<String> checkLoginId(
+      @Parameter(description = "중복 확인할 아이디 (영문·숫자 4~20자)", example = "hong1234")
+      @RequestParam
+      @Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하여야 합니다.")
+      String loginId) {
+    authService.checkLoginId(loginId);
+    return ApiResponse.onSuccess("사용 가능한 아이디입니다.");
+  }
+
   @Operation(summary = "SMS 인증번호 발송", description = "입력한 전화번호로 6자리 인증번호를 슬랙으로 발송한다.")
   @PostMapping("/sms/send")
   public ResponseEntity<Void> sendSms(@Valid @RequestBody SmsRequestDTO request) {
     smsAuthService.sendAuthCode(request);
     return ResponseEntity.ok().build();
+  }
+
+  @Operation(
+      summary = "비밀번호 찾기용 인증번호 발송",
+      description = """
+          아이디와 가입 전화번호가 일치하는 사용자를 확인한 후 6자리 인증번호를 발송합니다.
+          발송된 인증번호는 POST /api/auth/sms/verify로 검증합니다.
+          """
+  )
+  @ApiPasswordFindResponse
+  @PostMapping("/sms/send/password-find")
+  public ApiResponse<String> sendPasswordFindCode(
+      @Valid @RequestBody PasswordFindRequestDTO request) {
+    smsAuthService.sendPasswordFindCode(request);
+    return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
   }
 
   @Operation(

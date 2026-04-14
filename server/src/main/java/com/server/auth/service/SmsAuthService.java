@@ -1,9 +1,11 @@
 package com.server.auth.service;
 
+import com.server.auth.dto.PasswordFindRequestDTO;
 import com.server.auth.dto.SmsRequestDTO;
 import com.server.auth.dto.SmsVerifyRequestDTO;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
+import com.server.user.repository.UserRepository;
 import java.security.SecureRandom;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ public class SmsAuthService {
   private static final SecureRandom RANDOM = new SecureRandom();
 
   private final SmsService smsService;
+  private final UserRepository userRepository;
   private final ConcurrentHashMap<String, PhoneAuthRecord> store = new ConcurrentHashMap<>();
 
   public void sendAuthCode(SmsRequestDTO request) {
@@ -26,6 +29,17 @@ public class SmsAuthService {
     store.put(phone, new PhoneAuthRecord(code));
     smsService.send(phone, code);
     log.info("[인증번호 발송] phone={}", phone);
+  }
+
+  public void sendPasswordFindCode(PasswordFindRequestDTO request) {
+    userRepository.findByLoginIdAndUserPhone(request.getLoginId(), request.getUserPhone())
+        .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND));
+
+    String phone = request.getUserPhone();
+    String code = String.format("%06d", RANDOM.nextInt(1_000_000));
+    store.put(phone, new PhoneAuthRecord(code));
+    smsService.send(phone, code);
+    log.info("[비밀번호 찾기 인증번호 발송] loginId={}, phone={}", request.getLoginId(), phone);
   }
 
   public void verifySms(SmsVerifyRequestDTO request) {

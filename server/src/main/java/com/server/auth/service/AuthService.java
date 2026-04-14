@@ -48,13 +48,22 @@ public class AuthService {
   @Value("${jwt.refresh-expiration}")
   private long refreshExpiration;
 
+  public void checkLoginId(String loginId) {
+    if (userRepository.existsByLoginId(loginId)) {
+      throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
+    }
+  }
+
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public void signUp(SignUpRequestDTO request) {
+
     if (!smsAuthService.isVerified(request.getUserPhone())) {
+      log.warn("[회원가입 실패] SMS 미인증 - phone={}", request.getUserPhone());
       throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
 
     if (userRepository.findByLoginId(request.getLoginId()).isPresent()) {
+      log.warn("[회원가입 실패] 아이디 중복 - loginId={}", request.getLoginId());
       throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
 
@@ -71,6 +80,7 @@ public class AuthService {
     try {
       userRepository.save(user);
     } catch (DataIntegrityViolationException e) {
+      log.error("[회원가입 실패] DB 제약 조건 위반 - loginId={}", request.getLoginId());
       throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
 
