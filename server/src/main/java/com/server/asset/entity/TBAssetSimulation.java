@@ -15,6 +15,7 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -32,7 +33,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-@Table(name = "TB_ASSET_SIMULATION")
+@Table(name = "TB_ASSET_SIMULATION",
+    indexes = {
+        @Index(name = "idx_simulation_user_created", columnList = "USER_ID, CREATED_AT DESC")
+    })
 public class TBAssetSimulation extends BaseCreatedEntity {
 
   @Id
@@ -40,7 +44,6 @@ public class TBAssetSimulation extends BaseCreatedEntity {
   @Column(name = "SIMULATION_ID", columnDefinition = "bigint unsigned")
   private Long simulationId;
 
-  // ManyToOne으로 변경하여 히스토리 관리 가능하게 함
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID",
       columnDefinition = "bigint unsigned not null",
