@@ -1,12 +1,12 @@
 spring:
   config:
-    import: security.yaml
+    import: classpath:security.yaml
   application:
     name: server
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
@@ -25,7 +25,7 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
 
   web:
     resources:
