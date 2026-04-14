@@ -1,6 +1,6 @@
 package com.server.user.service;
 
-import com.server.inheritance.enums.FamilyRelation;
+import com.server.user.enums.FamilyRelation;
 import com.server.user.dto.FamilyMemberDTO;
 import com.server.user.entity.TBFamilyAuth;
 import com.server.user.repository.FamilyAuthRepository;

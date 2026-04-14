@@ -1,6 +1,6 @@
 package com.server.inheritance.dto;
 
-import com.server.inheritance.enums.FamilyRelation;
+import com.server.user.enums.FamilyRelation;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

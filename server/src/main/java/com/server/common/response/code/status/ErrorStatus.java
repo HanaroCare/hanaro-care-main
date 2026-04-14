@@ -7,9 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-import com.server.common.response.code.BaseErrorCode;
-import com.server.common.response.code.ErrorReasonDTO;
-
 @Getter
 @AllArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
@@ -54,7 +51,7 @@ public enum ErrorStatus implements BaseErrorCode {
 
   // asset
   ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
-  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다.");
+  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
 
   //inheritance
   INHERIT_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_4041", "상속 설계 내역을 찾을 수 없습니다."),
