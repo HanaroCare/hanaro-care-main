@@ -37,8 +37,8 @@ public class TBRealAsset extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "REAL_ASSET_ID", columnDefinition = "int unsigned")
-  private Integer realAssetId;
+  @Column(name = "REAL_ASSET_ID", columnDefinition = "bigint unsigned")
+  private Long realAssetId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID",

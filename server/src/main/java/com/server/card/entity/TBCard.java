@@ -38,7 +38,7 @@ public class TBCard extends BaseEntity {
 	@Column(name = "CARD_NM", nullable = false, length = 50)
 	private String cardNm;
 
-	@Column(name = "AUTO_TRANS_AMT", nullable = false, precision = 18, scale = 2)
+	@Column(name = "AUTO_TRANS_AMT", nullable = false, precision = 13, scale = 2)
 	@Builder.Default
 	private BigDecimal autoTransAmt = BigDecimal.ZERO;
 
@@ -52,7 +52,7 @@ public class TBCard extends BaseEntity {
 		foreignKey = @ForeignKey(name = "fk_Card_accountId_Account"))
 	private TBAccount account;
 
-	@Column(name = "LIMIT_AMT", nullable = false, precision = 18, scale = 2)
+	@Column(name = "LIMIT_AMT", nullable = false, precision = 13, scale = 2)
 	@Builder.Default
 	private BigDecimal limitAmt = BigDecimal.ZERO;
 

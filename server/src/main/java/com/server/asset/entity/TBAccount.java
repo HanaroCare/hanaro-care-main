@@ -63,7 +63,7 @@ public class TBAccount extends BaseEntity {
   @Column(name = "ASSET_CATE_CD", nullable = false)
   private AssetCategory assetCateCd;
 
-  @Column(name = "PROFIT_RATE", precision = 4, scale = 2)
+  @Column(name = "PROFIT_RATE", precision = 5, scale = 2)
   private BigDecimal profitRate;
 
   @Column(name = "LIMIT_AMT", precision = 13, scale = 2)

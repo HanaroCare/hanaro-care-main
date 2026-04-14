@@ -1,7 +1,10 @@
 package com.server.inheritance.entity;
 
+import java.math.BigDecimal;
+
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,7 +16,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,7 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "INHERIT_PLAN", uniqueConstraints = {
+@Table(name = "TB_INHERIT_PLAN", uniqueConstraints = {
     @UniqueConstraint(
         name = "unique_TbInheritPlan_userId",
         columnNames = {"USER_ID"}
@@ -50,11 +52,11 @@ public class TBInheritPlan extends BaseEntity {
   private TBUser user;
 
   @Builder.Default
-  @Column(name = "TOTAL_INHERIT_AMT", precision = 16, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
+  @Column(name = "TOTAL_INHERIT_AMT", precision = 13, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
   private BigDecimal totalInheritAmt = BigDecimal.ZERO;
 
   @Builder.Default
-  @Column(name = "ESTI_TAX_AMT", precision = 16, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
+  @Column(name = "ESTI_TAX_AMT", precision = 13, scale = 2, nullable = false, columnDefinition = "DECIMAL(16,2) DEFAULT 0")
   private BigDecimal estiTaxAmt = BigDecimal.ZERO;
 
 }
