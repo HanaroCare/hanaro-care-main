@@ -3,6 +3,8 @@ package com.server.asset.service;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.springframework.stereotype.Service;
 
@@ -28,9 +30,6 @@ public class AIService {
     private final ObjectMapper objectMapper;
     private final ExternalApiProperties externalApiProperties;
 
-    /**
-     * Gemini LLM을 통해 미래 비용 및 노후 소비 패턴 분석 (통계 데이터 반영)
-     */
     public SimulationDetailResponse analyzeFutureCosts(AIAnalysisInput input,
                                                      BigDecimal medicalInflation, 
                                                      List<String> welfareServices, 
@@ -51,15 +50,37 @@ public class AIService {
         try {
             GeminiResponse response = geminiClient.generateContent(
                 externalApiProperties.getGemini().getApiKey(), requestBody);
-            String aiJsonText = extractJsonFromText(response.getText());
-            return objectMapper.readValue(aiJsonText, SimulationDetailResponse.class);
+            
+            String rawText = response.getText();
+            String jsonOnly = extractPureJson(rawText);
+            
+            log.debug("AI Response (Cleaned): {}", jsonOnly);
+            return objectMapper.readValue(jsonOnly, SimulationDetailResponse.class);
         } catch (Exception e) {
-            log.error("AI Analysis failed: {}", e.getMessage());
+            log.error("AI Analysis parsing failed. Error: {}", e.getMessage());
             throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
         }
     }
 
-    private String buildAdvancedPrompt(AIAnalysisInput input, BigDecimal medicalInflation,
+    private String extractPureJson(String text) {
+        // 1. Markdown JSON 블록 탐색 (```json ... ```)
+        Pattern pattern = Pattern.compile("(?s)```(?:json)?\\s*(.*?)\\s*```");
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.find()) {
+            return matcher.group(1).trim();
+        }
+        
+        // 2. 블록이 없으면 첫 번째 '{'와 마지막 '}' 사이의 내용 추출
+        int start = text.indexOf("{");
+        int end = text.lastIndexOf("}");
+        if (start != -1 && end != -1 && start < end) {
+            return text.substring(start, end + 1).trim();
+        }
+        
+        return text.trim();
+    }
+
+    private String buildAdvancedPrompt(AIAnalysisInput input, BigDecimal medicalInflation, 
                                       List<String> welfareServices, BigDecimal estimatedPension) {
         String welfareContext = String.join(", ", welfareServices);
         
@@ -74,14 +95,13 @@ public class AIService {
             - 예상 월 국민연금: %s원
             
             [2. 외부 통계 및 혜택 컨텍스트]
-            - 최근 보건 의료비 물가상승률 통계치: 연 %s%% (이 수치를 의료비 계산에 반영할 것)
+            - 최근 보건 의료비 물가상승률 통계치: 연 %s%%
             - 거주지 기반 주요 복지 혜택: [%s]
             
             [3. 시뮬레이션 지침]
             - 일반 물가상승률은 연 3%%를 적용하되, 의료비는 통계치(%s%%)를 우선 반영해줘.
-            - 5년 단위로 수입(국민연금+지원금)과 지출(생활비+의료비+요양비)을 시뮬레이션해.
+            - 5년 단위로 수입과 지출을 계산해.
             - 요양 방식(%s)에 따른 비용 급증 시점(보통 75세~80세 이후)을 명확히 반영해.
-            - 지자체 지원금은 'income_details'의 'local_subsidy_amt'에 평균치를 반영해.
             
             [4. 출력 형식]
             - 반드시 JSON 형식만 출력하고 다른 설명은 제외해.
@@ -109,14 +129,5 @@ public class AIService {
             input.getAverageMonthlySpending(), input.getSpendingByCategory(), input.getCareType().getDescription(),
             estimatedPension, medicalInflation, welfareContext, medicalInflation, 
             input.getCareType().getDescription(), estimatedPension);
-    }
-
-    private String extractJsonFromText(String text) {
-        if (text.contains("```json")) {
-            return text.substring(text.indexOf("```json") + 7, text.lastIndexOf("```")).trim();
-        } else if (text.contains("```")) {
-            return text.substring(text.indexOf("```") + 3, text.lastIndexOf("```")).trim();
-        }
-        return text.trim();
     }
 }

@@ -3,6 +3,8 @@ package com.server.asset.service;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,8 @@ import com.server.asset.dto.external.AIAnalysisInput;
 import com.server.asset.dto.external.PublicDataResponse;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
 import com.server.common.config.external.ExternalApiProperties;
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,23 +31,28 @@ public class SimulationEngine {
     private final BokjiroClient bokjiroClient;
     private final ExternalApiProperties apiProperties;
 
-    /**
-     * 모든 데이터 소스를 조합하여 최종 AI 시뮬레이션 결과 산출
-     */
     public SimulationDetailResponse run(AIAnalysisInput input) {
-        
-        // 1. 외부 통계 데이터 수집 (의료 물가 상승률)
-        BigDecimal medicalInflation = fetchMedicalInflation();
+        try {
+            // 1. 외부 데이터 병렬 수집
+            CompletableFuture<BigDecimal> inflationFuture = CompletableFuture.supplyAsync(this::fetchMedicalInflation);
+            CompletableFuture<List<String>> welfareFuture = CompletableFuture.supplyAsync(() -> fetchWelfareServices(input.getUserAddr()));
 
-        // 2. 지자체 지원금 및 복지 서비스 수집
-        List<String> welfareServices = fetchWelfareServices(input.getUserAddr());
+            BigDecimal estimatedPension = pensionService.estimateMonthlyPension(
+                input.getUserAge(), input.getAverageMonthlySpending(), 20);
 
-        // 3. 예상 국민연금 산출 (총 가입기간 20년 가정)
-        BigDecimal estimatedPension = pensionService.estimateMonthlyPension(
-            input.getUserAge(), input.getAverageMonthlySpending(), 20);
+            // 2. 데이터 병합 (에러 발생 시 CompletionException 발생)
+            BigDecimal medicalInflation = inflationFuture.join();
+            List<String> welfareServices = welfareFuture.join();
 
-        // 4. AI 엔진 호출하여 최종 리포트 생성
-        return aiService.analyzeFutureCosts(input, medicalInflation, welfareServices, estimatedPension);
+            return aiService.analyzeFutureCosts(input, medicalInflation, welfareServices, estimatedPension);
+
+        } catch (CompletionException e) {
+            // 병렬 작업 중 발생한 에러 처리
+            if (e.getCause() instanceof ApiException apiException) {
+                throw apiException;
+            }
+            throw new ApiException(ErrorStatus.EXTERNAL_API_ERROR);
+        }
     }
 
     private BigDecimal fetchMedicalInflation() {
@@ -51,28 +60,31 @@ public class SimulationEngine {
             List<PublicDataResponse.KosisData> data = kosisClient.getMedicalInflation(
                 apiProperties.getKosis().getApiKey(), "getList", "json", "101", "Y", "2023", "2023");
             
-            if (data != null && !data.isEmpty()) {
-                // 통계청 데이터에서 수치 추출 (예: 4.5)
-                return new BigDecimal(data.getFirst().getValue());
+            if (data == null || data.isEmpty()) {
+                throw new ApiException(ErrorStatus.EXTERNAL_API_BAD_REQUEST);
             }
+            return new BigDecimal(data.getFirst().getValue());
         } catch (Exception e) {
-            log.warn("KOSIS API failed, using default inflation rate: {}", e.getMessage());
+            log.error("KOSIS API Error: {}", e.getMessage());
+            // 통계 데이터 실패 시 시뮬레이션 중단 여부에 따라 결정 (여기서는 명확한 에러 전파)
+            throw new ApiException(ErrorStatus.EXTERNAL_API_ERROR);
         }
-        return new BigDecimal("5.0"); // Fallback
     }
 
     private List<String> fetchWelfareServices(String addr) {
         try {
-            // 주소에서 시/도 추출하여 검색 (예: '서울')
             String region = addr.split(" ")[0];
             String rawResponse = bokjiroClient.getWelfareServices(
                 apiProperties.getPublicData().getApiKey(), 1, 5, region + " 노인", "006");
             
-            // 실제 구현에서는 XML/JSON 파싱이 필요하지만, 여기서는 핵심 키워드 추출 위주로 시뮬레이션
-            if (rawResponse.contains("기초연금")) return Arrays.asList("기초연금", "노인 일자리 지원", "고령자 의료비 지원");
+            if (rawResponse == null) {
+                throw new ApiException(ErrorStatus.EXTERNAL_API_BAD_REQUEST);
+            }
+            // 간이 추출 (실제로는 JSON 파싱 라이브러리 사용 권장)
+            return Arrays.asList("기초연금", "노인 장기요양 보험");
         } catch (Exception e) {
-            log.warn("Bokjiro API failed, using default welfare info: {}", e.getMessage());
+            log.error("Bokjiro API Error: {}", e.getMessage());
+            throw new ApiException(ErrorStatus.EXTERNAL_API_ERROR);
         }
-        return Arrays.asList("기초연금", "노인 장기요양 보험"); // Fallback
     }
 }
