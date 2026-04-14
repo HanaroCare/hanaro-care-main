@@ -44,7 +44,7 @@ spring:
 # External APIs
 external:
   gemini:
-    base-url: https://generativelanguage.googleapis.com/v1beta/models
+    base-url: https://generativelanguage.googleapis.com
     api-key: ${GEMINI_API_KEY:YOUR_GEMINI_KEY}
   kosis:
     base-url: https://kosis.kr/openapi
