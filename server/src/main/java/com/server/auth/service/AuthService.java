@@ -61,7 +61,7 @@ public class AuthService {
         .userPhone(request.getUserPhone())
         .userPwd(passwordEncoder.encode(request.getUserPwd()))
         .userStatusCd(UserStatus.ACTIVE)
-        .hanaCertYn(false)
+        .isHanaCert(false)
         .build();
 
     try {
@@ -142,7 +142,7 @@ public class AuthService {
       return;
     }
 
-    if (!user.getHanaCertYn()) {
+    if (!user.getIsHanaCert()) {
       log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(), means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_CERT_REQUIRED);
@@ -183,7 +183,7 @@ public class AuthService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
-        user.getHanaCertYn(),
+        user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }

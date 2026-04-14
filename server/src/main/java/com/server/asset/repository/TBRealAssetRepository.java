@@ -7,8 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.server.asset.entity.TBRealAsset;
+import com.server.asset.entity.enums.RealAssetCategory;
 
 public interface TBRealAssetRepository extends JpaRepository<TBRealAsset, Long> {
+	List<TBRealAsset> findAllByUser_UserIdAndAssetCateCd(Long userId, RealAssetCategory assetCateCd);
 
 	@Query("""
         SELECT r.assetCateCd, SUM(r.evalAmt)

@@ -9,7 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import com.server.asset.dto.response.AssetDashboardResponse;
 import com.server.asset.dto.response.AssetDashboardResponse.FinancialAssetSummary;
 import com.server.asset.dto.response.AssetDashboardResponse.RealAssetSummary;
+import com.server.asset.dto.response.AssetDetailResponse;
 import com.server.asset.dto.response.FinancialAssetResponse;
+import com.server.asset.entity.enums.AssetCategory;
+import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
@@ -47,5 +50,29 @@ public class AssetService {
 
 	public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
 		return assetMapper.toFinancialAssetResponseList(tbAccountRepository.findAllByUser_UserId(userId));
+	}
+
+	public List<AssetDetailResponse> getRealEstateAssets(Long userId) {
+		return assetMapper.toAssetDetailListFromReal(
+			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.REAL_ESTATE)
+		);
+	}
+
+	public List<AssetDetailResponse> getVehicleAssets(Long userId) {
+		return assetMapper.toAssetDetailListFromReal(
+			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.VEHICLE)
+		);
+	}
+
+	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
+		return assetMapper.toAssetDetailListFromAccount(
+			tbAccountRepository.findAllByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
+		);
+	}
+
+	public List<AssetDetailResponse> getGoldAssets(Long userId) {
+		return assetMapper.toAssetDetailListFromReal(
+			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.GOLD)
+		);
 	}
 }
