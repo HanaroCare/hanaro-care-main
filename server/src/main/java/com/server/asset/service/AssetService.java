@@ -10,8 +10,6 @@ import com.server.asset.dto.response.AssetDashboardResponse;
 import com.server.asset.dto.response.AssetDashboardResponse.FinancialAssetSummary;
 import com.server.asset.dto.response.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.dto.response.FinancialAssetResponse;
-import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
@@ -30,27 +28,15 @@ public class AssetService {
 
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
 		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
-		if (totalFinancialAmt == null) {
-			totalFinancialAmt = BigDecimal.ZERO;
-		}
+		totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
 
-		List<FinancialAssetSummary> financialAssets = tbAccountRepository
-			.findBalanceSumGroupByCategoryByUserId(userId)
-			.stream()
-			.map(row -> FinancialAssetSummary.builder()
-				.assetCateCd((AssetCategory) row[0])
-				.totalBalance((BigDecimal) row[1])
-				.build())
-			.toList();
+		List<FinancialAssetSummary> financialAssets = assetMapper.toFinancialAssetSummaryList(
+			tbAccountRepository.findBalanceSumGroupByCategoryByUserId(userId)
+		);
 
-		List<RealAssetSummary> realAssets = tbRealAssetRepository
-			.findEvalAmtSumGroupByCategoryByUserId(userId)
-			.stream()
-			.map(row -> RealAssetSummary.builder()
-				.assetCateCd((RealAssetCategory) row[0])
-				.totalValue((BigDecimal) row[1])
-				.build())
-			.toList();
+		List<RealAssetSummary> realAssets = assetMapper.toRealAssetSummaryList(
+			tbRealAssetRepository.findEvalAmtSumGroupByCategoryByUserId(userId)
+		);
 
 		return AssetDashboardResponse.builder()
 			.totalFinancialAmt(totalFinancialAmt)
