@@ -1,6 +1,7 @@
 package com.server.asset.controller;
 
-import org.springframework.security.access.prepost.PreAuthorize;import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,7 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @RequestMapping("/api/admin/asset")
 @RequiredArgsConstructor
 @Tag(name = "관리자(테스트) API", description = "자산 관련 테스트 간편화를 위한 API입니다")
-@PreAuthorize("hasRole('ROLE_ADMIN')")
+@PreAuthorize("hasRole('ADMIN')")
 public class AssetAdminController {
 
 	private final TrustAdminService trustAdminService;

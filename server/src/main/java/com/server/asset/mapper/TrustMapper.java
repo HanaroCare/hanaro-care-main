@@ -48,7 +48,10 @@ public abstract class TrustMapper {
   @Mapping(target = "investType", source = "simulation.investType")
   @Mapping(target = "principalAmount", source = "principal")
   @Mapping(target = "profitRate", source = "detail.profitRate")
-  @Mapping(target = "profit", expression = "java(detail.expectedNetAmount().subtract(principal))")
+  @Mapping(
+            target = "profit",
+            expression = "java((detail != null && detail.expectedNetAmount() != null && principal != null) ? detail.expectedNetAmount().subtract(principal) : null)"
+        )
   @Mapping(target = "startType", source = "simulation.startType")
   @Mapping(target = "startDate", source = "simulation.startDate")
   @Mapping(target = "claimAgent", source = "simulation.claimAgent")
