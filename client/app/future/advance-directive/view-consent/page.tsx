@@ -54,21 +54,19 @@ export default function ViewConsentPage() {
       </div>
 
       {showOpinion && (
-        <div className="absolute inset-0 bg-black/40 flex flex-col justify-end">
+        <div
+          className="absolute inset-0 bg-black/40 flex flex-col justify-end"
+          onClick={() => setShowOpinion(false)}
+        >
           <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="opinion-dialog-title"
             className="bg-white rounded-t-2xl px-[25px] pt-[30px] pb-[40px] flex flex-col gap-[20px]"
+            onClick={(e) => e.stopPropagation()}
           >
-            <h3 id="opinion-dialog-title" className="sr-only">
-              의견 입력
-            </h3>
             <textarea
               value={opinion}
               onChange={(e) => setOpinion(e.target.value)}
               placeholder="내용을 입력하세요."
-              className="w-full h-[212px] border border-[`#E5E5E5`] rounded-xl p-[16px] font-medium text-[15px] leading-[38px] tracking-[-0.02em] text-[`#1A212D`] placeholder:text-[`#E5E5E5`] outline-none resize-none"
+              className="w-full h-[212px] border border-[#E5E5E5] rounded-xl p-[16px] font-medium text-[15px] leading-[38px] tracking-[-0.02em] text-[#1A212D] placeholder:text-[#E5E5E5] outline-none resize-none"
             />
             <button
               onClick={() => {

@@ -69,7 +69,7 @@ export default function OrganDonationConsultPage() {
 
         {/* 목록 타이틀 */}
         <span className="mx-[25px] mt-[49px] font-medium text-[18px] leading-[20px] text-[#535C6A]">
-          사전연명의료의향서 등록기관
+          장기기증 상담 및 희망 등록 기관
         </span>
 
         {/* 기관 목록 */}
