@@ -2,6 +2,7 @@ package com.server.user.entity;
 
 import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,12 +41,12 @@ public class TBUser {
   @Column(name = "USER_PHONE", nullable = false, length = 11)
   private String userPhone;
 
-  @Column(name = "USER_PWD", nullable = false, length = 255)
+  @Column(name = "USER_PWD", nullable = false)
   private String userPwd;
 
   @Builder.Default
-  @Column(name = "HANA_CERT_YN", nullable = false)
-  private boolean hanaCertYn = false;
+  @Column(name = "IS_HANA_CERT", nullable = false)
+  private Boolean isHanaCert = false;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "USER_STAT_CD", nullable = false, length = 20)
