@@ -1,31 +1,27 @@
-jwt:
-  secret: dGhpcy1pcy1hLXZlcnktc3Ryb25nLXNlY3JldC1rZXktZm9yLWhhbmFyby1jYXJlLW1haW4tc2VydmVyLTM0Cg==
-  access-expiration: 600000
-  refresh-expiration: 604800000
-
 spring:
+  config:
+    import: classpath:security.yaml
   application:
     name: server
 
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3308/hanacare?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: hanacare
-    password: 12345678
-
   jpa:
-    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+    defer-datasource-initialization: true
     show-sql: false
+
     properties:
       hibernate:
-        format_sql: false
-        use_sql_comments: false
         jdbc:
+          batch_size: 50
           time_zone: Asia/Seoul
+        order_inserts: true
+        order_updates: true
+        format_sql: true
+        use_sql_comments: true
 
   sql:
     init:

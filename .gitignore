@@ -1,33 +1,35 @@
-.DS_Store
-*.pem
-.idea/
-.vscode/
-*.iml
-.env*
-
-# [Client - Next.js]
-client/.next/
-client/node_modules/
-client/out/
-client/next-env.d.ts
-client/.pnpm-debug.log*
-client/.gemini/
-
-# [Server - Spring Boot]
-server/.gradle/
-server/build/
-server/bin/
-server/out/
-server/src/main/resources/security.yaml
-
-# [Gradle Wrapper]
-!server/gradle/wrapper/gradle-wrapper.jar
-
-# [OS/IDE Misc]
-**/Thumbs.db
-**/*.iws
-**/*.ipr
-**/*.log
-
-# MySQL data files
+# === DB & Security  ===
 server/mysql/
+**/#innodb_redo/
+**/#ib_redo*
+*.dblwr
+db.properties
+*security.yaml
+.env*
+secure/
+*.bak
+backup/
+
+# === Java & Gradle (빌드 결과물) ===
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+bin/
+out/
+*.jar
+*.war
+
+# === IntelliJ IDEA ===
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# === VS Code ===
+.vscode/
+
+# === OS & Etc ===
+.DS_Store
+node_modules/
+tmp/
+coverage/
