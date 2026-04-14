@@ -41,7 +41,7 @@ public class TBUser {
   @Column(name = "USER_PHONE", nullable = false, length = 11)
   private String userPhone;
 
-  @Column(name = "USER_PWD", nullable = false, length = 255)
+  @Column(name = "USER_PWD", nullable = false)
   private String userPwd;
 
   @Builder.Default

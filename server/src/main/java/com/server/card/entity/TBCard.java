@@ -35,7 +35,7 @@ public class TBCard extends BaseEntity {
 	@Column(name = "CARD_ID", columnDefinition = "bigint unsigned")
 	private Long cardId;
 
-	@Column(name = "CARD_NM", nullable = false, length = 255)
+	@Column(name = "CARD_NM", nullable = false, length = 50)
 	private String cardNm;
 
 	@Column(name = "AUTO_TRANS_AMT", nullable = false, precision = 18, scale = 2)

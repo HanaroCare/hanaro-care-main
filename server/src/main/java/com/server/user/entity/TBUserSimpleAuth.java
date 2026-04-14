@@ -49,7 +49,7 @@ public class TBUserSimpleAuth extends BaseEntity {
 	@Column(name = "AUTH_MEANS_CD", nullable = false, length = 20)
 	private LoginMeans authMeansCd;
 
-	@Column(name = "AUTH_VALUE", nullable = false, length = 255)
+	@Column(name = "AUTH_VALUE", nullable = false, length = 512)
 	private String authValue;
 
 }

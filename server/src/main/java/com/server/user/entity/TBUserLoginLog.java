@@ -58,6 +58,6 @@ public class TBUserLoginLog extends BaseEntity {
   @Column(name = "ACCESS_IP_ADDR", length = 50)
   private String accessIpAddr;
 
-  @Column(name = "ACCESS_DEV_NM", length = 255)
+  @Column(name = "ACCESS_DEV_NM")
   private String accessDevNm;
 }
