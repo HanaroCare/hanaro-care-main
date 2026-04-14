@@ -9,6 +9,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TBLetterRepository extends JpaRepository<TBInheritLetter, Long> {
 
-  @Query("SELECT l FROM TBInheritLetter l WHERE l.detail.user.userId = :letterId")
+  @Query("SELECT l FROM TBInheritLetter l WHERE l.inheritDetail.user.userId = :letterId")
   Optional<TBInheritLetter> findByUserId(Long letterId);
 }

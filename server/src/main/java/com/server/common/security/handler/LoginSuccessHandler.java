@@ -50,7 +50,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     Map<String, Object> claims = jwtUtil.authenticationToClaims(authentication);
-    claims.put("hanaCertYn", subscriber.isHanaCertYn());
+    claims.put("isHanaCert", subscriber.isHanaCert());
 
     String refreshToken = (String) claims.get("refreshToken");
     saveRefreshToken(user, refreshToken);
@@ -59,7 +59,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     log.info("=================================================");
     log.info("[로그인 성공] 계정: {}, 인증서 여부: {}",
-        subscriber.getUserNm(), subscriber.isHanaCertYn());
+        subscriber.getUserNm(), subscriber.isHanaCert());
     log.info("=================================================");
 
     response.setContentType("application/json;charset=UTF-8");

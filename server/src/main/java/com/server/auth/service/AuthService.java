@@ -1,18 +1,5 @@
 package com.server.auth.service;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
@@ -30,9 +17,19 @@ import com.server.user.enums.LoginMeans;
 import com.server.user.enums.UserStatus;
 import com.server.user.repository.TBUserRepository;
 import com.server.user.repository.TBUserSimpleAuthRepository;
-
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -73,7 +70,8 @@ public class AuthService {
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
       @Override
       public void afterCommit() {
-        log.info("[회원가입 성공] userNm={}, userId={}, role={}", user.getUserNm(), user.getUserId(), user.getUserRole());
+        log.info("[회원가입 성공] userNm={}, userId={}, role={}", user.getUserNm(), user.getUserId(),
+            user.getUserRole());
       }
     });
   }
@@ -135,28 +133,32 @@ public class AuthService {
   private void verifyCredential(TBUser user, String inputSecret, LoginMeans means) {
     if (means == LoginMeans.PASSWORD) {
       if (!passwordEncoder.matches(inputSecret, user.getUserPwd())) {
-        log.warn("[로그인 실패] 비밀번호 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+        log.warn("[로그인 실패] 비밀번호 불일치 - userNm={}, means={}", user.getUserNm(),
+            means.getDescription());
         loginLogService.save(user, means, false);
         throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
       }
       return;
     }
 
-    if (!user.getIsHanaCert()) {
-      log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+    if (!user.isHanaCert()) {
+      log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(),
+          means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_CERT_REQUIRED);
     }
 
     Optional<TBUserSimpleAuth> authOpt = simpleAuthRepository.findByUserAndAuthMeansCd(user, means);
     if (authOpt.isEmpty()) {
-      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - userNm={}, means={}", user.getUserNm(),
+          means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_SIMPLE_NOT_REGISTERED);
     }
 
     if (!passwordEncoder.matches(inputSecret, authOpt.get().getAuthValue())) {
-      log.warn("[간편 로그인 실패] 인증 값 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 인증 값 불일치 - userNm={}, means={}", user.getUserNm(),
+          means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
     }
@@ -183,7 +185,7 @@ public class AuthService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
-        user.getIsHanaCert(),
+        user.isHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }

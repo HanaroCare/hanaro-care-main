@@ -8,7 +8,6 @@ import com.server.myhana.dto.InsuranceDto;
 import com.server.user.entity.TBFamilyAuth;
 import com.server.user.repository.TBFamilyAuthRepository;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,20 +21,20 @@ public class InsuranceService {
 
   // 보험(자신+grantor) 조회
   public List<InsuranceDto> getInsurances(Long userId) {
-    TBAccount[] account = accountRepository.findAllByUserIdAndAssetCateCd(
+    List<TBAccount> account = accountRepository.findAllByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
 
     List<TBFamilyAuth> family = familyAuthRepository.findAllByGranteeUserIdAndIsInsView(userId,
         true);
 
     List<TBAccount> accounts = new ArrayList<>();
-    accounts.addAll(Arrays.asList(account));
+    accounts.addAll(account);
 
     // flatMap으로 TBAccount[]를 펼쳐서 합치기
     family.stream()
-        .flatMap(f -> Arrays.stream(
-            accountRepository.findAllByUserIdAndAssetCateCd(
-                f.getGrantor().getUserId(), AssetCategory.INSURANCE)))
+        .flatMap(f ->
+            accountRepository.findAllByUser_UserIdAndAssetCateCd(
+                f.getGrantor().getUserId(), AssetCategory.INSURANCE).stream())
         .forEach(accounts::add);
 
     return accounts.stream()

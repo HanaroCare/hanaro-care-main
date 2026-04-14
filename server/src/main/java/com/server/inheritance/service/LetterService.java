@@ -39,7 +39,7 @@ public class LetterService {
 
   // 편지 생성
   public void sendLetter(Long userId, LetterRequestDto dto) throws IOException {
-    if (!familyAuthRepository.existsByUserIdAndFamilyId(userId, dto.getFamilyId())) {
+    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, dto.getFamilyId())) {
       throw new IllegalArgumentException("해당 가족을 찾을 수 없습니다.");
     }
     TBInheritDetail detail = inheritDetailRepository.findById(dto.getFamilyId())
@@ -62,7 +62,7 @@ public class LetterService {
 
   // 편지 조회
   public LetterResponseDto getLetter(Long userId, Long familyId) {
-    if (!familyAuthRepository.existsByUserIdAndFamilyId(userId, familyId)) {
+    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, familyId)) {
       throw new IllegalArgumentException("해당 가족을 찾을 수 없습니다.");
     }
     TBInheritLetter letter = letterRepository.findByUserId(familyId)
