@@ -16,6 +16,7 @@ import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
+import com.server.common.annotation.CheckUser;
 
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +29,7 @@ public class AssetService {
 	private final TBRealAssetRepository tbRealAssetRepository;
 	private final AssetMapper assetMapper;
 
-
+	@CheckUser(key = "#userId")
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
 		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
 		totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
@@ -48,30 +49,35 @@ public class AssetService {
 			.build();
 	}
 
+	@CheckUser(key = "#userId")
 	public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
 		return assetMapper.toFinancialAssetResponseList(
 			tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNot(userId, AssetCategory.INSURANCE)
 		);
 	}
 
+	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getRealEstateAssets(Long userId) {
 		return assetMapper.toAssetDetailListFromReal(
 			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.REAL_ESTATE)
 		);
 	}
 
+	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getVehicleAssets(Long userId) {
 		return assetMapper.toAssetDetailListFromReal(
 			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.VEHICLE)
 		);
 	}
 
+	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
 		return assetMapper.toAssetDetailListFromAccount(
 			tbAccountRepository.findAllByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
 		);
 	}
 
+	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getGoldAssets(Long userId) {
 		return assetMapper.toAssetDetailListFromReal(
 			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.GOLD)

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Download, X } from "lucide-react";
 import BlockModal from "../components/BlockModal";
-import EvidenceSheet from "../components/EvidenceSheet";
+import ShareSheet from "@/components/modules/ShareSheet";
 
 // TODO: 백엔드 연동 시 useParams로 id 받아서 GET /api/cards/usages/{id} 호출로 교체
 const MOCK_USAGE = {
@@ -138,7 +138,10 @@ export default function CardUsageDetailPage() {
 
       {/* 증빙 요청 바텀시트 */}
       {showEvidenceSheet && (
-        <EvidenceSheet onClose={() => setShowEvidenceSheet(false)} />
+        <ShareSheet 
+          title="증빙 요청 보내기" 
+          onClose={() => setShowEvidenceSheet(false)} 
+        />
       )}
     </div>
   );
