@@ -8,7 +8,7 @@ import com.server.common.security.JwtUtil;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.LoginMeans;
-import com.server.user.repository.UserRepository;
+import com.server.user.repository.TBUserRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private final JwtUtil jwtUtil;
-  private final UserRepository userRepository;
+  private final TBUserRepository userRepository;
   private final TBRefreshTokenRepository refreshTokenRepository;
   private final LoginLogService loginLogService;
   private final ObjectMapper objectMapper = new ObjectMapper();

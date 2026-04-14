@@ -62,14 +62,14 @@ export default function OrganDonationConsultPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="기관명 또는 주소 검색"
-              className="flex-1 font-normal text-[14px] leading-[21px] text-[#D1D5DB] placeholder:text-[#D1D5DB] outline-none"
+              className="flex-1 font-normal text-[14px] leading-[21px] text-[#1A212D] placeholder:text-[#D1D5DB] outline-none"
             />
           </div>
         </div>
 
         {/* 목록 타이틀 */}
         <span className="mx-[25px] mt-[49px] font-medium text-[18px] leading-[20px] text-[#535C6A]">
-          사전연명의료의향서 등록기관
+          장기기증 상담 및 희망 등록 기관
         </span>
 
         {/* 기관 목록 */}
