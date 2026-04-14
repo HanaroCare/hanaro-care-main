@@ -1,29 +1,30 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import TrustChoiceStep from '../TrustChoiceStep';
-import TrustWizardStep from '../TrustWizardStep';
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
+import TrustChoiceStep from "../TrustChoiceStep";
+import TrustWizardStep from "../TrustWizardStep";
+import { Route } from "next";
 
 const options = [
   {
-    id: 'free',
-    emoji: '🧑‍💼',
-    title: '자유형',
-    desc: '원할때 받기',
+    id: "free",
+    emoji: "🧑‍💼",
+    title: "자유형",
+    desc: "원할때 받기",
   },
   {
-    id: 'pension',
-    emoji: '🧑‍💼',
-    title: '연금형',
-    desc: '연금 형태로 받기',
+    id: "pension",
+    emoji: "🧑‍💼",
+    title: "연금형",
+    desc: "연금 형태로 받기",
   },
 ];
 
 export default function PayoutTypeStep() {
   const router = useRouter();
-  const [selected, setSelected] = useState<string | null>('free');
+  const [selected, setSelected] = useState<string | null>("free");
 
   return (
     <TrustWizardStep
@@ -33,7 +34,7 @@ export default function PayoutTypeStep() {
           <PrimaryButton
             label="다음으로"
             disabled={!selected}
-            onClick={() => router.push('/asset/trust/payout-use')}
+            onClick={() => router.push("/asset/trust/payout-use" as Route)}
           />
         </footer>
       }

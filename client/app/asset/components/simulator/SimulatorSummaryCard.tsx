@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import { ChevronRight } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Route } from "next";
 
 type SummaryItemProps = {
   label: string;
@@ -26,7 +27,7 @@ export function SimulatorSummaryCard() {
     <div
       className="relative flex w-full flex-col overflow-hidden rounded-[24px] p-6 text-white shadow-lg"
       style={{
-        background: 'linear-gradient(135deg, #00A8A6 0%, #4AFEF1 100%)',
+        background: "linear-gradient(135deg, #00A8A6 0%, #4AFEF1 100%)",
       }}
     >
       <div className="mb-6 flex flex-col gap-1">
@@ -48,7 +49,7 @@ export function SimulatorSummaryCard() {
 
       <button
         type="button"
-        onClick={() => router.push('/asset/simulator/result')}
+        onClick={() => router.push("/asset/simulator/result" as Route)}
         className="mt-5 flex items-center justify-between rounded-lg font-semibold text-[15px] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#00A8A6]"
       >
         <span>상세 결과 보기</span>

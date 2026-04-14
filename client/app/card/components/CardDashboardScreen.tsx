@@ -7,6 +7,7 @@ import UsageList from "./UsageList";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Route } from "next";
+import Header from "@/components/navigation/Header";
 
 interface CardDashboardScreenProps {
   card: CardData;
@@ -89,17 +90,7 @@ export default function CardDashboardScreen({
   return (
     <div className="relative w-[375px] min-h-screen bg-white">
       {/* 헤더 */}
-      <div className="flex justify-between items-center px-4 h-[65px] border-b border-black/10">
-        <button className="p-1" onClick={() => router.back()}>
-          <ChevronLeft size={24} color="#0A0A0A" />
-        </button>
-        <span className="text-base font-medium tracking-tight text-[#0A0A0A]">
-          카드 관리
-        </span>
-        <button className="p-1" onClick={() => router.back()}>
-          <X size={24} color="#0A0A0A" />
-        </button>
-      </div>
+      <Header title="카드 관리" />
 
       {/* 카드 영역 */}
       <div
