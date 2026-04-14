@@ -72,7 +72,7 @@ export default function LegacyDonationConsultPage() {
         <div className="flex flex-col gap-[15px] mx-[25px] mt-[18px]">
           {filtered.map((item) => (
             <InstitutionCard
-              key={item.name}
+              key={`${item.name}-${item.phone}`}
               name={item.name}
               address={item.address}
               onCall={() => handleCall(item.phone)}
