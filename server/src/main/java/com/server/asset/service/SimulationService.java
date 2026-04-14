@@ -1,15 +1,22 @@
 package com.server.asset.service;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.Arrays;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.asset.dto.request.SimulationRequest;
 import com.server.asset.dto.response.SimulationDetailResponse;
+import com.server.asset.dto.response.SimulationResponse;
 import com.server.asset.dto.response.SimulationSummaryResponse;
+import com.server.asset.entity.TBAssetSimulation;
+import com.server.asset.mapper.SimulationMapper;
+import com.server.asset.repository.TBAssetSimulationRepository;
+import com.server.user.entity.TBUser;
+import com.server.user.repository.TBUserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -110,15 +117,7 @@ public class SimulationService {
             detailData = SimulationDetailResponse.builder().build(); // 빈 데이터 처리
         }
 
-        return SimulationSummaryResponse.builder()
-            .isSufficient(simulation.getIsSufficient())
-            .shortageAmt(simulation.getShortageAmt())
-            .livingCost(simulation.getLivingCost())
-            .medicalCost(simulation.getMedicalCost())
-            .careCost(simulation.getCareCost())
-            .ageSegments(detailData.getAgeSegments())
-            .aiOpinion(detailData.getAiOpinion())
-            .build();
+        return simulationMapper.toSimulationSummaryResponse(simulation, detailData.getAgeSegments(), detailData.getAiOpinion());
     }
 
     public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
