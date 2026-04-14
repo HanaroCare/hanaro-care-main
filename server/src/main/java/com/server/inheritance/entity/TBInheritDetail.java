@@ -60,10 +60,13 @@ public class TBInheritDetail extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID",
-      columnDefinition = "bigint unsigned not null",
+      columnDefinition = "bigint unsigned",
       foreignKey = @ForeignKey(name = "fk_InheritDetail_userId_User"
       ))
   private TBUser user;
+
+  @Column(name = "HEIR_NAME", length = 50)
+  private String heirName;
 
   @JsonManagedReference
   @OneToOne(mappedBy = "inheritDetail", cascade = CascadeType.ALL, orphanRemoval = true)

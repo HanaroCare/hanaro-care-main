@@ -43,7 +43,7 @@ public class InheritanceService {
     // AssetService의 대시보드 데이터를 호출
     AssetDashboardResponse dashboard = assetService.getAssetDashboard(userId);
 
-    // 상속 화면용 Summary DTO로 변환하여 반환
+    // 상속 화면용 Summary DTO로 변환하여 반환 (car, card 제외)
     return InheritanceContextDTO.builder()
         .assetSummary(convertToAssetSummary(dashboard))
         .familyMembers(familyService.getFamilyMembers(userId))
@@ -66,25 +66,8 @@ public class InheritanceService {
     // 자산 대시보드 데이터 호출 및 총 상속 자산 계산
     AssetDashboardResponse dashboard = assetService.getAssetDashboard(userId);
 
-    // 1. 전체 자산 (금융 + 실물 합계)
-    BigDecimal totalRealAmt = dashboard.getRealAssets().stream()
-        .map(AssetDashboardResponse.RealAssetSummary::getTotalValue)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-    BigDecimal totalAsset = dashboard.getTotalFinancialAmt().add(totalRealAmt);
-
-    // 2. 상속 제외 자산 계산 (카드 + 자동차)
-    BigDecimal cardAmt = dashboard.getFinancialAssets().stream()
-        .filter(a -> a.getAssetCateCd() == AssetCategory.CARD)
-        .map(AssetDashboardResponse.FinancialAssetSummary::getTotalBalance)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-    BigDecimal vehicleAmt = dashboard.getRealAssets().stream()
-        .filter(a -> a.getAssetCateCd() == RealAssetCategory.VEHICLE)
-        .map(AssetDashboardResponse.RealAssetSummary::getTotalValue)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-    BigDecimal excludedAmt = cardAmt.add(vehicleAmt);
-    BigDecimal totalInheritAmt = totalAsset.subtract(excludedAmt); // 순수 상속 대상 금액
+    AssetSummaryDTO assetSummary = convertToAssetSummary(dashboard);
+    BigDecimal totalInheritAmt = assetSummary.getTotalAsset();
 
     // 세금 및 플랜 저장
     BigDecimal tax = calculateEstimatedTax(totalInheritAmt);
@@ -103,13 +86,20 @@ public class InheritanceService {
     List<InheritanceResponseDTO.HeirSummaryDTO> heirSummaries = new ArrayList<>();
 
     for (InheritanceRequestDTO.HeirDistributionDTO dist : request.getDistributions()) {
-      TBUser heir = userService.getUserById(dist.getHeirUserId());
+      TBUser heir = null;
+      String heirName = dist.getHeirName();
+
+      if (dist.getHeirUserId() != null) {
+        heir = userService.getUserById(dist.getHeirUserId());
+        heirName = heir.getUserNm();
+      }
 
       TBInheritDetail detail = TBInheritDetail.builder()
           .inheritPlan(plan)
           .user(heir)
+          .heirName(heirName)
           .relationCd(dist.getRelation())
-          .distRatio(dist.getDistRatio())
+          .distRatio(BigDecimal.valueOf(dist.getDistRatio()))
           .build();
 
       detail = detailRepository.save(detail);
@@ -120,8 +110,8 @@ public class InheritanceService {
 
       heirSummaries.add(InheritanceResponseDTO.HeirSummaryDTO.builder()
           .inheritDetailId(detail.getInheritDetailId())
-          .heirUserId(heir.getUserId())
-          .heirName(heir.getUserNm())
+          .heirUserId(heir != null ? heir.getUserId() : null)
+          .heirName(heirName)
           .relation(dist.getRelation())
           .distRatio(dist.getDistRatio())
           .distributedAmt(distributedAmt)
@@ -147,7 +137,7 @@ public class InheritanceService {
     List<InheritanceResponseDTO.HeirSummaryDTO> heirSummaries = details.stream()
         .map(d -> {
           BigDecimal distributedAmt = plan.getTotalInheritAmt().subtract(plan.getEstiTaxAmt())
-              .multiply(BigDecimal.valueOf(d.getDistRatio()))
+              .multiply(d.getDistRatio())
               .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 
           boolean hasLetter = d.getInheritLetter() != null;
@@ -155,10 +145,10 @@ public class InheritanceService {
 
           return InheritanceResponseDTO.HeirSummaryDTO.builder()
               .inheritDetailId(d.getInheritDetailId())
-              .heirUserId(d.getUser().getUserId())
-              .heirName(d.getUser().getUserNm())
+              .heirUserId(d.getUser() != null ? d.getUser().getUserId() : null)
+              .heirName(d.getHeirName())
               .relation(d.getRelationCd())
-              .distRatio(d.getDistRatio())
+              .distRatio(d.getDistRatio().doubleValue())
               .distributedAmt(distributedAmt)
               .hasLetter(hasLetter)
               .letterId(letterId)
@@ -226,6 +216,7 @@ public class InheritanceService {
   }
 
   // Dashboard 데이터를 AssetSummaryDTO로 변환하는 헬퍼 메서드
+  // car, card 제외 로직 포함
   private AssetSummaryDTO convertToAssetSummary(AssetDashboardResponse dashboard) {
     BigDecimal savings = BigDecimal.ZERO;
     BigDecimal stocks = BigDecimal.ZERO;
@@ -234,6 +225,9 @@ public class InheritanceService {
     BigDecimal realEstate = BigDecimal.ZERO;
 
     for (AssetDashboardResponse.FinancialAssetSummary fa : dashboard.getFinancialAssets()) {
+      // CARD 제외
+      if (fa.getAssetCateCd() == AssetCategory.CARD) continue;
+
       switch (fa.getAssetCateCd()) {
         case CASH -> savings = savings.add(fa.getTotalBalance());
         case STOCK -> stocks = stocks.add(fa.getTotalBalance());
@@ -243,6 +237,9 @@ public class InheritanceService {
     }
 
     for (AssetDashboardResponse.RealAssetSummary ra : dashboard.getRealAssets()) {
+      // VEHICLE(CAR) 제외
+      if (ra.getAssetCateCd() == RealAssetCategory.VEHICLE) continue;
+
       if (ra.getAssetCateCd() == RealAssetCategory.REAL_ESTATE) {
         realEstate = realEstate.add(ra.getTotalValue());
       } else {
@@ -250,10 +247,7 @@ public class InheritanceService {
       }
     }
 
-    BigDecimal totalRealAmt = dashboard.getRealAssets().stream()
-        .map(AssetDashboardResponse.RealAssetSummary::getTotalValue)
-        .reduce(BigDecimal.ZERO, BigDecimal::add);
-    BigDecimal total = dashboard.getTotalFinancialAmt().add(totalRealAmt);
+    BigDecimal total = savings.add(stocks).add(pensions).add(realEstate).add(others);
 
     return AssetSummaryDTO.builder()
         .savingsAndDeposits(savings)

@@ -20,6 +20,7 @@ public class InheritanceRequestDTO {
     @AllArgsConstructor
     public static class HeirDistributionDTO {
         private Long heirUserId;
+        private String heirName;
         private FamilyRelation relation;
         private Double distRatio;
     }
