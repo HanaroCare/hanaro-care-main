@@ -1,10 +1,10 @@
-package com.server.simulation.mapper;
+package com.server.asset.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.server.asset.entity.TBAssetSimulation;
-import com.server.simulation.dto.response.SimulationResponse;
+import com.server.asset.dto.response.SimulationResponse;
 
 @Mapper(componentModel = "spring")
 public interface SimulationMapper {

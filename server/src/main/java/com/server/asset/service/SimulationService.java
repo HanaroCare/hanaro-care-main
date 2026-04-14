@@ -1,17 +1,15 @@
-package com.server.simulation.service;
+package com.server.asset.service;
 
 import java.math.BigDecimal;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Arrays;
-import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.asset.entity.enums.CareType;
-import com.server.simulation.dto.response.SimulationDetailResponse;
-import com.server.simulation.dto.response.SimulationSummaryResponse;
+import com.server.asset.dto.response.SimulationDetailResponse;
+import com.server.asset.dto.response.SimulationSummaryResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -134,4 +132,3 @@ public class SimulationService {
         }
     }
 }
-
