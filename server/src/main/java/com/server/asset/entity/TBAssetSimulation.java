@@ -1,7 +1,10 @@
 package com.server.asset.entity;
 
+import java.math.BigDecimal;
+
 import com.server.common.entity.BaseCreatedEntity;
 import com.server.user.entity.TBUser;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,7 +16,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -39,7 +41,7 @@ public class TBAssetSimulation extends BaseCreatedEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(columnDefinition = "bigint unsigned")
+  @Column(name = "SIMULATION_ID", columnDefinition = "bigint unsigned")
   private Long simulationId;
 
   @OneToOne(fetch = FetchType.LAZY)
