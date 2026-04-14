@@ -1,5 +1,6 @@
 package com.server.inheritance.service;
 
+import com.server.inheritance.dto.InheritanceSummaryDto;
 import com.server.inheritance.dto.LetterRequestDto;
 import com.server.inheritance.dto.LetterResponseDto;
 import com.server.inheritance.entity.TBInheritDetail;
@@ -7,12 +8,13 @@ import com.server.inheritance.entity.TBInheritLetter;
 import com.server.inheritance.enums.LetterType;
 import com.server.inheritance.repository.TBInheritDetailRepository;
 import com.server.inheritance.repository.TBLetterRepository;
+import com.server.user.entity.TBUser;
 import com.server.user.repository.TBFamilyAuthRepository;
-import com.server.user.repository.TBUserRepository;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class LetterService {
 
-  private final TBUserRepository userRepository;
   private final TBFamilyAuthRepository familyAuthRepository;
   private final TBLetterRepository letterRepository;
   private final TBInheritDetailRepository inheritDetailRepository;
@@ -34,8 +35,28 @@ public class LetterService {
   @Value("${voice.base-url}")
   String baseUrl;
 
-  // TODO: 상속비율 및 가족 조회, 총 잔액 조회
+  // 상속비율 및 가족 조회
+  public List<InheritanceSummaryDto> getInheritanceInfo(Long userId) {
+    List<TBUser> families = familyAuthRepository.findAllByGrantorUserId(userId).stream()
+        .map(a -> a.getGrantee()).toList();
 
+    return families.stream()
+        .filter(f -> inheritDetailRepository.existsByUser_UserId(f.getUserId()))
+        .map(f -> {
+          TBInheritDetail detail = inheritDetailRepository.findByUser_UserId(f.getUserId())
+              .orElseThrow(() -> new IllegalArgumentException("상속 정보를 찾을 수 없습니다."));
+
+          int amount =
+              detail.getInheritPlan().getTotalInheritAmt().intValue() * detail.getDistRatio()
+                  .intValue();
+          return InheritanceSummaryDto.builder()
+              .id(f.getUserId())
+              .username(f.getUserNm())
+              .percent(detail.getDistRatio())
+              .amt(amount)
+              .build();
+        }).toList();
+  }
 
   // 편지 생성
   public void sendLetter(Long userId, LetterRequestDto dto) throws IOException {
