@@ -3,13 +3,14 @@ package com.server.asset.entity;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
-import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -33,9 +34,9 @@ import lombok.ToString;
 public class TBRealAsset extends BaseEntity {
 
   @Id
-  @Tsid
-  @Column(name = "REAL_ASSET_ID", columnDefinition = "bigint unsigned")
-  private Long realAssetId;
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "REAL_ASSET_ID", columnDefinition = "int unsigned")
+  private Integer realAssetId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID",

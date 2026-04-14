@@ -20,7 +20,7 @@ export default function ChildConsentPage() {
           <DotIndicator total={3} current={3} />
         </div>
 
-        <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px]">
+        <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px] whitespace-pre-line">
           자녀가 이 결정 내용을{"\n"}확인하는 것에 동의하시나요?
         </h2>
 

@@ -30,9 +30,10 @@ export default function DeliveryPage() {
         {/* 체크박스 목록 */}
         <div className="flex flex-col gap-[7px] mt-[30px]">
           {deliveryOptions.map((option) => (
-            <div
+            <button
+              type="button"
               key={option}
-              className="flex flex-row items-center justify-between h-[45px] cursor-pointer"
+              className="flex flex-row items-center justify-between w-full h-[45px]"
               onClick={() => setSelected(option)}
             >
               <span className="font-semibold text-[16px] leading-[21px] text-[#22262B]">
@@ -57,7 +58,7 @@ export default function DeliveryPage() {
                   </svg>
                 )}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
@@ -65,17 +66,22 @@ export default function DeliveryPage() {
       {/* 하단 버튼 */}
       <div className="flex flex-row items-center justify-center gap-[19px] px-[25px] pb-[40px]">
         <button
+          type="button"
           onClick={() => router.push("/future/organ-donation/license" as Route)}
           className="flex-1 h-[44px] rounded-[10px] border border-[#C4C4C4] font-semibold text-[16px] text-[#C4C4C4]"
         >
           건너뛰기
         </button>
         <button
+          type="button"
           onClick={() => router.push("/future/organ-donation/license" as Route)}
-          className="flex-1 h-[44px] rounded-[10px] font-semibold text-[16px] text-white"
-          style={{ backgroundColor: "#01A5AC" }}
+          disabled={!selected}
+          className="flex-1 h-[44px] rounded-[10px] font-semibold text-[16px] text-white transition-all"
+          style={{
+            backgroundColor: selected ? "#01A5AC" : "rgba(1,165,172,0.4)",
+          }}
         >
-          다운로드
+          다음으로
         </button>
       </div>
     </div>

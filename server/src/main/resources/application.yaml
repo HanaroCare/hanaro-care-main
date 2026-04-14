@@ -1,22 +1,27 @@
 spring:
   config:
-    import: security.yaml
+    import: classpath:security.yaml
   application:
     name: server
 
   jpa:
-    defer-datasource-initialization: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+    defer-datasource-initialization: true
     show-sql: false
+
     properties:
       hibernate:
-        format_sql: false
-        use_sql_comments: false
         jdbc:
+          batch_size: 50
           time_zone: Asia/Seoul
+        order_inserts: true
+        order_updates: true
+        format_sql: true
+        use_sql_comments: true
 
   sql:
     init:

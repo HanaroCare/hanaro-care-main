@@ -1,33 +1,18 @@
 package com.server.asset.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
+import com.server.common.entity.BaseEntity;
 import com.server.asset.entity.enums.InvestType;
 import com.server.asset.entity.enums.PayoutType;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.StartType;
-import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
 
 import io.hypersistence.utils.hibernate.id.Tsid;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ForeignKey;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.math.BigDecimal;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -51,8 +36,8 @@ public class TBUserProd extends BaseEntity {
 	private TBUser user;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "PRODUCT_ID", referencedColumnName = "PRODUCT_ID",
-		columnDefinition = "int unsigned not null",
+	@JoinColumn(name = "PROD_ID", referencedColumnName = "PRODUCT_ID",
+		columnDefinition = "bigint unsigned not null",
 		foreignKey = @ForeignKey(name = "fk_UserProd_prodId_Product"))
 	private TBProduct product;
 
@@ -106,9 +91,6 @@ public class TBUserProd extends BaseEntity {
 	@Column(name = "START_TYPE", nullable = true)
 	private StartType startType;
 
-	@Column(name = "START_DATE", nullable = true)
-	private LocalDate startDate;
-
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "CLAIM_AGENT_ID", referencedColumnName = "USER_ID",
 		columnDefinition = "bigint unsigned",
@@ -118,7 +100,4 @@ public class TBUserProd extends BaseEntity {
 
 	@Column(name = "AGENT_VIEW_YN", length = 1)
 	private String agentViewYn;
-
-	@Column(name = "PAYOUT_SETTINGS", columnDefinition = "JSON")
-	private String payoutSettings;
 }
