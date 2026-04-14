@@ -15,7 +15,7 @@ export const initMap = (
     lng,
     lat,
     (
-      result: kakao.maps.services.GeocoderResult[],
+      result: kakao.maps.services.Coord2AddressResult[],
       status: kakao.maps.services.Status,
     ) => {
       if (status === window.kakao.maps.services.Status.OK) {

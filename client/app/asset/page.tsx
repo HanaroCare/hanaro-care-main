@@ -1,19 +1,35 @@
 'use client';
 
+import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useMemo, useState } from 'react';
-import { AlertBanner } from '@/components/AlertBanner';
-import { NavigationBar } from '@/components/NavigationBar';
-import PrimaryButton from '@/components/PrimaryButton';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { AlertBanner } from '@/components/modules/AlertBanner';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 import { AssetChart } from './components/AssetChart';
 import { AssetDetailCard } from './components/AssetDetailCard';
 import { AssetListCard } from './components/AssetListCard';
 import { AssetSummaryHeader } from './components/AssetSummaryHeader';
-import { AssetTabNavigation } from './components/AssetTabNavigation';
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
-const TAB_IDS: TabId[] = ['asset', 'realestate', 'insurance', 'car', 'gold'];
+interface SummaryItem {
+  type: 'total' | 'property' | 'insurance' | 'car' | 'gold';
+  amount: string;
+  buttonLabel: string;
+  href: Route<string>;
+}
+
+const ASSET_TABS = [
+  { id: 'asset', label: '자산' },
+  { id: 'realestate', label: '부동산' },
+  { id: 'insurance', label: '보험' },
+  { id: 'car', label: '자동차' },
+  { id: 'gold', label: '금' },
+];
+
+const TAB_IDS = ASSET_TABS.map((tab) => tab.id) as TabId[];
 
 function isValidTabId(tabId: string | null): tabId is TabId {
   return TAB_IDS.includes(tabId as TabId);
@@ -151,37 +167,38 @@ function AssetPageContent() {
     }
   }, [queryTab, activeTab]);
 
-  const summaryData = useMemo(
+  const summaryData = useMemo<Record<TabId, SummaryItem>>(
     () => ({
       asset: {
-        type: 'total' as const,
+        type: 'total',
         amount: '12억 8,540만원',
-        buttonLabel: '자산 설계하기',
-        href: '/asset/trust',
+        buttonLabel: '노후 비용 예측하기',
+        href: '/asset/simulator' as Route<string>,
       },
+      // QQQ : 마이데이터 자산 연동하기로 이동
       realestate: {
-        type: 'property' as const,
+        type: 'property',
         amount: '14억 3,000만원',
         buttonLabel: '부동산 연동하기',
-        href: '/asset/housing',
+        href: '/asset/housing' as Route<string>,
       },
       insurance: {
-        type: 'insurance' as const,
+        type: 'insurance',
         amount: '-',
         buttonLabel: '보험 연동하기',
-        href: '/asset/insurance',
+        href: '/asset/insurance' as Route<string>,
       },
       car: {
-        type: 'car' as const,
+        type: 'car',
         amount: '4,500만원',
         buttonLabel: '자동차 연동하기',
-        href: '/asset/car',
+        href: '/asset/car' as Route<string>,
       },
       gold: {
-        type: 'gold' as const,
+        type: 'gold',
         amount: '1,330만원',
         buttonLabel: '금 연동하기',
-        href: '/asset/gold',
+        href: '/asset/gold' as Route<string>,
       },
     }),
     [],
@@ -191,16 +208,17 @@ function AssetPageContent() {
 
   const handlePrimaryAction = () => {
     if (currentSummary.href) {
-      router.push(currentSummary.href);
+      router.push(currentSummary.href as Route);
     }
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <div className="sticky top-0 z-50 bg-white">
-        <AssetTabNavigation
-          initialTab={activeTab}
-          onTabChangeAction={handleTabChange}
+        <TabNavigation
+          tabs={ASSET_TABS}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
         />
         {/* TODO: GET /api/asset 로 totalAmount fetch */}
         <AssetSummaryHeader
@@ -208,15 +226,17 @@ function AssetPageContent() {
           amount={currentSummary.amount}
         />
       </div>
-      <main className="flex flex-col items-center gap-6 px-6 pb-10">
+      <main className="flex flex-col items-center gap-6 px-6 pb-24">
         <TabContent activeTab={activeTab} />
 
-        <div className="mt-4 mb-20 w-full">
-          <PrimaryButton
-            label={currentSummary.buttonLabel}
-            onClick={handlePrimaryAction}
-          />
-        </div>
+        {activeTab !== 'asset' && (
+          <div className="mt-4 w-full">
+            <PrimaryButton
+              label={currentSummary.buttonLabel}
+              onClick={handlePrimaryAction}
+            />
+          </div>
+        )}
       </main>
       <NavigationBar />
     </div>

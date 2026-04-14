@@ -9,6 +9,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 12345678
       MYSQL_DATABASE: hanacare
+      MYSQL_USER: hanacare
+      MYSQL_PASSWORD: 12345678
       TZ: Asia/Seoul
     command:
       - --character-set-server=utf8mb4

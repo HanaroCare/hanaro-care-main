@@ -1,8 +1,12 @@
 package com.server.inheritance.entity;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.server.common.entity.BaseEntity;
 import com.server.inheritance.enums.FamilyRelation;
+import com.server.user.entity.TBUser;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -44,9 +48,8 @@ public class TBInheritDetail extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private FamilyRelation relationCd;
 
-  @Column(name = "DIST_RATIO", nullable = false,
-      columnDefinition = "DEFAULT 0")
-  private Double distRatio;
+  @Column(name = "DIST_RATIO", nullable = false, precision = 15, scale = 2)
+  private BigDecimal distRatio;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "INHERIT_PLAN_ID", referencedColumnName = "INHERIT_PLAN_ID",

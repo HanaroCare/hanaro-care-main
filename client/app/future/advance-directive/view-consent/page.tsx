@@ -1,19 +1,20 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Route } from 'next';
-import Header from '@/components/Header';
-import DotIndicator from '@/app/future/components/DotIndicator';
-import YesNoSelector from '@/app/future/components/YesNoSelector';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Route } from "next";
+import Header from "@/components/navigation/Header";
+import DotIndicator from "@/app/future/components/DotIndicator";
+import YesNoSelector from "@/app/future/components/YesNoSelector";
 
 export default function ViewConsentPage() {
   const router = useRouter();
-  const [selected, setSelected] = useState<'yes' | 'no' | null>(null);
+  const [selected, setSelected] = useState<"yes" | "no" | null>(null);
   const [showOpinion, setShowOpinion] = useState(false);
-  const [opinion, setOpinion] = useState('');
+  const [opinion, setOpinion] = useState("");
 
-  const goNext = () => router.push('/future/advance-directive/child-consent' as Route);
+  const goNext = () =>
+    router.push("/future/advance-directive/child-consent" as Route);
 
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
@@ -24,8 +25,8 @@ export default function ViewConsentPage() {
           <DotIndicator total={3} current={2} />
         </div>
 
-        <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px]">
-          돌아가시기 전,{'\n'}이 결정 내용을{'\n'}열람하는 것에 동의하시나요?
+        <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px] whitespace-pre-line">
+          돌아가시기 전,{"\n"}이 결정 내용을{"\n"}열람하는 것에 동의하시나요?
         </h2>
 
         <div className="mt-[70px]">
@@ -38,7 +39,9 @@ export default function ViewConsentPage() {
           onClick={goNext}
           disabled={!selected}
           className="w-full h-[53px] rounded-[10px] font-medium text-[16px] text-white transition-all"
-          style={{ backgroundColor: selected ? '#01A5AC' : 'rgba(1,165,172,0.4)' }}
+          style={{
+            backgroundColor: selected ? "#01A5AC" : "rgba(1,165,172,0.4)",
+          }}
         >
           다음으로
         </button>
@@ -52,12 +55,20 @@ export default function ViewConsentPage() {
 
       {showOpinion && (
         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end">
-          <div className="bg-white rounded-t-2xl px-[25px] pt-[30px] pb-[40px] flex flex-col gap-[20px]">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="opinion-dialog-title"
+            className="bg-white rounded-t-2xl px-[25px] pt-[30px] pb-[40px] flex flex-col gap-[20px]"
+          >
+            <h3 id="opinion-dialog-title" className="sr-only">
+              의견 입력
+            </h3>
             <textarea
               value={opinion}
               onChange={(e) => setOpinion(e.target.value)}
               placeholder="내용을 입력하세요."
-              className="w-full h-[212px] border border-[#E5E5E5] rounded-xl p-[16px] font-medium text-[15px] leading-[38px] tracking-[-0.02em] text-[#1A212D] placeholder:text-[#E5E5E5] outline-none resize-none"
+              className="w-full h-[212px] border border-[`#E5E5E5`] rounded-xl p-[16px] font-medium text-[15px] leading-[38px] tracking-[-0.02em] text-[`#1A212D`] placeholder:text-[`#E5E5E5`] outline-none resize-none"
             />
             <button
               onClick={() => {
@@ -65,7 +76,7 @@ export default function ViewConsentPage() {
                 goNext();
               }}
               className="w-full h-[53px] rounded-[10px] font-medium text-[16px] text-white"
-              style={{ backgroundColor: '#01A5AC' }}
+              style={{ backgroundColor: "#01A5AC" }}
             >
               의견 남기기
             </button>

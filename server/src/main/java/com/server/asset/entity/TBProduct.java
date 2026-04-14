@@ -30,8 +30,8 @@ public class TBProduct extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(columnDefinition = "int unsigned")
-	private Long productId;
+	@Column(name = "PRODUCT_ID", columnDefinition = "int unsigned")
+	private Integer productId;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "PROD_CATE_CD", nullable = false)
