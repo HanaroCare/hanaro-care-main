@@ -1,6 +1,6 @@
 package com.server.myhana.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,13 +12,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class InsuranceDto {
+public class InsuranceDetailDto {
 
-  @NotBlank
-  private Long accountId;
-  private String instNm;
-  private String accountNm;
-  private Integer monthlyPremAmt;
-  private String username;
-
+  private InsuranceDto insuranceDto;
+  private LocalDate contrDt;
+  private LocalDate expireDt;
 }
