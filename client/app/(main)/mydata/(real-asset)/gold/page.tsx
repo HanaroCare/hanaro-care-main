@@ -32,7 +32,6 @@ export default function GoldPage() {
     setIsAllDone(true);
   };
 
-  // --- 4. 최종 완료 단계 (공통 CompleteStep 프롭 구조 적용) ---
   if (isAllDone) {
     return (
       <CompleteStep
@@ -113,7 +112,6 @@ export default function GoldPage() {
     );
   }
 
-  // --- 1. 정보 입력 단계 ---
   return (
     <div className="flex h-full flex-col bg-background px-6 pt-6 pb-12">
       <div className="mb-10">
@@ -146,16 +144,22 @@ export default function GoldPage() {
           onChange={setPurity}
           suffix={
             <span className="flex h-14 items-center pr-4 font-medium text-hana-black-400">
-              k
+              K
             </span>
           }
         />
       </div>
-      <div className="mt-auto">
+      <div className="mt-auto flex flex-col gap-3">
         <PrimaryButton
-          label="확인"
+          label="조회하기"
           variant={isFormValid ? 'primary' : 'disabled'}
           onClick={() => isFormValid && setIsSubmitted(true)}
+        />
+        <PrimaryButton
+          label="나중에 연결하기"
+          variant="secondary"
+          className="bg-hana-silver-100 text-hana-black-500!"
+          onClick={() => router.push('/')}
         />
       </div>
     </div>

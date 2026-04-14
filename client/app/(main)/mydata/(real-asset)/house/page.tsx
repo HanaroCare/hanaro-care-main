@@ -7,8 +7,6 @@ import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
 import PageDescription from '@/components/typography/PageDescription';
 import PageHeading from '@/components/typography/PageHeading';
-
-// 1. CheckItem을 외부로 분리하고 Props로 상태를 제어하도록 수정
 interface CheckItemProps {
   label: string;
   checked: boolean;
@@ -23,20 +21,17 @@ function CheckItem({ label, checked, onChange }: CheckItemProps) {
       className="flex w-full cursor-pointer items-center gap-4 rounded-xl border border-border-gray bg-white p-5 shadow-sm transition-all active:scale-[0.98]"
     >
       <div
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
-          checked ? 'bg-hana-teal-400' : 'bg-hana-silver-100'
-        }`}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${checked ? 'bg-hana-teal-400' : 'bg-hana-silver-100'
+          }`}
       >
         <Check
-          className={`h-5 w-5 transition-opacity ${
-            checked ? 'text-white opacity-100' : 'text-hana-black-500 opacity-0'
-          }`}
+          className={`h-5 w-5 transition-opacity ${checked ? 'text-white opacity-100' : 'text-hana-black-500 opacity-0'
+            }`}
         />
       </div>
       <span
-        className={`text-left font-medium text-[17px] transition-colors ${
-          checked ? 'text-hana-black-700' : 'text-hana-black-500'
-        }`}
+        className={`text-left font-medium text-[17px] transition-colors ${checked ? 'text-hana-black-700' : 'text-hana-black-500'
+          }`}
       >
         {label}
       </span>
@@ -47,7 +42,6 @@ function CheckItem({ label, checked, onChange }: CheckItemProps) {
 export default function HouseMyDataPage() {
   const router = useRouter();
 
-  // 2. 부모 컴포넌트에서 선택 상태를 관리 (인덱스 기반 예시)
   const checkList = [
     '보유 주택 정보 (종류, 면적, 소재지)',
     'KB 부동산 시세',
@@ -98,10 +92,10 @@ export default function HouseMyDataPage() {
           onClick={() => router.push('/mydata/house/detail')}
         />
         <PrimaryButton
-          label="처음으로"
+          label="나중에 연결하기"
           variant="secondary"
           className="bg-hana-silver-100 text-hana-black-500!"
-          onClick={() => router.push('/mydata/main')}
+          onClick={() => router.push('/')}
         />
       </div>
     </div>

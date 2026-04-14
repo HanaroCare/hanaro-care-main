@@ -3,9 +3,6 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-/**
- * 로딩 화면
- */
 export default function LoadingStep({
   onComplete,
 }: {
@@ -14,19 +11,28 @@ export default function LoadingStep({
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const timer = setInterval(() => {
       setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          setTimeout(onComplete, 800);
-          return 100;
-        }
+        if (prev >= 100) return 100;
+
         const increment = prev < 30 ? 3 : prev < 70 ? 2 : 1;
-        return prev + increment;
+        const newProgress = Math.min(100, prev + increment);
+
+        if (newProgress === 100) {
+          clearInterval(timer);
+          timeoutId = setTimeout(onComplete, 800);
+        }
+
+        return newProgress;
       });
     }, 60);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [onComplete]);
 
   return (

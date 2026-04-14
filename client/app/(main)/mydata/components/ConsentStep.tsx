@@ -35,10 +35,10 @@ const TERMS_DATA = {
 export default function ConsentStep({ onNext }: ConsentStepProps) {
   const [agreements, setAgreements] = useState({
     all: false,
-    terms: true,
-    privacy: true,
+    terms: false,
+    privacy: false,
     thirdParty: false,
-    mydata: true,
+    mydata: false,
   });
 
   const [selectedTerms, setSelectedTerms] = useState<{
@@ -60,14 +60,15 @@ export default function ConsentStep({ onNext }: ConsentStepProps) {
   const handleToggle = (key: keyof typeof agreements) => {
     if (key === 'all') return;
     const newAgreements = { ...agreements, [key]: !agreements[key] };
+
     newAgreements.all =
       newAgreements.terms &&
       newAgreements.privacy &&
       newAgreements.thirdParty &&
       newAgreements.mydata;
+
     setAgreements(newAgreements);
   };
-
   const isRequiredAgreed =
     agreements.terms && agreements.privacy && agreements.mydata;
 
@@ -85,18 +86,16 @@ export default function ConsentStep({ onNext }: ConsentStepProps) {
         <button
           type="button"
           onClick={handleAllToggle}
-          className={`flex items-center gap-[0.75rem] rounded-[1rem] p-[1.25rem] transition-colors ${
-            agreements.all
-              ? 'border border-primary/20 bg-primary/5'
-              : 'border border-transparent bg-gray-50'
-          }`}
+          className={`flex items-center gap-[0.75rem] rounded-[1rem] p-[1.25rem] transition-colors ${agreements.all
+            ? 'border border-primary/20 bg-primary/5'
+            : 'border border-transparent bg-gray-50'
+            }`}
         >
           <div
-            className={`flex h-[1.5rem] w-[1.5rem] items-center justify-center rounded-full ${
-              agreements.all
-                ? 'bg-primary text-white'
-                : 'bg-gray-200 text-gray-400'
-            }`}
+            className={`flex h-[1.5rem] w-[1.5rem] items-center justify-center rounded-full ${agreements.all
+              ? 'bg-primary text-white'
+              : 'bg-gray-200 text-gray-400'
+              }`}
           >
             <Check size={16} strokeWidth={3} />
           </div>

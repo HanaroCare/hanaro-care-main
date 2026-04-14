@@ -98,17 +98,23 @@ export default function CarPage() {
         placeholder="12가1234"
         value={carNumber}
         onChange={setCarNumber}
-        // className="text-center" <- 이 부분을 삭제하거나 "text-left"로 변경
       />
       <p className="mt-4 text-[14px] text-hana-black-500">
         차량번호 7자리나 8자리를 알려주세요
       </p>
 
-      <div className="mt-auto">
+      <div className="mt-auto mt-auto flex flex-col gap-3">
         <PrimaryButton
-          label="확인"
+          label="조회하기"
           variant={isCarNumberValid ? 'primary' : 'disabled'}
           onClick={() => isCarNumberValid && setIsSubmitted(true)}
+        />
+
+        <PrimaryButton
+          label="나중에 연결하기"
+          variant="secondary"
+          className="bg-hana-silver-100 text-hana-black-500!"
+          onClick={() => router.push('/')}
         />
       </div>
     </div>

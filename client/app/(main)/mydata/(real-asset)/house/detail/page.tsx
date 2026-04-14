@@ -21,7 +21,6 @@ export default function HouseDetailPage() {
   const [hasLoan, setHasLoan] = useState<'none' | 'exists'>('none');
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // 년도 유효성 검사 로직
   const yearError = useMemo(() => {
     if (!year) return '';
     if (!/^\d{4}$/.test(year)) return '년도 4자리를 입력해주세요.';
@@ -192,11 +191,10 @@ export default function HouseDetailPage() {
                 key={type}
                 type="button"
                 onClick={() => setHasLoan(type)}
-                className={`h-14 flex-1 rounded-[10px] font-semibold text-[16px] transition-all ${
-                  hasLoan === type
+                className={`h-14 flex-1 rounded-[10px] font-semibold text-[16px] transition-all ${hasLoan === type
                     ? 'bg-hana-teal-400 text-white'
                     : 'border border-border-gray text-hana-silver-300'
-                }`}
+                  }`}
               >
                 {type === 'none' ? '없음' : '있음'}
               </button>

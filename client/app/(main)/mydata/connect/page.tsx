@@ -39,7 +39,6 @@ export default function MyDataConnectPage() {
 
   const handleModalConfirm = () => {
     setIsModalOpen(false);
-    // 실물 자산 연동 시작점으로 이동
     router.push('/mydata/house');
   };
 
@@ -74,7 +73,6 @@ export default function MyDataConnectPage() {
                 <LoadingStep onComplete={handleLoadingComplete} />
               )}
 
-              {/* --- 4. 공통 CompleteStep 적용 부분 --- */}
               {step === 'complete' && (
                 <CompleteStep
                   footer={

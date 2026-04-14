@@ -37,24 +37,23 @@ export default function TermsModal({
             animate={{ y: 0, x: '-50%' }}
             exit={{ y: '100%', x: '-50%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-1/2 z-[120] flex h-[60dvh] w-full max-w-[375px] flex-col rounded-t-[1.5rem] bg-white shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="terms-modal-title"
+            className="fixed bottom-0 left-1/2 z-[120] flex h-[45dvh] w-full max-w-[375px] flex-col rounded-t-[1.5rem] bg-white shadow-2xl"
           >
+
             <div className="flex w-full items-center justify-center pt-[0.75rem] pb-[0.25rem]">
               <div className="h-[0.25rem] w-[2.5rem] rounded-full bg-gray-200" />
             </div>
 
-            <div className="flex h-[3.5rem] shrink-0 items-center justify-between border-border border-b px-[1.25rem]">
-              <div className="w-[2rem]" />
-              <h3 className="font-bold text-[1.0625rem] text-foreground">
+            <div className="flex h-[3.5rem] shrink-0 items-center border-border border-b px-[1.25rem]">
+              <h3
+                id="terms-modal-title"
+                className="flex-1 text-center font-bold text-[1.0625rem] text-foreground"
+              >
                 {title}
               </h3>
-              <button
-                type="button"
-                onClick={onClose}
-                className="p-[0.5rem] text-muted-foreground hover:text-foreground"
-              >
-                <X size={24} />
-              </button>
             </div>
 
             <div className="flex-1 overflow-y-auto p-[1.5rem] text-[0.9375rem] text-hana-black-700 leading-[1.6]">
