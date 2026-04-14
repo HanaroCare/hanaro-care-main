@@ -2,13 +2,15 @@ package com.server.user.entity;
 
 import com.server.common.entity.BaseEntity;
 import com.server.user.enums.LoginMeans;
-import io.hypersistence.utils.hibernate.id.Tsid;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -31,7 +33,8 @@ import lombok.ToString;
 public class TBUserSimpleAuth extends BaseEntity {
 
 	@Id
-	@Tsid
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	// @Tsid
 	@Column(name = "SIMPLE_AUTH_ID", columnDefinition = "bigint unsigned")
 	private Long simpleAuthId;
 
