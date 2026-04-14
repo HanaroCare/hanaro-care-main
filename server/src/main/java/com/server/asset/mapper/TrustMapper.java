@@ -53,7 +53,7 @@ public abstract class TrustMapper {
   @Mapping(target = "startDate", source = "simulation.startDate")
   @Mapping(target = "claimAgent", source = "simulation.claimAgent")
   @Mapping(target = "payoutSettings", source = "simulation.payoutSettings")
-  @Mapping(target = "isAgentView", constant = "true")
+  @Mapping(target = "isAgentView", constant = "false")
   public abstract TBUserProd toUserProd(
       TBTrustSimulation simulation,
       TBUser user,

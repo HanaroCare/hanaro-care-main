@@ -80,7 +80,7 @@ public class TrustService {
 			.orElseThrow(() -> new ApiException(ErrorStatus.TRUST_SIMULATION_NOT_FOUND));
 
 		BigDecimal annualRate = TrustCalculator.resolveAnnualRate(simulation.getInvestType());
-		BigDecimal userPrincipal = simulation.getPrincipalAmount();
+		BigDecimal userPrincipal = TrustCalculator.defaultIfNull(simulation.getPrincipalAmount());
 
 		SimulationDetailDto selectedDetail = TrustCalculator.calculateDetail(userPrincipal, annualRate);
 
@@ -110,7 +110,7 @@ public class TrustService {
 			.orElseThrow(() -> new ApiException(ErrorStatus.TRUST_SIMULATION_NOT_FOUND));
 
 		return TrustCalculator.calculateDetail(
-			simulation.getPrincipalAmount(),
+			TrustCalculator.defaultIfNull(simulation.getPrincipalAmount()),
 			TrustCalculator.resolveAnnualRate(simulation.getInvestType())
 		);
 	}

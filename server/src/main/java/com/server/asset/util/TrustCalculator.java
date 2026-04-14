@@ -19,7 +19,8 @@ public final class TrustCalculator {
   private TrustCalculator() {}
 
   public static BigDecimal resolveAnnualRate(InvestType investType) {
-    return investType == InvestType.LUMP_SUM ? MANAGED_ANNUAL_RATE : SELF_ANNUAL_RATE;
+    InvestType resolved = java.util.Objects.requireNonNull(investType, "investType must not be null");
+    return resolved == InvestType.LUMP_SUM ? MANAGED_ANNUAL_RATE : SELF_ANNUAL_RATE;
   }
 
   // 신탁 설계(시뮬레이션) 상세 계산
@@ -53,9 +54,11 @@ public final class TrustCalculator {
   //가입일로부터 현재까지 경과 월수 (시작월 포함)
   public static long calculateMonthsPassed(LocalDate startDate) {
     if (startDate == null) return 0;
+    LocalDate today = LocalDate.now();
+    if (startDate.isAfter(today)) return 0;
     long months = ChronoUnit.MONTHS.between(
         YearMonth.from(startDate),
-        YearMonth.from(LocalDate.now())
+        YearMonth.from(today)
     ) + 1;
     return Math.max(months, 0);
   }
