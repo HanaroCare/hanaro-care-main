@@ -17,6 +17,10 @@ import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
 
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
+import com.server.user.repository.TBUserRepository;
+
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -26,10 +30,13 @@ public class AssetService {
 
 	private final TBAccountRepository tbAccountRepository;
 	private final TBRealAssetRepository tbRealAssetRepository;
+	private final TBUserRepository tbUserRepository;
 	private final AssetMapper assetMapper;
 
 
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
+		validateUser(userId);
+
 		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
 		totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
 
@@ -49,32 +56,43 @@ public class AssetService {
 	}
 
 	public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
+		validateUser(userId);
 		return assetMapper.toFinancialAssetResponseList(
 			tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNot(userId, AssetCategory.INSURANCE)
 		);
 	}
 
 	public List<AssetDetailResponse> getRealEstateAssets(Long userId) {
+		validateUser(userId);
 		return assetMapper.toAssetDetailListFromReal(
 			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.REAL_ESTATE)
 		);
 	}
 
 	public List<AssetDetailResponse> getVehicleAssets(Long userId) {
+		validateUser(userId);
 		return assetMapper.toAssetDetailListFromReal(
 			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.VEHICLE)
 		);
 	}
 
 	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
+		validateUser(userId);
 		return assetMapper.toAssetDetailListFromAccount(
 			tbAccountRepository.findAllByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
 		);
 	}
 
 	public List<AssetDetailResponse> getGoldAssets(Long userId) {
+		validateUser(userId);
 		return assetMapper.toAssetDetailListFromReal(
 			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.GOLD)
 		);
+	}
+
+	private void validateUser(Long userId) {
+		if (!tbUserRepository.existsById(userId)) {
+			throw new ApiException(ErrorStatus.USER_NOT_FOUND);
+		}
 	}
 }

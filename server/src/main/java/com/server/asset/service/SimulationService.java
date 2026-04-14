@@ -34,8 +34,7 @@ public class SimulationService {
 
     @Transactional
     public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
-        TBUser user = tbUserRepository.findById(userId)
-            .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        validateUser(userId);
 
         // AI 분석 결과를 시뮬레이션하는 가상 로직
         BigDecimal totalIncomeAmt = new BigDecimal("1450000.00");
@@ -90,7 +89,7 @@ public class SimulationService {
 
         // DB 저장
         TBAssetSimulation simulation = TBAssetSimulation.builder()
-            .user(user)
+            .user(tbUserRepository.getReferenceById(userId)) // findById 대신 referenceById 사용 가능 (이미 존재 확인했으므로)
             .targetAge(request.getTargetAge())
             .careType(request.getCareType())
             .totalIncomeAmt(totalIncomeAmt)
@@ -109,6 +108,8 @@ public class SimulationService {
     }
 
     public SimulationSummaryResponse getSimulationSummary(Long userId) {
+        validateUser(userId);
+
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
@@ -123,6 +124,8 @@ public class SimulationService {
     }
 
     public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
+        validateUser(userId);
+
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(userId, request.getTargetAge(), request.getCareType())
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
@@ -130,6 +133,12 @@ public class SimulationService {
             return objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
         } catch (JsonProcessingException e) {
             throw new ApiException(ErrorStatus._INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void validateUser(Long userId) {
+        if (!tbUserRepository.existsById(userId)) {
+            throw new ApiException(ErrorStatus.USER_NOT_FOUND);
         }
     }
 }

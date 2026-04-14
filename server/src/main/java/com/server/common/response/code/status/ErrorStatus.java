@@ -34,7 +34,10 @@ public enum ErrorStatus implements BaseErrorCode {
     _PRODUCT_INVALID_TYPE(HttpStatus.BAD_REQUEST, "PRODUCT_4", "유효하지 않은 상품 타입입니다."),
 
     // simulation
-    SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "SIMULATION_404", "시뮬레이션 결과를 찾을 수 없습니다.");
+    SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "SIMULATION_404", "시뮬레이션 결과를 찾을 수 없습니다."),
+
+    // user
+    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_404", "사용자를 찾을 수 없습니다.");
 
     //inheritance
 
