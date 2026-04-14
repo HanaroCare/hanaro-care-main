@@ -1,5 +1,9 @@
 package com.server.inheritance.service;
 
+import com.server.asset.dto.AssetSummaryDTO;
+import com.server.asset.dto.response.AssetDashboardResponse;
+import com.server.asset.entity.enums.AssetCategory;
+import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.service.AssetService;
 import com.server.inheritance.dto.InheritanceContextDTO;
 import com.server.inheritance.dto.InheritanceRequestDTO;
@@ -36,8 +40,12 @@ public class InheritanceService {
     private final FamilyService familyService;
 
     public InheritanceContextDTO getInheritanceContext(Long userId) {
+        // AssetService의 대시보드 데이터를 호출
+        AssetDashboardResponse dashboard = assetService.getAssetDashboard(userId);
+        
+        // 상속 화면용 Summary DTO로 변환하여 반환
         return InheritanceContextDTO.builder()
-                .assetSummary(assetService.getAssetSummaryByUserId(userId))
+                .assetSummary(convertToAssetSummary(dashboard))
                 .familyMembers(familyService.getFamilyMembers(userId))
                 .build();
     }
@@ -53,12 +61,33 @@ public class InheritanceService {
         }
 
         TBUser user = userService.getUserById(userId);
-        BigDecimal totalAsset = assetService.getTotalAssetByUserId(userId);
-        BigDecimal excludedAmt = assetService.getExcludedInheritAmtByUserId(userId);
-        BigDecimal totalInheritAmt = totalAsset.subtract(excludedAmt);
+        
+        // 자산 대시보드 데이터 호출 및 총 상속 자산 계산
+        AssetDashboardResponse dashboard = assetService.getAssetDashboard(userId);
+        
+        // 1. 전체 자산 (금융 + 실물 합계)
+        BigDecimal totalRealAmt = dashboard.getRealAssets().stream()
+                .map(AssetDashboardResponse.RealAssetSummary::getTotalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalAsset = dashboard.getTotalFinancialAmt().add(totalRealAmt);
+
+        // 2. 상속 제외 자산 계산 (카드 + 자동차)
+        BigDecimal cardAmt = dashboard.getFinancialAssets().stream()
+                .filter(a -> a.getAssetCateCd() == AssetCategory.CARD)
+                .map(AssetDashboardResponse.FinancialAssetSummary::getTotalBalance)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        BigDecimal vehicleAmt = dashboard.getRealAssets().stream()
+                .filter(a -> a.getAssetCateCd() == RealAssetCategory.VEHICLE)
+                .map(AssetDashboardResponse.RealAssetSummary::getTotalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal excludedAmt = cardAmt.add(vehicleAmt);
+        BigDecimal totalInheritAmt = totalAsset.subtract(excludedAmt); // 순수 상속 대상 금액
+
+        // 세금 및 플랜 저장
         BigDecimal tax = calculateEstimatedTax(totalInheritAmt);
 
-        // Save or update plan
         TBInheritPlan plan = planRepository.findByUserId(userId)
                 .orElse(TBInheritPlan.builder().user(user).build());
         
@@ -66,7 +95,7 @@ public class InheritanceService {
         plan.setEstiTaxAmt(tax);
         plan = planRepository.save(plan);
 
-        // Clear existing details (simple way for update)
+        // 기존 상세 내역 삭제 및 새 내역 저장
         List<TBInheritDetail> existingDetails = detailRepository.findByInheritPlanId(plan.getId());
         detailRepository.deleteAll(existingDetails);
 
@@ -183,8 +212,6 @@ public class InheritanceService {
     }
 
     private BigDecimal calculateEstimatedTax(BigDecimal amount) {
-        // Simple placeholder for Korean inheritance tax
-        // Deduction approx 500M KRW
         BigDecimal deduction = new BigDecimal("500000000");
         BigDecimal taxableAmount = amount.subtract(deduction);
         
@@ -192,8 +219,46 @@ public class InheritanceService {
             return BigDecimal.ZERO;
         }
 
-        // Basic 10% for first 100M after deduction, etc.
-        // For simplicity: 20% flat of taxable amount
         return taxableAmount.multiply(new BigDecimal("0.20")).setScale(0, RoundingMode.HALF_UP);
+    }
+
+    // Dashboard 데이터를 AssetSummaryDTO로 변환하는 헬퍼 메서드
+    private AssetSummaryDTO convertToAssetSummary(AssetDashboardResponse dashboard) {
+        BigDecimal savings = BigDecimal.ZERO;
+        BigDecimal stocks = BigDecimal.ZERO;
+        BigDecimal pensions = BigDecimal.ZERO;
+        BigDecimal others = BigDecimal.ZERO;
+        BigDecimal realEstate = BigDecimal.ZERO;
+
+        for (AssetDashboardResponse.FinancialAssetSummary fa : dashboard.getFinancialAssets()) {
+            switch (fa.getAssetCateCd()) {
+                case CASH -> savings = savings.add(fa.getTotalBalance());
+                case STOCK -> stocks = stocks.add(fa.getTotalBalance());
+                case PENSION -> pensions = pensions.add(fa.getTotalBalance());
+                default -> others = others.add(fa.getTotalBalance());
+            }
+        }
+
+        for (AssetDashboardResponse.RealAssetSummary ra : dashboard.getRealAssets()) {
+            if (ra.getAssetCateCd() == RealAssetCategory.REAL_ESTATE) {
+                realEstate = realEstate.add(ra.getTotalValue());
+            } else {
+                others = others.add(ra.getTotalValue());
+            }
+        }
+
+        BigDecimal totalRealAmt = dashboard.getRealAssets().stream()
+                .map(AssetDashboardResponse.RealAssetSummary::getTotalValue)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal total = dashboard.getTotalFinancialAmt().add(totalRealAmt);
+
+        return AssetSummaryDTO.builder()
+                .savingsAndDeposits(savings)
+                .stocksAndFunds(stocks)
+                .pensions(pensions)
+                .realEstate(realEstate)
+                .otherAssets(others)
+                .totalAsset(total)
+                .build();
     }
 }

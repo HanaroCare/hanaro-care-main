@@ -1,84 +1,57 @@
 package com.server.asset.service;
 
-import com.server.asset.dto.AssetSummaryDTO;
-import com.server.asset.entity.TBAccount;
-import com.server.asset.entity.TBRealAsset;
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.server.asset.dto.response.AssetDashboardResponse;
+import com.server.asset.dto.response.AssetDashboardResponse.FinancialAssetSummary;
+import com.server.asset.dto.response.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
-import java.math.BigDecimal;
-import java.util.List;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AssetService {
 
-    private final TBAccountRepository accountRepository;
-    private final TBRealAssetRepository realAssetRepository;
+	private final TBAccountRepository tbAccountRepository;
+	private final TBRealAssetRepository tbRealAssetRepository;
 
-    public AssetSummaryDTO getAssetSummaryByUserId(Long userId) {
-        List<TBAccount> accounts = accountRepository.findByUserId(userId);
-        List<TBRealAsset> realAssets = realAssetRepository.findByUserId(userId);
+	public AssetDashboardResponse getAssetDashboard(Long userId) {
+		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
+		if (totalFinancialAmt == null) {
+			totalFinancialAmt = BigDecimal.ZERO;
+		}
 
-        BigDecimal savings = BigDecimal.ZERO;
-        BigDecimal stocks = BigDecimal.ZERO;
-        BigDecimal pensions = BigDecimal.ZERO;
-        BigDecimal realEstate = BigDecimal.ZERO;
-        BigDecimal others = BigDecimal.ZERO;
+		List<FinancialAssetSummary> financialAssets = tbAccountRepository
+			.findBalanceSumGroupByCategoryByUserId(userId)
+			.stream()
+			.map(row -> FinancialAssetSummary.builder()
+				.assetCateCd((AssetCategory) row[0])
+				.totalBalance((BigDecimal) row[1])
+				.build())
+			.toList();
 
-        for (TBAccount acc : accounts) {
-            switch (acc.getAssetCateCd()) {
-                case CASH -> savings = savings.add(acc.getBalanceAmt());
-                case STOCK -> stocks = stocks.add(acc.getBalanceAmt());
-                case PENSION -> pensions = pensions.add(acc.getBalanceAmt());
-                default -> others = others.add(acc.getBalanceAmt());
-            }
-        }
+		List<RealAssetSummary> realAssets = tbRealAssetRepository
+			.findEvalAmtSumGroupByCategoryByUserId(userId)
+			.stream()
+			.map(row -> RealAssetSummary.builder()
+				.assetCateCd((RealAssetCategory) row[0])
+				.totalValue((BigDecimal) row[1])
+				.build())
+			.toList();
 
-        for (TBRealAsset ra : realAssets) {
-            if (ra.getAssetCateCd() == RealAssetCategory.REAL_ESTATE) {
-                realEstate = realEstate.add(ra.getEvalAmt());
-            } else {
-                others = others.add(ra.getEvalAmt());
-            }
-        }
-
-        BigDecimal total = savings.add(stocks).add(pensions).add(realEstate).add(others);
-
-        return AssetSummaryDTO.builder()
-                .savingsAndDeposits(savings)
-                .stocksAndFunds(stocks)
-                .pensions(pensions)
-                .realEstate(realEstate)
-                .otherAssets(others)
-                .totalAsset(total)
-                .build();
-    }
-
-    public BigDecimal getTotalAssetByUserId(Long userId) {
-        return getAssetSummaryByUserId(userId).getTotalAsset();
-    }
-
-    public BigDecimal getExcludedInheritAmtByUserId(Long userId) {
-        List<TBAccount> accounts = accountRepository.findByUserId(userId);
-        List<TBRealAsset> realAssets = realAssetRepository.findByUserId(userId);
-
-        BigDecimal excluded = BigDecimal.ZERO;
-        for (TBAccount acc : accounts) {
-            if (acc.getAssetCateCd() == AssetCategory.CARD) {
-                excluded = excluded.add(acc.getBalanceAmt());
-            }
-        }
-        for (TBRealAsset ra : realAssets) {
-            if (ra.getAssetCateCd() == RealAssetCategory.VEHICLE) {
-                excluded = excluded.add(ra.getEvalAmt());
-            }
-        }
-        return excluded;
-    }
+		return AssetDashboardResponse.builder()
+			.totalFinancialAmt(totalFinancialAmt)
+			.financialAssets(financialAssets)
+			.realAssets(realAssets)
+			.build();
+	}
 }
