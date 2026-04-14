@@ -1,4 +1,6 @@
 spring:
+  config:
+    import: security.yaml
   application:
     name: server
 
