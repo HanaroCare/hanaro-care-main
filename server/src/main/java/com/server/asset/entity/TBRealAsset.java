@@ -12,6 +12,8 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -34,8 +36,7 @@ import lombok.ToString;
 public class TBRealAsset extends BaseEntity {
 
   @Id
-
-
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   // @Tsid
   @Column(name = "REAL_ASSET_ID", columnDefinition = "int unsigned")
   private Integer realAssetId;

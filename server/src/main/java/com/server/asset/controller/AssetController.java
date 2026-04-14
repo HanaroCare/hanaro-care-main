@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.server.asset.dto.response.AssetDashboardResponse;
 import com.server.asset.service.AssetService;
 import com.server.common.response.ApiResponse;
+import com.server.common.security.dto.SubscriberDTO;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,8 +24,8 @@ public class AssetController {
 	@Operation(summary = "전체 자산 대시보드 조회")
 	@GetMapping
 	public ApiResponse<AssetDashboardResponse> getAssetDashboard(
-		@AuthenticationPrincipal Long userId
+		@AuthenticationPrincipal SubscriberDTO subscriberDTO
 	) {
-		return ApiResponse.onSuccess(assetService.getAssetDashboard(userId));
+		return ApiResponse.onSuccess(assetService.getAssetDashboard(subscriberDTO.getUserId()));
 	}
 }

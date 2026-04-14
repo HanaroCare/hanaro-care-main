@@ -62,8 +62,8 @@ public class TBAssetTrans extends BaseEntity {
 	private LocalDateTime transDt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "USER_PRODUT_ID", referencedColumnName = "USER_PROD_ID",
+	@JoinColumn(name = "USER_PROD_ID", referencedColumnName = "USER_PROD_ID",
 		columnDefinition = "bigint unsigned not null",
-		foreignKey = @ForeignKey(name = "fk_AssetTrans_userProdutId_UserProd"))
+		foreignKey = @ForeignKey(name = "fk_AssetTrans_userProdId_UserProd"))
 	private TBUserProd userProd;
 }
