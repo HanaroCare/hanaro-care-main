@@ -42,11 +42,12 @@ public class InheritanceService {
           text = text.replace("{{user_phone}}", dto.getUserPhone());
           text = text.replace("{{guardian_name}}", dto.getGuardianName());
           text = text.replace("{{guardian_relation}}", dto.getGuardianRelation());
-          text = text.replace("{{permission1}}", dto.getPermission()[0]);
-          text = text.replace("{{permission2}}", dto.getPermission()[1]);
-          text = text.replace("{{permission3}}", dto.getPermission()[2]);
-          text = text.replace("{{permission4}}", dto.getPermission()[3]);
-          text = text.replace("{{permission5}}", dto.getPermission()[4]);
+          text = text.replace("{{permission_0}}", dto.getPermission()[0] ? "○" : "");
+          text = text.replace("{{permission_1}}", dto.getPermission()[1] ? "○" : "");
+          text = text.replace("{{permission_1}}", dto.getPermission()[2] ? "○" : "");
+          text = text.replace("{{permission_1}}", dto.getPermission()[3] ? "○" : "");
+          text = text.replace("{{permission_1}}", dto.getPermission()[4] ? "○" : "");
+
           run.setText(text, 0);
         }
       }
