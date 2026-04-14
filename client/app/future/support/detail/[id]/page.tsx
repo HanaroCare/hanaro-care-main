@@ -94,7 +94,9 @@ export default function SupportDetailPage({
 
       <div className="px-[25px] pb-[40px]">
         <button
-          onClick={() => window.open(detail.applyUrl, "_blank")}
+          onClick={() =>
+            window.open(detail.applyUrl, "_blank", "noopener,noreferrer")
+          }
           className="flex flex-row items-center justify-center gap-[8px] w-full h-[53px] rounded-[10px] font-semibold text-[16px] text-white"
           style={{ backgroundColor: "#01A5AC" }}
         >
