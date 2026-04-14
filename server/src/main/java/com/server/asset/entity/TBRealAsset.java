@@ -1,21 +1,21 @@
 package com.server.asset.entity;
 
-import java.math.BigDecimal;
-
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,9 +34,7 @@ import lombok.ToString;
 public class TBRealAsset extends BaseEntity {
 
   @Id
-
-
-  // @Tsid
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "REAL_ASSET_ID", columnDefinition = "int unsigned")
   private Integer realAssetId;
 
