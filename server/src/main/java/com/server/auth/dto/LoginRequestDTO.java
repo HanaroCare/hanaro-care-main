@@ -35,6 +35,6 @@ public class LoginRequestDTO {
    * 인증 값
    */
   @NotBlank(message = "인증 값은 필수 입력 사항입니다.")
-  @Schema(description = "인증 수단에 해당하는 값", example = "password123!")
+  @Schema(description = "인증 수단에 해당하는 값", example = "test1234")
   private String userPwd;
 }
