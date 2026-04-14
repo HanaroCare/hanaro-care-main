@@ -27,7 +27,7 @@ public class InheritanceService {
         .build()).toList();
   }
 
-  // TODO: 계약서 생성하기
+  // 계약서 생성하기
   public byte[] generateContract(ContractDto dto) throws Exception {
     // 템플릿 파일 로드 (resources 폴더에 넣어두기)
     InputStream template = getClass().getResourceAsStream("/templates/contract.docx");
