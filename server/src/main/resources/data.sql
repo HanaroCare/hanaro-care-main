@@ -26,15 +26,22 @@ SET time_zone = 'Asia/Seoul';
 -- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
 INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
-                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE)
-VALUES (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-        '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER'),
-       (1002, 'chulsoo7', '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-        '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER'),
-       (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-        '01033334444', 63, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER'),
-       (1004, 'testUser', '김관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-        '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN');
+                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
+VALUES
+    -- 1. 정상 유저 (최근 로그인)
+    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+    -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
+    (1002, 'chulsoo7', '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH),
+     DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+    -- 3. 이미 휴면 상태인 유저
+    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
+     DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+    -- 4. 관리자
+    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
 
 -- ========================
 -- TB_PRODUCT

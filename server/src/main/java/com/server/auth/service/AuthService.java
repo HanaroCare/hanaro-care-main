@@ -3,6 +3,7 @@ package com.server.auth.service;
 import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
+import com.server.auth.dto.UnlockDormantRequestDTO;
 import com.server.auth.entity.TBRefreshToken;
 import com.server.auth.repository.RefreshTokenRepository;
 import com.server.common.exception.ApiException;
@@ -134,6 +135,25 @@ public class AuthService {
   public void logout(Long userId) {
     refreshTokenRepository.deleteById(userId);
     log.info("[로그아웃] userId={}", userId);
+  }
+
+  @Transactional(rollbackFor = {Exception.class, Error.class})
+  public void unlockDormant(UnlockDormantRequestDTO request) {
+    TBUser user = userRepository.findByLoginId(request.getLoginId())
+        .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS));
+
+    if (user.getUserStatusCd() != UserStatus.DORMANT) {
+      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
+    }
+
+    LocalDateTime now = LocalDateTime.now();
+    user.setUserStatusCd(UserStatus.ACTIVE);
+    user.setUserPwd(passwordEncoder.encode(request.getNewUserPwd()));
+    user.setPwdChangedAt(now);
+    user.setLastLoginAt(now);
+    userRepository.save(user);
+
+    log.info("[휴면 해제] loginId={}", user.getLoginId());
   }
 
   private void verifyCredential(TBUser user, String inputSecret, LoginMeans means) {

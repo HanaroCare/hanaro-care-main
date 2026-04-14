@@ -24,6 +24,8 @@ public enum ErrorStatus implements BaseErrorCode {
     AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH_005", "유효하지 않은 토큰입니다."),
     AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_006", "토큰이 만료되었습니다."),
     AUTH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH_007", "토큰이 일치하지 않습니다. 다시 로그인하세요."),
+    AUTH_ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "AUTH_008", "이용이 정지된 계정입니다. 고객센터에 문의해주세요."),
+    AUTH_ACCOUNT_DORMANT(HttpStatus.FORBIDDEN, "AUTH_009", "휴면 계정입니다. 본인인증을 통해 계정을 복구해 주세요."),
 
     //card
 

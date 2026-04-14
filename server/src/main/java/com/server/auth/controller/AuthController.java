@@ -3,6 +3,7 @@ package com.server.auth.controller;
 import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
+import com.server.auth.dto.UnlockDormantRequestDTO;
 import com.server.auth.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,5 +44,15 @@ public class AuthController {
   @PostMapping("/refresh")
   public ResponseEntity<TokenResponseDTO> refresh(@RequestBody TokenResponseDTO request) {
     return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
+  }
+
+  @Operation(
+      summary = "휴면 계정 해제 API",
+      description = "본인인증 완료 후 휴면 상태를 해제하고 새 비밀번호를 설정한다."
+  )
+  @PostMapping("/unlock-dormant")
+  public ResponseEntity<Void> unlockDormant(@Valid @RequestBody UnlockDormantRequestDTO request) {
+    authService.unlockDormant(request);
+    return ResponseEntity.ok().build();
   }
 }

@@ -10,6 +10,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -64,4 +65,10 @@ public class TBUser {
   @Enumerated(EnumType.STRING)
   @Column(name = "USER_ROLE", nullable = false, length = 20)
   private SubscriberRole userRole = SubscriberRole.ROLE_USER;
+
+  @Column(name = "LAST_LOGIN_AT")
+  private LocalDateTime lastLoginAt;
+
+  @Column(name = "PWD_CHANGED_AT")
+  private LocalDateTime pwdChangedAt;
 }
