@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Route } from "next";
-import { X } from "lucide-react";
 import Header from "@/components/navigation/Header";
 import ConsentIntro from "@/app/future/components/ConsentIntro";
 
