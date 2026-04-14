@@ -15,6 +15,8 @@ import com.server.asset.dto.response.SimulationSummaryResponse;
 import com.server.asset.entity.TBAssetSimulation;
 import com.server.asset.mapper.SimulationMapper;
 import com.server.asset.repository.TBAssetSimulationRepository;
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.TBUserRepository;
 
@@ -33,7 +35,7 @@ public class SimulationService {
     @Transactional
     public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
         TBUser user = tbUserRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+            .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
 
         // AI 분석 결과를 시뮬레이션하는 가상 로직
         BigDecimal totalIncomeAmt = new BigDecimal("1450000.00");
@@ -108,7 +110,7 @@ public class SimulationService {
 
     public SimulationSummaryResponse getSimulationSummary(Long userId) {
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
-            .orElseThrow(() -> new RuntimeException("Simulation result not found"));
+            .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
         SimulationDetailResponse detailData;
         try {
@@ -122,12 +124,12 @@ public class SimulationService {
 
     public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(userId, request.getTargetAge(), request.getCareType())
-            .orElseThrow(() -> new RuntimeException("Simulation result not found for given criteria"));
+            .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
         try {
             return objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error parsing simulation detail JSON", e);
+            throw new ApiException(ErrorStatus._INTERNAL_SERVER_ERROR);
         }
     }
 }
