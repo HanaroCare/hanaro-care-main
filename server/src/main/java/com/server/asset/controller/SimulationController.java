@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "Simulation", description = "AI 시뮬레이션 관련 API")
+@Tag(name = "시뮬레이션 API")
 @RestController
 @RequestMapping("/api/asset/simulation")
 @RequiredArgsConstructor
