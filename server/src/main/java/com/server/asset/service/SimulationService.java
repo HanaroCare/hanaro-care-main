@@ -7,11 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.asset.dto.simulation.SimulationRequest;
+import com.server.asset.dto.external.AIAnalysisInput;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
+import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.dto.simulation.SimulationResponse;
 import com.server.asset.dto.simulation.SimulationSummaryResponse;
-import com.server.asset.dto.external.AIAnalysisInput;
 import com.server.asset.entity.TBAssetSimulation;
 import com.server.asset.mapper.SimulationMapper;
 import com.server.asset.repository.TBAssetSimulationRepository;
@@ -32,7 +32,7 @@ public class SimulationService {
     private final TBUserRepository tbUserRepository;
     private final SimulationMapper simulationMapper;
     private final UserContextUtil userContextUtil;
-    private final AIService aiService;
+    private final SimulationEngine simulationEngine;
     private final ObjectMapper objectMapper;
 
     @Transactional
@@ -41,18 +41,23 @@ public class SimulationService {
         // 1. 사용자 컨텍스트 수집 (소비, 거주지, 자산 등)
         AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
 
-        // 2. AI 분석 엔진 호출 (Gemini LLM)
-        SimulationDetailResponse aiResult = aiService.analyzeFutureCosts(input);
+        // 2. 시뮬레이션 엔진 가동 (통계 + 연금 + 지원금 + AI 분석 결합)
+        SimulationDetailResponse aiResult = simulationEngine.run(input);
 
         // 3. 분석 결과를 DB 엔티티로 변환 및 요약 정보 계산
         BigDecimal totalIncomeAmt = aiResult.getIncomeDetails().getTotalMonthlyIncome();
-        BigDecimal monthlyCost = aiResult.getAgeSegments().isEmpty() ? BigDecimal.ZERO : 
-            aiResult.getAgeSegments().get(0).getExpense();
+        
+        // 첫 번째 세그먼트 데이터를 기본 요약 정보로 사용
+        SimulationDetailResponse.AgeSegment firstSegment = aiResult.getAgeSegments().isEmpty() ?
+            null : aiResult.getAgeSegments().get(0);
+        
+        BigDecimal monthlyCost = (firstSegment != null) ? firstSegment.getExpense() : BigDecimal.ZERO;
         BigDecimal shortageAmt = monthlyCost.subtract(totalIncomeAmt);
         boolean isSufficient = shortageAmt.compareTo(BigDecimal.ZERO) <= 0;
 
-        // 상세 비용 추출 (첫 번째 세그먼트 기준)
-        SimulationDetailResponse.AgeDetail firstDetail = aiResult.getAgeSegments().get(0).getDetail();
+        BigDecimal livingCost = (firstSegment != null) ? firstSegment.getDetail().getLiving() : BigDecimal.ZERO;
+        BigDecimal medicalCost = (firstSegment != null) ? firstSegment.getDetail().getMedical() : BigDecimal.ZERO;
+        BigDecimal careCost = (firstSegment != null) ? firstSegment.getDetail().getCare() : BigDecimal.ZERO;
 
         String ageRangeDetails;
         try {
@@ -69,9 +74,9 @@ public class SimulationService {
             .totalIncomeAmt(totalIncomeAmt)
             .shortageAmt(shortageAmt)
             .isSufficient(isSufficient)
-            .livingCost(firstDetail.getLiving())
-            .medicalCost(firstDetail.getMedical())
-            .careCost(firstDetail.getCare())
+            .livingCost(livingCost)
+            .medicalCost(medicalCost)
+            .careCost(careCost)
             .monthlyCost(monthlyCost)
             .ageRangeDetails(ageRangeDetails)
             .build();
