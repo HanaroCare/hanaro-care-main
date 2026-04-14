@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TBInheritPlanRepository extends JpaRepository<TBInheritPlan, Long> {
-    @Query("SELECT p FROM TBInheritPlan p WHERE p.user.userId = :userId")
-    Optional<TBInheritPlan> findByUserId(Long userId);
+public interface InheritPlanRepository extends JpaRepository<TBInheritPlan, Long> {
+
+  @Query("SELECT p FROM TBInheritPlan p WHERE p.user.userId = :userId")
+  Optional<TBInheritPlan> findByUserId(Long userId);
 }

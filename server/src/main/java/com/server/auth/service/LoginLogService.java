@@ -3,7 +3,7 @@ package com.server.auth.service;
 import com.server.user.entity.TBUser;
 import com.server.user.entity.TBUserLoginLog;
 import com.server.user.enums.LoginMeans;
-import com.server.user.repository.TBUserLoginLogRepository;
+import com.server.user.repository.UserLoginLogRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,7 +17,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @RequiredArgsConstructor
 public class LoginLogService {
 
-  private final TBUserLoginLogRepository loginLogRepository;
+  private final UserLoginLogRepository loginLogRepository;
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void save(TBUser user, LoginMeans means, boolean success) {

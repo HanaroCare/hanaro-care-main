@@ -2,7 +2,7 @@ package com.server.common.security.service;
 
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
-import com.server.user.repository.TBUserRepository;
+import com.server.user.repository.UserRepository;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-  private final TBUserRepository userRepository;
+  private final UserRepository userRepository;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

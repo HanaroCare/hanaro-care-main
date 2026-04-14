@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TBRealAssetRepository extends JpaRepository<TBRealAsset, Long> {
-    @Query("SELECT r FROM TBRealAsset r WHERE r.user.userId = :userId")
-    List<TBRealAsset> findByUserId(Long userId);
+public interface RealAssetRepository extends JpaRepository<TBRealAsset, Long> {
+
+  @Query("SELECT r FROM TBRealAsset r WHERE r.user.userId = :userId")
+  List<TBRealAsset> findByUserId(Long userId);
 }

@@ -7,7 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
-    @Query("SELECT a FROM TBAccount a WHERE a.user.userId = :userId")
-    List<TBAccount> findByUserId(Long userId);
+public interface AccountRepository extends JpaRepository<TBAccount, Long> {
+
+  @Query("SELECT a FROM TBAccount a WHERE a.user.userId = :userId")
+  List<TBAccount> findByUserId(Long userId);
 }

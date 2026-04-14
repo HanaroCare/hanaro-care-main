@@ -5,5 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TBInheritLetterRepository extends JpaRepository<TBInheritLetter, Long> {
+public interface InheritLetterRepository extends JpaRepository<TBInheritLetter, Long> {
+
 }

@@ -15,8 +15,8 @@ import com.server.user.entity.TBUser;
 import com.server.user.entity.TBUserSimpleAuth;
 import com.server.user.enums.LoginMeans;
 import com.server.user.enums.UserStatus;
-import com.server.user.repository.TBUserRepository;
-import com.server.user.repository.TBUserSimpleAuthRepository;
+import com.server.user.repository.UserRepository;
+import com.server.user.repository.UserSimpleAuthRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Optional;
@@ -36,10 +36,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @RequiredArgsConstructor
 public class AuthService {
 
-  private final TBUserRepository userRepository;
+  private final UserRepository userRepository;
   private final TBRefreshTokenRepository refreshTokenRepository;
   private final LoginLogService loginLogService;
-  private final TBUserSimpleAuthRepository simpleAuthRepository;
+  private final UserSimpleAuthRepository simpleAuthRepository;
   private final JwtUtil jwtUtil;
   private final BCryptPasswordEncoder passwordEncoder;
 
@@ -70,7 +70,8 @@ public class AuthService {
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
       @Override
       public void afterCommit() {
-        log.info("[회원가입 성공] userNm={}, userId={}, role={}", user.getUserNm(), user.getUserId(), user.getUserRole());
+        log.info("[회원가입 성공] userNm={}, userId={}, role={}", user.getUserNm(), user.getUserId(),
+            user.getUserRole());
       }
     });
   }
@@ -132,7 +133,8 @@ public class AuthService {
   private void verifyCredential(TBUser user, String inputSecret, LoginMeans means) {
     if (means == LoginMeans.PASSWORD) {
       if (!passwordEncoder.matches(inputSecret, user.getUserPwd())) {
-        log.warn("[로그인 실패] 비밀번호 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+        log.warn("[로그인 실패] 비밀번호 불일치 - userNm={}, means={}", user.getUserNm(),
+            means.getDescription());
         loginLogService.save(user, means, false);
         throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
       }
@@ -140,20 +142,23 @@ public class AuthService {
     }
 
     if (!user.isHanaCertYn()) {
-      log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(),
+          means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_CERT_REQUIRED);
     }
 
     Optional<TBUserSimpleAuth> authOpt = simpleAuthRepository.findByUserAndAuthMeansCd(user, means);
     if (authOpt.isEmpty()) {
-      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - userNm={}, means={}", user.getUserNm(),
+          means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_SIMPLE_NOT_REGISTERED);
     }
 
     if (!passwordEncoder.matches(inputSecret, authOpt.get().getAuthValue())) {
-      log.warn("[간편 로그인 실패] 인증 값 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 인증 값 불일치 - userNm={}, means={}", user.getUserNm(),
+          means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
     }

@@ -6,7 +6,7 @@ import com.server.user.enums.LoginMeans;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface TBUserSimpleAuthRepository extends JpaRepository<TBUserSimpleAuth, Long> {
+public interface UserSimpleAuthRepository extends JpaRepository<TBUserSimpleAuth, Long> {
 
   Optional<TBUserSimpleAuth> findByUserAndAuthMeansCd(TBUser user, LoginMeans authMeansCd);
 }
