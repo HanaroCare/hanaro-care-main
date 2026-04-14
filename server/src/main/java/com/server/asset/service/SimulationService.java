@@ -35,7 +35,7 @@ public class SimulationService {
     @Transactional
     @CheckUser(key = "#userId")
     public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
-        // AI 분석 결과를 시뮬레이션하는 가상 로직
+        // AI 분석 결과를 시뮬레이션하는 가상 로직 (실제로는 여기서 복잡한 계산 수행)
         BigDecimal totalIncomeAmt = new BigDecimal("1450000.00");
         BigDecimal monthlyCost = new BigDecimal("2300000.00");
         BigDecimal shortageAmt = monthlyCost.subtract(totalIncomeAmt);
@@ -83,10 +83,11 @@ public class SimulationService {
         try {
             ageRangeDetails = objectMapper.writeValueAsString(detailData);
         } catch (JsonProcessingException e) {
-            ageRangeDetails = "{}";
+            // JSON 생성 실패 시 명확한 에러 반환
+            throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
         }
 
-        // DB 저장
+        // DB 저장 (사용자 한 명에 대해 여러 시뮬레이션이 가능하며, 최신 것이 최상단에 쌓임)
         TBAssetSimulation simulation = TBAssetSimulation.builder()
             .user(tbUserRepository.getReferenceById(userId))
             .targetAge(request.getTargetAge())
@@ -108,28 +109,28 @@ public class SimulationService {
 
     @CheckUser(key = "#userId")
     public SimulationSummaryResponse getSimulationSummary(Long userId) {
+        // 최신 시뮬레이션 결과 1건만 조회
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
-        SimulationDetailResponse detailData;
         try {
-            detailData = objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
+            SimulationDetailResponse detailData = objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
+            return simulationMapper.toSimulationSummaryResponse(simulation, detailData.getAgeSegments(), detailData.getAiOpinion());
         } catch (JsonProcessingException e) {
-            detailData = SimulationDetailResponse.builder().build(); // 빈 데이터 처리
+            throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
         }
-
-        return simulationMapper.toSimulationSummaryResponse(simulation, detailData.getAgeSegments(), detailData.getAiOpinion());
     }
 
     @CheckUser(key = "#userId")
     public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
+        // 특정 조건(나이, 요양방식)에 맞는 가장 최신 시뮬레이션 결과 1건 조회
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(userId, request.getTargetAge(), request.getCareType())
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
         try {
             return objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
         } catch (JsonProcessingException e) {
-            throw new ApiException(ErrorStatus._INTERNAL_SERVER_ERROR);
+            throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
         }
     }
 }

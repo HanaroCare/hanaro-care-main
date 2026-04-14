@@ -16,9 +16,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -33,13 +32,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-@Table(name = "TB_ASSET_SIMULATION",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "unique_TbAssetSimulation_userId",
-            columnNames = {"USER_ID"}
-        )
-    })
+@Table(name = "TB_ASSET_SIMULATION")
 public class TBAssetSimulation extends BaseCreatedEntity {
 
   @Id
@@ -47,7 +40,8 @@ public class TBAssetSimulation extends BaseCreatedEntity {
   @Column(name = "SIMULATION_ID", columnDefinition = "bigint unsigned")
   private Long simulationId;
 
-  @OneToOne(fetch = FetchType.LAZY)
+  // ManyToOne으로 변경하여 히스토리 관리 가능하게 함
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID",
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_TbAssetSimulation_userId_TbUser"))
@@ -56,7 +50,7 @@ public class TBAssetSimulation extends BaseCreatedEntity {
   @Column(name = "TARGET_AGE", nullable = false)
   private Integer targetAge;
 
-  @Enumerated(EnumType.STRING) // Enum 사용을 위해 추가
+  @Enumerated(EnumType.STRING)
   @Column(name = "CARE_TYPE_CD", nullable = false)
   private CareType careType;
 
