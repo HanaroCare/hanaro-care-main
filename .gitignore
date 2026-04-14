@@ -21,12 +21,19 @@ out/
 
 # === IntelliJ IDEA ===
 .idea/
-*.iws
-*.iml
-*.ipr
+**/*.iws
+**/*.iml
+**/*.ipr
 
 # === VS Code ===
 .vscode/
+
+# [OS/IDE Misc]
+**/Thumbs.db
+**/*.log
+
+# MySQL data files
+server/mysql/
 
 # === OS & Etc ===
 .DS_Store

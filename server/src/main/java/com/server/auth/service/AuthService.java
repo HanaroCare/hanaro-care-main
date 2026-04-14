@@ -1,5 +1,18 @@
 package com.server.auth.service;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
@@ -17,19 +30,9 @@ import com.server.user.enums.LoginMeans;
 import com.server.user.enums.UserStatus;
 import com.server.user.repository.TBUserRepository;
 import com.server.user.repository.TBUserSimpleAuthRepository;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -58,7 +61,7 @@ public class AuthService {
         .userPhone(request.getUserPhone())
         .userPwd(passwordEncoder.encode(request.getUserPwd()))
         .userStatusCd(UserStatus.ACTIVE)
-        .hanaCertYn(false)
+        .isHanaCert(false)
         .build();
 
     try {
@@ -139,7 +142,7 @@ public class AuthService {
       return;
     }
 
-    if (!user.isHanaCertYn()) {
+    if (!user.getIsHanaCert()) {
       log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(), means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_CERT_REQUIRED);
@@ -180,7 +183,7 @@ public class AuthService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
-        user.isHanaCertYn(),
+        user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }

@@ -20,7 +20,7 @@ export default function LicensePage() {
           <DotIndicator total={3} current={2} />
         </div>
 
-        <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px]">
+        <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px] whitespace-pre-line">
           운전면허증에{"\n"}기증희망 의사표시 할까요?
         </h2>
 

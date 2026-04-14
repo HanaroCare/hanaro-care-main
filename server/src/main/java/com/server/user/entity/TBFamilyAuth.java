@@ -1,10 +1,12 @@
 package com.server.user.entity;
 
 import com.server.common.entity.BaseEntity;
-
+import com.server.user.enums.FamilyRelation;
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
@@ -58,10 +60,19 @@ public class TBFamilyAuth extends BaseEntity {
   @Column(name = "AUTH_STATUS", nullable = false)
   private Boolean authStatus; // BOOLEAN (true: 승인, false: 거절/대기)
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "RELATION_CD", nullable = false)
-  private Boolean relationCd; // BOOLEAN (부모/자녀 구분용)
+  private FamilyRelation relationCd; // ENUM (01: 배우자, 02: 자녀, 03: 부모, 04: 기타 가족)
 
   @Builder.Default
   @Column(name = "IS_CARD_VIEW", nullable = false)
   private Boolean isCardView = false;
+
+  @Builder.Default
+  @Column(name = "IS_PROXY_CLAIM", nullable = false)
+  private Boolean isProxyClaim = false; // 대리청구 가능 여부
+
+  @Builder.Default
+  @Column(name = "IS_TRUST_VIEW", nullable = false)
+  private Boolean isTrustView = false; // 신탁 조회 권한 여부
 }

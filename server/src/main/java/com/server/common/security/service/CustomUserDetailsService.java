@@ -1,16 +1,19 @@
 package com.server.common.security.service;
 
-import com.server.common.security.dto.SubscriberDTO;
-import com.server.user.entity.TBUser;
-import com.server.user.repository.TBUserRepository;
 import java.util.Collections;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import com.server.common.security.dto.SubscriberDTO;
+import com.server.user.entity.TBUser;
+import com.server.user.repository.TBUserRepository;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
@@ -31,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
-        user.isHanaCertYn(),
+        user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }
