@@ -1,15 +1,15 @@
 package com.server.common.security;
 
-import com.server.auth.dto.LoginRequestDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.auth.dto.LoginRequestDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
+import org.springframework.util.StringUtils;
 
 public class CustomJsonLoginFilter extends AbstractAuthenticationProcessingFilter {
 
@@ -21,8 +21,7 @@ public class CustomJsonLoginFilter extends AbstractAuthenticationProcessingFilte
 
   @Override
   public Authentication attemptAuthentication(HttpServletRequest request,
-      HttpServletResponse response)
-      throws AuthenticationException, IOException {
+      HttpServletResponse response) throws AuthenticationException, IOException {
 
     if (request.getContentType() == null || !request.getContentType()
         .contains("application/json")) {
@@ -33,11 +32,21 @@ public class CustomJsonLoginFilter extends AbstractAuthenticationProcessingFilte
     LoginRequestDTO loginRequest = objectMapper.readValue(request.getInputStream(),
         LoginRequestDTO.class);
 
-    UsernamePasswordAuthenticationToken authRequest =
-        new UsernamePasswordAuthenticationToken(loginRequest.getUserNm(),
-            loginRequest.getUserPwd());
+    if (loginRequest.getMeans() == null) {
+      throw new AuthenticationServiceException("인증 수단은 필수입니다.");
+    }
 
-    return this.getAuthenticationManager().authenticate(authRequest);
+    if (!StringUtils.hasText(loginRequest.getLoginId()) || !StringUtils.hasText(
+        loginRequest.getUserPwd())) {
+      throw new AuthenticationServiceException("아이디와 인증 값은 필수입니다.");
+    }
+
+    return this.getAuthenticationManager().authenticate(
+        new LoginAuthenticationToken(
+            loginRequest.getLoginId(),
+            loginRequest.getUserPwd(),
+            loginRequest.getMeans()
+        )
+    );
   }
-
 }

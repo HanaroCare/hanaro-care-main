@@ -2,23 +2,22 @@ package com.server.common.config;
 
 import com.server.common.security.CustomJsonLoginFilter;
 import com.server.common.security.JwtAuthenticationFilter;
+import com.server.common.security.LoginAuthenticationProvider;
 import com.server.common.security.handler.CustomAccessDeniedHandler;
 import com.server.common.security.handler.LoginFailureHandler;
 import com.server.common.security.handler.LoginSuccessHandler;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -29,14 +28,13 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-@Slf4j
 public class SecurityConfig {
 
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final CustomAccessDeniedHandler accessDeniedHandler;
   private final LoginSuccessHandler loginSuccessHandler;
   private final LoginFailureHandler loginFailureHandler;
-  private final AuthenticationConfiguration authenticationConfiguration;
+  private final LoginAuthenticationProvider loginAuthenticationProvider;
 
   @Value("${cors.allowed-origins}")
   private List<String> allowedOrigins;
@@ -55,7 +53,6 @@ public class SecurityConfig {
         )
         .addFilterBefore(customJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-
         .exceptionHandling(ex -> ex
             .accessDeniedHandler(accessDeniedHandler)
         );
@@ -64,14 +61,9 @@ public class SecurityConfig {
   }
 
   @Bean
-  public BCryptPasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder();
-  }
-
-  @Bean
-  public CustomJsonLoginFilter customJsonLoginFilter() throws Exception {
+  public CustomJsonLoginFilter customJsonLoginFilter() {
     CustomJsonLoginFilter filter = new CustomJsonLoginFilter();
-    filter.setAuthenticationManager(authenticationConfiguration.getAuthenticationManager());
+    filter.setAuthenticationManager(new ProviderManager(loginAuthenticationProvider));
     filter.setAuthenticationSuccessHandler(loginSuccessHandler);
     filter.setAuthenticationFailureHandler(loginFailureHandler);
     return filter;

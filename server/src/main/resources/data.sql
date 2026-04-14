@@ -25,16 +25,16 @@ SET time_zone = 'Asia/Seoul';
 -- TB_USER
 -- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
-INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT, USER_STAT_CD,
-                     USER_ROLE)
-VALUES (1001, '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01011112222',
-        65, 1, 'ACTIVE', 'ROLE_USER'),
-       (1002, '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01022223333',
-        40, 0, 'ACTIVE', 'ROLE_USER'),
-       (1003, '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01033334444',
-        63, 1, 'ACTIVE', 'ROLE_USER'),
-       (1004, '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01055556666',
-        35, 1, 'ACTIVE', 'ROLE_ADMIN');
+INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
+                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE)
+VALUES (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+        '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER'),
+       (1002, 'chulsoo7', '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+        '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER'),
+       (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+        '01033334444', 63, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER'),
+       (1004, 'testUser', '김관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+        '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN');
 
 -- ========================
 -- TB_PRODUCT
@@ -171,7 +171,8 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- TB_USER_SIMPLE_AUTH
 -- ========================
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
-VALUES (8001, 1001, 'HASHED_PIN_VALUE', 'SIMPLE_PASSWORD'),
+VALUES (8001, 1001, '$2a$12$R9h/lSAbvI7.Ctf386zUn.9v78RREI7K7T9I.X06C58L4iFm3lG8i',
+        'SIMPLE_PASSWORD'),
        (8002, 1002, 'BIO_TOKEN_VALUE', 'FACEID');
 
 -- ========================

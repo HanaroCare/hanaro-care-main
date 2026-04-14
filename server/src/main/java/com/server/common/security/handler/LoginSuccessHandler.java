@@ -2,14 +2,14 @@ package com.server.common.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.entity.TBRefreshToken;
-import com.server.auth.repository.TBRefreshTokenRepository;
+import com.server.auth.repository.RefreshTokenRepository;
 import com.server.auth.service.LoginLogService;
+import com.server.common.security.LoginAuthenticationToken;
 import com.server.common.security.JwtUtil;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.LoginMeans;
-import com.server.user.repository.TBUserRepository;
-import jakarta.servlet.ServletException;
+import com.server.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -30,48 +30,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
   private final JwtUtil jwtUtil;
-  private final TBUserRepository userRepository;
-  private final TBRefreshTokenRepository refreshTokenRepository;
+  private final UserRepository userRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
   private final LoginLogService loginLogService;
-  private final ObjectMapper objectMapper = new ObjectMapper();
+  private final ObjectMapper objectMapper;
 
   @Value("${jwt.refresh-expiration}")
   private long refreshExpiration;
 
   @Override
   @Transactional
-  public void onAuthenticationSuccess(HttpServletRequest request,
-      HttpServletResponse response,
-      Authentication authentication) throws IOException, ServletException {
+  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+      Authentication authentication) throws IOException {
 
-    SubscriberDTO subscriber = (SubscriberDTO) authentication.getPrincipal();
+    LoginAuthenticationToken loginToken = (LoginAuthenticationToken) authentication;
+    SubscriberDTO subscriber = (SubscriberDTO) loginToken.getPrincipal();
+    LoginMeans means = loginToken.getMeans();
 
-    TBUser user = userRepository.findById(subscriber.getUserId())
-        .orElseThrow(() -> new RuntimeException("User not found"));
+    TBUser userRef = userRepository.getReferenceById(subscriber.getUserId());
 
     Map<String, Object> claims = jwtUtil.authenticationToClaims(authentication);
-    claims.put("hanaCertYn", subscriber.isHanaCertYn());
+    saveRefreshToken(userRef, (String) claims.get("refreshToken"));
+    loginLogService.save(userRef, means, true);
 
-    String refreshToken = (String) claims.get("refreshToken");
-    saveRefreshToken(user, refreshToken);
-
-    loginLogService.save(user, LoginMeans.PASSWORD, true);
-
-    log.info("=================================================");
-    log.info("[로그인 성공] 계정: {}, 인증서 여부: {}",
-        subscriber.getUserNm(), subscriber.isHanaCertYn());
-    log.info("=================================================");
+    log.info("[로그인 성공] 계정: {}, 인증 수단: {}, 인증서 여부: {}",
+        subscriber.getLoginId(), means.getDescription(), subscriber.isHanaCertYn());
 
     response.setContentType("application/json;charset=UTF-8");
-
-    String jsonResponse = objectMapper.writeValueAsString(claims);
-
-    log.info("[응답 데이터 발송] 유저: {}, 토큰 포함 여부: {}",
-        claims.getOrDefault("userNm", "Unknown"),
-        claims.containsKey("accessToken"));
-
     try (PrintWriter out = response.getWriter()) {
-      out.println(jsonResponse);
+      out.println(objectMapper.writeValueAsString(claims));
     }
   }
 

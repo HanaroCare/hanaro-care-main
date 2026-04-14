@@ -1,8 +1,8 @@
 package com.server.user.entity;
 
+import com.server.user.enums.LoginMeans;
 import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
-
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +32,10 @@ public class TBUser {
   @Column(name = "USER_ID", columnDefinition = "bigint unsigned")
   private Long userId;
 
-  @Column(name = "USER_NM", nullable = false, length = 20, unique = true)
+  @Column(name = "LOGIN_ID", nullable = false, unique = true, length = 20)
+  private String loginId;
+
+  @Column(name = "USER_NM", nullable = false, length = 20)
   private String userNm;
 
   @Column(name = "USER_AGE", nullable = false)
@@ -51,6 +54,11 @@ public class TBUser {
   @Enumerated(EnumType.STRING)
   @Column(name = "USER_STAT_CD", nullable = false, length = 20)
   private UserStatus userStatusCd;
+
+  @Builder.Default
+  @Enumerated(EnumType.STRING)
+  @Column(name = "AUTH_MEANS_CD", nullable = false, length = 20)
+  private LoginMeans authMeansCd = LoginMeans.PASSWORD; // 기본값은 일반 로그인
 
   @Builder.Default
   @Enumerated(EnumType.STRING)

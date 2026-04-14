@@ -19,8 +19,14 @@ import lombok.NoArgsConstructor;
 public class SignUpRequestDTO {
 
   @NotBlank(message = "아이디는 필수 입력 사항입니다.")
-  @Size(min = 2, max = 20, message = "아이디는 2자 이상 20자 이하로 입력해주세요.")
-  @Schema(description = "사용자 아이디(이름)", example = "testUser")
+  @Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하로 입력해주세요.")
+  @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "아이디는 영문자와 숫자만 사용할 수 있습니다.")
+  @Schema(description = "로그인 아이디 (영문/숫자)", example = "testUser01")
+  private String loginId;
+
+  @NotBlank(message = "이름은 필수 입력 사항입니다.")
+  @Size(min = 2, max = 20, message = "이름은 2자 이상 20자 이하로 입력해주세요.")
+  @Schema(description = "사용자 실명", example = "홍길동")
   private String userNm;
 
   @NotNull(message = "나이는 필수 입력 사항입니다.")

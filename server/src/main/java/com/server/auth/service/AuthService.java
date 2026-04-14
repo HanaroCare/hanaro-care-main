@@ -1,23 +1,10 @@
 package com.server.auth.service;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
 import com.server.auth.entity.TBRefreshToken;
-import com.server.auth.repository.TBRefreshTokenRepository;
+import com.server.auth.repository.RefreshTokenRepository;
 import com.server.common.exception.ApiException;
 import com.server.common.exception.CustomJwtException;
 import com.server.common.response.code.status.ErrorStatus;
@@ -28,21 +15,31 @@ import com.server.user.entity.TBUser;
 import com.server.user.entity.TBUserSimpleAuth;
 import com.server.user.enums.LoginMeans;
 import com.server.user.enums.UserStatus;
-import com.server.user.repository.TBUserRepository;
-import com.server.user.repository.TBUserSimpleAuthRepository;
-
+import com.server.user.repository.UserRepository;
+import com.server.user.repository.UserSimpleAuthRepository;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
-  private final TBUserRepository userRepository;
-  private final TBRefreshTokenRepository refreshTokenRepository;
+  private final UserRepository userRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
   private final LoginLogService loginLogService;
-  private final TBUserSimpleAuthRepository simpleAuthRepository;
+  private final UserSimpleAuthRepository simpleAuthRepository;
   private final JwtUtil jwtUtil;
   private final BCryptPasswordEncoder passwordEncoder;
 
@@ -51,11 +48,12 @@ public class AuthService {
 
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public void signUp(SignUpRequestDTO request) {
-    if (userRepository.findByUserNm(request.getUserNm()).isPresent()) {
+    if (userRepository.findByLoginId(request.getLoginId()).isPresent()) {
       throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
 
     TBUser user = TBUser.builder()
+        .loginId(request.getLoginId())
         .userNm(request.getUserNm())
         .userAge(request.getUserAge())
         .userPhone(request.getUserPhone())
@@ -73,25 +71,31 @@ public class AuthService {
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
       @Override
       public void afterCommit() {
-        log.info("[회원가입 성공] userNm={}, userId={}, role={}", user.getUserNm(), user.getUserId(), user.getUserRole());
+        log.info("[회원가입 성공] loginId={}, userId={}, role={}", user.getLoginId(), user.getUserId(),
+            user.getUserRole());
       }
     });
   }
 
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public TokenResponseDTO login(LoginRequestDTO request) {
-    TBUser user = userRepository.findByUserNm(request.getUserNm())
+    TBUser user = userRepository.findByLoginId(request.getLoginId())
         .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS));
 
-    LoginMeans means = Optional.ofNullable(request.getMeans()).orElse(LoginMeans.PASSWORD);
+    if (user.getUserStatusCd() != UserStatus.ACTIVE) {
+      log.warn("[로그인 실패] 비활성 계정 - loginId={}", user.getLoginId());
+      loginLogService.save(user, request.getMeans(), false);
+      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
+    }
 
+    LoginMeans means = request.getMeans();
     verifyCredential(user, request.getUserPwd(), means);
 
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
       @Override
       public void afterCommit() {
         loginLogService.save(user, means, true);
-        log.info("[로그인 성공] userNm={}, means={}", user.getUserNm(), means.getDescription());
+        log.info("[로그인 성공] loginId={}, means={}", user.getLoginId(), means.getDescription());
       }
     });
 
@@ -133,9 +137,16 @@ public class AuthService {
   }
 
   private void verifyCredential(TBUser user, String inputSecret, LoginMeans means) {
+    if (user.getAuthMeansCd() != means) {
+      log.warn("[로그인 실패] 인증 수단 불일치 - loginId={}, registered={}, requested={}",
+          user.getLoginId(), user.getAuthMeansCd(), means);
+      loginLogService.save(user, means, false);
+      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
+    }
+
     if (means == LoginMeans.PASSWORD) {
       if (!passwordEncoder.matches(inputSecret, user.getUserPwd())) {
-        log.warn("[로그인 실패] 비밀번호 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+        log.warn("[로그인 실패] 비밀번호 불일치 - loginId={}", user.getLoginId());
         loginLogService.save(user, means, false);
         throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
       }
@@ -143,20 +154,23 @@ public class AuthService {
     }
 
     if (!user.getIsHanaCert()) {
-      log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 하나 인증 미완료 - loginId={}, means={}", user.getLoginId(),
+          means.getDescription());
       loginLogService.save(user, means, false);
-      throw new ApiException(ErrorStatus.AUTH_CERT_REQUIRED);
+      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
     }
 
     Optional<TBUserSimpleAuth> authOpt = simpleAuthRepository.findByUserAndAuthMeansCd(user, means);
     if (authOpt.isEmpty()) {
-      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - loginId={}, means={}", user.getLoginId(),
+          means.getDescription());
       loginLogService.save(user, means, false);
-      throw new ApiException(ErrorStatus.AUTH_SIMPLE_NOT_REGISTERED);
+      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
     }
 
     if (!passwordEncoder.matches(inputSecret, authOpt.get().getAuthValue())) {
-      log.warn("[간편 로그인 실패] 인증 값 불일치 - userNm={}, means={}", user.getUserNm(), means.getDescription());
+      log.warn("[간편 로그인 실패] 인증 값 불일치 - loginId={}, means={}", user.getLoginId(),
+          means.getDescription());
       loginLogService.save(user, means, false);
       throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
     }
@@ -174,15 +188,15 @@ public class AuthService {
         .refreshToken(refreshToken)
         .grantType(AuthConstants.TOKEN_TYPE)
         .userRole(user.getUserRole().name())
-        .userNm(user.getUserNm())
+        .userNm(user.getLoginId())
         .build();
   }
 
   private SubscriberDTO createSubscriberDTO(TBUser user) {
     return new SubscriberDTO(
         user.getUserId(),
-        user.getUserNm(),
-        user.getUserPwd(),
+        user.getLoginId(),
+        "",
         user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );

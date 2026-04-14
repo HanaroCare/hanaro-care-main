@@ -17,9 +17,9 @@ import lombok.NoArgsConstructor;
 public class LoginRequestDTO {
 
   @NotBlank(message = "아이디는 필수 입력 사항입니다.")
-  @Size(min = 2, max = 20, message = "아이디는 2자 이상 20자 이하로 입력해주세요.")
-  @Schema(description = "사용자 아이디", example = "testUser")
-  private String userNm;
+  @Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하로 입력해주세요.")
+  @Schema(description = "로그인 아이디", example = "testUser")
+  private String loginId;
 
   /**
    * 인증 수단.
@@ -27,7 +27,7 @@ public class LoginRequestDTO {
   @NotNull(message = "인증 수단은 필수 입력 사항입니다.")
   @Schema(
       description = "인증 수단 (PASSWORD: 일반, SIMPLE_PASSWORD: 간편번호, PATTERN: 패턴, FACEID: 생체)",
-      example = "SIMPLE_PASSWORD"
+      example = "PASSWORD"
   )
   private LoginMeans means;
 
@@ -35,6 +35,6 @@ public class LoginRequestDTO {
    * 인증 값
    */
   @NotBlank(message = "인증 값은 필수 입력 사항입니다.")
-  @Schema(description = "인증 수단에 해당하는 값", example = "test1234")
+  @Schema(description = "인증 수단에 해당하는 값 (일반: 영숫자 비밀번호, 간편: 숫자 6자리)", example = "test1234")
   private String userPwd;
 }

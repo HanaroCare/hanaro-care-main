@@ -30,16 +30,12 @@ public class AuthController {
     return ResponseEntity.status(HttpStatus.CREATED).build();
   }
 
-  @Operation(summary = "로그인 API", description = "아이디/비번으로 Access/Refresh 토큰을 발급한다. Security 필터가 처리한다.")
+  @Operation(
+      summary = "통합 로그인 API",
+      description = "일반(PASSWORD) 및 간편인증(SIMPLE_PASSWORD, PATTERN, FACEID) 로그인을 통합 처리합니다."
+  )
   @PostMapping("/login")
-  public ResponseEntity<TokenResponseDTO> login(@RequestBody LoginRequestDTO request) {
-    throw new IllegalStateException("이 메서드는 스프링 시큐리티 필터에 의해 처리되어야 합니다.");
-  }
-
-  @Operation(summary = "간편 로그인 API", description = "패턴 / 간편비밀번호 / FaceID로 로그인한다. means와 userPwd를 Body로 전달한다.")
-  @PostMapping("/login/simple")
-  public ResponseEntity<TokenResponseDTO> loginBySimpleMeans(
-      @Valid @RequestBody LoginRequestDTO request) {
+  public ResponseEntity<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
     return ResponseEntity.ok(authService.login(request));
   }
 
