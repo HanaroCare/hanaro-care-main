@@ -114,10 +114,15 @@ export interface AgeSegmentApiResponse {
 
 /** GET /api/asset/simulation/summary 응답 (SimulationSummaryResponse) */
 export interface SimulationSummaryApiResponse {
-  sufficient: boolean;      // Java Boolean isSufficient → Jackson strips "is" prefix
+  /** Java Boolean isSufficient → Jackson strips "is" prefix → "sufficient" */
+  sufficient: boolean;
+  /** 월 부족액 (원 단위). shortageAmt = 월지출 - 월수입. 화면 표시 시 / 10000 하여 만원으로 변환 */
   shortageAmt: number;
+  /** 현재 연령대 기준 월 생활비 (원 단위) */
   livingCost: number;
+  /** 현재 연령대 기준 월 병원비 (원 단위) */
   medicalCost: number;
+  /** 현재 연령대 기준 월 요양비 (원 단위) */
   careCost: number;
   age_segments: AgeSegmentApiResponse[];
   ai_opinion: string;

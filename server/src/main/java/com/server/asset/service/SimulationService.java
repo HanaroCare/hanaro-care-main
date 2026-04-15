@@ -1,6 +1,7 @@
 package com.server.asset.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -68,10 +69,13 @@ public class SimulationService {
     BigDecimal totalAccumulatedCare = BigDecimal.ZERO;
     BigDecimal totalAccumulatedIncome = BigDecimal.ZERO;
 
+    int totalMonths = 0; // 루프 안에서 한 번에 계산하기 위해 이동
+
     if (aiResult.getAgeSegments() != null) {
       for (SimulationDetailResponse.AgeSegment segment : aiResult.getAgeSegments()) {
-        // range 문자열("70-75세", "80-83세" 등)에서 실제 구간 개월 수를 파싱
-        BigDecimal months = new BigDecimal(extractMonthsFromRange(segment.getRange()));
+        int segmentMonths = extractMonthsFromRange(segment.getRange());
+        BigDecimal months = new BigDecimal(segmentMonths);
+        totalMonths += segmentMonths;
 
         totalAccumulatedCost = totalAccumulatedCost.add(segment.getExpense().multiply(months));
         totalAccumulatedIncome = totalAccumulatedIncome.add(segment.getIncome().multiply(months));
@@ -84,28 +88,32 @@ public class SimulationService {
       }
     }
 
-    // 부족 금액 재계산 (누적 지출 - 누적 수입)
-    BigDecimal shortageAmt = totalAccumulatedCost.subtract(totalAccumulatedIncome);
-    boolean isSufficient = shortageAmt.compareTo(BigDecimal.ZERO) <= 0;
+    BigDecimal totalShortageAmt = totalAccumulatedCost.subtract(totalAccumulatedIncome);
+
+    BigDecimal monthlyShortageAmt = totalMonths > 0
+        ? totalShortageAmt.divide(new BigDecimal(totalMonths), 0, RoundingMode.HALF_UP)
+        : BigDecimal.ZERO;
+
+    boolean isSufficient = totalShortageAmt.compareTo(BigDecimal.ZERO) <= 0;
+
     String ageRangeDetails;
     try {
       ageRangeDetails = objectMapper.writeValueAsString(aiResult);
     } catch (JsonProcessingException e) {
-      // 이미 정의해두신 에러 상태를 사용합니다.
       throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
     }
-    // [DB 저장] 이제 '한 달치'가 아닌 '누적 합계'를 넣습니다.
+
     TBAssetSimulation simulation = TBAssetSimulation.builder()
         .user(UserRepository.getReferenceById(userId))
         .targetAge(request.getTargetAge())
         .careType(request.getCareType())
-        .totalIncomeAmt(totalAccumulatedIncome) // 누적 수입
-        .shortageAmt(shortageAmt)               // 누적 부족액
+        .totalIncomeAmt(totalAccumulatedIncome)
+        .shortageAmt(monthlyShortageAmt) // 👈 이제 '월평균' 부족액이 DB에 들어감
         .isSufficient(isSufficient)
-        .livingCost(totalAccumulatedLiving)    // 누적 생활비
-        .medicalCost(totalAccumulatedMedical)  // 누적 의료비
-        .careCost(totalAccumulatedCare)        // 누적 요양비
-        .monthlyCost(totalAccumulatedCost)     // 전체 총 지출
+        .livingCost(totalAccumulatedLiving)
+        .medicalCost(totalAccumulatedMedical)
+        .careCost(totalAccumulatedCare)
+        .monthlyCost(totalAccumulatedCost)
         .ageRangeDetails(ageRangeDetails)
         .build();
 

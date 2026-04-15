@@ -47,6 +47,11 @@ export default function SimulatorResultPage() {
   }
 
   const isLeeway = data.sufficient ?? false;
+
+  // shortageAmt = 월지출 - 월수입 (원 단위). age_segments[0]에서 맥락 표시용 수입/지출 추출
+  const firstSeg = data.age_segments?.[0];
+  const monthlyIncomeManwon = firstSeg ? Math.floor(Number(firstSeg.income) / 10000) : null;
+  const monthlyExpenseManwon = firstSeg ? Math.floor(Number(firstSeg.expense) / 10000) : null;
   const shortageManwon = Math.floor(Math.abs(Number(data.shortageAmt) || 0) / 10000);
 
   const living = Number(data.livingCost) || 0;
@@ -114,6 +119,13 @@ export default function SimulatorResultPage() {
                   <p className="font-bold text-[24px] text-hana-red-500 leading-snug">
                     {shortageManwon.toLocaleString()}만원이 부족해요
                   </p>
+              )}
+              {monthlyIncomeManwon !== null && monthlyExpenseManwon !== null && (
+                <div className="mt-2 flex items-center gap-2 text-[13px] font-medium text-hana-black-500">
+                  <span className="text-hana-green-700">수입 {monthlyIncomeManwon.toLocaleString()}만원</span>
+                  <span>·</span>
+                  <span className="text-hana-red-500">지출 {monthlyExpenseManwon.toLocaleString()}만원</span>
+                </div>
               )}
             </div>
 
