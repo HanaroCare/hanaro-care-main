@@ -9,6 +9,7 @@ TRUNCATE TABLE TB_FAMILY_AUTH;
 TRUNCATE TABLE TB_CARD;
 TRUNCATE TABLE TB_ASSET_SIMULATION;
 TRUNCATE TABLE TB_TRUST_SIMULATION;
+TRUNCATE TABLE TB_PENSION_SIMULATION;
 TRUNCATE TABLE TB_ACCOUNT;
 TRUNCATE TABLE TB_INHERIT_LETTER;
 TRUNCATE TABLE TB_INHERIT_DETAIL;
@@ -24,16 +25,23 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- TB_USER
 -- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
-INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT, USER_STAT_CD,
-                     USER_ROLE)
-VALUES (1001, '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01011112222',
-        65, 1, 'ACTIVE', 'ROLE_USER'),
-       (1002, '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01022223333',
-        40, 0, 'ACTIVE', 'ROLE_USER'),
-       (1003, '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01033334444',
-        63, 1, 'ACTIVE', 'ROLE_USER'),
-       (1004, '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01055556666',
-        35, 1, 'ACTIVE', 'ROLE_ADMIN');
+INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
+                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
+VALUES
+    -- 1. 정상 유저 (최근 로그인)
+    (1001, '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+    -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
+    (1002, '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH),
+     DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+    -- 3. 이미 휴면 상태인 유저
+    (1003, '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
+     DATE_SUB(NOW(), INTERVAL 8 MONTH)),
+    -- 4. 관리자
+    (1004, '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
 
 -- ========================
 -- TB_PRODUCT
@@ -145,8 +153,64 @@ VALUES (1, 1001, 100000000.00, 1002, '2026-05-01 00:00:00', 'SCHEDULED', 'LUMP_S
 }');
 
 -- ========================
+-- TB_PENSION_SIMULATION
+-- ========================
+INSERT INTO TB_PENSION_SIMULATION (PENSION_SIMULATION_ID, REAL_ASSET_ID, RECOMMENDED_TYPE,
+                                   RECOMMENDED_MONTHLY_AMT, RECOMMENDED_CUMULATIVE_AMT,
+                                   EVAL_AMT_SNAPSHOT, PLANS_JSON)
+VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
+  {
+    "type": "FIXED",
+    "label": "정액형",
+    "monthlyAmount": 2050000,
+    "cumulativeAmount": 492000000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 2050000, "cumulativeAmount": 24600000},
+      {"year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000},
+      {"year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000},
+      {"year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000},
+      {"year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000},
+      {"year": 16, "monthlyAmount": 2050000, "cumulativeAmount": 393600000},
+      {"year": 19, "monthlyAmount": 2050000, "cumulativeAmount": 467400000},
+      {"year": 20, "monthlyAmount": 2050000, "cumulativeAmount": 492000000}
+    ]
+  },
+  {
+    "type": "FRONT_LOADED",
+    "label": "초기증액형",
+    "monthlyAmount": 2870000,
+    "cumulativeAmount": 447720000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 2870000, "cumulativeAmount": 34440000},
+      {"year": 4,  "monthlyAmount": 2870000, "cumulativeAmount": 137760000},
+      {"year": 7,  "monthlyAmount": 2870000, "cumulativeAmount": 241080000},
+      {"year": 10, "monthlyAmount": 2009000, "cumulativeAmount": 310188000},
+      {"year": 13, "monthlyAmount": 2009000, "cumulativeAmount": 382512000},
+      {"year": 16, "monthlyAmount": 2009000, "cumulativeAmount": 410196000},
+      {"year": 19, "monthlyAmount": 2009000, "cumulativeAmount": 434448000},
+      {"year": 20, "monthlyAmount": 2009000, "cumulativeAmount": 447720000}
+    ]
+  },
+  {
+    "type": "GROWING",
+    "label": "정기증가형",
+    "monthlyAmount": 2583000,
+    "cumulativeAmount": 495936000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 1640000, "cumulativeAmount": 19680000},
+      {"year": 4,  "monthlyAmount": 1853000, "cumulativeAmount": 89484000},
+      {"year": 7,  "monthlyAmount": 2094000, "cumulativeAmount": 170712000},
+      {"year": 10, "monthlyAmount": 2367000, "cumulativeAmount": 265404000},
+      {"year": 13, "monthlyAmount": 2674000, "cumulativeAmount": 376704000},
+      {"year": 16, "monthlyAmount": 3023000, "cumulativeAmount": 445380000},
+      {"year": 19, "monthlyAmount": 3416000, "cumulativeAmount": 478524000},
+      {"year": 20, "monthlyAmount": 3416000, "cumulativeAmount": 495936000}
+    ]
+  }
+]');
+
+-- ========================
 -- TB_USER_PROD
--- 엔티티의 @Column(name = "...") 설정에 맞춰 EXPECTED_ 를 제거한 버전입니다.
 -- ========================
 INSERT INTO TB_USER_PROD (USER_PROD_ID,
                           USER_ID,
@@ -154,20 +218,24 @@ INSERT INTO TB_USER_PROD (USER_PROD_ID,
                           CLAIM_AGENT_ID,
                           TARGET_ASSET_ID,
                           PRINCIPAL_AMOUNT,
-                          MONTHLY_PAYOUT, -- EXPECTED_MONTHLY_PAYOUT에서 변경
-                          PERIOD, -- EXPECTED_PERIOD에서 변경
-                          PROFIT, -- EXPECTED_PROFIT에서 변경
-                          PROFIT_RATE, -- EXPECTED_RATE에서 변경
+                          MONTHLY_PAYOUT,
+                          PROFIT,
+                          PROFIT_RATE,
                           PROD_STAT_CD,
                           PROD_TYPE_CD,
                           INVEST_TYPE_CD,
                           PAYOUT_TYPE_CD,
+                          PENSION_PAYOUT_TYPE_CD,
                           START_TYPE,
-                          IS_AGENT_VIEW)
-VALUES (5001, 1001, 1, 1002, NULL, 50000000.00, 1500000.00, 120, 5000000.00, 3.20, 'IN_PROGRESS',
-        'TRUST', 'LUMP_SUM', 'PENSION', 'NOW', 1),
-       (5002, 1002, 2, 1002, 3001, 920000000.00, 2500000.00, 0, 0.00, 2.80, 'IN_PROGRESS',
-        'HOUSING_PENSION', 'DIRECT', 'FLEXIBLE', 'NOW', 1);
+                          START_DATE,
+                          IS_AGENT_VIEW,
+                          PAYOUT_SETTINGS)
+VALUES (5001, 1001, 1, 1002, NULL, 50000000.00, 1500000.00, 5000000.00, 3.20, 'IN_PROGRESS',
+        'TRUST', 'LUMP_SUM', 'PENSION', NULL, 'SCHEDULED', '2026-05-01', 1, '{
+    "monthly": 2000000
+  }'),
+       (5002, 1001, 2, NULL, 3001, 920000000.00, 2050000.00, 0.00, 0.00, 'IN_PROGRESS',
+        'HOUSING_PENSION', NULL, 'PENSION', 'FIXED', 'NOW', NULL, 0, NULL);
 
 -- ========================
 -- TB_ASSET_TRANS
@@ -201,10 +269,10 @@ VALUES (1, 1, '아들아, 건강하게 잘 살아라.', 'https://s3.aws.com/voic
 -- ========================
 -- TB_FAMILY_AUTH
 -- =====================
-INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID, AUTH_STATUS,
+INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
-VALUES (1, 1001, 1002, 1, 'CHILD', 1, 1, 1, 1),
-       (2, 1001, 1004, 1, 'CHILD', 1, 1, 1, 1);
+VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1),
+       (2, 1001, 1004, 'CHILD', 1, 1, 1, 1);
 
 -- ========================
 -- TB_USER_LOGIN_LOG
@@ -218,7 +286,8 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- TB_USER_SIMPLE_AUTH
 -- ========================
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
-VALUES (8001, 1001, 'HASHED_PIN_VALUE', 'SIMPLE_PASSWORD'),
+VALUES (8001, 1001, '$2a$12$R9h/lSAbvI7.Ctf386zUn.9v78RREI7K7T9I.X06C58L4iFm3lG8i',
+        'SIMPLE_PASSWORD'),
        (8002, 1002, 'BIO_TOKEN_VALUE', 'FACEID');
 
 -- ========================
