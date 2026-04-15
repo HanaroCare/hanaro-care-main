@@ -80,13 +80,20 @@ public class LetterService {
       }
       filename = save(voice);
     }
-    TBInheritLetter letter = TBInheritLetter.builder()
-        .inheritDetail(detail)
-        .letterCont(dto.getLetterCont())
-        .voiceUrl(filename)
-        .letterTypeCd(dto.getLetterTypeCd())
-        .build();
-    letterRepository.save(letter);
+    try {
+      TBInheritLetter letter = TBInheritLetter.builder()
+          .inheritDetail(detail)
+          .letterCont(dto.getLetterCont())
+          .voiceUrl(filename)
+          .letterTypeCd(dto.getLetterTypeCd())
+          .build();
+      letterRepository.save(letter);
+    } catch (RuntimeException e) {
+      if (!filename.isBlank()) {
+        Files.deleteIfExists(Paths.get(uploadDir).resolve(filename));
+      }
+      throw e;
+    }
   }
 
   // 편지 조회
