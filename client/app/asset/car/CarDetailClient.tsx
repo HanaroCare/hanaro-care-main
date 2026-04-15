@@ -33,6 +33,10 @@ export default function CarDetailClient({ assetData }: Props) {
         details: assetData.assetDesc || '2022년식 · 32,000km',
     };
 
+    const isDecrease = carInfo.priceChange < 0;
+    const changeIcon = isDecrease ? '▼' : '▲';
+    const changeColor = isDecrease ? 'text-hana-blue-500' : 'text-red-500';
+
     return (
         <div className="flex min-h-screen flex-col bg-white">
             <Header title="자동차 상세" showBackButton={true} />
@@ -50,7 +54,7 @@ export default function CarDetailClient({ assetData }: Props) {
               {formatKoreanCurrency(assetData.evalAmt)}
             </span>
                         <span className="font-medium text-[15px] text-hana-blue-500">
-              ▼ {formatKoreanCurrency(carInfo.priceChange)} ({carInfo.changePercent}%)
+              {changeIcon} {formatKoreanCurrency(Math.abs(carInfo.priceChange))} ({Math.abs(carInfo.changePercent)}%)
             </span>
                     </div>
                 </div>

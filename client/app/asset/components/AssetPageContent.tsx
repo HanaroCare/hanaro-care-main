@@ -37,15 +37,19 @@ interface Props {
     insuranceAssets: InsuranceAssetResponse[];
 }
 
+const isValidTab = (tab: string | null): tab is TabId =>
+        tab !== null && ['asset', 'realestate', 'insurance', 'car', 'gold'].includes(tab);
+
+
 export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets }: Props) {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const queryTab = searchParams.get('tab') as TabId;
+    const queryTab = searchParams.get('tab');
     const [activeTab, setActiveTab] = useState<TabId>('asset');
 
     useEffect(() => {
-        if (queryTab) {
+        if (isValidTab(queryTab)) {
             setActiveTab(queryTab);
         }
     }, [queryTab]);

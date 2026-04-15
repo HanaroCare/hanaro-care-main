@@ -20,7 +20,7 @@ interface LoginResult {
  * HttpOnly 쿠키에 저장한다. 브라우저는 토큰을 직접 볼 수 없다.
  */
 export async function loginAction(
-  userNm: string,
+  loginId: string,
   userPwd: string,
 ): Promise<LoginResult> {
   let data: SpringLoginResponse;
@@ -29,10 +29,11 @@ export async function loginAction(
     const res = await fetch(`${SPRING_API_URL}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userNm, means: 'PASSWORD', userPwd }),
+      body: JSON.stringify({ loginId, means: 'PASSWORD', userPwd }),
     });
 
     if (!res.ok) {
+      console.error("Login failed status:", res.status);
       return { success: false, error: '아이디 또는 비밀번호를 확인해주세요.' };
     }
 

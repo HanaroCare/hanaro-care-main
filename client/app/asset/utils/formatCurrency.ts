@@ -4,13 +4,16 @@
 export function formatKoreanCurrency(amount: number): string {
   if (amount === 0) return '0원';
 
+  const isNegative = amount < 0;
+  const absAmount = Math.abs(amount);
+
   const units = [
     { value: 100_000_000, label: '억' },
     { value: 10_000, label: '만' },
   ];
 
   let result = '';
-  let remaining = amount;
+  let remaining = absAmount;
 
   for (const unit of units) {
     const quotient = Math.floor(remaining / unit.value);
@@ -30,5 +33,5 @@ export function formatKoreanCurrency(amount: number): string {
     }
   }
 
-  return `${result.trim()}원`;
+  return `${isNegative ? '-' : ''}${result.trim()}원`;
 }

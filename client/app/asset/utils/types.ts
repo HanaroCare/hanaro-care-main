@@ -20,10 +20,10 @@ export interface RealAssetSummary {
   realAssetId: number;
   assetCateCd: RealAssetCategory;
   assetNm: string;
-  evalAmt: number;
-  assetSize: number;
-  addr: string;
-  assetDesc: string;
+  evalAmt: number | null;
+  assetSize: number | null;
+  addr: string | null;
+  assetDesc: string | null;
 }
 
 export interface FinancialAssetResponse {
