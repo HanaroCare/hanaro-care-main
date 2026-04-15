@@ -65,8 +65,13 @@ public class LetterService {
   // 편지 생성
   @Transactional
   @CheckUser(key = "#userId")
-  public void sendLetter(Long userId, LetterRequestDto dto, MultipartFile voice)
+  public LetterResponseDto sendLetter(Long userId, LetterRequestDto dto, MultipartFile voice)
       throws IOException {
+
+    if (letterRepository.findByInheritDetail_InheritDetailId(dto.getInheritDetailId())
+        .isPresent()) {
+      throw new ApiException(ErrorStatus.LETTER_ALREADY_EXISTS);
+    }
     TBInheritDetail detail = inheritDetailRepository.findById(dto.getInheritDetailId())
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
@@ -81,6 +86,7 @@ public class LetterService {
         throw new ApiException(ErrorStatus.VOICE_FILE_REQUIRED);
       }
       filename = save(voice);
+      dto.setLetterCont(null);
     }
     try {
       TBInheritLetter letter = TBInheritLetter.builder()
@@ -90,6 +96,8 @@ public class LetterService {
           .letterTypeCd(dto.getLetterTypeCd())
           .build();
       letterRepository.save(letter);
+      return LetterResponseDto.builder().letterTypeCd(dto.getLetterTypeCd())
+          .letterCont(dto.getLetterCont()).voiceUrl(filename).build();
     } catch (RuntimeException e) {
       if (!filename.isBlank()) {
         Files.deleteIfExists(Paths.get(uploadDir).resolve(filename));

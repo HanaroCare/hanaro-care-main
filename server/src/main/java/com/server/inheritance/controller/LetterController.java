@@ -49,9 +49,7 @@ public class LetterController {
       @Valid @ModelAttribute @ParameterObject LetterRequestDto dto,
       @RequestPart(value = "voice", required = false) MultipartFile voice
   ) throws IOException {
-    service.sendLetter(user.getUserId(), dto, voice);
-    return ApiResponse.onSuccess(dto);
-
+    return ApiResponse.onSuccess(service.sendLetter(user.getUserId(), dto, voice));
   }
 
   // 상속 편지 조회

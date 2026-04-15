@@ -82,7 +82,7 @@ public enum ErrorStatus implements BaseErrorCode {
   INHERIT_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "상속 상세 정보를 찾을 수 없습니다."),
   VOICE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "INHERIT_400", "음성 파일을 첨부해야 합니다."),
   LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "편지 정보를 찾을 수 없습니다."),
-
+  LETTER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "INHERIT_400", "이미 편지가 존재합니다."),
   // myhana
   INSURANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "INS_404", "보험 정보를 찾을 수 없습니다."),
   INSURANCE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INS_403", "보험 접근 권한이 없습니다.");
