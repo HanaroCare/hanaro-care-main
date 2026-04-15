@@ -42,6 +42,7 @@ public class InsuranceService {
 
     return accounts.stream()
         .map(a -> InsuranceDto.builder()
+            .accountId(a.getAccountId())
             .instNm(a.getInstNm())
             .accountNm(a.getAccountNm())
             .monthlyPremAmt(a.getMonthlyPremAmt().intValue())
