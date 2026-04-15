@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.asset.dto.request.SimulationRequest;
-import com.server.asset.dto.response.SimulationDetailResponse;
-import com.server.asset.dto.response.SimulationResponse;
-import com.server.asset.dto.response.SimulationSummaryResponse;
+import com.server.asset.dto.simulation.SimulationRequest;
+import com.server.asset.dto.simulation.SimulationDetailResponse;
+import com.server.asset.dto.simulation.SimulationResponse;
+import com.server.asset.dto.simulation.SimulationSummaryResponse;
 import com.server.asset.service.SimulationService;
 import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;

@@ -1,4 +1,4 @@
-package com.server.asset.dto.response;
+package com.server.asset.dto.dashboard;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
