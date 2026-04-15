@@ -100,10 +100,15 @@ export interface SimulationDetailResponse extends SimulationResponse {
   ai_opinion: string;
 }
 
-/** 백엔드 AgeSegment (range, income, expense, detail) */
+/** 백엔드 AgeSegment (range, income, income_detail, expense, detail) */
 export interface AgeSegmentApiResponse {
   range: string;
   income: number;
+  income_detail?: {
+    national: number;    // 국민연금
+    retirement: number;  // 퇴직연금 (구간별 점진 감소)
+    subsidy: number;     // 지자체 지원금
+  };
   expense: number;
   detail: {
     living: number;

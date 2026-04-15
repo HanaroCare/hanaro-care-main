@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { SimulationExpenseAccordion } from '@/app/asset/components/simulator/SimulationExpenseAccordion';
-import { SimulationIncomeCard } from '@/app/asset/components/simulator/SimulationIncomeCard';
 import { SimulationTrendChart } from '@/app/asset/components/simulator/SimulationTrendChart';
 import Header from '@/components/navigation/Header';
 import { getSimulationDetail } from '@/app/asset/actions/simulation';
@@ -40,31 +39,7 @@ export default function SimulationDetailPage() {
     return <div className="min-h-screen bg-white" />;
   }
 
-  const income = data?.income_details;
   const ageSegments = data?.age_segments ?? [];
-
-  const incomeItems = income
-    ? [
-        {
-          label: '국민 연금',
-          amount: `${Math.floor(Number(income.national_pension) / 10000)}만원`,
-        },
-        {
-          label: '퇴직 연금',
-          amount: `${Math.floor(Number(income.retirement_pension || 1200000) / 10000)}만원`,
-          subLabel: '(평균 추정액)',
-        },
-        {
-          label: '지자체 지원',
-          amount: `월 ${Math.floor(Number(income.local_subsidy_amt) / 10000)}만원`,
-          subLabel: income.local_subsidy_name ? `(${income.local_subsidy_name} 기준)` : undefined,
-        },
-      ]
-    : [];
-
-  const totalAvailable = income
-    ? `${Math.floor(Number(income.total_monthly_income) / 10000)}만원`
-    : '0만원';
 
   const trendData = ageSegments.map(seg => ({
     age: seg.range,
@@ -88,13 +63,6 @@ export default function SimulationDetailPage() {
       <main className="flex flex-col gap-10 px-6 pt-6 pb-20">
         <section className="flex flex-col gap-4">
           <h2 className="font-bold text-[17px] text-hana-black-900 tracking-tight">
-            매달 확보한 금융 자산
-          </h2>
-          <SimulationIncomeCard items={incomeItems} totalAvailable={totalAvailable} />
-        </section>
-
-        <section className="flex flex-col gap-4">
-          <h2 className="font-bold text-[17px] text-hana-black-900 tracking-tight">
             월 지출 추이 상세
           </h2>
           <SimulationTrendChart data={trendData} />
@@ -110,7 +78,7 @@ export default function SimulationDetailPage() {
 
         <section className="flex flex-col gap-4.5">
           <h2 className="font-bold text-[17px] text-hana-black-900 tracking-tight">
-            연령대별 월 지출 내역
+            연령대별 수입 · 지출 내역
           </h2>
           <SimulationExpenseAccordion items={ageSegments} />
         </section>
