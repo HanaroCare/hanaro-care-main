@@ -31,15 +31,19 @@ public class AssetService {
 
 	@CheckUser(key = "#userId")
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
+		// 1. 금융 자산 총액 조회
 		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
 		totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
 
+		// 2. 금융 자산 카테고리별 합계 (차트용 - 기존 유지)
 		List<FinancialAssetSummary> financialAssets = assetMapper.toFinancialAssetSummaryList(
 			tbAccountRepository.findBalanceSumGroupByCategoryByUserId(userId)
 		);
 
-		List<RealAssetSummary> realAssets = assetMapper.toRealAssetSummaryList(
-			tbRealAssetRepository.findEvalAmtSumGroupByCategoryByUserId(userId)
+		// 3. 실물 자산 상세 리스트 (카드 리스트용 - 수정)
+		// findEvalAmtSumGroupByCategory... 대신 findAllByUserId... 사용
+		List<RealAssetSummary> realAssets = assetMapper.toRealAssetSummaryListFromEntity(
+			tbRealAssetRepository.findAllByUser_UserId(userId)
 		);
 
 		return AssetDashboardResponse.builder()

@@ -13,7 +13,6 @@ import com.server.asset.dto.dashboard.FinancialAssetResponse;
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.entity.enums.RealAssetCategory;
 
 @Mapper(componentModel = "spring")
 public interface AssetMapper {
@@ -48,14 +47,10 @@ public interface AssetMapper {
             .build();
     }
 
-    default RealAssetSummary toRealAssetSummary(Object[] row) {
-        if (row == null || row.length < 2) return null;
-        return RealAssetSummary.builder()
-            .assetCateCd((RealAssetCategory) row[0])
-            .totalValue((BigDecimal) row[1])
-            .build();
-    }
+    @Mapping(target = "realAssetId", source = "realAssetId")
+    @Mapping(target = "evalAmt", source = "evalAmt")
+    RealAssetSummary toRealAssetSummary(TBRealAsset asset);
 
+    List<RealAssetSummary> toRealAssetSummaryListFromEntity(List<TBRealAsset> assets);
     List<FinancialAssetSummary> toFinancialAssetSummaryList(List<Object[]> rows);
-    List<RealAssetSummary> toRealAssetSummaryList(List<Object[]> rows);
 }
