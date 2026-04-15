@@ -1,8 +1,8 @@
 'use client';
 
 import { notFound } from 'next/navigation';
-import { use } from 'react';
 import type { ComponentType } from 'react';
+import { use } from 'react';
 import OperationTypeStep from '@/app/asset/components/trust/steps/OperationTypeStep';
 import PayoutTypeStep from '@/app/asset/components/trust/steps/PayoutTypeStep';
 import PayoutUseStep from '@/app/asset/components/trust/steps/PayoutUseStep';
