@@ -10,8 +10,8 @@ import lombok.Getter;
 @Builder
 public class CardRegisterResponse {
 
-  @Schema(description = "카드 ID", example = "4003")
-  private Long cardId;
+  @Schema(description = "카드 ID", example = "832134590413334525")
+  private String cardId;
 
   @Schema(description = "카드 이름", example = "김복순 요양사의 카드")
   private String cardNm;
@@ -34,7 +34,7 @@ public class CardRegisterResponse {
     String cardNm = parts.length > 1 ? parts[1] : parts[0];
 
     return CardRegisterResponse.builder()
-        .cardId(card.getCardId())
+        .cardId(String.valueOf(card.getCardId()))
         .cardNm(cardNm)
         .designCd(designCd)
         .limitAmt(card.getLimitAmt())
