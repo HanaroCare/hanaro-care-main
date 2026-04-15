@@ -25,6 +25,6 @@ public class PensionPayoutPlanDto {
 	@Schema(description = "20년 총 누적 수령액 (원) — 추천 방식 선정 기준", example = "720000000")
 	private BigDecimal totalCumulativeAmount;
 
-	@Schema(description = "연도별 월 수령액 및 누적 수령액 (1년 ~ 20년) — 차트 및 슬라이더 데이터")
+	@Schema(description = "차트 제공 연도별 월 수령액 및 누적 수령액 (1, 4, 7, 10, 13, 16, 19, 20년)")
 	private List<PensionPayoutYearlyDto> yearlyData;
 }

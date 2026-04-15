@@ -53,8 +53,5 @@ public class PensionStatusResponse {
 
 		@Schema(description = "해당 연차까지 누적 수령액 (원)", example = "98400000")
 		private BigDecimal cumulativeAmount;
-
-		@Schema(description = "포인트 상태: PAST(이미 지남) / CURRENT(현재) / FUTURE(미래)", example = "CURRENT")
-		private String status;
 	}
 }

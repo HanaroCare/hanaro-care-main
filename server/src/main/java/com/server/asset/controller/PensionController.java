@@ -37,9 +37,7 @@ public class PensionController {
 			가입 중인 주택연금의 이달 수령액, 수령 방식, 누적 수령액 차트를 반환합니다.
 
 			차트 범위: 현재 연차 ~ 현재 + 10년 (최대 20년차)
-			차트 포인트 상태:
-			- CURRENT: 현재 연차 (floor 스냅샷 기준)
-			- FUTURE: 앞으로의 연차
+			chartPoints[0]이 현재 연차 기준점이며, 이후는 미래 예측값입니다.
 
 			누적 수령액 계산:
 			- floor 스냅샷 누적액 + 초과 개월 × 이달 수령액으로 보정
@@ -61,10 +59,10 @@ public class PensionController {
 				    "currentMonthlyPayout": 2050000,
 				    "currentCumulativeAmount": 73800000,
 				    "chartPoints": [
-				      { "year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000,  "status": "CURRENT" },
-				      { "year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000, "status": "FUTURE" },
-				      { "year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000, "status": "FUTURE" },
-				      { "year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000, "status": "FUTURE" }
+				      { "year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000  },
+				      { "year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000 },
+				      { "year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000 },
+				      { "year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000 }
 				    ]
 				  }
 				}
@@ -217,7 +215,7 @@ public class PensionController {
 				@ExampleObject(name = "유효하지 않은 기간", value = """
 					{
 					  "isSuccess": false,
-					  "code": "COMMON400",
+					  "code": "PENSION_004",
 					  "message": "조회 기간은 5년, 10년, 20년만 가능합니다.",
 					  "result": null
 					}
@@ -225,7 +223,7 @@ public class PensionController {
 				@ExampleObject(name = "부동산 외 자산", value = """
 					{
 					  "isSuccess": false,
-					  "code": "COMMON400",
+					  "code": "PENSION_002",
 					  "message": "부동산 자산만 예측할 수 있습니다.",
 					  "result": null
 					}
@@ -237,7 +235,7 @@ public class PensionController {
 			content = @Content(examples = @ExampleObject(value = """
 				{
 				  "isSuccess": false,
-				  "code": "COMMON400",
+				  "code": "PENSION_001",
 				  "message": "해당 주택 자산이 없습니다.",
 				  "result": null
 				}
@@ -257,85 +255,71 @@ public class PensionController {
 	@Operation(
 		summary = "주택연금 설계 결과 상세 조회",
 		description = """
-			집값 예측에 사용된 주택을 기반으로 3가지 주택연금 수령 방식을 비교합니다.
+          집값 예측에 사용된 주택을 기반으로 3가지 주택연금 수령 방식을 비교합니다.
 
-			수령 방식:
-			- 정액형 (FIXED): 매달 동일한 금액 수령
-			- 초기증액형 (FRONT_LOADED): 1~10년은 20% 증액, 이후 27% 감액
-			- 정기증가형 (GROWING): 기본의 70%로 시작해 매년 3.5%씩 증가
+          수령 방식:
+          - 정액형 (FIXED): 매달 동일한 금액 수령
+          - 초기증액형 (FRONT_LOADED): 1~10년은 20% 증액, 이후 27% 감액
+          - 정기증가형 (GROWING): 기본의 70%로 시작해 매년 3.5%씩 증가
 
-			추천 기준: 20년 누적 수령액이 가장 많은 방식을 추천
-			"""
+          추천 기준: 20년 누적 수령액이 가장 많은 방식을 추천
+          """
 	)
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "200", description = "비교 성공",
 			content = @Content(examples = @ExampleObject(value = """
-				{
-				  "isSuccess": true,
-				  "code": "COMMON200",
-				  "message": "성공입니다.",
-				  "result": {
-				    "recommendedType": "FIXED",
-				    "recommendedLabel": "정액형",
-				    "plans": [
-				      {
-				        "type": "FIXED",
-				        "label": "정액형",
-				        "totalCumulativeAmount": 729600000,
-				        "yearlyData": [
-				          { "year": 1,  "monthlyAmount": 3040000, "cumulativeAmount": 36480000 },
-				          { "year": 4,  "monthlyAmount": 3040000, "cumulativeAmount": 145920000 },
-				          { "year": 7,  "monthlyAmount": 3040000, "cumulativeAmount": 255360000 },
-				          { "year": 10, "monthlyAmount": 3040000, "cumulativeAmount": 364800000 },
-				          { "year": 13, "monthlyAmount": 3040000, "cumulativeAmount": 474240000 },
-				          { "year": 16, "monthlyAmount": 3040000, "cumulativeAmount": 583680000 },
-				          { "year": 19, "monthlyAmount": 3040000, "cumulativeAmount": 693120000 },
-				          { "year": 20, "monthlyAmount": 3040000, "cumulativeAmount": 729600000 }
-				        ]
-				      },
-				      {
-				        "type": "FRONT_LOADED",
-				        "label": "초기증액형",
-				        "totalCumulativeAmount": 700224000,
-				        "yearlyData": [
-				          { "year": 1,  "monthlyAmount": 3648000, "cumulativeAmount": 43776000 },
-				          { "year": 4,  "monthlyAmount": 3648000, "cumulativeAmount": 175104000 },
-				          { "year": 7,  "monthlyAmount": 3648000, "cumulativeAmount": 306432000 },
-				          { "year": 10, "monthlyAmount": 3648000, "cumulativeAmount": 437760000 },
-				          { "year": 13, "monthlyAmount": 2219000, "cumulativeAmount": 517524000 },
-				          { "year": 16, "monthlyAmount": 2219000, "cumulativeAmount": 597288000 },
-				          { "year": 19, "monthlyAmount": 2219000, "cumulativeAmount": 677052000 },
-				          { "year": 20, "monthlyAmount": 2219000, "cumulativeAmount": 700224000 }
-				        ]
-				      },
-				      {
-				        "type": "GROWING",
-				        "label": "정기증가형",
-				        "totalCumulativeAmount": 698112000,
-				        "yearlyData": [
-				          { "year": 1,  "monthlyAmount": 2128000, "cumulativeAmount": 25536000 },
-				          { "year": 4,  "monthlyAmount": 2352000, "cumulativeAmount": 110880000 },
-				          { "year": 7,  "monthlyAmount": 2602000, "cumulativeAmount": 213072000 },
-				          { "year": 10, "monthlyAmount": 2878000, "cumulativeAmount": 334800000 },
-				          { "year": 13, "monthlyAmount": 3183000, "cumulativeAmount": 478524000 },
-				          { "year": 16, "monthlyAmount": 3520000, "cumulativeAmount": 648240000 },
-				          { "year": 19, "monthlyAmount": 3893000, "cumulativeAmount": 842136000 },
-				          { "year": 20, "monthlyAmount": 4032000, "cumulativeAmount": 890520000 }
-				        ]
-				      }
-				    ]
-				  }
-				}
-				"""))
+             {
+               "isSuccess": true,
+               "code": "COMMON200",
+               "message": "성공입니다.",
+               "result": {
+                 "recommendedType": "GROWING",
+                 "recommendedLabel": "정기증가형",
+                 "plans": [
+                   {
+                     "type": "FIXED",
+                     "label": "정액형",
+                     "totalCumulativeAmount": 729600000,
+                     "yearlyData": [
+                       { "year": 1,  "monthlyAmount": 3040000, "cumulativeAmount": 36480000 },
+                       { "year": 10, "monthlyAmount": 3040000, "cumulativeAmount": 364800000 },
+                       { "year": 20, "monthlyAmount": 3040000, "cumulativeAmount": 729600000 }
+                     ]
+                   },
+                   {
+                     "type": "FRONT_LOADED",
+                     "label": "초기증액형",
+                     "totalCumulativeAmount": 700224000,
+                     "yearlyData": [
+                       { "year": 1,  "monthlyAmount": 3648000, "cumulativeAmount": 43776000 },
+                       { "year": 10, "monthlyAmount": 3648000, "cumulativeAmount": 437760000 },
+                       { "year": 11, "monthlyAmount": 2219000, "cumulativeAmount": 464388000 },
+                       { "year": 20, "monthlyAmount": 2219000, "cumulativeAmount": 700224000 }
+                     ]
+                   },
+                   {
+                     "type": "GROWING",
+                     "label": "정기증가형",
+                     "totalCumulativeAmount": 890520000,
+                     "yearlyData": [
+                       { "year": 1,  "monthlyAmount": 2128000, "cumulativeAmount": 25536000 },
+                       { "year": 10, "monthlyAmount": 2878000, "cumulativeAmount": 334800000 },
+                       { "year": 20, "monthlyAmount": 4032000, "cumulativeAmount": 890520000 }
+                     ]
+                   }
+                 ]
+               }
+             }
+             """))
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
 			responseCode = "400", description = "평가금액 없음",
 			content = @Content(examples = @ExampleObject(value = """
 				{
 				  "isSuccess": false,
-				  "code": "COMMON400",
-				  "message": "현재 평가금액이 없어 연금을 계산할 수 없습니다.",
+				  "code": "PENSION_003",
+				  "message": "현재 평가금액이 없어 처리할 수 없습니다.",
 				  "result": null
 				}
 				"""))
@@ -345,7 +329,7 @@ public class PensionController {
 			content = @Content(examples = @ExampleObject(value = """
 				{
 				  "isSuccess": false,
-				  "code": "COMMON400",
+				  "code": "PENSION_001",
 				  "message": "해당 주택 자산이 없습니다.",
 				  "result": null
 				}
@@ -382,11 +366,11 @@ public class PensionController {
 				"""))
 		),
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "400", description = "시뮬레이션 미생성",
+			responseCode = "404", description = "시뮬레이션 미생성",
 			content = @Content(examples = @ExampleObject(value = """
 				{
 				  "isSuccess": false,
-				  "code": "COMMON400",
+				  "code": "PENSION_005",
 				  "message": "저장된 주택연금 시뮬레이션이 없습니다. 먼저 비교 조회를 실행해 주세요.",
 				  "result": null
 				}

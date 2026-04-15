@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Configuration
@@ -15,8 +16,13 @@ public class GeminiConfig {
 
 	@Bean("geminiRestClient")
 	public RestClient geminiRestClient() {
+		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+		factory.setConnectTimeout(geminiProperties.getConnectTimeout());
+		factory.setReadTimeout(geminiProperties.getReadTimeout());
+
 		return RestClient.builder()
 			.baseUrl(geminiProperties.getBaseUrl())
+			.requestFactory(factory)
 			.build();
 	}
 }

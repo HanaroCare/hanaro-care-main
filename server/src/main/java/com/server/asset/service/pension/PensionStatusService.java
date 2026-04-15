@@ -60,7 +60,6 @@ public class PensionStatusService {
 				.year(d.getYear())
 				.monthlyAmount(d.getMonthlyAmount())
 				.cumulativeAmount(d.getCumulativeAmount())
-				.status(d.getYear() == floorEntry.getYear() ? "CURRENT" : "FUTURE")
 				.build())
 			.collect(Collectors.toList());
 
@@ -116,7 +115,7 @@ public class PensionStatusService {
 
 	private PensionContext loadContext(Long userId) {
 		TBUserProd userProd = userProdRepository
-			.findByUser_UserIdAndProdTypeAndProdStat(userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS)
+			.findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS)
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_NOT_SUBSCRIBED));
 
 		TBPensionSimulation simulation = pensionSimulationRepository

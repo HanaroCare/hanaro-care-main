@@ -71,6 +71,10 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 				.body(String.class);
 
 			GeminiApiResponse apiResponse = objectMapper.readValue(rawJson, GeminiApiResponse.class);
+			if (apiResponse.candidates() == null || apiResponse.candidates().isEmpty()) {
+				log.warn("Gemini API 응답에 candidates가 없습니다. addr={}", command.getAddr());
+				return fallbackResult(command);
+			}
 			String resultText = apiResponse.candidates().get(0).content().parts().get(0).text();
 			return objectMapper.readValue(resultText, GeminiScenarioResult.class);
 

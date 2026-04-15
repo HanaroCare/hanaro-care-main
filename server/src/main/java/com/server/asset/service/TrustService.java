@@ -6,11 +6,7 @@ import com.server.asset.dto.trust.TrustSimulationResultResponse.AmountResultDto;
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.entity.TBTrustSimulation;
 import com.server.asset.entity.TBUserProd;
-import com.server.asset.entity.enums.ProdCate;
-import com.server.asset.entity.enums.ProdStat;
-import com.server.asset.entity.enums.StartType;
-import com.server.asset.entity.enums.TrustAccessLevel;
-import com.server.asset.entity.enums.TrustType;
+import com.server.asset.entity.enums.*;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
@@ -27,9 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -121,7 +114,7 @@ public class TrustService {
 	@CheckUser(key = "#userId")
 	@Transactional(readOnly = true)
 	public TrustProductResponse getProductSummary(Long userId) {
-		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
 			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
 		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 		return convertToProductResponse(userProd);
@@ -132,7 +125,7 @@ public class TrustService {
 	public TrustProductResponse getFamilyTrustDetail(Long granteeId, Long grantorId) {
 		validateTrustAccess(granteeId, grantorId);
 
-		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
 			grantorId, ProdCate.TRUST, ProdStat.IN_PROGRESS
 		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
@@ -155,6 +148,14 @@ public class TrustService {
 		return new TrustGrantorResponse(items);
 	}
 
+	/**
+	 * 가족의 신탁 접근 권한 리스트 조회
+	 * 요청 바에 따른 매핑:
+	 * 1. isProxy & canView -> READ_WRITE (전부 가능)
+	 * 2. isProxy & !canView -> PROXY_ONLY (권한은 있지만 확인 불가)
+	 * 3. !isProxy & canView -> READ_WRITE (조회라도 가능해야 하므로 READ_WRITE 매핑)
+	 * 4. !isProxy & !canView -> NONE (아무것도 아님)
+	 */
 	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
 	public TrustAccessResponse getFamilyAccessList(Long granteeId) {
@@ -166,9 +167,11 @@ public class TrustService {
 				boolean isProxy = Boolean.TRUE.equals(auth.getIsProxyClaim());
 
 				TrustAccessLevel accessLevel;
-				if (isProxy && canView) {
+				if (canView) {
+					// 열람이 가능한 모든 케이스(조회전용 포함)는 READ_WRITE로 전달하여 UI 활성화
 					accessLevel = TrustAccessLevel.READ_WRITE;
 				} else if (isProxy) {
+					// 열람은 안되는데 대리인 지정은 되어 있는 경우
 					accessLevel = TrustAccessLevel.PROXY_ONLY;
 				} else {
 					accessLevel = TrustAccessLevel.NONE;
@@ -191,6 +194,7 @@ public class TrustService {
 			.findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
 			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
+		// 열람 권한(isTrustView)이 없는 경우 상세 조회 불가
 		if (!Boolean.TRUE.equals(familyAuth.getIsTrustView())) {
 			throw new ApiException(ErrorStatus.TRUST_VIEW_FORBIDDEN);
 		}
@@ -199,7 +203,7 @@ public class TrustService {
 	@CheckUser(key = "#userId")
 	@Transactional
 	public void updatePayoutSettings(Long userId, TrustPayoutSettingsUpdateRequest request) {
-		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
 			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
 		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
@@ -213,7 +217,7 @@ public class TrustService {
 	@CheckUser(key = "#userId")
 	@Transactional
 	public void updateAgentView(Long userId, TrustAgentViewUpdateRequest request) {
-		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
 			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
 		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
