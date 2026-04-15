@@ -183,14 +183,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2050000,
     "cumulativeAmount": 492000000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 2050000, "cumulativeAmount": 24600000},
-      {"year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000},
-      {"year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000},
-      {"year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000},
-      {"year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000},
-      {"year": 16, "monthlyAmount": 2050000, "cumulativeAmount": 393600000},
-      {"year": 19, "monthlyAmount": 2050000, "cumulativeAmount": 467400000},
-      {"year": 20, "monthlyAmount": 2050000, "cumulativeAmount": 492000000}
+      {
+        "year": 1,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 24600000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 98400000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 172200000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 246000000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 319800000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 393600000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 467400000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 492000000
+      }
     ]
   },
   {
@@ -199,14 +231,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2870000,
     "cumulativeAmount": 447720000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 2870000, "cumulativeAmount": 34440000},
-      {"year": 4,  "monthlyAmount": 2870000, "cumulativeAmount": 137760000},
-      {"year": 7,  "monthlyAmount": 2870000, "cumulativeAmount": 241080000},
-      {"year": 10, "monthlyAmount": 2009000, "cumulativeAmount": 310188000},
-      {"year": 13, "monthlyAmount": 2009000, "cumulativeAmount": 382512000},
-      {"year": 16, "monthlyAmount": 2009000, "cumulativeAmount": 410196000},
-      {"year": 19, "monthlyAmount": 2009000, "cumulativeAmount": 434448000},
-      {"year": 20, "monthlyAmount": 2009000, "cumulativeAmount": 447720000}
+      {
+        "year": 1,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 34440000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 137760000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 241080000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 310188000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 382512000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 410196000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 434448000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 447720000
+      }
     ]
   },
   {
@@ -215,14 +279,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2583000,
     "cumulativeAmount": 495936000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 1640000, "cumulativeAmount": 19680000},
-      {"year": 4,  "monthlyAmount": 1853000, "cumulativeAmount": 89484000},
-      {"year": 7,  "monthlyAmount": 2094000, "cumulativeAmount": 170712000},
-      {"year": 10, "monthlyAmount": 2367000, "cumulativeAmount": 265404000},
-      {"year": 13, "monthlyAmount": 2674000, "cumulativeAmount": 376704000},
-      {"year": 16, "monthlyAmount": 3023000, "cumulativeAmount": 445380000},
-      {"year": 19, "monthlyAmount": 3416000, "cumulativeAmount": 478524000},
-      {"year": 20, "monthlyAmount": 3416000, "cumulativeAmount": 495936000}
+      {
+        "year": 1,
+        "monthlyAmount": 1640000,
+        "cumulativeAmount": 19680000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 1853000,
+        "cumulativeAmount": 89484000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2094000,
+        "cumulativeAmount": 170712000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2367000,
+        "cumulativeAmount": 265404000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2674000,
+        "cumulativeAmount": 376704000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 3023000,
+        "cumulativeAmount": 445380000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 3416000,
+        "cumulativeAmount": 478524000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 3416000,
+        "cumulativeAmount": 495936000
+      }
     ]
   }
 ]');
@@ -291,7 +387,7 @@ INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
 VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1),
        (2, 1005, 1006, 'CHILD', 0, 0, 0, 0),
-       (2, 1001, 1004, 'CHILD', 1, 1, 1, 1);
+       (3, 1001, 1004, 'CHILD', 1, 1, 1, 1);
 
 -- ========================
 -- TB_USER_LOGIN_LOG
