@@ -9,6 +9,7 @@ TRUNCATE TABLE TB_FAMILY_AUTH;
 TRUNCATE TABLE TB_CARD;
 TRUNCATE TABLE TB_ASSET_SIMULATION;
 TRUNCATE TABLE TB_TRUST_SIMULATION;
+TRUNCATE TABLE TB_PENSION_SIMULATION;
 TRUNCATE TABLE TB_ACCOUNT;
 TRUNCATE TABLE TB_INHERIT_LETTER;
 TRUNCATE TABLE TB_INHERIT_DETAIL;
@@ -24,23 +25,35 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- TB_USER
 -- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
-INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
-                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
+INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE,
+                     IS_HANA_CERT, USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT,
+                     PWD_CHANGED_AT)
 VALUES
-    -- 1. 정상 유저 (최근 로그인)
+    -- 1. 홍길동: 일반 비밀번호 유저
     (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
-    -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
-    (1002, 'chulsoo7', '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH),
-     DATE_SUB(NOW(), INTERVAL 7 MONTH)),
-    -- 3. 이미 휴면 상태인 유저
+     '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 2. 김철수: 간편 비밀번호 유저
+    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2',
+     '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 3. 이영희: 휴면 계정 예시
     (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
-     DATE_SUB(NOW(), INTERVAL 8 MONTH)),
-    -- 4. 관리자
+     '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER',
+     DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+
+    -- 4. 박관리: 관리자 계정
     (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
+     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW()),
+
+    -- 5. 시뮬레이션 테스트용 부모 유저
+    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+    '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 6. 시뮬레이션 테스트용 자녀 유저
+    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+    '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
+
 
 -- ========================
 -- TB_PRODUCT
@@ -64,7 +77,15 @@ VALUES (2001, 1001, '하나은행', '하나 자유입출금', '111-222-333333', 
        (2004, 1001, '국민연금공단', '국민연금 수령 예정', '777-888-999999', 30000000.00, 'PENSION', 0.00, 25,
         1300000.00, 0.00, '1990-01-01', '2045-01-01', 0.00),
        (2005, 1001, '하나생명', '하나 건강보험', '111-222-555555', 42000000.00, 'INSURANCE', 0.00, 1, 0.00,
-        150000.00, '2021-03-15', '2051-03-15', 100000000.00);
+        150000.00, '2021-03-15', '2051-03-15', 100000000.00),
+       (2006, 1005, '하나은행', '하나 자유입출금', '222-333-444444', 35000000.00, 'CASH', 0.10, 1, 0.00,
+        0.00, '2018-06-01', '2099-12-31', 0.00),
+       (2007, 1005, '하나은행', '하나 정기예금', '222-333-555555', 20000000.00, 'CASH', 3.20, 1, 0.00,
+        0.00, '2025-01-01', '2026-01-01', 0.00),
+       (2008, 1005, '국민연금공단', '국민연금 수령 예정', '888-999-111111', 15000000.00, 'PENSION', 0.00, 25,
+        980000.00, 0.00, '1985-03-01', '2042-03-01', 0.00),
+       (2009, 1005, '삼성생명', '삼성 종신보험', '222-333-666666', 30000000.00, 'INSURANCE', 0.00, 15, 0.00,
+        120000.00, '2010-05-01', '2045-05-01', 80000000.00);
 
 -- ========================
 -- TB_REAL_ASSET
@@ -75,7 +96,11 @@ VALUES (3001, 1001, '역삼동 아파트', 'REAL_ESTATE', 920000000.00, '서울 
         '자가 거주 중인 아파트'),
        (3002, 1001, '그랜저 IG 2021', 'VEHICLE', 28500000.00, '서울 강남구 역삼동 주차장', 0.00,
         '2021년식 · 37,200km'),
-       (3003, 1001, '금 · 37.5g', 'GOLD', 4380000.00, '하나은행 대여금고', 37.50, 'KRX 금시장 구매분');
+       (3003, 1001, '금 · 37.5g', 'GOLD', 4380000.00, '하나은행 대여금고', 37.50, 'KRX 금시장 구매분'),
+       (3004, 1005, '마포구 아파트', 'REAL_ESTATE', 780000000.00, '서울 마포구 공덕동 456-78', 76.00,
+        '자가 거주 중인 아파트'),
+       (3005, 1005, '아반떼 CN7 2022', 'VEHICLE', 18000000.00, '서울 마포구 공덕동 주차장', 0.00,
+        '2022년식 · 22,500km');
 
 -- ========================
 -- TB_CARD
@@ -152,8 +177,64 @@ VALUES (1, 1001, 100000000.00, 1002, '2026-05-01 00:00:00', 'SCHEDULED', 'LUMP_S
 }');
 
 -- ========================
+-- TB_PENSION_SIMULATION
+-- ========================
+INSERT INTO TB_PENSION_SIMULATION (PENSION_SIMULATION_ID, REAL_ASSET_ID, RECOMMENDED_TYPE,
+                                   RECOMMENDED_MONTHLY_AMT, RECOMMENDED_CUMULATIVE_AMT,
+                                   EVAL_AMT_SNAPSHOT, PLANS_JSON)
+VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
+  {
+    "type": "FIXED",
+    "label": "정액형",
+    "monthlyAmount": 2050000,
+    "cumulativeAmount": 492000000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 2050000, "cumulativeAmount": 24600000},
+      {"year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000},
+      {"year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000},
+      {"year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000},
+      {"year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000},
+      {"year": 16, "monthlyAmount": 2050000, "cumulativeAmount": 393600000},
+      {"year": 19, "monthlyAmount": 2050000, "cumulativeAmount": 467400000},
+      {"year": 20, "monthlyAmount": 2050000, "cumulativeAmount": 492000000}
+    ]
+  },
+  {
+    "type": "FRONT_LOADED",
+    "label": "초기증액형",
+    "monthlyAmount": 2870000,
+    "cumulativeAmount": 447720000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 2870000, "cumulativeAmount": 34440000},
+      {"year": 4,  "monthlyAmount": 2870000, "cumulativeAmount": 137760000},
+      {"year": 7,  "monthlyAmount": 2870000, "cumulativeAmount": 241080000},
+      {"year": 10, "monthlyAmount": 2009000, "cumulativeAmount": 310188000},
+      {"year": 13, "monthlyAmount": 2009000, "cumulativeAmount": 382512000},
+      {"year": 16, "monthlyAmount": 2009000, "cumulativeAmount": 410196000},
+      {"year": 19, "monthlyAmount": 2009000, "cumulativeAmount": 434448000},
+      {"year": 20, "monthlyAmount": 2009000, "cumulativeAmount": 447720000}
+    ]
+  },
+  {
+    "type": "GROWING",
+    "label": "정기증가형",
+    "monthlyAmount": 2583000,
+    "cumulativeAmount": 495936000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 1640000, "cumulativeAmount": 19680000},
+      {"year": 4,  "monthlyAmount": 1853000, "cumulativeAmount": 89484000},
+      {"year": 7,  "monthlyAmount": 2094000, "cumulativeAmount": 170712000},
+      {"year": 10, "monthlyAmount": 2367000, "cumulativeAmount": 265404000},
+      {"year": 13, "monthlyAmount": 2674000, "cumulativeAmount": 376704000},
+      {"year": 16, "monthlyAmount": 3023000, "cumulativeAmount": 445380000},
+      {"year": 19, "monthlyAmount": 3416000, "cumulativeAmount": 478524000},
+      {"year": 20, "monthlyAmount": 3416000, "cumulativeAmount": 495936000}
+    ]
+  }
+]');
+
+-- ========================
 -- TB_USER_PROD
--- 엔티티의 @Column(name = "...") 설정에 맞춰 EXPECTED_ 를 제거한 버전입니다.
 -- ========================
 INSERT INTO TB_USER_PROD (USER_PROD_ID,
                           USER_ID,
@@ -161,20 +242,24 @@ INSERT INTO TB_USER_PROD (USER_PROD_ID,
                           CLAIM_AGENT_ID,
                           TARGET_ASSET_ID,
                           PRINCIPAL_AMOUNT,
-                          MONTHLY_PAYOUT, -- EXPECTED_MONTHLY_PAYOUT에서 변경
-                          PERIOD, -- EXPECTED_PERIOD에서 변경
-                          PROFIT, -- EXPECTED_PROFIT에서 변경
-                          PROFIT_RATE, -- EXPECTED_RATE에서 변경
+                          MONTHLY_PAYOUT,
+                          PROFIT,
+                          PROFIT_RATE,
                           PROD_STAT_CD,
                           PROD_TYPE_CD,
                           INVEST_TYPE_CD,
                           PAYOUT_TYPE_CD,
+                          PENSION_PAYOUT_TYPE_CD,
                           START_TYPE,
-                          IS_AGENT_VIEW)
-VALUES (5001, 1001, 1, 1002, NULL, 50000000.00, 1500000.00, 120, 5000000.00, 3.20, 'IN_PROGRESS',
-        'TRUST', 'LUMP_SUM', 'PENSION', 'NOW', 1),
-       (5002, 1002, 2, 1002, 3001, 920000000.00, 2500000.00, 0, 0.00, 2.80, 'IN_PROGRESS',
-        'HOUSING_PENSION', 'DIRECT', 'FLEXIBLE', 'NOW', 1);
+                          START_DATE,
+                          IS_AGENT_VIEW,
+                          PAYOUT_SETTINGS)
+VALUES (5001, 1001, 1, 1002, NULL, 50000000.00, 1500000.00, 5000000.00, 3.20, 'IN_PROGRESS',
+        'TRUST', 'LUMP_SUM', 'PENSION', NULL, 'SCHEDULED', '2026-05-01', 1, '{
+    "monthly": 2000000
+  }'),
+       (5002, 1001, 2, NULL, 3001, 920000000.00, 2050000.00, 0.00, 0.00, 'IN_PROGRESS',
+        'HOUSING_PENSION', NULL, 'PENSION', 'FIXED', 'NOW', NULL, 0, NULL);
 
 -- ========================
 -- TB_ASSET_TRANS
@@ -209,7 +294,8 @@ VALUES (1, 1, '아들아, 건강하게 잘 살아라.', 'https://s3.aws.com/voic
 -- =====================
 INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
-VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1);
+VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1),
+       (2, 1005, 1006, 'CHILD', 0, 0, 0, 0);
 
 -- ========================
 -- TB_USER_LOGIN_LOG
@@ -223,9 +309,8 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- TB_USER_SIMPLE_AUTH
 -- ========================
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
-VALUES (8001, 1001, '$2a$12$R9h/lSAbvI7.Ctf386zUn.9v78RREI7K7T9I.X06C58L4iFm3lG8i',
-        'SIMPLE_PASSWORD'),
-       (8002, 1002, 'BIO_TOKEN_VALUE', 'FACEID');
+VALUES (8001, 1002, '$2a$12$3vbJaMEQ0c8gmy8vOTUq4u0oKkUZEiI584xqRz1bFKHe.drWmV3/G',
+        'SIMPLE_PASSWORD');
 
 -- ========================
 -- TB_REFRESH_TOKEN

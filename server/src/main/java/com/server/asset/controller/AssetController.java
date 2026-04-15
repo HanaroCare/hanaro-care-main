@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.asset.dto.response.AssetDashboardResponse;
-import com.server.asset.dto.response.AssetDetailResponse;
-import com.server.asset.dto.response.FinancialAssetResponse;
+import com.server.asset.dto.dashboard.AssetDashboardResponse;
+import com.server.asset.dto.dashboard.AssetDetailResponse;
+import com.server.asset.dto.dashboard.FinancialAssetResponse;
 import com.server.asset.service.AssetService;
 import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;

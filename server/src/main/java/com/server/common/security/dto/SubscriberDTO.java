@@ -10,13 +10,16 @@ import org.springframework.security.core.userdetails.User;
 public class SubscriberDTO extends User {
 
   private final Long userId;
+  private final String loginId;
   private final String userNm;
   private final boolean hanaCertYn;
 
-  public SubscriberDTO(Long userId, String userNm, String userPwd, boolean hanaCertYn,
+  public SubscriberDTO(Long userId, String loginId, String userNm, String password,
+      boolean hanaCertYn,
       Collection<? extends GrantedAuthority> authorities) {
-    super(userNm, userPwd, authorities);
+    super(loginId, password, authorities);
     this.userId = userId;
+    this.loginId = loginId;
     this.userNm = userNm;
     this.hanaCertYn = hanaCertYn;
   }
@@ -24,6 +27,7 @@ public class SubscriberDTO extends User {
   public Map<String, Object> getClaims() {
     return Map.of(
         "userId", userId,
+        "loginId", loginId,
         "userNm", userNm,
         "hanaCertYn", hanaCertYn,
         "roles", getAuthorities().stream()

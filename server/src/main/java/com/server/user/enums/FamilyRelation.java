@@ -12,4 +12,8 @@ public enum FamilyRelation {
 
   private final String code;
   private final String description;
+
+  public String getDescription() {
+    return description;
+  }
 }

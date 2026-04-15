@@ -54,7 +54,7 @@ public class JwtUtil {
     Date expiryDate = new Date(now.getTime() + expiration);
 
     return Jwts.builder()
-        .subject(subscriber.getUserNm())
+        .subject(subscriber.getLoginId())
         .claims(subscriber.getClaims())
         .issuedAt(now)
         .expiration(expiryDate)
@@ -65,7 +65,8 @@ public class JwtUtil {
   public SubscriberDTO getSubscriber(String token) {
     Claims claims = parseClaims(token);
     Long userId = claims.get("userId", Long.class);
-    String userNm = claims.getSubject();
+    String userNm = claims.get("userNm", String.class);
+    String loginId = claims.getSubject();
     java.util.List<String> roles = claims.get("roles", java.util.List.class);
     Boolean hanaCertYn = claims.get("hanaCertYn", Boolean.class);
 
@@ -74,7 +75,8 @@ public class JwtUtil {
             .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
             .toList() : java.util.Collections.emptyList();
 
-    return new SubscriberDTO(userId, userNm, "", Boolean.TRUE.equals(hanaCertYn), authorities);
+    return new SubscriberDTO(userId, loginId, userNm, "", Boolean.TRUE.equals(hanaCertYn),
+        authorities);
   }
 
   public Map<String, Object> authenticationToClaims(Authentication authentication) {
@@ -83,7 +85,7 @@ public class JwtUtil {
       Map<String, Object> claims = new HashMap<>();
 
       claims.put("userId", subscriber.getUserId());
-      claims.put("userNm", subscriber.getUserNm());
+      claims.put("loginId", subscriber.getLoginId());
       claims.put("hanaCertYn", subscriber.isHanaCertYn());
       claims.put("roles", subscriber.getAuthorities().stream()
           .map(GrantedAuthority::getAuthority).toList());
