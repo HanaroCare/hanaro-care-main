@@ -9,10 +9,12 @@ import NicknameInput from '@/app/inheritance/components/letter/NicknameInput';
 import RecipientHeader from '@/app/inheritance/components/letter/RecipientHeader';
 import VoiceRecorderSheet from '@/app/inheritance/components/letter/VoiceRecorderSheet';
 import YearsInput from '@/app/inheritance/components/letter/YearsInput';
+import {
+  createLetterFormData,
+  inheritanceApi,
+} from '@/app/inheritance/inheritApi';
 import type { InheritanceMethod } from '@/app/inheritance/types';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-
-import { submitInheritanceLetter } from '../../../actions/letter/inheritance';
 import { mockRecipients } from '../../data';
 
 export default function InheritanceWritePage({
@@ -42,22 +44,35 @@ export default function InheritanceWritePage({
   }, [audioUrl]);
 
   const handleSubmit = async () => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
-    await submitInheritanceLetter({
-      recipientId: parseInt(inheritDetailId, 10),
-      nickname,
-      yearsLater,
-      method,
-      message,
-    });
-    // TODO: 백 연결시 formData로 오디오 업로드 및 audioUrl 받아오기
-    // 	if (audioBlob) {
-    //   const formData = new FormData();
-    //   formData.append("audio", audioBlob, "voice.mp3");
-    //   // 서버에 업로드
-    // }
-    setIsSubmitting(false);
-    router.push(`/inheritance/letter/recipients/result?method=${method}`);
+
+    try {
+      // 1. 서버 전송용 데이터 (필수 데이터만!)
+      const formData = createLetterFormData({
+        inheritDetailId,
+        letterCont: message,
+        letterTypeCd: audioBlob ? 'VOICE' : 'WRITING',
+        audioBlob,
+      });
+
+      // 2. 백엔드 API 호출
+      await inheritanceApi.sendLetter(formData);
+
+      // 3. 결과 페이지로 이동 (보여주기용 데이터 포함)
+      const queryParams = new URLSearchParams({
+        method,
+        nickname: nickname || '',
+        yearsLater: String(yearsLater || 0),
+      }).toString();
+
+      router.push(`/inheritance/letter/recipients/result?${queryParams}`);
+    } catch (error) {
+      console.error('전송 실패:', error);
+      alert('저장에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const recipient =
