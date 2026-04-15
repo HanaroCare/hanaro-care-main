@@ -141,7 +141,7 @@ public class AuthService {
       return;
     }
 
-    if (!user.isHanaCert()) {
+    if (!user.getIsHanaCert()) {
       log.warn("[간편 로그인 실패] 하나 인증 미완료 - userNm={}, means={}", user.getUserNm(),
           means.getDescription());
       loginLogService.save(user, means, false);
@@ -185,7 +185,7 @@ public class AuthService {
         user.getUserId(),
         user.getUserNm(),
         user.getUserPwd(),
-        user.isHanaCert(),
+        user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
   }
