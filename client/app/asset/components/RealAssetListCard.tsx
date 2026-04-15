@@ -69,17 +69,17 @@ export function RealAssetCard({ data }: RealAssetCardProps) {
 											{asset.assetNm}
 										</span>
 										<span className="font-medium text-[13px] text-hana-black-900">
-											{formatKoreanCurrency(asset.evalAmt)}
+											{formatKoreanCurrency(asset.evalAmt ?? 0)}
 										</span>
 									</div>
 
 									<div className="mt-1 flex items-center justify-between">
 										<span className="text-[11px] text-hana-black-500">
-											{asset.assetCateCd === "REAL_ESTATE" && asset.assetSize > 0
+											{asset.assetCateCd === "REAL_ESTATE" && (asset.assetSize ?? 0) > 0
 												? `${asset.assetSize}㎡ · `
 												: ""}
 											{asset.assetCateCd === "GOLD" &&
-											asset.assetSize > 0 &&
+											(asset.assetSize ?? 0) > 0 &&
 											!asset.assetNm.includes(`${asset.assetSize}g`)
 												? `${asset.assetSize}g · `
 												: ""}
