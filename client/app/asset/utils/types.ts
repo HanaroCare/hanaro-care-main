@@ -38,9 +38,19 @@ export interface FinancialAssetResponse {
   updatedAt: string;
 }
 
-export interface AssetHistory {
-  name: string;
-  value: number;
+export interface AssetDetailResponse {
+  assetId: number;
+  assetCateCd: AssetCategory | RealAssetCategory; // 둘 다 올 수 있음
+  assetNm: string;
+  amount: number;         // 실물(evalAmt), 금융(balanceAmt) 통합
+  instNm?: string;        // 보험/계좌 전용
+  addr?: string;          // 부동산 전용
+  assetSize?: number;      // 부동산/금 전용
+  assetDesc?: string;      // 실물자산 상세설명
+  monthlyPremAmt?: number; // 보험 전용
+  expireDt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface InsuranceAssetResponse {

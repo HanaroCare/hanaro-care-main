@@ -3,12 +3,12 @@
 import { useRouter } from 'next/navigation';
 import Header from '@/components/navigation/Header';
 import { InfoListCard } from '@/components/modules/InfoListCard';
-import { AssetChart } from '../components/AssetChart';
-import { formatKoreanCurrency } from '../utils/formatCurrency';
-import type { RealAssetSummary } from '../utils/types';
+import { AssetChart } from '../../components/AssetChart';
+import { formatKoreanCurrency } from '../../utils/formatCurrency';
+import {AssetDetailResponse} from "@/app/asset/utils/types";
 
 interface Props {
-    assetData: RealAssetSummary | null;
+    assetData: AssetDetailResponse | null;
 }
 
 export default function GoldDetailClient({ assetData }: Props) {
@@ -48,7 +48,7 @@ export default function GoldDetailClient({ assetData }: Props) {
                     </p>
                     <div className="mt-4 flex items-baseline gap-2">
             <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
-              {formatKoreanCurrency(assetData.evalAmt)}
+              {formatKoreanCurrency(assetData.amount)}
             </span>
                         <span className="font-medium text-[15px] text-hana-red-500">
               ▲ {formatKoreanCurrency(goldInfo.priceChange)} ({goldInfo.changePercent}%)
@@ -65,7 +65,7 @@ export default function GoldDetailClient({ assetData }: Props) {
                         { name: '1월', value: 1150 },
                         { name: '2월', value: 1300 },
                         { name: '3월', value: 1380 },
-                        { name: '4월', value: assetData.evalAmt / 10000 }, // 현재가를 만원 단위로 변환
+                        { name: '4월', value: assetData.amount / 10000 }, // 현재가를 만원 단위로 변환
                     ]}
                     config={{
                         type: 'line',
@@ -88,7 +88,7 @@ export default function GoldDetailClient({ assetData }: Props) {
                 <InfoListCard
                     title="투자 수익 분석"
                     items={[
-                        { label: '총 투자금', value: formatKoreanCurrency(assetData.evalAmt - goldInfo.priceChange) },
+                        { label: '총 투자금', value: formatKoreanCurrency(assetData.amount - goldInfo.priceChange) },
                         { label: '평가 손익', value: `+${formatKoreanCurrency(goldInfo.priceChange)}` },
                         { label: '수익률', value: `${goldInfo.changePercent}%` },
                     ]}

@@ -1,18 +1,16 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Header from '@/components/navigation/Header';
 import { InfoListCard } from '@/components/modules/InfoListCard';
-import { AssetChart } from '../components/AssetChart';
-import { formatKoreanCurrency } from '../utils/formatCurrency';
-import type { RealAssetSummary } from '../utils/types';
+import { AssetChart } from '../../components/AssetChart';
+import { formatKoreanCurrency } from '../../utils/formatCurrency';
+import type {AssetDetailResponse} from '../../utils/types';
 
 interface Props {
-    assetData: RealAssetSummary | null;
+    assetData: AssetDetailResponse | null;
 }
 
 export default function HousingDetailClient({ assetData }: Props) {
-    const router = useRouter();
 
     if (!assetData) {
         return (
@@ -30,8 +28,8 @@ export default function HousingDetailClient({ assetData }: Props) {
         change: 12000000,
         changePercent: 1.3,
         acquisitionDate: '2021.03.15',
-        acquisitionPrice: assetData.evalAmt * 0.85,
-        publicPrice: assetData.evalAmt * 0.72,
+        acquisitionPrice: assetData.amount * 0.85,
+        publicPrice: assetData.amount * 0.72,
     };
 
     return (
@@ -48,7 +46,7 @@ export default function HousingDetailClient({ assetData }: Props) {
                     </p>
                     <div className="mt-4 flex items-baseline gap-2">
             <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
-              {formatKoreanCurrency(assetData.evalAmt)}
+              {formatKoreanCurrency(assetData.amount)}
             </span>
                         <span className="font-medium text-[15px] text-hana-red-500">
               ▲ {formatKoreanCurrency(detailInfo.change)} ({detailInfo.changePercent}%)
@@ -64,7 +62,7 @@ export default function HousingDetailClient({ assetData }: Props) {
                         { name: '1월', value: 9.0 },
                         { name: '2월', value: 9.1 },
                         { name: '3월', value: 9.2 },
-                        { name: '4월', value: assetData.evalAmt / 100000000 },
+                        { name: '4월', value: assetData.amount / 100000000 },
                     ]}
                     config={{
                         type: 'line',
@@ -79,7 +77,7 @@ export default function HousingDetailClient({ assetData }: Props) {
                     items={[
                         { label: '취득일', value: detailInfo.acquisitionDate },
                         { label: '취득가', value: formatKoreanCurrency(detailInfo.acquisitionPrice) },
-                        { label: '현재 시세', value: formatKoreanCurrency(assetData.evalAmt) },
+                        { label: '현재 시세', value: formatKoreanCurrency(assetData.amount) },
                         { label: '공시지가', value: formatKoreanCurrency(detailInfo.publicPrice) },
                     ]}
                 />

@@ -12,7 +12,7 @@ import { AssetDetailCard } from './AssetDetailCard';
 import { AssetListCard } from './AssetListCard';
 import { AssetSummaryHeader } from './AssetSummaryHeader';
 import { formatKoreanCurrency } from '../utils/formatCurrency';
-import type {AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse} from '../utils/types';
+import type { AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse } from '../utils/types';
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
@@ -38,8 +38,7 @@ interface Props {
 }
 
 const isValidTab = (tab: string | null): tab is TabId =>
-        tab !== null && ['asset', 'realestate', 'insurance', 'car', 'gold'].includes(tab);
-
+    tab !== null && ['asset', 'realestate', 'insurance', 'car', 'gold'].includes(tab);
 
 export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets }: Props) {
     const searchParams = useSearchParams();
@@ -64,7 +63,9 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
     // 상단 헤더 요약 데이터 계산
     const summaryData = useMemo<Record<TabId, SummaryItem>>(() => {
         const getRealSum = (cate: string) =>
-            realAssets.filter(a => a.assetCateCd === cate).reduce((sum, a) => sum + a.evalAmt, 0);
+            realAssets
+                .filter(a => a.assetCateCd === cate)
+                .reduce((sum, a) => sum + (a.evalAmt ?? 0), 0);
 
         return {
             asset: {
@@ -81,7 +82,11 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             },
             insurance: {
                 type: 'insurance',
-                amount: formatKoreanCurrency(financialAssets.filter(a => a.assetCateCd === 'INSURANCE').reduce((sum, a) => sum + a.balanceAmt, 0)),
+                amount: formatKoreanCurrency(
+                    financialAssets
+                        .filter(a => a.assetCateCd === 'INSURANCE')
+                        .reduce((sum, a) => sum + (a.balanceAmt ?? 0), 0)
+                ),
                 buttonLabel: '보험 연동하기',
                 href: '/asset/insurance' as Route,
             },
@@ -107,7 +112,6 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             case 'asset':
                 return (
                     <>
-                        {/* 금융 자산 리스트 (보험 제외) */}
                         <AssetListCard data={financialAssets.filter(a => a.assetCateCd !== 'INSURANCE')} />
                         <AssetChart
                             title="6개월 자산 변화"
@@ -127,8 +131,8 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         type="property"
                         title={asset.assetNm}
                         subtitle={`${asset.assetSize}㎡ · ${asset.addr}`}
-                        value={formatKoreanCurrency(asset.evalAmt)}
-                        href="/asset/housing"
+                        value={formatKoreanCurrency(asset.evalAmt ?? 0)}
+                        href={`/asset/housing/${asset.realAssetId}` as Route} // ID 기반 경로로 수정
                     />
                 ));
 
@@ -141,12 +145,12 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                                 <AssetDetailCard
                                     key={asset.assetId}
                                     type="insurance"
-                                    iconType="hana-bank" // 혹은 asset.instNm 조건문
+                                    iconType="hana-bank"
                                     company={asset.instNm}
                                     insuranceName={asset.assetNm}
                                     monthlyPremium={`월 ${formatKoreanCurrency(asset.monthlyPremAmt || 0)}`}
                                     status="normal"
-                                    href="/asset/insurance"
+                                    href={`/asset/insurance/${asset.assetId}` as Route} // 보험 상세 ID 경로
                                 />
                             ))
                         ) : (
@@ -160,9 +164,9 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         key={asset.realAssetId}
                         type="car"
                         title={asset.assetNm}
-                        subtitle={asset.assetDesc}
-                        value={formatKoreanCurrency(asset.evalAmt)}
-                        href="/asset/car"
+                        subtitle={asset.assetDesc || ''}
+                        value={formatKoreanCurrency(asset.evalAmt ?? 0)}
+                        href={`/asset/car/${asset.realAssetId}` as Route} // ID 기반 경로로 수정
                     />
                 ));
             case 'gold':
@@ -172,8 +176,8 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         type="gold"
                         title={asset.assetNm}
                         subtitle="금 현물"
-                        value={formatKoreanCurrency(asset.evalAmt)}
-                        href="/asset/gold"
+                        value={formatKoreanCurrency(asset.evalAmt ?? 0)} // RealAssetSummary 타입에 맞게 evalAmt 사용
+                        href={`/asset/gold/${asset.realAssetId}` as Route} // ID 기반 경로로 수정
                     />
                 ));
             default: return null;
@@ -190,7 +194,10 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 {renderTabContent()}
                 {activeTab !== 'asset' && (
                     <div className="mt-4 w-full">
-                        <PrimaryButton label={currentSummary.buttonLabel} onClick={() => currentSummary.href && router.push(currentSummary.href)} />
+                        <PrimaryButton
+                            label={currentSummary.buttonLabel}
+                            onClick={() => currentSummary.href && router.push(currentSummary.href)}
+                        />
                     </div>
                 )}
             </main>

@@ -63,10 +63,9 @@ public class AssetService {
 
 	@CheckUser(key = "#userId")
 	public AssetDetailResponse getRealAssetDetail(Long userId, Long realAssetId) {
-		return tbRealAssetRepository.findById(realAssetId)
-			.filter(asset -> asset.getUser().getUserId().equals(userId)) // 소유권 확인
-			.map(assetMapper::toAssetDetailFromRealEntity) // Entity -> DTO 매퍼 호출
-			.orElseThrow(() -> new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
+		return tbRealAssetRepository.findByRealAssetIdAndUser_UserId(realAssetId, userId)
+			.map(assetMapper::toAssetDetailFromRealEntity)
+			.orElseThrow(() -> new ApiException(ErrorStatus.ASSET_NOT_FOUND));
 	}
 
 	@CheckUser(key = "#userId")

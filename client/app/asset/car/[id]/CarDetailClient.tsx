@@ -1,18 +1,16 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Header from '@/components/navigation/Header';
 import { InfoListCard } from '@/components/modules/InfoListCard';
-import { AssetChart } from '../components/AssetChart';
-import { formatKoreanCurrency } from '../utils/formatCurrency';
-import type { RealAssetSummary } from '../utils/types';
+import { AssetChart } from '../../components/AssetChart';
+import { formatKoreanCurrency } from '../../utils/formatCurrency';
+import {AssetDetailResponse} from '../../utils/types';
 
 interface Props {
-    assetData: RealAssetSummary | null;
+    assetData: AssetDetailResponse | null;
 }
 
 export default function CarDetailClient({ assetData }: Props) {
-    const router = useRouter();
 
     if (!assetData) {
         return (
@@ -35,7 +33,6 @@ export default function CarDetailClient({ assetData }: Props) {
 
     const isDecrease = carInfo.priceChange < 0;
     const changeIcon = isDecrease ? '▼' : '▲';
-    const changeColor = isDecrease ? 'text-hana-blue-500' : 'text-red-500';
 
     return (
         <div className="flex min-h-screen flex-col bg-white">
@@ -51,7 +48,7 @@ export default function CarDetailClient({ assetData }: Props) {
                     </p>
                     <div className="mt-4 flex items-baseline gap-2">
             <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
-              {formatKoreanCurrency(assetData.evalAmt)}
+              {formatKoreanCurrency(assetData.amount)}
             </span>
                         <span className="font-medium text-[15px] text-hana-blue-500">
               {changeIcon} {formatKoreanCurrency(Math.abs(carInfo.priceChange))} ({Math.abs(carInfo.changePercent)}%)
@@ -68,7 +65,7 @@ export default function CarDetailClient({ assetData }: Props) {
                         { name: '1월', value: 4700 },
                         { name: '2월', value: 4650 },
                         { name: '3월', value: 4600 },
-                        { name: '4월', value: assetData.evalAmt / 10000 }, // 현재가를 만원 단위로 변환
+                        { name: '4월', value: assetData.amount / 10000 }, // 현재가를 만원 단위로 변환
                     ]}
                     config={{
                         type: 'line',
