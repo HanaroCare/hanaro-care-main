@@ -1,18 +1,57 @@
 package com.server.asset.client;
 
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import java.net.URI;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.server.asset.dto.external.GeminiRequest;
 import com.server.asset.dto.external.GeminiResponse;
 
-@FeignClient(name = "geminiClient", url = "${external.gemini.base-url}")
-public interface GeminiClient {
-    @PostMapping("/v1beta/models/gemini-2.0-flash:generateContent")
-    GeminiResponse generateContent(
-        @RequestParam("key") String apiKey,
-        @RequestBody GeminiRequest.RequestBody requestBody
-    );
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class GeminiClient {
+
+    private final RestTemplate restTemplate;
+
+    @Value("${external.gemini.base-url}")
+    private String baseUrl;
+
+    @Value("${external.gemini.api-key}")
+    private String apiKey;
+
+    private static final String GENERATE_PATH =
+        "/v1beta/models/gemini-2.0-flash:generateContent";
+
+    public GeminiResponse generateContent(GeminiRequest.RequestBody requestBody) {
+        try {
+            URI uri = UriComponentsBuilder
+                .fromHttpUrl(baseUrl + GENERATE_PATH)
+                .queryParam("key", apiKey)
+                .build(false)
+                .toUri();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<GeminiRequest.RequestBody> entity = new HttpEntity<>(requestBody, headers);
+
+            log.debug("[Gemini] 요청 URI: {}", uri);
+
+            return restTemplate.postForObject(uri, entity, GeminiResponse.class);
+
+        } catch (Exception e) {
+            log.error("[Gemini] API 호출 실패: {}", e.getMessage());
+            throw new RuntimeException("Gemini API 호출 실패", e);
+        }
+    }
 }

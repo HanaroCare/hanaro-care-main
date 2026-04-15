@@ -1,36 +1,155 @@
 package com.server.asset.client;
 
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.server.asset.dto.external.publicdata.PublicDataResponse;
 
-@FeignClient(name = "bokjiroClient", url = "${external.public-data.base-url}")
-public interface BokjiroClient {
+import lombok.extern.slf4j.Slf4j;
 
-    /**
-     * 중앙부처 복지서비스 목록조회
-     */
-    @GetMapping("/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001")
-    PublicDataResponse.WelfareListResponse getWelfareServices(
-        @RequestParam("serviceKey") String apiKey,
-        @RequestParam("callTp") String callTp,
-        @RequestParam("pageNo") int pageNo,
-        @RequestParam("numOfRows") int numOfRows,
-        @RequestParam("srchKeyCode") String srchKeyCode,
-        @RequestParam(value = "searchWrd", required = false) String searchWrd,
-        @RequestParam(value = "lifeArray", required = false) String lifeArray,
-        @RequestParam(value = "dataType", defaultValue = "json") String dataType
-    );
+@Slf4j
+@Component
+public class BokjiroClient {
 
-    /**
-     * 중앙부처 복지서비스 상세조회
-     */
-    @GetMapping("/B554287/NationalWelfareInformationsV001/NationalWelfaredetailedV001")
-    String getWelfareDetail(
-        @RequestParam("serviceKey") String apiKey,
-        @RequestParam("callTp") String callTp,
-        @RequestParam("servId") String servId
-    );
+    private final ObjectMapper objectMapper;
+    private final XmlMapper xmlMapper;
+    private final RestTemplate restTemplate;
+
+    @Value("${external.public-data.base-url}")
+    private String baseUrl;
+
+    @Value("${external.public-data.api-key}")
+    private String apiKey;
+
+    private static final String LIST_PATH =
+        "/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001";
+    private static final String DETAIL_PATH =
+        "/B554287/NationalWelfareInformationsV001/NationalWelfaredetailedV001";
+
+    public BokjiroClient(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+        this.xmlMapper = new XmlMapper();
+        this.restTemplate = new RestTemplate();
+        this.restTemplate.getMessageConverters().add(0,
+            new StringHttpMessageConverter(StandardCharsets.UTF_8));
+    }
+
+    public PublicDataResponse.WelfareListResponse getWelfareServices(
+        String srchKeyCode,
+        String searchWrd,
+        String lifeArray,
+        int pageNo,
+        int numOfRows
+    ) {
+        try {
+            StringBuilder url = new StringBuilder(baseUrl + LIST_PATH);
+            url.append("?serviceKey=").append(apiKey);
+            url.append("&callTp=L");
+            url.append("&pageNo=").append(pageNo);
+            url.append("&numOfRows=").append(numOfRows);
+            url.append("&srchKeyCode=").append(srchKeyCode);
+
+            if (searchWrd != null) {
+                url.append("&searchWrd=")
+                    .append(URLEncoder.encode(searchWrd, StandardCharsets.UTF_8));
+            }
+            if (lifeArray != null) {
+                url.append("&lifeArray=").append(lifeArray);
+            }
+
+            URI uri = URI.create(url.toString());
+            log.debug("[복지로] 목록 조회 URI: {}", uri);
+
+            String raw = restTemplate.getForObject(uri, String.class);
+            log.debug("[복지로] 응답 원문: {}", raw);
+
+            // JSON 또는 XML 자동 감지 후 파싱
+            return parseWelfareListResponse(raw);
+
+        } catch (Exception e) {
+            log.error("[복지로] 목록 조회 실패: {}", e.getMessage());
+            throw new RuntimeException("복지로 API 호출 실패", e);
+        }
+    }
+
+    private PublicDataResponse.WelfareListResponse parseWelfareListResponse(String raw) throws Exception {
+        if (raw == null) return null;
+
+        raw = raw.trim();
+
+        if (raw.startsWith("{") || raw.startsWith("[")) {
+            return objectMapper.readValue(raw, PublicDataResponse.WelfareListResponse.class);
+        }
+
+        log.info("[복지로] XML 응답 감지 - XML 파싱 시작");
+        JsonNode xmlNode = xmlMapper.readTree(raw.getBytes(StandardCharsets.UTF_8));
+
+        // wantedList가 루트 노드라서 바로 접근
+        String totalCount = xmlNode.path("totalCount").asText("0");
+
+        List<PublicDataResponse.WelfareService> services = new ArrayList<>();
+        JsonNode servList = xmlNode.path("servList");
+
+        if (servList.isArray()) {
+            for (JsonNode node : servList) {
+                PublicDataResponse.WelfareService service = new PublicDataResponse.WelfareService();
+                service.setServId(node.path("servId").asText());
+                service.setServNm(node.path("servNm").asText());
+                service.setJurMnofNm(node.path("jurMnofNm").asText());
+                service.setServDgst(node.path("servDgst").asText());
+                service.setServDtlLink(node.path("servDtlLink").asText());
+                service.setTrgetNm(node.path("trgterIndvdlArray").asText());
+                services.add(service);
+            }
+        } else if (servList.isObject()) {
+            // servList가 1개일 때 배열이 아닌 객체로 오는 경우
+            PublicDataResponse.WelfareService service = new PublicDataResponse.WelfareService();
+            service.setServId(servList.path("servId").asText());
+            service.setServNm(servList.path("servNm").asText());
+            service.setJurMnofNm(servList.path("jurMnofNm").asText());
+            service.setServDgst(servList.path("servDgst").asText());
+            service.setServDtlLink(servList.path("servDtlLink").asText());
+            service.setTrgetNm(servList.path("trgterIndvdlArray").asText());
+            services.add(service);
+        }
+
+        log.info("[복지로] XML 파싱 완료 - 서비스 수: {}, 총 건수: {}", services.size(), totalCount);
+
+        PublicDataResponse.WantedList wantedList = new PublicDataResponse.WantedList();
+        wantedList.setTotalCount(totalCount);
+        wantedList.setServList(services);
+
+        PublicDataResponse.WelfareListResponse response = new PublicDataResponse.WelfareListResponse();
+        response.setWantedList(wantedList);
+        return response;
+    }
+
+    public String getWelfareDetail(String servId) {
+        try {
+            String url = baseUrl + DETAIL_PATH
+                + "?serviceKey=" + apiKey
+                + "&callTp=D"
+                + "&servId=" + servId;
+
+            URI uri = URI.create(url);
+            log.debug("[복지로] 상세 조회 URI: {}", uri);
+
+            return restTemplate.getForObject(uri, String.class);
+
+        } catch (Exception e) {
+            log.error("[복지로] 상세 조회 실패: {}", e.getMessage());
+            throw new RuntimeException("복지로 API 상세 조회 실패", e);
+        }
+    }
 }

@@ -14,7 +14,6 @@ import com.server.asset.dto.external.AIAnalysisInput;
 import com.server.asset.dto.external.GeminiRequest;
 import com.server.asset.dto.external.GeminiResponse;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
-import com.server.common.config.external.ExternalApiProperties;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 
@@ -28,13 +27,13 @@ public class AIService {
 
     private final GeminiClient geminiClient;
     private final ObjectMapper objectMapper;
-    private final ExternalApiProperties externalApiProperties;
 
-    public SimulationDetailResponse analyzeFutureCosts(AIAnalysisInput input,
-                                                     BigDecimal medicalInflation, 
-                                                     List<String> welfareServices, 
-                                                     BigDecimal estimatedPension) {
-        
+    public SimulationDetailResponse analyzeFutureCosts(
+        AIAnalysisInput input,
+        BigDecimal medicalInflation,
+        List<String> welfareServices,
+        BigDecimal estimatedPension
+    ) {
         String prompt = buildAdvancedPrompt(input, medicalInflation, welfareServices, estimatedPension);
 
         GeminiRequest.RequestBody requestBody = GeminiRequest.RequestBody.builder()
@@ -50,33 +49,34 @@ public class AIService {
         try {
             GeminiResponse response = null;
             int maxRetries = 3;
-            int retryCount = 0;
-            
-            while (retryCount < maxRetries) {
+
+            for (int retryCount = 0; retryCount < maxRetries; retryCount++) {
                 try {
-                    response = geminiClient.generateContent(
-                        externalApiProperties.getGemini().getApiKey(), requestBody);
+                    // GeminiClient가 내부적으로 apiKey를 주입받아 처리
+                    response = geminiClient.generateContent(requestBody);
                     break;
                 } catch (Exception e) {
                     if (e.getMessage().contains("429") && retryCount < maxRetries - 1) {
-                        retryCount++;
-                        log.warn("Gemini Rate limit (429) hit. Retrying... ({} / {})", retryCount, maxRetries);
-                        Thread.sleep(2000 * retryCount); // Exponential backoff
-                        continue;
+                        log.warn("[Gemini] 요청 한도 초과(429). 재시도 중... ({}/{})", retryCount + 1, maxRetries);
+                        Thread.sleep(2000L * (retryCount + 1)); // 지수 백오프
+                    } else {
+                        throw e;
                     }
-                    throw e;
                 }
             }
-            
-            if (response == null) throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
+
+            if (response == null) {
+                throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
+            }
 
             String rawText = response.getText();
             String jsonOnly = extractPureJson(rawText);
-            
-            log.info("AI Response (Cleaned): {}", jsonOnly);
+
+            log.info("[Gemini] AI 응답 파싱 완료: {}", jsonOnly);
             return objectMapper.readValue(jsonOnly, SimulationDetailResponse.class);
+
         } catch (Exception e) {
-            log.error("AI Analysis failed. Error: {}", e.getMessage());
+            log.error("[Gemini] AI 분석 실패. 에러: {}", e.getMessage());
             throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
         }
     }
@@ -88,22 +88,25 @@ public class AIService {
         if (matcher.find()) {
             return matcher.group(1).trim();
         }
-        
+
         // 2. 블록이 없으면 첫 번째 '{'와 마지막 '}' 사이의 내용 추출
         int start = text.indexOf("{");
         int end = text.lastIndexOf("}");
         if (start != -1 && end != -1 && start < end) {
             return text.substring(start, end + 1).trim();
         }
-        
+
         return text.trim();
     }
 
-    private String buildAdvancedPrompt(AIAnalysisInput input, BigDecimal medicalInflation, 
-                                      List<String> welfareServices, BigDecimal estimatedPension) {
+    private String buildAdvancedPrompt(
+        AIAnalysisInput input,
+        BigDecimal medicalInflation,
+        List<String> welfareServices,
+        BigDecimal estimatedPension
+    ) {
         String welfareContext = String.join(", ", welfareServices);
-        BigDecimal wageGrowth = new BigDecimal("2.9"); // 우리나라 평균 임금 인상률
-        
+
         return String.format("""
             사용자의 실데이터와 공공 통계(임금 인상률 2.9%%, 노인 평균 의료비 등)를 기반으로 정밀한 노후 자금 시뮬레이션을 수행해줘.
             
@@ -146,10 +149,10 @@ public class AIService {
               ],
               "ai_opinion": "통계와 사용자 데이터를 종합한 노후 준비 전략 2문장 내외"
             }
-            """, 
+            """,
             input.getUserAge(), input.getTargetAge(), input.getUserAddr(), input.getTotalAssetAmt(),
             input.getAverageMonthlySpending(), input.getCareType().getDescription(),
-            estimatedPension, medicalInflation, welfareContext, medicalInflation, 
+            estimatedPension, medicalInflation, welfareContext, medicalInflation,
             input.getCareType().getDescription(), estimatedPension, estimatedPension);
     }
 }
