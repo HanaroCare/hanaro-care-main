@@ -12,7 +12,7 @@ import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
-import com.server.asset.repository.TBPensionSimulationRepository;
+import com.server.asset.repository.PensionSimulationRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
@@ -28,7 +28,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,7 +36,7 @@ import java.util.stream.Collectors;
 public class PensionStatusService {
 
 	private final UserProdRepository userProdRepository;
-	private final TBPensionSimulationRepository pensionSimulationRepository;
+	private final PensionSimulationRepository pensionSimulationRepository;
 	private final ObjectMapper objectMapper;
 
 	@CheckUser(key = "#userId")

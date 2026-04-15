@@ -2,7 +2,7 @@ package com.server.card.service;
 
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.repository.TBAccountRepository;
+import com.server.asset.repository.AccountRepository;
 import com.server.card.dto.request.CardRegisterRequest;
 import com.server.card.dto.request.CardUpdateRequest;
 import com.server.card.dto.response.AccountListResponse;
@@ -21,7 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class CardService {
 
   private final CardRepository cardRepository;
-  private final TBAccountRepository accountRepository;
+  private final AccountRepository accountRepository;
 
   @Transactional
   public TBCard registerCard(Long userId, CardRegisterRequest request) {

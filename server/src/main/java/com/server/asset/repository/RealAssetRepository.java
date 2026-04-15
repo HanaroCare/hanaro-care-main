@@ -1,18 +1,16 @@
 package com.server.asset.repository;
 
-import com.server.asset.entity.TBRealAsset;
-import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import com.server.asset.entity.TBRealAsset;
+
 public interface RealAssetRepository extends JpaRepository<TBRealAsset, Long> {
+	Optional<TBRealAsset> findByRealAssetIdAndUser_UserId(Long realAssetId, Long userId);
+	List<TBRealAsset> findAllByUser_UserId(Long userId);
 
-  @Query("SELECT r FROM TBRealAsset r WHERE r.user.userId = :userId")
-  List<TBRealAsset> findByUserId(Long userId);
+	Optional<TBRealAsset> findByRealAssetId(Long realAssetId);
 
-  @Query("SELECT r.assetCateCd, SUM(r.evalAmt) FROM TBRealAsset r WHERE r.user.userId = :userId GROUP BY r.assetCateCd")
-  List<Object[]> findEvalAmtSumGroupByCategoryByUserId(Long userId);
 }

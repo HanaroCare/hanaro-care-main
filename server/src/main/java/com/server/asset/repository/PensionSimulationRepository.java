@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface TBPensionSimulationRepository extends JpaRepository<TBPensionSimulation, Long> {
+public interface PensionSimulationRepository extends JpaRepository<TBPensionSimulation, Long> {
 
 	Optional<TBPensionSimulation> findByRealAsset_RealAssetId(Long realAssetId);
 }

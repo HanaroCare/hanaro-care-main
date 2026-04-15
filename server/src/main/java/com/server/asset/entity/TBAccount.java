@@ -1,12 +1,8 @@
 package com.server.asset.entity;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
-
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,6 +14,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -83,4 +81,8 @@ public class TBAccount extends BaseEntity {
 
   @Column(name = "MONTHLY_PREM_AMT", precision = 13, scale = 2)
   private BigDecimal monthlyPremAmt;
+
+  @Builder.Default
+  @Column(name = "IS_LINKED", nullable = false)
+  private Boolean isLinked = true;
 }

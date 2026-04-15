@@ -22,7 +22,12 @@ public record AssetDashboardResponse(
 
 	@Builder
 	public record RealAssetSummary(
+		Long realAssetId,
 		RealAssetCategory assetCateCd,
-		BigDecimal totalValue
+		String assetNm,
+		BigDecimal evalAmt,
+		BigDecimal assetSize,
+		String addr,
+		String assetDesc
 	) {}
 }
