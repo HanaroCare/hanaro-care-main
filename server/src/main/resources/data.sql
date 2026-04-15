@@ -25,24 +25,16 @@ SET time_zone = 'Asia/Seoul';
 -- TB_USER
 -- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
-INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
-                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
-VALUES
-    -- 1. 정상 유저 (최근 로그인)
-    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
-    -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
-    (1002, 'chulsoo7', '김철수', '$2a$12$3vbJaMEQ0c8gmy8vOTUq4u0oKkUZEiI584xqRz1bFKHe.drWmV3/G',
-     '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER',
-     DATE_SUB(NOW(), INTERVAL 7 MONTH),
-     DATE_SUB(NOW(), INTERVAL 7 MONTH)),
-    -- 3. 이미 휴면 상태인 유저
-    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
-     DATE_SUB(NOW(), INTERVAL 8 MONTH)),
-    -- 4. 관리자
-    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
+INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT, USER_STAT_CD,
+                     USER_ROLE)
+VALUES (1001, '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01011112222',
+        65, 1, 'ACTIVE', 'ROLE_USER'),
+       (1002, '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01022223333',
+        40, 0, 'ACTIVE', 'ROLE_USER'),
+       (1003, '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01033334444',
+        63, 1, 'ACTIVE', 'ROLE_USER'),
+       (1004, '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01055556666',
+        35, 1, 'ACTIVE', 'ROLE_ADMIN');
 
 -- ========================
 -- TB_PRODUCT
@@ -89,13 +81,59 @@ VALUES (4001, 2001, '하나 시니어 행복카드', 5000000.00, 0.00, 1),
 -- ========================
 -- TB_ASSET_SIMULATION
 -- ========================
-INSERT INTO TB_ASSET_SIMULATION (SIMULATION_ID, USER_ID, TARGET_AGE, LIVING_COST, MEDICAL_COST,
-                                 CARE_COST, MONTHLY_COST, AGE_RANGE_DETAILS)
-VALUES (1, 1001, 85, 1500000.00, 500000.00, 300000.00, 2300000.00, '{
-  "details": "60대 후반 기준 월 평균 지출 설계"
-}'),
-       (2, 1003, 90, 1200000.00, 400000.00, 200000.00, 1800000.00, '{
-         "details": "배우자 단독 생활 기준 지출 설계"
+INSERT INTO TB_ASSET_SIMULATION (SIMULATION_ID, USER_ID, TARGET_AGE, CARE_TYPE_CD, TOTAL_INCOME_AMT,
+                                 SHORTAGE_AMT, IS_SUFFICIENT, LIVING_COST, MEDICAL_COST, CARE_COST,
+                                 MONTHLY_COST, AGE_RANGE_DETAILS)
+VALUES (1, 1001, 85, 'CENTER', 1450000.00, 850000.00, 0, 1500000.00, 500000.00, 300000.00,
+        2300000.00, '{
+    "income_breakdown": {
+      "national_pension": 1300000,
+      "local_subsidy": 150000,
+      "subsidy_name": "서울시 고령자 지원금"
+    },
+    "segments": [
+      {
+        "age_range": "65-70",
+        "monthly_income": 1450000,
+        "monthly_expense": 2300000,
+        "details": {
+          "living": 1500000,
+          "medical": 500000,
+          "care": 300000
+        }
+      },
+      {
+        "age_range": "70-75",
+        "monthly_income": 1450000,
+        "monthly_expense": 2600000,
+        "details": {
+          "living": 1400000,
+          "medical": 700000,
+          "care": 500000
+        }
+      }
+    ],
+    "ai_opinion": "현재 자산으로는 70세 이후 병원비 상승 폭을 감당하기에 월 약 85만원이 부족할 것으로 예측됩니다."
+  }'),
+       (2, 1003, 90, 'HOME', 1800000.00, 0.00, 1, 1200000.00, 400000.00, 200000.00, 1800000.00, '{
+         "income_breakdown": {
+           "national_pension": 1600000,
+           "local_subsidy": 200000,
+           "subsidy_name": "경기도 노인 기본소득"
+         },
+         "segments": [
+           {
+             "age_range": "63-68",
+             "monthly_income": 1800000,
+             "monthly_expense": 1800000,
+             "details": {
+               "living": 1200000,
+               "medical": 400000,
+               "care": 200000
+             }
+           }
+         ],
+         "ai_opinion": "현재 연금 수령액만으로도 계획하신 재가 요양 생활비를 충분히 충당 가능합니다. 여유 자산은 신탁을 통해 관리하시는 것을 추천합니다."
        }');
 
 -- ========================
@@ -108,8 +146,64 @@ VALUES (1, 1001, 100000000.00, 1002, '2026-05-01 00:00:00', 'SCHEDULED', 'LUMP_S
 }');
 
 -- ========================
+-- TB_PENSION_SIMULATION
+-- ========================
+INSERT INTO TB_PENSION_SIMULATION (PENSION_SIMULATION_ID, REAL_ASSET_ID, RECOMMENDED_TYPE,
+                                   RECOMMENDED_MONTHLY_AMT, RECOMMENDED_CUMULATIVE_AMT,
+                                   EVAL_AMT_SNAPSHOT, PLANS_JSON)
+VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
+  {
+    "type": "FIXED",
+    "label": "정액형",
+    "monthlyAmount": 2050000,
+    "cumulativeAmount": 492000000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 2050000, "cumulativeAmount": 24600000},
+      {"year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000},
+      {"year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000},
+      {"year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000},
+      {"year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000},
+      {"year": 16, "monthlyAmount": 2050000, "cumulativeAmount": 393600000},
+      {"year": 19, "monthlyAmount": 2050000, "cumulativeAmount": 467400000},
+      {"year": 20, "monthlyAmount": 2050000, "cumulativeAmount": 492000000}
+    ]
+  },
+  {
+    "type": "FRONT_LOADED",
+    "label": "초기증액형",
+    "monthlyAmount": 2870000,
+    "cumulativeAmount": 447720000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 2870000, "cumulativeAmount": 34440000},
+      {"year": 4,  "monthlyAmount": 2870000, "cumulativeAmount": 137760000},
+      {"year": 7,  "monthlyAmount": 2870000, "cumulativeAmount": 241080000},
+      {"year": 10, "monthlyAmount": 2009000, "cumulativeAmount": 310188000},
+      {"year": 13, "monthlyAmount": 2009000, "cumulativeAmount": 382512000},
+      {"year": 16, "monthlyAmount": 2009000, "cumulativeAmount": 410196000},
+      {"year": 19, "monthlyAmount": 2009000, "cumulativeAmount": 434448000},
+      {"year": 20, "monthlyAmount": 2009000, "cumulativeAmount": 447720000}
+    ]
+  },
+  {
+    "type": "GROWING",
+    "label": "정기증가형",
+    "monthlyAmount": 2583000,
+    "cumulativeAmount": 495936000,
+    "yearlyData": [
+      {"year": 1,  "monthlyAmount": 1640000, "cumulativeAmount": 19680000},
+      {"year": 4,  "monthlyAmount": 1853000, "cumulativeAmount": 89484000},
+      {"year": 7,  "monthlyAmount": 2094000, "cumulativeAmount": 170712000},
+      {"year": 10, "monthlyAmount": 2367000, "cumulativeAmount": 265404000},
+      {"year": 13, "monthlyAmount": 2674000, "cumulativeAmount": 376704000},
+      {"year": 16, "monthlyAmount": 3023000, "cumulativeAmount": 445380000},
+      {"year": 19, "monthlyAmount": 3416000, "cumulativeAmount": 478524000},
+      {"year": 20, "monthlyAmount": 3416000, "cumulativeAmount": 495936000}
+    ]
+  }
+]');
+
+-- ========================
 -- TB_USER_PROD
--- 엔티티의 @Column(name = "...") 설정에 맞춰 EXPECTED_ 를 제거한 버전입니다.
 -- ========================
 INSERT INTO TB_USER_PROD (USER_PROD_ID,
                           USER_ID,
@@ -117,20 +211,24 @@ INSERT INTO TB_USER_PROD (USER_PROD_ID,
                           CLAIM_AGENT_ID,
                           TARGET_ASSET_ID,
                           PRINCIPAL_AMOUNT,
-                          MONTHLY_PAYOUT, -- EXPECTED_MONTHLY_PAYOUT에서 변경
-                          PERIOD, -- EXPECTED_PERIOD에서 변경
-                          PROFIT, -- EXPECTED_PROFIT에서 변경
-                          PROFIT_RATE, -- EXPECTED_RATE에서 변경
+                          MONTHLY_PAYOUT,
+                          PROFIT,
+                          PROFIT_RATE,
                           PROD_STAT_CD,
                           PROD_TYPE_CD,
                           INVEST_TYPE_CD,
                           PAYOUT_TYPE_CD,
+                          PENSION_PAYOUT_TYPE_CD,
                           START_TYPE,
-                          IS_AGENT_VIEW)
-VALUES (5001, 1001, 1, 1002, NULL, 50000000.00, 1500000.00, 120, 5000000.00, 3.20, 'IN_PROGRESS',
-        'TRUST', 'LUMP_SUM', 'PENSION', 'NOW', 1),
-       (5002, 1001, 2, 1002, 3001, 920000000.00, 2500000.00, 0, 0.00, 2.80, 'IN_PROGRESS',
-        'HOUSING_PENSION', 'DIRECT', 'FLEXIBLE', 'NOW', 1);
+                          START_DATE,
+                          IS_AGENT_VIEW,
+                          PAYOUT_SETTINGS)
+VALUES (5001, 1001, 1, 1002, NULL, 50000000.00, 1500000.00, 5000000.00, 3.20, 'IN_PROGRESS',
+        'TRUST', 'LUMP_SUM', 'PENSION', NULL, 'SCHEDULED', '2026-05-01', 1, '{
+    "monthly": 2000000
+  }'),
+       (5002, 1001, 2, NULL, 3001, 920000000.00, 2050000.00, 0.00, 0.00, 'IN_PROGRESS',
+        'HOUSING_PENSION', NULL, 'PENSION', 'FIXED', 'NOW', NULL, 0, NULL);
 
 -- ========================
 -- TB_ASSET_TRANS
@@ -163,9 +261,9 @@ VALUES (1, 1, '아들아, 건강하게 잘 살아라.', 'https://s3.aws.com/voic
 -- ========================
 -- TB_FAMILY_AUTH
 -- =====================
-INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID, AUTH_STATUS,
+INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
-VALUES (1, 1001, 1002, 1, 'CHILD', 1, 1, 1, 1);
+VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1);
 
 -- ========================
 -- TB_USER_LOGIN_LOG

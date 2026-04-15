@@ -21,7 +21,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
-@Tag(name = "Asset", description = "자산 관련 API")
+@Tag(name = "자산 대시보드 API")
 @RestController
 @RequestMapping("/api/asset")
 @RequiredArgsConstructor

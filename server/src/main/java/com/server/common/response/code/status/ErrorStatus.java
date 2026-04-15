@@ -1,12 +1,11 @@
 package com.server.common.response.code.status;
 
 
+import com.server.common.response.code.BaseErrorCode;
+import com.server.common.response.code.ErrorReasonDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-
-import com.server.common.response.code.BaseErrorCode;
-import com.server.common.response.code.ErrorReasonDTO;
 
 @Getter
 @AllArgsConstructor
@@ -33,39 +32,60 @@ public enum ErrorStatus implements BaseErrorCode {
     SMS_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "SMS_003", "인증번호가 일치하지 않습니다."),
     SMS_NOT_VERIFIED(HttpStatus.FORBIDDEN, "SMS_004", "전화번호 인증이 완료되지 않았습니다."),
 
-    //card
+  FAMILY_AUTH_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY4041", "가족 권한 정보를 찾을 수 없습니다."),
+  FAMILY_AUTH_NOT_APPROVED(HttpStatus.FORBIDDEN, "FAMILY4031", "아직 승인되지 않은 가족 권한입니다."),
+  TRUST_VIEW_FORBIDDEN(HttpStatus.FORBIDDEN, "TRUST4032", "신탁 조회 권한이 없습니다."),
 
-    //asset ( 예시 )
-    _PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PRODUCT_1", "상품을 찾을 수 없습니다."),
-    _PRODUCT_ALREADY_JOINED(HttpStatus.BAD_REQUEST, "PRODUCT_2", "이미 가입된 상품입니다."),
-    _PRODUCT_NOT_AVAILABLE(HttpStatus.BAD_REQUEST, "PRODUCT_3", "가입 불가능한 상품입니다."),
-    _PRODUCT_INVALID_TYPE(HttpStatus.BAD_REQUEST, "PRODUCT_4", "유효하지 않은 상품 타입입니다.");
+  // card
 
-    //inheritance
+  // asset
+  PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_001", "가입한 상품 정보를 찾을 수 없습니다."),
 
-    //myhana
+  TRUST_SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_001", "시뮬레이션 정보를 찾을 수 없습니다."),
+  TRUST_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_002", "유저를 찾을 수 없습니다."),
+  TRUST_CLAIM_AGENT_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_003", "대리인을 찾을 수 없습니다."),
+  TRUST_START_DATE_REQUIRED(HttpStatus.BAD_REQUEST, "TRUST_004", "날짜 지정 시 시작일은 필수입니다."),
+  TRUST_JSON_PROCESSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "TRUST_005",
+      "설정 데이터 처리 중 오류가 발생했습니다."),
+  TRUST_FIXED_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "TRUST_006", "신탁 상품 정보를 찾을 수 없습니다."),
+  TRUST_PRODUCT_ALREADY_EXISTS(HttpStatus.CONFLICT, "TRUST_007", "이미 가입된 신탁 상품이 있습니다."),
+  TRUST_INVALID_PAYOUT_SETTINGS(HttpStatus.BAD_REQUEST, "TRUST_008", "집행 설정 정보가 올바르지 않습니다."),
+
+  // simulation
+  SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "SIMULATION_404", "시뮬레이션 결과를 찾을 수 없습니다."),
+  SIMULATION_JSON_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SIMULATION_501",
+      "시뮬레이션 상세 리포트 생성 중 오류가 발생했습니다."),
+  SIMULATION_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "SIMULATION_400", "이미 진행 중인 시뮬레이션이 있습니다."),
+
+  // asset
+  ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
+  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다.");
+
+  // inheritance
+
+  // myhana
 
 
-    private final HttpStatus httpStatus;        // HTTP 상태 코드
-    private final String code;                  // 내부적인 에러 코드. 도메인명 + 숫자로 구성. 숫자는 HTTP 상태코드 100의자리 참고
-    private final String message;               // FE에 전달할 오류 메세지
+  private final HttpStatus httpStatus;        // HTTP 상태 코드
+  private final String code;                  // 내부적인 에러 코드. 도메인명 + 숫자로 구성. 숫자는 HTTP 상태코드 100의자리 참고
+  private final String message;               // FE에 전달할 오류 메세지
 
-    @Override
-    public ErrorReasonDTO getReason() {
-        return ErrorReasonDTO.builder()
-            .message(message)
-            .code(code)
-            .isSuccess(false)
-            .build();
-    }
+  @Override
+  public ErrorReasonDTO getReason() {
+    return ErrorReasonDTO.builder()
+        .message(message)
+        .code(code)
+        .isSuccess(false)
+        .build();
+  }
 
-    @Override
-    public ErrorReasonDTO getReasonHttpStatus() {
-        return ErrorReasonDTO.builder()
-            .message(message)
-            .code(code)
-            .isSuccess(false)
-            .httpStatus(httpStatus)
-            .build();
-    }
+  @Override
+  public ErrorReasonDTO getReasonHttpStatus() {
+    return ErrorReasonDTO.builder()
+        .message(message)
+        .code(code)
+        .isSuccess(false)
+        .httpStatus(httpStatus)
+        .build();
+  }
 }
