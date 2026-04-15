@@ -59,7 +59,11 @@ public enum ErrorStatus implements BaseErrorCode {
 
   // asset
   ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
-  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다.");
+  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
+
+  // user
+  USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_404", "유저를 찾을 수 없습니다."),
+  USER_ALREADY_WITHDRAWN(HttpStatus.CONFLICT, "USER_409", "이미 탈퇴한 계정입니다.");
 
   // inheritance
 

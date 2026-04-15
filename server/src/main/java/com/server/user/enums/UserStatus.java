@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum UserStatus {
   ACTIVE("01", "활동"),
   SUSPENDED("02", "정지"),
-  DORMANT("03", "휴면");
+  DORMANT("03", "휴면"),
+  DELETED("04", "탈퇴");
 
   private final String code;
   private final String description;
