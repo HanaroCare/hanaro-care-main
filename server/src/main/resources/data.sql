@@ -23,31 +23,37 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- ========================
 -- TB_USER
--- 비밀번호: $2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi
+-- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
-INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
-                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
+INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE,
+                     IS_HANA_CERT, USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT,
+                     PWD_CHANGED_AT)
 VALUES
-    -- 1. 정상 유저 (최근 로그인)
-    (1001, '홍길동', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
-     '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
-    -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
-    (1002, '김철수', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
-     '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH),
-     DATE_SUB(NOW(), INTERVAL 7 MONTH)),
-    -- 3. 이미 휴면 상태인 유저
-    (1003, '이영희', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
-     '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
-     DATE_SUB(NOW(), INTERVAL 8 MONTH)),
-    -- 4. 관리자
-    (1004, '박관리', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
-     '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW()),
+    -- 1. 홍길동: 일반 비밀번호 유저
+    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 2. 김철수: 간편 비밀번호 유저
+    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2',
+     '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 3. 이영희: 휴면 계정 예시
+    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER',
+     DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+
+    -- 4. 박관리: 관리자 계정
+    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW()),
+
     -- 5. 시뮬레이션 테스트용 부모 유저
-    (1005, '정순자', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
-     '01066667777', 68, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+    '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
     -- 6. 시뮬레이션 테스트용 자녀 유저
-    (1006, '정민준', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
-     '01077778888', 38, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
+    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+    '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
+
 
 -- ========================
 -- TB_PRODUCT
@@ -303,9 +309,8 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- TB_USER_SIMPLE_AUTH
 -- ========================
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
-VALUES (8001, 1001, '$2a$12$R9h/lSAbvI7.Ctf386zUn.9v78RREI7K7T9I.X06C58L4iFm3lG8i',
-        'SIMPLE_PASSWORD'),
-       (8002, 1002, 'BIO_TOKEN_VALUE', 'FACEID');
+VALUES (8001, 1002, '$2a$12$3vbJaMEQ0c8gmy8vOTUq4u0oKkUZEiI584xqRz1bFKHe.drWmV3/G',
+        'SIMPLE_PASSWORD');
 
 -- ========================
 -- TB_REFRESH_TOKEN
