@@ -64,6 +64,23 @@ export type TrustSimulationResultResponse = {
   amountResults: AmountResultDto[];
 };
 
+export type TrustAccessLevel = 'READ_WRITE' | 'PROXY_ONLY' | 'NONE';
+
+export type TrustAccessItem = {
+  grantorId: number;
+  grantorName: string;
+  accessLevel: TrustAccessLevel;
+};
+
+export async function getTrustFamilyAccess(): Promise<TrustAccessItem[]> {
+  try {
+    const res = await serverFetch<{ accessList: TrustAccessItem[] }>('/api/asset/trust/family/access');
+    return res.accessList ?? [];
+  } catch {
+    return [];
+  }
+}
+
 export async function getTrustSimulationResult(): Promise<TrustSimulationResultResponse | null> {
   try {
     return await serverFetch<TrustSimulationResultResponse>('/api/asset/trust');

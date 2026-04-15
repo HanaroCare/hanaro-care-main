@@ -4,6 +4,10 @@ import { ChevronRight, Lock } from 'lucide-react';
 import { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import {
+  getTrustFamilyAccess,
+  type TrustAccessLevel,
+} from '@/app/asset/actions/trust';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
@@ -31,7 +35,7 @@ export default function SimulatorPage() {
   const [careMethod, setCareMethod] = useState('nursing-home');
 
   const [isParentMode, setIsParentMode] = useState(false);
-  const [hasPermission, setHasPermission] = useState(false);
+  const [accessLevel, setAccessLevel] = useState<TrustAccessLevel | null>(null);
 
   const handleTabChange = (tabId: string) => {
     if (tabId === 'asset') {
@@ -46,6 +50,18 @@ export default function SimulatorPage() {
     const completed = localStorage.getItem(COMPLETION_KEY);
     setShowOnboarding(hasSeen !== 'true');
     setHasResult(completed === 'true');
+  }, []);
+
+  useEffect(() => {
+    getTrustFamilyAccess().then((list) => {
+      if (list.some((item) => item.accessLevel === 'READ_WRITE')) {
+        setAccessLevel('READ_WRITE');
+      } else if (list.some((item) => item.accessLevel === 'PROXY_ONLY')) {
+        setAccessLevel('PROXY_ONLY');
+      } else {
+        setAccessLevel('NONE');
+      }
+    });
   }, []);
 
   const handleOnboardingComplete = () => {
@@ -76,32 +92,33 @@ export default function SimulatorPage() {
             activeTab={activeTab}
             onTabChange={handleTabChange}
           />
-          <div className="flex items-center justify-between">
-            <span
-              id="parent-mode-label"
-              className="text-[15px] font-medium text-[#4B5563]"
-            >
-              부모님 모드 확인
-            </span>
-
-            <button
-              type="button"
-              role="switch"
-              aria-checked={isParentMode}
-              aria-labelledby="parent-mode-label"
-              onClick={() => setIsParentMode(!isParentMode)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-hana-ez-600 focus-visible:ring-offset-2 ${
-                isParentMode ? 'bg-hana-ez-600' : 'bg-gray-300'
-              }`}
-            >
+          {accessLevel && accessLevel !== 'NONE' && (
+            <div className="flex items-center justify-between px-4 py-3">
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ${
-                  isParentMode ? 'translate-x-6' : 'translate-x-1'
+                id="parent-mode-label"
+                className="text-[15px] font-medium text-[#4B5563]"
+              >
+                부모님 신탁 현황 확인
+              </span>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isParentMode}
+                aria-labelledby="parent-mode-label"
+                onClick={() => setIsParentMode(!isParentMode)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-hana-ez-600 focus-visible:ring-offset-2 ${
+                  isParentMode ? 'bg-hana-ez-600' : 'bg-gray-300'
                 }`}
-                aria-hidden="true"
-              />
-            </button>
-          </div>
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ${
+                    isParentMode ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                  aria-hidden="true"
+                />
+              </button>
+            </div>
+          )}
         </div>
 
         <main className="flex flex-1 flex-col gap-6 px-6 pt-8 pb-24">
@@ -144,9 +161,11 @@ export default function SimulatorPage() {
               {/* 가입 및 운용 현황 (공통/부모 모드) */}
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 gap-4">
-                  <ProductStatusCard type="pension" status="active" />
+                  {!isParentMode && (
+                    <ProductStatusCard type="pension" status="active" />
+                  )}
 
-                  {isParentMode && !hasPermission ? (
+                  {isParentMode && accessLevel === 'PROXY_ONLY' ? (
                     <button
                       type="button"
                       onClick={() =>
@@ -172,9 +191,11 @@ export default function SimulatorPage() {
                         <ChevronRight size={16} strokeWidth={3} />
                       </div>
                     </button>
-                  ) : (
+                  ) : null}
+
+                  {isParentMode && accessLevel === 'READ_WRITE' ? (
                     <ProductStatusCard type="trust" status="active" />
-                  )}
+                  ) : null}
                 </div>
               </div>
             </>
