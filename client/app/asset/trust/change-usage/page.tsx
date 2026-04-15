@@ -1,7 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo, useState, useTransition } from 'react';
+import { updateTrustPayoutSettings } from '@/app/asset/actions/trust';
 import ProgressBar from '@/components/baseelements/ProgressBar';
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import StackedActionFooter from '@/components/modules/StackedActionFooter';
@@ -15,10 +16,12 @@ import {
 const items = [
   { id: 'hospital', title: '병원비 자동 집행', amount: '월 43만원' },
   { id: 'living', title: '생활비', amount: '월 100만원' },
-];
+] as const;
 
 export default function ChangeUsagePage() {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
   const [selected, setSelected] = useState<Set<string>>(
     new Set(['hospital', 'living']),
   );
@@ -31,9 +34,32 @@ export default function ChangeUsagePage() {
     });
   };
 
-  const total = items
-    .filter((item) => selected.has(item.id))
-    .reduce((sum, item) => sum + parseKoreanAmount(item.amount), 0);
+  const total = useMemo(() => {
+    return items
+      .filter((item) => selected.has(item.id))
+      .reduce((sum, item) => sum + parseKoreanAmount(item.amount), 0);
+  }, [selected]);
+
+  const handleNext = () => {
+    startTransition(async () => {
+      const requestItems = items
+        .filter((item) => selected.has(item.id))
+        .map((item) => ({
+          type: item.id === 'hospital' ? 'HOSPITAL' : 'LIVING',
+          amount: parseKoreanAmount(item.amount),
+        })) as { type: 'HOSPITAL' | 'LIVING'; amount: number }[];
+
+      try {
+        await updateTrustPayoutSettings({
+          items: requestItems,
+        });
+
+        router.push('/asset/trust/change-agent');
+      } catch (error) {
+        console.error('신탁 자금 사용처 수정 실패', error);
+      }
+    });
+  };
 
   return (
     <TrustStepLayout
@@ -42,12 +68,13 @@ export default function ChangeUsagePage() {
           onConsultClick={() => {
             // 상담 예약 로직
           }}
-          onNextClick={() => router.push('/asset/trust/change-agent')}
-          nextDisabled={selected.size === 0}
+          onNextClick={handleNext}
+          nextDisabled={selected.size === 0 || isPending}
         />
       }
     >
       <Header title="신탁 설정 변경" showBackButton />
+
       <section className="px-6 pt-8">
         <ProgressBar step={3} />
 
@@ -58,7 +85,6 @@ export default function ChangeUsagePage() {
             사용할까요?
           </h2>
 
-          {/* 상단 안내: AlertBanner info 타입 적용 */}
           <div className="mt-4 flex justify-center">
             <AlertBanner
               variant="info"
@@ -99,19 +125,16 @@ export default function ChangeUsagePage() {
         </div>
 
         {selected.size > 0 && (
-          <>
-            {/* 월 집행 합계 카드 */}
-            <div className="mt-6 rounded-[20px] bg-[#EFF8F7] px-6 py-7">
-              <div className="flex items-center justify-between">
-                <span className="text-[16px] leading-6 font-semibold tracking-tight text-hana-ez-600">
-                  월 집행 합계
-                </span>
-                <span className="text-[22px] leading-8 font-bold tracking-tight text-hana-ez-600">
-                  {formatKoreanAmount(total)}
-                </span>
-              </div>
+          <div className="mt-6 rounded-[20px] bg-[#EFF8F7] px-6 py-7">
+            <div className="flex items-center justify-between">
+              <span className="text-[16px] leading-6 font-semibold tracking-tight text-hana-ez-600">
+                월 집행 합계
+              </span>
+              <span className="text-[22px] leading-8 font-bold tracking-tight text-hana-ez-600">
+                {formatKoreanAmount(total)}
+              </span>
             </div>
-          </>
+          </div>
         )}
       </section>
     </TrustStepLayout>

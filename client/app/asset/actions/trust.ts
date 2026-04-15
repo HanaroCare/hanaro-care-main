@@ -41,6 +41,19 @@ const PAYOUT_ITEM_TYPE: Record<string, TrustItemType> = {
   living: 'LIVING',
 };
 
+export type TrustType = 'HOSPITAL' | 'LIVING';
+
+export type TrustPayoutSettingsUpdateRequest = {
+  items: {
+    type: TrustType;
+    amount: number;
+  }[];
+};
+
+export type TrustAgentViewUpdateRequest = {
+  agentViewEnabled: boolean;
+};
+
 export type SimulationDetailDto = {
   principalAmount: number;
   expectedProfit: number;
@@ -106,6 +119,12 @@ export type TrustProductDetail = {
     livingEnabled: boolean;
     livingAmount: number;
   };
+  claimAgent: {
+    userId: number;
+    userName: string;
+    relation: string | null;
+  } | null;
+  agentViewEnabled: boolean;
 };
 
 export type FamilyMember = {
@@ -224,4 +243,22 @@ export async function getTrustProductSummary(): Promise<TrustProductDetail | nul
   } catch {
     return null;
   }
+}
+
+export async function updateTrustPayoutSettings(
+  body: TrustPayoutSettingsUpdateRequest,
+): Promise<void> {
+  return serverFetch<void>('/api/asset/trust/product/payout-settings', {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateTrustAgentView(
+  body: TrustAgentViewUpdateRequest,
+): Promise<void> {
+  return serverFetch<void>('/api/asset/trust/product/agent-view', {
+    method: 'PATCH',
+    body: JSON.stringify(body),
+  });
 }

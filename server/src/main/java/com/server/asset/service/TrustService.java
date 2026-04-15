@@ -262,9 +262,34 @@ public class TrustService {
         .add(profit)
         .subtract(executionAmount);
 
+    TrustProductResponse.ClaimAgent claimAgentDto = null;
+    if (userProd.getClaimAgent() != null) {
+      TBUser claimAgent = userProd.getClaimAgent();
+
+      String relation = familyAuthRepository
+          .findByGrantor_UserIdAndGrantee_UserId(userProd.getUser().getUserId(), claimAgent.getUserId())
+          .map(auth -> auth.getRelationCd().getDescription())
+          .orElse(null);
+
+      claimAgentDto = new TrustProductResponse.ClaimAgent(
+          claimAgent.getUserId(),
+          claimAgent.getUserNm(),
+          relation
+      );
+    }
+
+    Boolean agentViewEnabled = Boolean.TRUE.equals(userProd.getIsAgentView());
+
     return trustMapper.toProductResponse(
-        userProd, currentAmount, profitRate, principalAmount, executionAmount, profit,
-        executionSetting
+        userProd,
+        currentAmount,
+        profitRate,
+        principalAmount,
+        executionAmount,
+        profit,
+        executionSetting,
+        claimAgentDto,
+        agentViewEnabled
     );
   }
 
