@@ -31,14 +31,15 @@ public class SimulationEngine {
     public SimulationDetailResponse run(AIAnalysisInput input) {
         BigDecimal medicalInflation = MEDICAL_INFLATION;
 
+        int remainingYears = Math.max(1, input.getTargetAge() - input.getUserAge());
+
         BigDecimal estimatedPension = pensionService.estimateMonthlyPension(
             input.getUserId(),
             input.getUserAge(),
             input.getAverageMonthlySpending(),
-            20
+            remainingYears // 하드코딩된 20 대신 계산된 기간 전달
         );
 
-        // 주소 기반 복지 서비스 조회
         List<String> welfareServices = fetchWelfareServices(input.getUserAddr());
 
         log.info("[시뮬레이션 시작] 사용자 나이: {}, 목표 나이: {}, 요양 유형: {}",
@@ -109,11 +110,11 @@ public class SimulationEngine {
 
         BigDecimal futureMedical = monthlyMedicalBase.multiply(
             BigDecimal.ONE.add(
-                inflation.divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)));
+                inflation.divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP)));
 
         BigDecimal futureLiving = input.getAverageMonthlySpending().multiply(
             BigDecimal.ONE.add(
-                AVG_WAGE_GROWTH.divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)));
+                AVG_WAGE_GROWTH.divide(new BigDecimal("100"), 4, java.math.RoundingMode.HALF_UP)));
 
         SimulationDetailResponse.AgeSegment segment1 = SimulationDetailResponse.AgeSegment.builder()
             .range("70-75세")
