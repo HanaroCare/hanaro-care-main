@@ -5,23 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import type { AssetCategory, AssetDashboardResponse } from '../utils/types';
 
-// ─── 카테고리별 UI 매핑 ──────────────────────────────────────────
 const CATEGORY_META: Record<AssetCategory, { label: string; color: string }> = {
   STOCK:     { label: '주식',  color: '#015E5F' },
   CASH:      { label: '계좌',  color: '#1EB1B2' },
   PENSION:   { label: '연금',  color: '#8DC8C8' },
   INSURANCE: { label: '보험',  color: '#C7E4E4' },
   CARD:      { label: '카드',  color: '#BDAE7F' },
-};
-
-// ─── 금액 포맷 (숫자 → "X억 Y만원") ────────────────────────────
-function formatAmount(amount: number): string {
-  const eok = Math.floor(amount / 100_000_000);
-  const man = Math.floor((amount % 100_000_000) / 10_000);
-
-  if (eok > 0 && man > 0) return `${eok}억 ${man.toLocaleString()}만원`;
-  if (eok > 0) return `${eok}억원`;
-  return `${man.toLocaleString()}만원`;
 }
 
 function formatShort(amount: number): string {
@@ -35,7 +24,7 @@ interface Props {
 export function AssetDashboard({ data }: Props) {
   const router = useRouter();
 
-  const totalAmt = data ? formatAmount(data.totalFinancialAmt) : '-';
+  const totalAmt = data ? formatKoreanCurrency(data.totalFinancialAmt) : '-';
   const shortAmt = data ? formatShort(data.totalFinancialAmt) : '';
 
   const total = data
@@ -50,7 +39,7 @@ export function AssetDashboard({ data }: Props) {
           value: a.totalBalance,
           percentage: total > 0 ? (a.totalBalance / total) * 100 : 0,
           color: meta.color,
-          displayValue: formatAmount(a.totalBalance),
+          displayValue: formatKoreanCurrency(a.totalBalance),
         };
       })
     : [];
