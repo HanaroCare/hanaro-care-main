@@ -11,8 +11,7 @@ import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
 
 public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
-	List<TBAccount> findAllByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCateCd);
-
+	List<TBAccount> findByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCateCd);
 	List<TBAccount> findAllByUser_UserIdAndAssetCateCdNot(Long userId, AssetCategory assetCateCd);
 
 	@Query("""

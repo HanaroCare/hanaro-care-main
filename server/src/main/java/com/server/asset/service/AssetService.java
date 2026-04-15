@@ -73,7 +73,7 @@ public class AssetService {
 	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
 		return assetMapper.toAssetDetailListFromAccount(
-			tbAccountRepository.findAllByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
+			tbAccountRepository.findByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
 		);
 	}
 

@@ -32,9 +32,14 @@ public class SimulationEngine {
         BigDecimal medicalInflation = MEDICAL_INFLATION;
 
         BigDecimal estimatedPension = pensionService.estimateMonthlyPension(
-            input.getUserAge(), input.getAverageMonthlySpending(), 20);
+            input.getUserId(),
+            input.getUserAge(),
+            input.getAverageMonthlySpending(),
+            20
+        );
 
-        List<String> welfareServices = fetchWelfareServices();
+        // 주소 기반 복지 서비스 조회
+        List<String> welfareServices = fetchWelfareServices(input.getUserAddr());
 
         log.info("[시뮬레이션 시작] 사용자 나이: {}, 목표 나이: {}, 요양 유형: {}",
             input.getUserAge(), input.getTargetAge(), input.getCareType());
@@ -57,10 +62,14 @@ public class SimulationEngine {
         }
     }
 
-    private List<String> fetchWelfareServices() {
+    private List<String> fetchWelfareServices(String userAddr) {
         try {
+            String region = extractRegion(userAddr);
+            String searchWrd = region.isBlank() ? "노인" : region + " 노인";
+            log.info("[복지로 조회] 검색어: {}", searchWrd);
+
             PublicDataResponse.WelfareListResponse response =
-                bokjiroClient.getWelfareServices("003", "노인", "006", 1, 5);
+                bokjiroClient.getWelfareServices("003", searchWrd, "006", 1, 5);
 
             if (response != null
                 && response.getWantedList() != null
@@ -77,6 +86,12 @@ public class SimulationEngine {
             log.warn("[복지로 조회 실패] 에러: {}", e.getMessage());
         }
         return Arrays.asList("기초연금", "노인 장기요양 보험");
+    }
+
+    private String extractRegion(String addr) {
+        if (addr == null || addr.isBlank()) return "";
+        String[] parts = addr.split(" ");
+        return parts.length > 0 ? parts[0] : "";
     }
 
     private SimulationDetailResponse runRuleBasedSimulation(
