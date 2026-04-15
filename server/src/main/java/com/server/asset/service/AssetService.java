@@ -11,8 +11,8 @@ import com.server.asset.dto.dashboard.AssetDashboardResponse.FinancialAssetSumma
 import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
+import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
