@@ -8,12 +8,12 @@ import org.springframework.security.core.GrantedAuthority;
 public class LoginAuthenticationToken extends AbstractAuthenticationToken {
 
   private final Object principal;
-  private final String credentials;
+  private String credentials;
   private final LoginMeans means;
 
-  public LoginAuthenticationToken(String userNm, String userPwd, LoginMeans means) {
+  public LoginAuthenticationToken(String loginId, String userPwd, LoginMeans means) {
     super(null);
-    this.principal = userNm;
+    this.principal = loginId;
     this.credentials = userPwd;
     this.means = means;
     setAuthenticated(false);
@@ -25,20 +25,26 @@ public class LoginAuthenticationToken extends AbstractAuthenticationToken {
     this.principal = principal;
     this.credentials = null;
     this.means = means;
-    setAuthenticated(true);
+    super.setAuthenticated(true);
   }
 
   @Override
   public Object getCredentials() {
-    return credentials;
+    return this.credentials;
   }
 
   @Override
   public Object getPrincipal() {
-    return principal;
+    return this.principal;
   }
 
   public LoginMeans getMeans() {
-    return means;
+    return this.means;
+  }
+
+  @Override
+  public void eraseCredentials() {
+    super.eraseCredentials();
+    this.credentials = null;
   }
 }

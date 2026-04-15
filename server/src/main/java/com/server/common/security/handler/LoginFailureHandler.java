@@ -29,20 +29,24 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 
     String code;
     String message;
+    int status;
 
     if (exception instanceof AccountSuspendedException) {
       code = "AUTH_008";
       message = "이용이 정지된 계정입니다. 고객센터에 문의해주세요.";
+      status = HttpServletResponse.SC_FORBIDDEN; // 403 Forbidden
     } else if (exception instanceof AccountDormantException) {
       code = "AUTH_009";
       message = "휴면 계정입니다. 본인인증을 통해 계정을 복구해 주세요.";
+      status = HttpServletResponse.SC_FORBIDDEN; // 403 Forbidden
     } else {
       code = "AUTH_001";
       message = "아이디 또는 비밀번호가 일치하지 않습니다.";
+      status = HttpServletResponse.SC_UNAUTHORIZED; // 401 Unauthorized
     }
 
     response.setContentType("application/json;charset=UTF-8");
-    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+    response.setStatus(status);
 
     Map<String, Object> body = Map.of(
         "isSuccess", false,

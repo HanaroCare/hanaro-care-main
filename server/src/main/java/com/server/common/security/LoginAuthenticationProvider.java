@@ -55,6 +55,7 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
     SubscriberDTO subscriberDTO = new SubscriberDTO(
         user.getUserId(),
         user.getLoginId(),
+        user.getUserNm(),
         "",
         user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))

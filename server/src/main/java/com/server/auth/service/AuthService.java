@@ -48,6 +48,9 @@ public class AuthService {
   @Value("${jwt.refresh-expiration}")
   private long refreshExpiration;
 
+  /**
+   * 아이디 중복 체크 UserRepository에 existsByLoginId가 선언되어 있어야 정상 작동합니다.
+   */
   public void checkLoginId(String loginId) {
     if (userRepository.existsByLoginId(loginId)) {
       throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
@@ -84,6 +87,7 @@ public class AuthService {
       throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
 
+    // 트랜잭션 커밋 후 SMS 인증 정보 삭제
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
       @Override
       public void afterCommit() {
@@ -159,7 +163,14 @@ public class AuthService {
         .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS));
 
     if (user.getUserStatusCd() != UserStatus.DORMANT) {
+      log.warn("[휴면 해제 실패] 대상 계정이 휴면 상태가 아님 - loginId={}", request.getLoginId());
       throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
+    }
+
+    if (!smsAuthService.isVerified(user.getUserPhone())) {
+      log.warn("[휴면 해제 실패] SMS 인증 누락 - loginId={}, phone={}",
+          user.getLoginId(), user.getUserPhone());
+      throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED); // 또는 AUTH_BAD_CREDENTIALS
     }
 
     LocalDateTime now = LocalDateTime.now();
@@ -169,7 +180,13 @@ public class AuthService {
     user.setLastLoginAt(now);
     userRepository.save(user);
 
-    log.info("[휴면 해제] loginId={}", user.getLoginId());
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public void afterCommit() {
+        smsAuthService.clearVerification(user.getUserPhone());
+        log.info("[휴면 해제 성공] loginId={}", user.getLoginId());
+      }
+    });
   }
 
   private void verifyCredential(TBUser user, String inputSecret, LoginMeans means) {
@@ -224,7 +241,7 @@ public class AuthService {
         .refreshToken(refreshToken)
         .grantType(AuthConstants.TOKEN_TYPE)
         .userRole(user.getUserRole().name())
-        .userNm(user.getLoginId())
+        .loginId(user.getLoginId())
         .build();
   }
 
@@ -232,6 +249,7 @@ public class AuthService {
     return new SubscriberDTO(
         user.getUserId(),
         user.getLoginId(),
+        user.getUserNm(),
         "",
         user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))

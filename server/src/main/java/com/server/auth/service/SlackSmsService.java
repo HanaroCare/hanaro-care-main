@@ -32,10 +32,20 @@ public class SlackSmsService implements SmsService {
 
     try {
       restTemplate.postForEntity(webhookUrl, entity, String.class);
-      log.info("[슬랙 인증 발송 완료] phone={}", phone);
+      log.info("[슬랙 인증 발송 완료] phone={}", maskPhoneNumber(phone));
     } catch (Exception e) {
-      log.error("[슬랙 발송 실패] phone={}, error={}", phone, e.getMessage());
+      log.error("[슬랙 발송 실패] phone={}, error={}", maskPhoneNumber(phone), e.getMessage());
       throw new ApiException(ErrorStatus.SMS_SEND_FAILED);
     }
+  }
+
+  /**
+   * 전화번호 마스킹 헬퍼 메서드 예: 01012345678 -> 010****5678
+   */
+  private String maskPhoneNumber(String phone) {
+    if (phone == null || phone.length() < 7) {
+      return "****";
+    }
+    return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 4);
   }
 }

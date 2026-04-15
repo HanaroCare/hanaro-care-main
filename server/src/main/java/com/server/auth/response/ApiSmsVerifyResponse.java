@@ -15,8 +15,9 @@ import java.lang.annotation.Target;
 @ApiResponses({
     @ApiResponse(
         responseCode = "200",
-        description = "인증 성공 (인증번호 일치 및 3분 이내 확인)",
-        content = @Content(schema = @Schema(implementation = ApiResponse.class),
+        description = "SMS 인증 성공",
+        content = @Content(
+            schema = @Schema(implementation = com.server.common.response.ApiResponse.class),
             examples = @ExampleObject(name = "인증 성공", value = """
                 {
                     "isSuccess": true,
@@ -28,27 +29,25 @@ import java.lang.annotation.Target;
     ),
     @ApiResponse(
         responseCode = "400",
-        description = "인증번호 불일치 (SMS_003)",
-        content = @Content(schema = @Schema(implementation = ApiResponse.class),
-            examples = @ExampleObject(name = "번호 불일치", value = """
-                {
-                    "isSuccess": false,
-                    "code": "SMS_003",
-                    "message": "인증번호가 일치하지 않습니다."
-                }
-                """))
-    ),
-    @ApiResponse(
-        responseCode = "401",
-        description = "인증 시간 만료 (SMS_002)",
-        content = @Content(schema = @Schema(implementation = ApiResponse.class),
-            examples = @ExampleObject(name = "시간 만료", value = """
-                {
-                    "isSuccess": false,
-                    "code": "SMS_002",
-                    "message": "인증 시간이 만료되었습니다. 다시 시도해 주세요."
-                }
-                """))
+        description = "인증번호 불일치 또는 만료 (AUTH_005, AUTH_006)",
+        content = @Content(
+            schema = @Schema(implementation = com.server.common.response.ApiResponse.class),
+            examples = {
+                @ExampleObject(name = "번호 불일치", value = """
+                    {
+                        "isSuccess": false,
+                        "code": "AUTH_005",
+                        "message": "인증번호가 일치하지 않습니다."
+                    }
+                    """),
+                @ExampleObject(name = "인증 만료/없음", value = """
+                    {
+                        "isSuccess": false,
+                        "code": "AUTH_006",
+                        "message": "인증 정보가 없거나 만료되었습니다. 다시 시도해주세요."
+                    }
+                    """)
+            })
     )
 })
 public @interface ApiSmsVerifyResponse {

@@ -12,11 +12,11 @@ import com.server.auth.response.ApiSmsVerifyResponse;
 import com.server.auth.service.AuthService;
 import com.server.auth.service.SmsAuthService;
 import com.server.common.response.ApiResponse;
+import com.server.common.validator.LoginId;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,8 +50,8 @@ public class AuthController {
       description = "일반(PASSWORD) 및 간편인증(SIMPLE_PASSWORD, PATTERN, FACEID) 로그인을 통합 처리합니다."
   )
   @PostMapping("/login")
-  public ResponseEntity<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-    return ResponseEntity.ok(authService.login(request));
+  public ApiResponse<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+    return ApiResponse.onSuccess(authService.login(request));
   }
 
   @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급한다.")
@@ -78,7 +78,7 @@ public class AuthController {
   public ApiResponse<String> checkLoginId(
       @Parameter(description = "중복 확인할 아이디 (영문·숫자 4~20자)", example = "hong1234")
       @RequestParam
-      @Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하여야 합니다.")
+      @LoginId
       String loginId) {
     authService.checkLoginId(loginId);
     return ApiResponse.onSuccess("사용 가능한 아이디입니다.");

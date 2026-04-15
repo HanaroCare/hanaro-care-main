@@ -1,10 +1,10 @@
 package com.server.auth.dto;
 
+import com.server.common.validator.LoginId;
 import com.server.user.enums.LoginMeans;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +17,7 @@ import lombok.NoArgsConstructor;
 public class LoginRequestDTO {
 
   @NotBlank(message = "아이디는 필수 입력 사항입니다.")
-  @Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하로 입력해주세요.")
+  @LoginId
   @Schema(description = "로그인 아이디", example = "testUser")
   private String loginId;
 

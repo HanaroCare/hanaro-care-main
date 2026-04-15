@@ -63,6 +63,7 @@ public class JwtUtil {
   public SubscriberDTO getSubscriber(String token) {
     Claims claims = parseClaims(token);
     Long userId = claims.get("userId", Long.class);
+    String userNm = claims.get("userNm", String.class);
     String loginId = claims.getSubject();
     java.util.List<String> roles = claims.get("roles", java.util.List.class);
     Boolean hanaCertYn = claims.get("hanaCertYn", Boolean.class);
@@ -72,7 +73,8 @@ public class JwtUtil {
             .map(org.springframework.security.core.authority.SimpleGrantedAuthority::new)
             .toList() : java.util.Collections.emptyList();
 
-    return new SubscriberDTO(userId, loginId, "", Boolean.TRUE.equals(hanaCertYn), authorities);
+    return new SubscriberDTO(userId, loginId, userNm, "", Boolean.TRUE.equals(hanaCertYn),
+        authorities);
   }
 
   public Map<String, Object> authenticationToClaims(Authentication authentication) {

@@ -1,6 +1,5 @@
 package com.server.common.config;
 
-import com.server.common.security.CustomJsonLoginFilter;
 import com.server.common.security.JwtAuthenticationFilter;
 import com.server.common.security.LoginAuthenticationProvider;
 import com.server.common.security.handler.CustomAccessDeniedHandler;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -51,22 +49,12 @@ public class SecurityConfig {
             .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
             .anyRequest().authenticated()
         )
-        .addFilterBefore(customJsonLoginFilter(), UsernamePasswordAuthenticationFilter.class)
         .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
         .exceptionHandling(ex -> ex
             .accessDeniedHandler(accessDeniedHandler)
         );
 
     return http.build();
-  }
-
-  @Bean
-  public CustomJsonLoginFilter customJsonLoginFilter() {
-    CustomJsonLoginFilter filter = new CustomJsonLoginFilter();
-    filter.setAuthenticationManager(new ProviderManager(loginAuthenticationProvider));
-    filter.setAuthenticationSuccessHandler(loginSuccessHandler);
-    filter.setAuthenticationFailureHandler(loginFailureHandler);
-    return filter;
   }
 
   private CorsConfigurationSource corsConfigurationSource() {

@@ -32,6 +32,10 @@ public class CustomJsonLoginFilter extends AbstractAuthenticationProcessingFilte
     LoginRequestDTO loginRequest = objectMapper.readValue(request.getInputStream(),
         LoginRequestDTO.class);
 
+    if (loginRequest == null) {
+      throw new AuthenticationServiceException("요청 본문(JSON)이 비어있습니다.");
+    }
+
     if (loginRequest.getMeans() == null) {
       throw new AuthenticationServiceException("인증 수단은 필수입니다.");
     }

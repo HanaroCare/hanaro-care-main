@@ -28,7 +28,7 @@ public class SmsAuthService {
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));
     store.put(phone, new PhoneAuthRecord(code));
     smsService.send(phone, code);
-    log.info("[인증번호 발송] phone={}", phone);
+    log.info("[인증번호 발송] phone={}", maskPhone(phone));
   }
 
   public void sendPasswordFindCode(PasswordFindRequestDTO request) {
@@ -39,23 +39,29 @@ public class SmsAuthService {
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));
     store.put(phone, new PhoneAuthRecord(code));
     smsService.send(phone, code);
-    log.info("[비밀번호 찾기 인증번호 발송] loginId={}, phone={}", request.getLoginId(), phone);
+    log.info("[비밀번호 찾기 인증번호 발송] loginId={}, phone={}", request.getLoginId(), maskPhone(phone));
   }
 
   public void verifySms(SmsVerifyRequestDTO request) {
     String phone = request.getPhone();
-    PhoneAuthRecord record = store.get(phone);
+    
+    PhoneAuthRecord updatedRecord = store.computeIfPresent(phone, (key, currentRecord) -> {
+      if (!currentRecord.isPendingValid()) {
+        throw new ApiException(ErrorStatus.SMS_CODE_EXPIRED);
+      }
 
-    if (record == null || !record.isPendingValid()) {
+      if (!currentRecord.getCode().equals(request.getAuthCode())) {
+        throw new ApiException(ErrorStatus.SMS_CODE_MISMATCH);
+      }
+
+      return currentRecord.markVerified();
+    });
+
+    if (updatedRecord == null) {
       throw new ApiException(ErrorStatus.SMS_CODE_EXPIRED);
     }
 
-    if (!record.getCode().equals(request.getAuthCode())) {
-      throw new ApiException(ErrorStatus.SMS_CODE_MISMATCH);
-    }
-
-    store.put(phone, record.markVerified());
-    log.info("[인증 완료] phone={}", phone);
+    log.info("[인증 완료] phone={}", maskPhone(phone));
   }
 
   public boolean isVerified(String phone) {
@@ -65,6 +71,16 @@ public class SmsAuthService {
 
   public void clearVerification(String phone) {
     store.remove(phone);
-    log.debug("[인증 정보 삭제] phone={}", phone);
+    log.debug("[인증 정보 삭제] phone={}", maskPhone(phone));
+  }
+
+  /**
+   * 전화번호 마스킹 헬퍼
+   */
+  private String maskPhone(String phone) {
+    if (phone == null || phone.length() < 7) {
+      return "****";
+    }
+    return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 4);
   }
 }

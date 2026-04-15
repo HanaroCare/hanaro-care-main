@@ -28,7 +28,12 @@ public class LoginLogService {
 
     if (attrs != null) {
       HttpServletRequest req = attrs.getRequest();
-      ipAddr = req.getRemoteAddr();
+      String forwardedFor = req.getHeader("X-Forwarded-For");
+      if (forwardedFor != null && !forwardedFor.isBlank()) {
+        ipAddr = forwardedFor.split(",")[0].trim();
+      } else {
+        ipAddr = req.getRemoteAddr();
+      }
       devNm = req.getHeader("User-Agent");
     }
 

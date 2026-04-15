@@ -30,6 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     return new SubscriberDTO(
         user.getUserId(),
         user.getLoginId(),
+        user.getUserNm(),
         "",
         user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))

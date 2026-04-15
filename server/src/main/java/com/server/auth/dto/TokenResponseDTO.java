@@ -15,5 +15,5 @@ public class TokenResponseDTO {
   private String refreshToken;
   private String grantType;
   private String userRole;
-  private String userNm;
+  private String loginId;
 }
