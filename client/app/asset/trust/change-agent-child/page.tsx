@@ -4,7 +4,6 @@ import { FileCheck, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import InfoBox from '@/components/modules/InfoBox';
 import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 

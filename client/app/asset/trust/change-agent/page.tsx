@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
-import InfoBox from '@/components/modules/InfoBox';
 import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 
