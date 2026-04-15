@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
-import { getAssetDashboard } from '@/lib/api/asset';
-import type { AssetCategory, AssetDashboardResponse } from '@/types/asset';
+import { getAssetDashboard } from '../actions/asset';
+import type { AssetCategory, AssetDashboardResponse } from '../types';
 
 // ─── 카테고리별 UI 매핑 ──────────────────────────────────────────
 const CATEGORY_META: Record<AssetCategory, { label: string; color: string }> = {
