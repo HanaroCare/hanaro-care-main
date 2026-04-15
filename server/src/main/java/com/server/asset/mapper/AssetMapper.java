@@ -6,10 +6,10 @@ import java.util.List;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.server.asset.dto.response.AssetDashboardResponse.FinancialAssetSummary;
-import com.server.asset.dto.response.AssetDashboardResponse.RealAssetSummary;
-import com.server.asset.dto.response.AssetDetailResponse;
-import com.server.asset.dto.response.FinancialAssetResponse;
+import com.server.asset.dto.dashboard.AssetDashboardResponse.FinancialAssetSummary;
+import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
+import com.server.asset.dto.dashboard.AssetDetailResponse;
+import com.server.asset.dto.dashboard.FinancialAssetResponse;
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.AssetCategory;

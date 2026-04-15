@@ -1,6 +1,6 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
--- 기존 데이터 삭제
+-- 2. 이제 안전하게 비웁니다.
 TRUNCATE TABLE TB_USER_SIMPLE_AUTH;
 TRUNCATE TABLE TB_ASSET_TRANS;
 TRUNCATE TABLE TB_USER_PROD;
@@ -9,6 +9,7 @@ TRUNCATE TABLE TB_FAMILY_AUTH;
 TRUNCATE TABLE TB_CARD;
 TRUNCATE TABLE TB_ASSET_SIMULATION;
 TRUNCATE TABLE TB_TRUST_SIMULATION;
+TRUNCATE TABLE TB_PENSION_SIMULATION;
 TRUNCATE TABLE TB_ACCOUNT;
 TRUNCATE TABLE TB_INHERIT_LETTER;
 TRUNCATE TABLE TB_INHERIT_DETAIL;
@@ -19,11 +20,10 @@ TRUNCATE TABLE TB_PRODUCT;
 TRUNCATE TABLE TB_USER;
 
 SET FOREIGN_KEY_CHECKS = 1;
-SET time_zone = 'Asia/Seoul';
 
 -- ========================
--- TB_USER 데이터 삽입
--- 비밀번호: password123 (BCrypt 암호화 결과)
+-- TB_USER
+-- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
 INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE,
                      IS_HANA_CERT, USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT,
@@ -44,7 +44,17 @@ VALUES
 
     -- 4. 박관리: 관리자 계정
     (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
+     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW()),
+
+    -- 5. 시뮬레이션 테스트용 부모 유저
+    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+    '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 6. 시뮬레이션 테스트용 자녀 유저
+    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+    '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
+
+
 -- ========================
 -- TB_PRODUCT
 -- ========================
@@ -67,7 +77,15 @@ VALUES (2001, 1001, '하나은행', '하나 자유입출금', '111-222-333333', 
        (2004, 1001, '국민연금공단', '국민연금 수령 예정', '777-888-999999', 30000000.00, 'PENSION', 0.00, 25,
         1300000.00, 0.00, '1990-01-01', '2045-01-01', 0.00),
        (2005, 1001, '하나생명', '하나 건강보험', '111-222-555555', 42000000.00, 'INSURANCE', 0.00, 1, 0.00,
-        150000.00, '2021-03-15', '2051-03-15', 100000000.00);
+        150000.00, '2021-03-15', '2051-03-15', 100000000.00),
+       (2006, 1005, '하나은행', '하나 자유입출금', '222-333-444444', 35000000.00, 'CASH', 0.10, 1, 0.00,
+        0.00, '2018-06-01', '2099-12-31', 0.00),
+       (2007, 1005, '하나은행', '하나 정기예금', '222-333-555555', 20000000.00, 'CASH', 3.20, 1, 0.00,
+        0.00, '2025-01-01', '2026-01-01', 0.00),
+       (2008, 1005, '국민연금공단', '국민연금 수령 예정', '888-999-111111', 15000000.00, 'PENSION', 0.00, 25,
+        980000.00, 0.00, '1985-03-01', '2042-03-01', 0.00),
+       (2009, 1005, '삼성생명', '삼성 종신보험', '222-333-666666', 30000000.00, 'INSURANCE', 0.00, 15, 0.00,
+        120000.00, '2010-05-01', '2045-05-01', 80000000.00);
 
 -- ========================
 -- TB_REAL_ASSET
@@ -78,7 +96,11 @@ VALUES (3001, 1001, '역삼동 아파트', 'REAL_ESTATE', 920000000.00, '서울 
         '자가 거주 중인 아파트'),
        (3002, 1001, '그랜저 IG 2021', 'VEHICLE', 28500000.00, '서울 강남구 역삼동 주차장', 0.00,
         '2021년식 · 37,200km'),
-       (3003, 1001, '금 · 37.5g', 'GOLD', 4380000.00, '하나은행 대여금고', 37.50, 'KRX 금시장 구매분');
+       (3003, 1001, '금 · 37.5g', 'GOLD', 4380000.00, '하나은행 대여금고', 37.50, 'KRX 금시장 구매분'),
+       (3004, 1005, '마포구 아파트', 'REAL_ESTATE', 780000000.00, '서울 마포구 공덕동 456-78', 76.00,
+        '자가 거주 중인 아파트'),
+       (3005, 1005, '아반떼 CN7 2022', 'VEHICLE', 18000000.00, '서울 마포구 공덕동 주차장', 0.00,
+        '2022년식 · 22,500km');
 
 -- ========================
 -- TB_CARD
@@ -167,46 +189,14 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2050000,
     "cumulativeAmount": 492000000,
     "yearlyData": [
-      {
-        "year": 1,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 24600000
-      },
-      {
-        "year": 4,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 98400000
-      },
-      {
-        "year": 7,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 172200000
-      },
-      {
-        "year": 10,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 246000000
-      },
-      {
-        "year": 13,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 319800000
-      },
-      {
-        "year": 16,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 393600000
-      },
-      {
-        "year": 19,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 467400000
-      },
-      {
-        "year": 20,
-        "monthlyAmount": 2050000,
-        "cumulativeAmount": 492000000
-      }
+      {"year": 1,  "monthlyAmount": 2050000, "cumulativeAmount": 24600000},
+      {"year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000},
+      {"year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000},
+      {"year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000},
+      {"year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000},
+      {"year": 16, "monthlyAmount": 2050000, "cumulativeAmount": 393600000},
+      {"year": 19, "monthlyAmount": 2050000, "cumulativeAmount": 467400000},
+      {"year": 20, "monthlyAmount": 2050000, "cumulativeAmount": 492000000}
     ]
   },
   {
@@ -215,46 +205,14 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2870000,
     "cumulativeAmount": 447720000,
     "yearlyData": [
-      {
-        "year": 1,
-        "monthlyAmount": 2870000,
-        "cumulativeAmount": 34440000
-      },
-      {
-        "year": 4,
-        "monthlyAmount": 2870000,
-        "cumulativeAmount": 137760000
-      },
-      {
-        "year": 7,
-        "monthlyAmount": 2870000,
-        "cumulativeAmount": 241080000
-      },
-      {
-        "year": 10,
-        "monthlyAmount": 2009000,
-        "cumulativeAmount": 310188000
-      },
-      {
-        "year": 13,
-        "monthlyAmount": 2009000,
-        "cumulativeAmount": 382512000
-      },
-      {
-        "year": 16,
-        "monthlyAmount": 2009000,
-        "cumulativeAmount": 410196000
-      },
-      {
-        "year": 19,
-        "monthlyAmount": 2009000,
-        "cumulativeAmount": 434448000
-      },
-      {
-        "year": 20,
-        "monthlyAmount": 2009000,
-        "cumulativeAmount": 447720000
-      }
+      {"year": 1,  "monthlyAmount": 2870000, "cumulativeAmount": 34440000},
+      {"year": 4,  "monthlyAmount": 2870000, "cumulativeAmount": 137760000},
+      {"year": 7,  "monthlyAmount": 2870000, "cumulativeAmount": 241080000},
+      {"year": 10, "monthlyAmount": 2009000, "cumulativeAmount": 310188000},
+      {"year": 13, "monthlyAmount": 2009000, "cumulativeAmount": 382512000},
+      {"year": 16, "monthlyAmount": 2009000, "cumulativeAmount": 410196000},
+      {"year": 19, "monthlyAmount": 2009000, "cumulativeAmount": 434448000},
+      {"year": 20, "monthlyAmount": 2009000, "cumulativeAmount": 447720000}
     ]
   },
   {
@@ -263,46 +221,14 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2583000,
     "cumulativeAmount": 495936000,
     "yearlyData": [
-      {
-        "year": 1,
-        "monthlyAmount": 1640000,
-        "cumulativeAmount": 19680000
-      },
-      {
-        "year": 4,
-        "monthlyAmount": 1853000,
-        "cumulativeAmount": 89484000
-      },
-      {
-        "year": 7,
-        "monthlyAmount": 2094000,
-        "cumulativeAmount": 170712000
-      },
-      {
-        "year": 10,
-        "monthlyAmount": 2367000,
-        "cumulativeAmount": 265404000
-      },
-      {
-        "year": 13,
-        "monthlyAmount": 2674000,
-        "cumulativeAmount": 376704000
-      },
-      {
-        "year": 16,
-        "monthlyAmount": 3023000,
-        "cumulativeAmount": 445380000
-      },
-      {
-        "year": 19,
-        "monthlyAmount": 3416000,
-        "cumulativeAmount": 478524000
-      },
-      {
-        "year": 20,
-        "monthlyAmount": 3416000,
-        "cumulativeAmount": 495936000
-      }
+      {"year": 1,  "monthlyAmount": 1640000, "cumulativeAmount": 19680000},
+      {"year": 4,  "monthlyAmount": 1853000, "cumulativeAmount": 89484000},
+      {"year": 7,  "monthlyAmount": 2094000, "cumulativeAmount": 170712000},
+      {"year": 10, "monthlyAmount": 2367000, "cumulativeAmount": 265404000},
+      {"year": 13, "monthlyAmount": 2674000, "cumulativeAmount": 376704000},
+      {"year": 16, "monthlyAmount": 3023000, "cumulativeAmount": 445380000},
+      {"year": 19, "monthlyAmount": 3416000, "cumulativeAmount": 478524000},
+      {"year": 20, "monthlyAmount": 3416000, "cumulativeAmount": 495936000}
     ]
   }
 ]');
@@ -368,7 +294,8 @@ VALUES (1, 1, '아들아, 건강하게 잘 살아라.', 'https://s3.aws.com/voic
 -- =====================
 INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
-VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1);
+VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1),
+       (2, 1005, 1006, 'CHILD', 0, 0, 0, 0);
 
 -- ========================
 -- TB_USER_LOGIN_LOG

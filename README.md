@@ -56,16 +56,18 @@
 
 ### 📂 Repository Structure
 
+[참고문서]https://skinny-shovel-fc4.notion.site/33b4a434c07c800385a4ec4fafa29407?pvs=143
+
 ```text
 hanaro-care-main/
 ├── client/                 # Next.js + Prisma 
 │   ├── src/
 │   │   └── app/
 │   │       └── {domain}/   # 도메인 단위 (ex: saving, asset)
-│   │           ├─ actions/ # 도메인 전용 서버 액션 (데이터 조회/변경)
+│   │           ├─ actions/ # 여기서 Spring Boot API를 호출 (Server Action)
 │   │           ├─ components/ # 도메인 전용 UI 컴포넌트 (PascalCase)
 │   │           ├─ hooks/   # 도메인 전용 커스텀 훅 (use 접두사)
-│   │           └─ page.tsx # 페이지 단위 레이아웃 및 데이터 조합
+│   │           └─ page.tsx # 서버 액션을 호출하여 화면에 데이터 전달
 │   ├── prisma/             # Database Schema & Migrations
 │   └── biome.json          # Lint/Format 설정 (Biome)
 │
@@ -83,11 +85,11 @@ hanaro-care-main/
     │
     ├── domain/                  
     │   ├── asset/               
-    │   │   ├── controller/      # AssetController
-    │   │   ├── service/         # AssetService
-    │   │   ├── repository/      # AssetRepository
-    │   │   ├── entity/          # RealAsset
-    │   │   ├── dto/             # AssetRequest, AssetResponse
+    │   │   ├── controller/      # Next.js BFF 서버의 요청 받는 곳
+    │   │   ├── service/         
+    │   │   ├── repository/     
+    │   │   ├── entity/          
+    │   │   ├── dto/             # Next.js 서버가 받게 될 데이터 규격
     │   │   └── mapper/          # AssetMapper
     │
     └── ServerApplication.java  # 메인 실행 클래스
