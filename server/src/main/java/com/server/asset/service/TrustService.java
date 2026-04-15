@@ -6,15 +6,12 @@ import com.server.asset.dto.trust.TrustSimulationResultResponse.AmountResultDto;
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.entity.TBTrustSimulation;
 import com.server.asset.entity.TBUserProd;
-import com.server.asset.entity.enums.ProdCate;
-import com.server.asset.entity.enums.ProdStat;
-import com.server.asset.entity.enums.StartType;
-import com.server.asset.entity.enums.TrustAccessLevel;
-import com.server.asset.entity.enums.TrustType;
+import com.server.asset.entity.enums.*;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
+import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBFamilyAuth;
@@ -26,9 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -50,6 +44,7 @@ public class TrustService {
 	private final TrustMapper trustMapper;
 	private final ObjectMapper objectMapper;
 
+	@CheckUser(key = "#userId")
 	@Transactional
 	public void saveSimulation(Long userId, TrustSimulationSaveRequest request) {
 		TBUser user = userRepository.findById(userId)
@@ -73,6 +68,7 @@ public class TrustService {
 		trustRepository.save(simulation);
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional(readOnly = true)
 	public TrustSimulationResultResponse getSimulationResult(Long userId) {
 		TBTrustSimulation simulation = trustRepository
@@ -115,69 +111,101 @@ public class TrustService {
 		);
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional(readOnly = true)
-	public TrustProductResponse getProductSummary(Long userId, Long userProdId) {
-		TBUserProd userProd = userProdRepository.findById(userProdId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
-
-		validateOwner(userId, userProd);
+	public TrustProductResponse getProductSummary(Long userId) {
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
+			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 		return convertToProductResponse(userProd);
 	}
 
+	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
-	public TrustProductResponse getFamilyTrustDetail(Long granteeUserId, Long grantorUserId) {
-		validateTrustAccess(granteeUserId, grantorUserId);
+	public TrustProductResponse getFamilyTrustDetail(Long granteeId, Long grantorId) {
+		validateTrustAccess(granteeId, grantorId);
 
-		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
-			grantorUserId,
-			ProdCate.TRUST,
-			ProdStat.IN_PROGRESS
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
+			grantorId, ProdCate.TRUST, ProdStat.IN_PROGRESS
 		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
 		return convertToProductResponse(userProd);
 	}
 
+	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
-	public TrustAccessResponse getTrustAccess(Long granteeUserId, Long grantorUserId) {
-		TBFamilyAuth familyAuth = familyAuthRepository
-			.findByGrantor_UserIdAndGrantee_UserId(grantorUserId, granteeUserId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
-
-		boolean canView = Boolean.TRUE.equals(familyAuth.getIsTrustView());
-		boolean isProxy = Boolean.TRUE.equals(familyAuth.getIsProxyClaim());
-
-		TrustAccessLevel accessLevel;
-		if (isProxy && canView) {
-			accessLevel = TrustAccessLevel.READ_WRITE;
-		} else if (isProxy) {
-			accessLevel = TrustAccessLevel.PROXY_ONLY;
-		} else {
-			accessLevel = TrustAccessLevel.NONE;
-		}
-
-		return new TrustAccessResponse(
-			grantorUserId,
-			granteeUserId,
-			accessLevel
-		);
+	public TrustGrantorResponse getFamilyGrantors(Long granteeId) {
+		List<TrustGrantorResponse.GrantorItem> items = familyAuthRepository
+			.findAllByGrantee_UserIdAndIsTrustViewTrue(granteeId)
+			.stream()
+			.map(auth -> new TrustGrantorResponse.GrantorItem(
+				auth.getGrantor().getUserId(),
+				auth.getGrantor().getUserNm(),
+				auth.getRelationCd().name(),
+				auth.getRelationCd().getDescription()
+			))
+			.toList();
+		return new TrustGrantorResponse(items);
 	}
 
+	/**
+	 * 가족의 신탁 접근 권한 리스트 조회
+	 * 요청 바에 따른 매핑:
+	 * 1. isProxy & canView -> READ_WRITE (전부 가능)
+	 * 2. isProxy & !canView -> PROXY_ONLY (권한은 있지만 확인 불가)
+	 * 3. !isProxy & canView -> READ_WRITE (조회라도 가능해야 하므로 READ_WRITE 매핑)
+	 * 4. !isProxy & !canView -> NONE (아무것도 아님)
+	 */
+	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
-	public void validateTrustAccess(Long granteeUserId, Long grantorUserId) {
+	public TrustAccessResponse getFamilyAccessList(Long granteeId) {
+		List<TrustAccessResponse.AccessItem> items = familyAuthRepository
+			.findAllByGrantee_UserId(granteeId)
+			.stream()
+			.map(auth -> {
+				boolean canView = Boolean.TRUE.equals(auth.getIsTrustView());
+				boolean isProxy = Boolean.TRUE.equals(auth.getIsProxyClaim());
+
+				TrustAccessLevel accessLevel;
+				if (canView) {
+					// 열람이 가능한 모든 케이스(조회전용 포함)는 READ_WRITE로 전달하여 UI 활성화
+					accessLevel = TrustAccessLevel.READ_WRITE;
+				} else if (isProxy) {
+					// 열람은 안되는데 대리인 지정은 되어 있는 경우
+					accessLevel = TrustAccessLevel.PROXY_ONLY;
+				} else {
+					accessLevel = TrustAccessLevel.NONE;
+				}
+
+				return new TrustAccessResponse.AccessItem(
+					auth.getGrantor().getUserId(),
+					auth.getGrantor().getUserNm(),
+					accessLevel
+				);
+			})
+			.toList();
+		return new TrustAccessResponse(items);
+	}
+
+	@CheckUser(key = "#granteeId")
+	@Transactional(readOnly = true)
+	public void validateTrustAccess(Long granteeId, Long grantorId) {
 		TBFamilyAuth familyAuth = familyAuthRepository
-			.findByGrantor_UserIdAndGrantee_UserId(grantorUserId, granteeUserId)
+			.findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
 			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
+		// 열람 권한(isTrustView)이 없는 경우 상세 조회 불가
 		if (!Boolean.TRUE.equals(familyAuth.getIsTrustView())) {
 			throw new ApiException(ErrorStatus.TRUST_VIEW_FORBIDDEN);
 		}
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional
-	public void updatePayoutSettings(Long userId, Long userProdId, TrustPayoutSettingsUpdateRequest request) {
-		TBUserProd userProd = userProdRepository.findById(userProdId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
-		validateOwner(userId, userProd);
+	public void updatePayoutSettings(Long userId, TrustPayoutSettingsUpdateRequest request) {
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
+			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
 		try {
 			userProd.setPayoutSettings(objectMapper.writeValueAsString(request));
@@ -186,16 +214,25 @@ public class TrustService {
 		}
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional
-	public void updateAgentView(Long userId, Long userProdId, TrustAgentViewUpdateRequest request) {
-		TBUserProd userProd = userProdRepository.findById(userProdId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
-		validateOwner(userId, userProd);
+	public void updateAgentView(Long userId, TrustAgentViewUpdateRequest request) {
+		TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
+			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
-		if (userProd.getClaimAgent() == null) {
+		TBUser claimAgent = userProd.getClaimAgent();
+		if (claimAgent == null) {
 			throw new ApiException(ErrorStatus.TRUST_CLAIM_AGENT_NOT_FOUND);
 		}
-		userProd.setIsAgentView(Boolean.TRUE.equals(request.agentViewEnabled()));
+
+		boolean enabled = Boolean.TRUE.equals(request.agentViewEnabled());
+		userProd.setIsAgentView(enabled);
+
+		TBFamilyAuth familyAuth = familyAuthRepository
+			.findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
+		familyAuth.setIsTrustView(enabled);
 	}
 
 	private TrustProductResponse convertToProductResponse(TBUserProd userProd) {
@@ -238,9 +275,5 @@ public class TrustService {
 			}
 		}
 		return new TrustProductResponse.ExecutionSetting(hEnabled, hAmount, lEnabled, lAmount);
-	}
-
-	private void validateOwner(Long userId, TBUserProd userProd) {
-		if (!userProd.getUser().getUserId().equals(userId)) throw new ApiException(ErrorStatus._FORBIDDEN);
 	}
 }
