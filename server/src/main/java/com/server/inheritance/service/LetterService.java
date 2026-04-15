@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,6 +44,7 @@ public class LetterService {
 
   // 상속비율 및 가족 조회
   @CheckUser(key = "#userId")
+  @Cacheable(value = "inheritanceInfo", key = "#userId")
   public List<InheritanceSummaryDto> getInheritanceInfo(Long userId) {
 
     TBInheritPlan plan = inheritPlanRepository.findByUser_UserId(userId)
