@@ -2,9 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
-import { getAssetDashboard } from '../actions/asset';
 import type { AssetCategory, AssetDashboardResponse } from '../types';
 
 // ─── 카테고리별 UI 매핑 ──────────────────────────────────────────
@@ -26,24 +24,18 @@ function formatAmount(amount: number): string {
   return `${man.toLocaleString()}만원`;
 }
 
-// 파이차트 중앙 라벨용 축약형 ("12.4억")
 function formatShort(amount: number): string {
-  const eok = amount / 100_000_000;
-  return `${eok.toFixed(1)}억`;
+  return `${(amount / 100_000_000).toFixed(1)}억`;
 }
 
-export function AssetDashboard() {
+interface Props {
+  data: AssetDashboardResponse | null;
+}
+
+export function AssetDashboard({ data }: Props) {
   const router = useRouter();
-  const [data, setData] = useState<AssetDashboardResponse | null>(null);
 
-  useEffect(() => {
-    getAssetDashboard()
-      .then(setData)
-      .catch((err) => console.error('자산 대시보드 조회 실패:', err));
-  }, []);
-
-  // API 로딩 중에는 총액·차트 항목을 빈 값으로 렌더링
-  const totalAmt = data ? formatAmount(data.totalFinancialAmt) : '불러오는 중...';
+  const totalAmt = data ? formatAmount(data.totalFinancialAmt) : '-';
   const shortAmt = data ? formatShort(data.totalFinancialAmt) : '';
 
   const total = data
@@ -63,14 +55,17 @@ export function AssetDashboard() {
       })
     : [];
 
+  const pieData =
+    chartData.length > 0
+      ? chartData
+      : [{ name: '-', value: 1, percentage: 100, color: '#E5E5E5', displayValue: '' }];
+
   return (
     <motion.div
       whileTap={{ scale: 0.98 }}
       onClick={() => router.push('/asset')}
       className="flex w-81.25 cursor-pointer flex-col overflow-hidden rounded-4xl shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
-      style={{
-        background: 'linear-gradient(135deg, #075558 0%, #0A9293 100%)',
-      }}
+      style={{ background: 'linear-gradient(135deg, #075558 0%, #0A9293 100%)' }}
     >
       <div className="p-6">
         <div className="space-y-1">
@@ -88,7 +83,7 @@ export function AssetDashboard() {
             <ResponsiveContainer width={100} height={100}>
               <PieChart>
                 <Pie
-                  data={chartData.length > 0 ? chartData : [{ name: '-', value: 1, percentage: 100, color: '#E5E5E5', displayValue: '' }]}
+                  data={pieData}
                   cx="50%"
                   cy="50%"
                   innerRadius={32}
@@ -98,7 +93,7 @@ export function AssetDashboard() {
                   dataKey="percentage"
                   strokeWidth={0}
                 >
-                  {(chartData.length > 0 ? chartData : [{ color: '#E5E5E5' }]).map((item) => (
+                  {pieData.map((item) => (
                     <Cell key={item.color} fill={item.color} />
                   ))}
                 </Pie>
@@ -127,10 +122,7 @@ export function AssetDashboard() {
                 <div className="h-[4.5px] w-full rounded-full bg-hana-silver-100">
                   <div
                     className="h-full rounded-full transition-all duration-1000"
-                    style={{
-                      width: `${asset.percentage}%`,
-                      backgroundColor: asset.color,
-                    }}
+                    style={{ width: `${asset.percentage}%`, backgroundColor: asset.color }}
                   />
                 </div>
               </div>
