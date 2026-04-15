@@ -1,6 +1,8 @@
-import { apiGet } from '@/lib/api/client';
+'use server';
+
+import { serverFetch } from '@/lib/serverFetch';
 import type { AssetDashboardResponse } from '../types';
 
-export function getAssetDashboard(): Promise<AssetDashboardResponse> {
-  return apiGet<AssetDashboardResponse>('/api/asset');
+export async function getAssetDashboard(): Promise<AssetDashboardResponse> {
+  return serverFetch<AssetDashboardResponse>('/api/asset');
 }
