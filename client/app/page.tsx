@@ -27,7 +27,7 @@ export default async function Home() {
         usagePercent={40}
         yearsLeft={12}
       />
-      <RealAssetCard />
+      <RealAssetCard data={assetData?.realAssets} />
 
       <BannerCard
         title={<>내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?</>}

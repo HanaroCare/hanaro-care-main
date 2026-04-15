@@ -17,6 +17,11 @@ export interface FinancialAssetSummary {
 }
 
 export interface RealAssetSummary {
+  realAssetId: number;
   assetCateCd: RealAssetCategory;
-  totalValue: number;
+  assetNm: string;
+  evalAmt: number;
+  assetSize: number;
+  addr: string;
+  assetDesc: string;
 }
