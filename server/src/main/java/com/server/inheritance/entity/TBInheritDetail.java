@@ -1,12 +1,9 @@
 package com.server.inheritance.entity;
 
-import java.math.BigDecimal;
-
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.server.common.entity.BaseEntity;
 import com.server.inheritance.enums.FamilyRelation;
 import com.server.user.entity.TBUser;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
