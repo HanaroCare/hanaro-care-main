@@ -20,7 +20,7 @@ public record TrustSimulationSaveRequest(
 
 	@NotNull
 	@Schema(description = "신탁 시작 유형", example = "NOW",
-		allowableValues = {"NOW", "SICK", "CUSTOM"})
+		allowableValues = {"NOW", "SCHEDULED", "CUSTOM"})
 	StartType startType,
 
 	@Schema(description = "직접 지정 시작일 — startType이 CUSTOM일 때만 필수", example = "2026-06-01")
@@ -32,8 +32,8 @@ public record TrustSimulationSaveRequest(
 	InvestType investType,
 
 	@NotNull
-	@Schema(description = "지급 유형", example = "FREE",
-		allowableValues = {"FREE", "PENSION"})
+	@Schema(description = "지급 유형", example = "FLEXIBLE",
+		allowableValues = {"FLEXIBLE", "PENSION"})
 	PayoutType payoutType,
 
 	@Schema(description = "지급 설정 (생략 가능)")
