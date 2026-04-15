@@ -1,5 +1,7 @@
 package com.server.inheritance.service;
 
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 import com.server.inheritance.dto.InheritanceSummaryDto;
 import com.server.inheritance.dto.LetterRequestDto;
 import com.server.inheritance.dto.LetterResponseDto;
@@ -58,17 +60,17 @@ public class LetterService {
   public void sendLetter(Long userId, LetterRequestDto dto, MultipartFile voice)
       throws IOException {
     TBInheritDetail detail = inheritDetailRepository.findById(dto.getInheritDetailId())
-        .orElseThrow(() -> new IllegalArgumentException("상속 상세 정보를 찾을 수 없습니다."));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
     if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId,
         detail.getUser().getUserId())) {
-      throw new IllegalArgumentException("해당 가족을 찾을 수 없습니다.");
+      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
     }
 
     String filename = "";
     if (dto.getLetterTypeCd() == LetterType.VOICE) {
       if (voice == null || voice.isEmpty()) {
-        throw new IllegalArgumentException("음성 파일을 첨부해야 합니다.");
+        throw new ApiException(ErrorStatus.VOICE_FILE_REQUIRED);
       }
       filename = save(voice);
     }
@@ -85,15 +87,15 @@ public class LetterService {
   public LetterResponseDto getLetter(Long userId, Long inheritDetailId) {
 
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
-        .orElseThrow(() -> new IllegalArgumentException("상속 상세 정보를 찾을 수 없습니다."));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
     Long receivedId = detail.getUser().getUserId();
 
     if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
-      throw new IllegalArgumentException("해당 가족을 찾을 수 없습니다.");
+      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
     }
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 가족에게 남긴 편지가 없습니다."));
+        .orElseThrow(() -> new ApiException(ErrorStatus.LETTER_NOT_FOUND));
 
     if (letter.getLetterTypeCd() == LetterType.VOICE) {
       // TODO: s3 링크 가져오기
@@ -118,20 +120,22 @@ public class LetterService {
   }
 
   @Transactional
-  public void deleteLetter(Long userId, Long inheritDetailId) {
+  public Long deleteLetter(Long userId, Long inheritDetailId) {
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
-        .orElseThrow(() -> new IllegalArgumentException("상속 상세 정보를 찾을 수 없습니다."));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
     Long receivedId = detail.getUser().getUserId();
 
     if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
-      throw new IllegalArgumentException("해당 가족을 찾을 수 없습니다.");
+      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
     }
 
-    letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 가족에게 남긴 편지가 없습니다."));
+    TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(
+            inheritDetailId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.LETTER_NOT_FOUND));
 
     detail.setInheritLetter(null);
+    return letter.getLetterId();
   }
 }
 

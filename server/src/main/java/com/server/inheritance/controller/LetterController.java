@@ -1,5 +1,6 @@
 package com.server.inheritance.controller;
 
+import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.inheritance.dto.InheritanceSummaryDto;
 import com.server.inheritance.dto.LetterRequestDto;
@@ -14,7 +15,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "Inheritance", description = "상속 관련 API")
+@Tag(name = "상속 API", description = "상속 관련 API")
 @RestController
 @RequestMapping("/api/inheritance")
 @RequiredArgsConstructor
@@ -41,18 +41,17 @@ public class LetterController {
     return service.getInheritanceInfo(user.getUserId());
   }
 
-//  @Operation(summary = "상속 편지 생성", description = "상속 편지를 작성합니다. 음성 편지의 경우 voice 파일을 함께 전송합니다.")
-
   // 상속 편지 생성
   @Operation(summary = "상속 편지 생성", description = "상속 편지를 작성합니다.")
   @PostMapping(value = "/letter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ResponseEntity<?> sendLetter(
+  ApiResponse sendLetter(
       @AuthenticationPrincipal SubscriberDTO user,
       @Valid @ModelAttribute @ParameterObject LetterRequestDto dto,
       @RequestPart(value = "voice", required = false) MultipartFile voice
   ) throws IOException {
     service.sendLetter(user.getUserId(), dto, voice);
-    return ResponseEntity.ok().build();
+    return ApiResponse.onSuccess(dto);
+
   }
 
   // 상속 편지 조회
@@ -66,10 +65,9 @@ public class LetterController {
   // 상속 편지 삭제
   @Operation(summary = "상속 편지 삭제", description = "상속 편지를 삭제합니다.")
   @DeleteMapping("/letter/{inheritDetailId}")
-  ResponseEntity<?> deleteLetter(@AuthenticationPrincipal SubscriberDTO user,
+  ApiResponse deleteLetter(@AuthenticationPrincipal SubscriberDTO user,
       @Parameter(description = "가족 상세 ID", example = "1") @PathVariable Long inheritDetailId) {
-    service.deleteLetter(user.getUserId(), inheritDetailId);
-    return ResponseEntity.ok("상속 편지가 삭제되었습니다.");
+    return ApiResponse.onSuccess(service.deleteLetter(user.getUserId(), inheritDetailId));
   }
 
 }
