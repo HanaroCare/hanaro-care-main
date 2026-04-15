@@ -34,5 +34,8 @@ export async function serverFetch<T>(
   }
 
   const json: SpringResponse<T> = await res.json();
+  if (!json.isSuccess) {
+        throw new Error(`Spring API business error: ${json.code} - ${json.message}`);
+  }
   return json.result;
 }
