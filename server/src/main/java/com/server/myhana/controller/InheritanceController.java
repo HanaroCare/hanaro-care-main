@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +35,7 @@ public class InheritanceController {
 
   // 계약서 생성하기
   @Operation(summary = "임의후견인 문서 생성", description = "입력 값을 문서에 작성하여 생성합니다.")
-  @GetMapping("/contract")
+  @PostMapping("/contract")
   ResponseEntity<byte[]> downloadContract(@AuthenticationPrincipal SubscriberDTO user,
       @RequestBody ContractDto dto) throws Exception {
     byte[] file = inheritanceService.generateContract(dto);
