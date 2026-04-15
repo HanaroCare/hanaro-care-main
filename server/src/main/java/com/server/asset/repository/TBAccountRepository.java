@@ -35,4 +35,18 @@ public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
   List<TBAccount> findAllByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCategory);
 
   Optional<TBAccount> findByAccountIdAndAssetCateCd(Long insuranceId, AssetCategory assetCategory);
+
+  List<TBAccount> findAllByUser_UserId(Long userId);
+
+  @Query("SELECT SUM(a.balanceAmt) FROM TBAccount a WHERE a.user.userId = :userId AND a.isLinked = true")
+  BigDecimal findTotalBalanceByUserIdAndIsLinkedTrue(@Param("userId") Long userId);
+
+  @Query("SELECT a.assetCateCd, SUM(a.balanceAmt) FROM TBAccount a WHERE a.user.userId = :userId AND a.isLinked = true GROUP BY a.assetCateCd")
+  List<Object[]> findBalanceSumGroupByCategoryByUserIdAndIsLinkedTrue(@Param("userId") Long userId);
+
+  List<TBAccount> findAllByUser_UserIdAndAssetCateCdNotAndIsLinkedTrue(Long userId,
+      AssetCategory category);
+
+  List<TBAccount> findByUser_UserIdAndAssetCateCdAndIsLinkedTrue(Long userId,
+      AssetCategory category);
 }
