@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +29,11 @@ public class AIService {
     private final GeminiClient geminiClient;
     private final ObjectMapper objectMapper;
 
+    @Cacheable(
+        cacheNames = "gemini",
+        key = "#input.userAge + ':' + #input.targetAge + ':' + #input.careType.name() + ':' + #input.userAddr",
+        unless = "#result == null"
+    )
     public SimulationDetailResponse analyzeFutureCosts(
         AIAnalysisInput input,
         BigDecimal medicalInflation,

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.converter.StringHttpMessageConverter;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,7 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class BokjiroClient {
 
     private final ObjectMapper objectMapper;
-    private final XmlMapper xmlMapper;
+    private final XmlMapper xmlMapper = new XmlMapper(); // 필드에서만 초기화
     private final RestTemplate restTemplate;
 
     @Value("${external.public-data.base-url}")
@@ -37,14 +37,16 @@ public class BokjiroClient {
     private static final String DETAIL_PATH =
         "/B554287/NationalWelfareInformationsV001/NationalWelfaredetailedV001";
 
-    public BokjiroClient(ObjectMapper objectMapper) {
+    public BokjiroClient(ObjectMapper objectMapper, RestTemplate restTemplate) {
         this.objectMapper = objectMapper;
-        this.xmlMapper = new XmlMapper();
-        this.restTemplate = new RestTemplate();
-        this.restTemplate.getMessageConverters().add(0,
-            new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        this.restTemplate = restTemplate; // Bean으로 주입받기
     }
 
+    @Cacheable(
+        cacheNames = "welfare",
+        key = "#srchKeyCode + ':' + #searchWrd + ':' + #pageNo",
+        unless = "#result == null"
+    )
     public PublicDataResponse.WelfareListResponse getWelfareServices(
         String srchKeyCode,
         String searchWrd,
@@ -74,7 +76,6 @@ public class BokjiroClient {
             String raw = restTemplate.getForObject(uri, String.class);
             log.debug("[복지로] 응답 원문: {}", raw);
 
-            // JSON 또는 XML 자동 감지 후 파싱
             return parseWelfareListResponse(raw);
 
         } catch (Exception e) {
@@ -95,7 +96,6 @@ public class BokjiroClient {
         log.info("[복지로] XML 응답 감지 - XML 파싱 시작");
         JsonNode xmlNode = xmlMapper.readTree(raw.getBytes(StandardCharsets.UTF_8));
 
-        // wantedList가 루트 노드라서 바로 접근
         String totalCount = xmlNode.path("totalCount").asText("0");
 
         List<PublicDataResponse.WelfareService> services = new ArrayList<>();
@@ -113,7 +113,6 @@ public class BokjiroClient {
                 services.add(service);
             }
         } else if (servList.isObject()) {
-            // servList가 1개일 때 배열이 아닌 객체로 오는 경우
             PublicDataResponse.WelfareService service = new PublicDataResponse.WelfareService();
             service.setServId(servList.path("servId").asText());
             service.setServNm(servList.path("servNm").asText());

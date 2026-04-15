@@ -39,7 +39,7 @@ public class SimulationService {
 
     @Transactional
     @CheckUser(key = "#userId")
-    @CacheEvict(value = "simulationDetail", key = "#userId + #request.targetAge + #request.careType")
+    @CacheEvict(value = "simulationDetail", key = "#userId + #request.targetAge + #request.careType.name()")
     public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
         // 1. 사용자 컨텍스트 수집 (소비, 거주지, 자산 등)
         AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
@@ -104,7 +104,7 @@ public class SimulationService {
     }
 
     @CheckUser(key = "#userId")
-    @Cacheable(value = "simulationDetail", key = "#userId + #request.targetAge + #request.careType", unless = "#result == null")
+    @Cacheable(value = "simulationDetail", key = "#userId + #request.targetAge + #request.careType.name()", unless = "#result == null")
     public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(userId, request.getTargetAge(), request.getCareType())
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));

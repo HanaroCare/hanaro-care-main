@@ -1,5 +1,6 @@
 package com.server.asset.dto.simulation;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SimulationDetailResponse {
+public class SimulationDetailResponse implements Serializable {
 
     @JsonProperty("income_details")
     private IncomeDetails incomeDetails;
@@ -29,7 +30,7 @@ public class SimulationDetailResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class IncomeDetails {
+    public static class IncomeDetails implements Serializable {
         @JsonProperty("national_pension")
         private BigDecimal nationalPension;
 
@@ -50,7 +51,7 @@ public class SimulationDetailResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class AgeSegment {
+    public static class AgeSegment implements Serializable {
         private String range;
         private BigDecimal income;
         private BigDecimal expense;
@@ -61,7 +62,7 @@ public class SimulationDetailResponse {
     @Builder
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class AgeDetail {
+    public static class AgeDetail implements Serializable {
         private BigDecimal living;
         private BigDecimal medical;
         private BigDecimal care;
