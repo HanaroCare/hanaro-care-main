@@ -56,7 +56,7 @@ public enum ErrorStatus implements BaseErrorCode {
   // inheritance
 
   // myhana
-  INSURANCE_NOT_FOUND(HttpStatus.FORBIDDEN, "INS_404", "보험 정보를 찾을 수 없습니다."),
+  INSURANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "INS_404", "보험 정보를 찾을 수 없습니다."),
   INSURANCE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INS_403", "보험 접근 권한이 없습니다.");
 
   private final HttpStatus httpStatus;        // HTTP 상태 코드

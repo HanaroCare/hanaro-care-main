@@ -1,6 +1,5 @@
 package com.server.myhana.dto;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +13,6 @@ import lombok.Setter;
 @Builder
 public class InsuranceDto {
 
-  @NotBlank
   private Long accountId;
   private String instNm;
   private String accountNm;

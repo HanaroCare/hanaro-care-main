@@ -34,32 +34,36 @@ public class InheritanceService {
   // 계약서 생성하기
   @CheckUser(key = "#userId")
   public byte[] generateContract(Long userId, ContractDto dto) throws Exception {
-    InputStream template = getClass().getResourceAsStream("/templates/contract.docx");
-    XWPFDocument doc = new XWPFDocument(template);
+    try (InputStream template = getClass().getResourceAsStream("/templates/contract.docx")) {
+      if (template == null) {
+        throw new IllegalStateException("contract.docx template not found");
+      }
+      try (XWPFDocument doc = new XWPFDocument(template);
+          ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
-    for (XWPFParagraph para : doc.getParagraphs()) {
-      for (XWPFRun run : para.getRuns()) {
-        String text = run.getText(0);
-        if (text != null) {
-          text = text.replace("{{date}}",
-              LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-          text = text.replace("{{user_name}}", dto.getUserName());
-          text = text.replace("{{user_phone}}", dto.getUserPhone());
-          text = text.replace("{{guardian_name}}", dto.getGuardianName());
-          text = text.replace("{{guardian_relation}}", dto.getGuardianRelation());
-          text = text.replace("{{permission1}}", dto.getPermission()[0] ? "○" : "");
-          text = text.replace("{{permission2}}", dto.getPermission()[1] ? "○" : "");
-          text = text.replace("{{permission3}}", dto.getPermission()[2] ? "○" : "");
-          text = text.replace("{{permission4}}", dto.getPermission()[3] ? "○" : "");
-          text = text.replace("{{permission5}}", dto.getPermission()[4] ? "○" : "");
+        for (XWPFParagraph para : doc.getParagraphs()) {
+          for (XWPFRun run : para.getRuns()) {
+            String text = run.getText(0);
+            if (text != null) {
+              text = text.replace("{{date}}",
+                  LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+              text = text.replace("{{user_name}}", dto.getUserName());
+              text = text.replace("{{user_phone}}", dto.getUserPhone());
+              text = text.replace("{{guardian_name}}", dto.getGuardianName());
+              text = text.replace("{{guardian_relation}}", dto.getGuardianRelation());
+              text = text.replace("{{permission1}}", dto.getPermission()[0] ? "○" : "");
+              text = text.replace("{{permission2}}", dto.getPermission()[1] ? "○" : "");
+              text = text.replace("{{permission3}}", dto.getPermission()[2] ? "○" : "");
+              text = text.replace("{{permission4}}", dto.getPermission()[3] ? "○" : "");
+              text = text.replace("{{permission5}}", dto.getPermission()[4] ? "○" : "");
 
-          run.setText(text, 0);
+              run.setText(text, 0);
+            }
+          }
         }
+        doc.write(out);
+        return out.toByteArray();
       }
     }
-
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    doc.write(out);
-    return out.toByteArray();
   }
 }

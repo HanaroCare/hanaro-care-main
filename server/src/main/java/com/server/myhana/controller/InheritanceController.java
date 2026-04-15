@@ -6,6 +6,7 @@ import com.server.myhana.dto.FamilySummaryDto;
 import com.server.myhana.service.InheritanceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -37,7 +38,7 @@ public class InheritanceController {
   @Operation(summary = "임의후견인 문서 생성", description = "입력 값을 문서에 작성하여 생성합니다.")
   @PostMapping("/contract")
   ResponseEntity<byte[]> downloadContract(@AuthenticationPrincipal SubscriberDTO user,
-      @RequestBody ContractDto dto) throws Exception {
+      @Valid @RequestBody ContractDto dto) throws Exception {
     byte[] file = inheritanceService.generateContract(user.getUserId(), dto);
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contract.docx")

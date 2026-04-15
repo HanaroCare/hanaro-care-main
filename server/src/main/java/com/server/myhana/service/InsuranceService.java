@@ -53,7 +53,8 @@ public class InsuranceService {
   // 권한에 따른 보험 상세 조회
   @CheckUser(key = "#userId")
   public InsuranceDetailDto getInsurance(Long userId, Long insuranceId) {
-    TBAccount account = accountRepository.findByAccountId(insuranceId)
+    TBAccount account = accountRepository.findByAccountIdAndAssetCateCd(
+            insuranceId, AssetCategory.INSURANCE)
         .orElseThrow(() -> new ApiException(ErrorStatus.INSURANCE_NOT_FOUND));
 
     Long accountOwnerId = account.getUser().getUserId();

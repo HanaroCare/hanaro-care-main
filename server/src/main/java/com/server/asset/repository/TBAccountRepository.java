@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
-  
+
   Optional<TBAccount> findByAccountId(Long accountId);
 
   @Query("""
@@ -31,4 +31,6 @@ public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
   List<TBAccount> findAllByUser_UserIdAndAssetCateCdNot(Long userId, AssetCategory assetCategory);
 
   List<TBAccount> findAllByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCategory);
+
+  Optional<TBAccount> findByAccountIdAndAssetCateCd(Long insuranceId, AssetCategory assetCategory);
 }
