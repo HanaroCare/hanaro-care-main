@@ -5,7 +5,6 @@ import {
   CartesianGrid,
   Line,
   LineChart,
-  ReferenceArea,
   ResponsiveContainer,
   XAxis,
   YAxis,
@@ -16,19 +15,11 @@ type TrendData = {
   expense: number;
 };
 
-const MOCK_TREND_DATA: TrendData[] = [
-  { age: '65세', expense: 98 },
-  { age: '67.5세', expense: 102 },
-  { age: '70세', expense: 110 },
-  { age: '72.5세', expense: 130 },
-  { age: '75세', expense: 155 },
-  { age: '77.5세', expense: 170 },
-  { age: '80세', expense: 185 },
-  { age: '82.5세', expense: 195 },
-  { age: '85세', expense: 205 },
-];
+type SimulationTrendChartProps = {
+  data: TrendData[];
+};
 
-export function SimulationTrendChart() {
+export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -38,7 +29,7 @@ export function SimulationTrendChart() {
       <div className="h-[220px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={MOCK_TREND_DATA}
+            data={data}
             margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
           >
             <CartesianGrid
@@ -60,14 +51,6 @@ export function SimulationTrendChart() {
               tick={{ fontSize: 12, fill: 'var(--color-hana-black-500)' }}
               domain={[0, 250]}
               ticks={[0, 50, 100, 150, 200, 250]}
-            />
-
-            <ReferenceArea
-              x1="70세"
-              x2="75세"
-              fill="var(--color-hana-red-50)"
-              fillOpacity={0.6}
-              stroke="none"
             />
 
             <Line

@@ -127,17 +127,22 @@ public class SimulationEngine {
                 .build())
             .build();
 
+        BigDecimal retirementPension = new BigDecimal("1200000");
+        BigDecimal totalIncome = pension.add(retirementPension).add(new BigDecimal("300000"));
+
         return SimulationDetailResponse.builder()
             .incomeDetails(SimulationDetailResponse.IncomeDetails.builder()
                 .nationalPension(pension)
+                .retirementPension(retirementPension)
                 .localSubsidyAmt(new BigDecimal("300000"))
-                .totalMonthlyIncome(pension.add(new BigDecimal("300000")))
+                .localSubsidyName("지자체 노인 지원금")
+                .totalMonthlyIncome(totalIncome)
                 .build())
             .ageSegments(Arrays.asList(segment1))
             .aiOpinion("통계 데이터(평균 임금 인상률 2.9%, 노인 평균 진료비 월 50만원)를 기반으로 한 시뮬레이션입니다. "
                 + input.getCareType().getDescription() + " 이용 시 월 약 "
                 + segment1.getExpense().divide(new BigDecimal("10000"), 0, java.math.RoundingMode.HALF_UP)
-                + "만원의 지출이 예상됩니다.")
+                + "만원의 지출이 예상됩니다. 국민연금, 퇴직연금(평균 120만원), 지자체 지원금을 합산한 월 수입 기준으로 산출하였습니다.")
             .build();
     }
 }

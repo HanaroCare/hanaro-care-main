@@ -82,7 +82,8 @@ export default function SimulatorPage() {
 
       if (response) {
         localStorage.setItem(COMPLETION_KEY, 'true');
-        // 계산 성공 후 결과 상세 페이지로 이동
+        localStorage.setItem('simulation_target_age', String(targetAge));
+        localStorage.setItem('simulation_care_type', backendCareType);
         router.push('/asset/simulator/result');
       }
     } catch (error) {

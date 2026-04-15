@@ -4,124 +4,43 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { useState } from 'react';
 
-type ExpenseBreakdown = {
-  label: string;
-  amount: string;
-  progress: number;
-  color: string;
-};
-
-type ExpenseItem = {
+type AgeSegmentItem = {
   range: string;
-  totalAmount: string;
-  breakdown: ExpenseBreakdown[];
+  income: number;
+  expense: number;
+  detail: {
+    living: number;
+    medical: number;
+    care: number;
+  };
 };
 
-const MOCK_EXPENSES: ExpenseItem[] = [
-  {
-    range: '65세 - 70세',
-    totalAmount: '150만원',
-    breakdown: [
-      {
-        label: '생활비',
-        amount: '80만원',
-        progress: 1.0,
-        color: 'var(--color-hana-ez-600)',
-      },
-      {
-        label: '병원비',
-        amount: '40만원',
-        progress: 0.5,
-        color: 'var(--color-hana-blue-500)',
-      },
-      {
-        label: '요양비',
-        amount: '30만원',
-        progress: 0.35,
-        color: 'var(--color-hana-teal-500)',
-      },
-    ],
-  },
-  {
-    range: '70세 - 75세',
-    totalAmount: '150만원',
-    breakdown: [
-      {
-        label: '생활비',
-        amount: '70만원',
-        progress: 0.85,
-        color: 'var(--color-hana-ez-600)',
-      },
-      {
-        label: '병원비',
-        amount: '50만원',
-        progress: 0.65,
-        color: 'var(--color-hana-blue-500)',
-      },
-      {
-        label: '요양비',
-        amount: '30만원',
-        progress: 0.35,
-        color: 'var(--color-hana-teal-500)',
-      },
-    ],
-  },
-  {
-    range: '75세 - 80세',
-    totalAmount: '150만원',
-    breakdown: [
-      {
-        label: '생활비',
-        amount: '60만원',
-        progress: 0.75,
-        color: 'var(--color-hana-ez-600)',
-      },
-      {
-        label: '병원비',
-        amount: '60만원',
-        progress: 0.75,
-        color: 'var(--color-hana-blue-500)',
-      },
-      {
-        label: '요양비',
-        amount: '30만원',
-        progress: 0.35,
-        color: 'var(--color-hana-teal-500)',
-      },
-    ],
-  },
-  {
-    range: '80세 - 85세',
-    totalAmount: '150만원',
-    breakdown: [
-      {
-        label: '생활비',
-        amount: '50만원',
-        progress: 0.65,
-        color: 'var(--color-hana-ez-600)',
-      },
-      {
-        label: '병원비',
-        amount: '70만원',
-        progress: 0.85,
-        color: 'var(--color-hana-blue-500)',
-      },
-      {
-        label: '요양비',
-        amount: '30만원',
-        progress: 0.35,
-        color: 'var(--color-hana-teal-500)',
-      },
-    ],
-  },
-];
+type SimulationExpenseAccordionProps = {
+  items: AgeSegmentItem[];
+};
 
-export function SimulationExpenseAccordion() {
+export function SimulationExpenseAccordion({ items }: SimulationExpenseAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const expenseItems = items.map(seg => {
+    const living = Math.floor(Number(seg.detail.living) / 10000);
+    const medical = Math.floor(Number(seg.detail.medical) / 10000);
+    const care = Math.floor(Number(seg.detail.care) / 10000);
+    const maxVal = Math.max(living, medical, care) || 1;
+    return {
+      range: seg.range,
+      totalAmount: `${Math.floor(Number(seg.expense) / 10000)}만원`,
+      breakdown: [
+        { label: '생활비', amount: `${living}만원`, progress: living / maxVal, color: 'var(--color-hana-ez-600)' },
+        { label: '병원비', amount: `${medical}만원`, progress: medical / maxVal, color: 'var(--color-hana-blue-500)' },
+        { label: '요양비', amount: `${care}만원`, progress: care / maxVal, color: 'var(--color-hana-teal-500)' },
+      ],
+    };
+  });
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {MOCK_EXPENSES.map((item, index) => (
+      {expenseItems.map((item, index) => (
         <div
           key={item.range}
           className="overflow-hidden rounded-[20px] border border-hana-silver-100 bg-white shadow-sm"

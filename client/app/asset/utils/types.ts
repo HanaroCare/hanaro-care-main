@@ -1,10 +1,6 @@
-// ─── AssetCategory (금융 자산 분류) ────────────────────────────────
 export type AssetCategory = 'CASH' | 'PENSION' | 'CARD' | 'INSURANCE' | 'STOCK';
-
-// ─── RealAssetCategory (실물 자산 분류) ───────────────────────────
 export type RealAssetCategory = 'REAL_ESTATE' | 'VEHICLE' | 'GOLD';
 
-// ─── GET /api/asset ────────────────────────────────────────────────
 export interface AssetDashboardResponse {
   totalFinancialAmt: number;
   financialAssets: FinancialAssetSummary[];
@@ -66,4 +62,78 @@ export interface InsuranceAssetResponse {
   assetDesc: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+/**
+ * ─── 시뮬레이션(Simulation) 도메인 ───
+ */
+export type CareType = 'CENTER' | 'HOME' | 'HOSPITAL';
+
+export interface SimulationSummary {
+  is_sufficient: boolean;
+  monthly_shortage_amt: number;
+  total_income_amt: number;
+  total_monthly_cost: number;
+}
+
+export interface CurrentSpending {
+  living: number;
+  medical: number;
+  care: number;
+}
+
+/** POST /api/asset/simulation 응답 */
+export interface SimulationResponse {
+  simulation_id: number;
+  summary: SimulationSummary;
+  current_spending: CurrentSpending;
+}
+
+export interface AgeSegment {
+  age: string;
+  income: number;
+  expense: number;
+}
+
+export interface SimulationDetailResponse extends SimulationResponse {
+  chart_data: AgeSegment[];
+  ai_opinion: string;
+}
+
+/** 백엔드 AgeSegment (range, income, expense, detail) */
+export interface AgeSegmentApiResponse {
+  range: string;
+  income: number;
+  expense: number;
+  detail: {
+    living: number;
+    medical: number;
+    care: number;
+  };
+}
+
+/** GET /api/asset/simulation/summary 응답 (SimulationSummaryResponse) */
+export interface SimulationSummaryApiResponse {
+  sufficient: boolean;      // Java Boolean isSufficient → Jackson strips "is" prefix
+  shortageAmt: number;
+  livingCost: number;
+  medicalCost: number;
+  careCost: number;
+  age_segments: AgeSegmentApiResponse[];
+  ai_opinion: string;
+}
+
+/** POST /api/asset/simulation/detail 응답 (SimulationDetailResponse) */
+export interface IncomeDetailsApiResponse {
+  national_pension: number;
+  retirement_pension: number;
+  local_subsidy_amt: number;
+  local_subsidy_name: string;
+  total_monthly_income: number;
+}
+
+export interface SimulationDetailApiResponse {
+  income_details: IncomeDetailsApiResponse;
+  age_segments: AgeSegmentApiResponse[];
+  ai_opinion: string;
 }
