@@ -25,3 +25,35 @@ export interface RealAssetSummary {
   addr: string;
   assetDesc: string;
 }
+
+export interface FinancialAssetResponse {
+  accountId: number;
+  assetCateCd: AssetCategory;
+  instNm: string;
+  accountNm: string;
+  accountNum: string;
+  balanceAmt: number;
+  profitRate: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AssetHistory {
+  name: string;
+  value: number;
+}
+
+export interface InsuranceAssetResponse {
+  assetId: number;
+  assetCateCd: 'INSURANCE';
+  assetNm: string;
+  amount: number;
+  instNm: string;
+  addr: string | null;
+  assetSize: number | null;
+  monthlyPremAmt: number;
+  expireDt: string;
+  assetDesc: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
