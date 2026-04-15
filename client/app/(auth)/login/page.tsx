@@ -1,19 +1,17 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import LoginForm from "./components/LoginForm";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/navigation/Header";
+import Link from "next/link";
+import LoginForm from "./components/LoginForm";
+import { loginAction } from "./actions/login";
 
 type LoginSubmitData = {
   id: string;
   pw: string;
 };
 
-/**
- * 일반 로그인 페이지 (아이디/비밀번호)
- */
 export default function LoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,23 +21,12 @@ export default function LoginPage() {
 
     try {
       setIsSubmitting(true);
+      const result = await loginAction(data.id, data.pw);
 
-      /**
-       * TODO: 실제 API 연동 로직
-       * const response = await fetch("/api/auth/login", { ... });
-       * const result = await response.json();
-       */
-
-      // 실제 연동 시 result.success 으로 교체
-      const verificationSuccess = true;
-
-      if (verificationSuccess) {
-        localStorage.setItem("accessToken", "temp-token");
-        localStorage.setItem("LAST_LOGIN_METHOD", "ID_PW");
-        localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+      if (result.success) {
         router.replace("/");
       } else {
-        alert("아이디 또는 비밀번호를 확인해주세요.");
+        alert(result.error ?? "로그인에 실패했습니다.");
       }
     } catch (error) {
       console.error("Login Error:", error);
