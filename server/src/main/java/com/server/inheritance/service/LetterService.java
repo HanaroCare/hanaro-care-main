@@ -128,7 +128,7 @@ public class LetterService {
       throw new IllegalArgumentException("해당 가족을 찾을 수 없습니다.");
     }
 
-    TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
+    letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
         .orElseThrow(() -> new IllegalArgumentException("해당 가족에게 남긴 편지가 없습니다."));
 
     detail.setInheritLetter(null);
