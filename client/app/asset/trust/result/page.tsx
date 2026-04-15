@@ -1,6 +1,6 @@
 'use client';
 
-import { Route } from 'next';
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import {
@@ -144,7 +144,7 @@ export default function TrustResultPage() {
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
         <Header
-          title="내맘대로신탁"
+          title="맞춤형 신탁 설계 결과"
           showCloseButton
           onClose={() => router.push('/asset/simulator' as Route)}
         />

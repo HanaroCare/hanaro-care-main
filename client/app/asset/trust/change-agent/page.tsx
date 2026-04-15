@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useId, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
-import InfoBox from '@/components/modules/InfoBox';
+import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 
 export default function ChangeAgentPage() {
@@ -23,27 +23,21 @@ export default function ChangeAgentPage() {
         </footer>
       }
     >
+      <Header title="신탁 설정 변경" showBackButton />
       <section className="px-6 pt-8">
         <ProgressBar step={6} />
 
         <div className="mt-14">
           <h2 className="text-[22px] leading-[1.45] font-bold tracking-tight text-black">
-            특별지급 신청
+            신탁 현황 열람 권한 수정하기
           </h2>
-          <p className="mt-4 text-[12px] leading-5 font-normal tracking-snug text-[#6A7282]">
-            자산이 오직 치료와 안녕을 위해서만 쓰이도록
+          <p className="mt-4 text-[14px] leading-5 font-normal tracking-snug text-[#6A7282]">
+            혹시 모를 상황에도, 대리인이 바로 확인하고
             <br />
-            미리 지정한 대리인에게 권한을 위임해주세요
+            자산을 보호할 수 있도록 열람 권한을 설정해주세요.
           </p>
         </div>
-
-        <InfoBox
-          title="특별지급 신청이란?"
-          desc="부득이한 경우, 미리 지정한 지급청구대리인을 통해 자산을 안전하게 운용 및 집행하는 보호 시스템"
-          className="mt-6"
-        />
-
-        <div className="mt-8">
+        <div className="mt-12">
           <p className="mb-3 text-[13px] leading-5 font-medium tracking-snug text-[#6A7282]">
             등록한 지급청구대리인
           </p>
@@ -70,7 +64,7 @@ export default function ChangeAgentPage() {
                   id={permissionId}
                   className="text-[12px] leading-5 text-[#9CA3AF]"
                 >
-                  집행내역 열람
+                  열람 권한
                 </span>
                 <button
                   type="button"
