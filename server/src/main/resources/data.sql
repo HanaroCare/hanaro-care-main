@@ -23,30 +23,30 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- ========================
 -- TB_USER
--- 비밀번호: $2a$12$RCW.Nx0XvaZEBDS2txXsYeKja93x3gS3Z1fJiABJmLP5CxzzS0Kdu
+-- 비밀번호: $2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi
 -- ========================
 INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
                      USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
 VALUES
     -- 1. 정상 유저 (최근 로그인)
-    (1001, '홍길동', '$2a$12$RCW.Nx0XvaZEBDS2txXsYeKja93x3gS3Z1fJiABJmLP5CxzzS0Kdu',
+    (1001, '홍길동', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
      '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
     -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
-    (1002, '김철수', '$2a$12$RCW.Nx0XvaZEBDS2txXsYeKja93x3gS3Z1fJiABJmLP5CxzzS0Kdu',
+    (1002, '김철수', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
      '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH),
      DATE_SUB(NOW(), INTERVAL 7 MONTH)),
     -- 3. 이미 휴면 상태인 유저
-    (1003, '이영희', '$2a$12$RCW.Nx0XvaZEBDS2txXsYeKja93x3gS3Z1fJiABJmLP5CxzzS0Kdu',
+    (1003, '이영희', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
      '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
      DATE_SUB(NOW(), INTERVAL 8 MONTH)),
     -- 4. 관리자
-    (1004, '박관리', '$2a$12$RCW.Nx0XvaZEBDS2txXsYeKja93x3gS3Z1fJiABJmLP5CxzzS0Kdu',
+    (1004, '박관리', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
      '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW()),
     -- 5. 시뮬레이션 테스트용 부모 유저
-    (1005, '정순자', '$2a$12$RCW.Nx0XvaZEBDS2txXsYeKja93x3gS3Z1fJiABJmLP5CxzzS0Kdu',
+    (1005, '정순자', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
      '01066667777', 68, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
     -- 6. 시뮬레이션 테스트용 자녀 유저
-    (1006, '정민준', '$2a$12$RCW.Nx0XvaZEBDS2txXsYeKja93x3gS3Z1fJiABJmLP5CxzzS0Kdu',
+    (1006, '정민준', '$2a$12$VXqnq6ENLZbVubzFzFJB7OVU..UY3Ucm.yiKGLREoN2AjY8FShuIi',
      '01077778888', 38, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
 
 -- ========================
