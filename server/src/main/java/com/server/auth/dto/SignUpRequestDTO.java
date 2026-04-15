@@ -1,11 +1,12 @@
 package com.server.auth.dto;
 
+import com.server.common.validator.LoginId;
+import com.server.common.validator.Password;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,8 +20,14 @@ import lombok.NoArgsConstructor;
 public class SignUpRequestDTO {
 
   @NotBlank(message = "아이디는 필수 입력 사항입니다.")
-  @Size(min = 2, max = 20, message = "아이디는 2자 이상 20자 이하로 입력해주세요.")
-  @Schema(description = "사용자 아이디(이름)", example = "testUser")
+  @Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하로 입력해주세요.")
+  @LoginId
+  @Schema(description = "로그인 아이디 (영문/숫자)", example = "testUser01")
+  private String loginId;
+
+  @NotBlank(message = "이름은 필수 입력 사항입니다.")
+  @Size(min = 2, max = 20, message = "이름은 2자 이상 20자 이하로 입력해주세요.")
+  @Schema(description = "사용자 실명", example = "홍길동")
   private String userNm;
 
   @NotNull(message = "나이는 필수 입력 사항입니다.")
@@ -30,12 +37,11 @@ public class SignUpRequestDTO {
   private Integer userAge;
 
   @NotBlank(message = "전화번호는 필수 입력 사항입니다.")
-  @Pattern(regexp = "^\\d{10,11}$", message = "전화번호는 10~11자리 숫자여야 합니다.")
   @Schema(description = "전화번호 (숫자만, 10~11자리)", example = "01012345678")
   private String userPhone;
 
   @NotBlank(message = "비밀번호는 필수 입력 사항입니다.")
-  @Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하로 입력해주세요.")
-  @Schema(description = "비밀번호", example = "password123")
+  @Password
+  @Schema(description = "비밀번호 (영문+숫자 조합, 8~16자)", example = "test1234")
   private String userPwd;
 }
