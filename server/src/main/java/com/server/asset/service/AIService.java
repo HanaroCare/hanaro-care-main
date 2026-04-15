@@ -78,8 +78,11 @@ public class AIService {
             String rawText = response.getText();
             String jsonOnly = extractPureJson(rawText);
 
-            log.info("[Gemini] AI 응답 파싱 완료: {}", jsonOnly);
-            return objectMapper.readValue(jsonOnly, SimulationDetailResponse.class);
+            SimulationDetailResponse detailResponse = objectMapper.readValue(jsonOnly, SimulationDetailResponse.class);
+
+            validateSimulationResponse(detailResponse);
+
+            return detailResponse;
 
         } catch (Exception e) {
             log.error("[Gemini] AI 분석 실패. 에러: {}", e.getMessage());
@@ -160,5 +163,34 @@ public class AIService {
             input.getAverageMonthlySpending(), input.getCareType().getDescription(),
             estimatedPension, medicalInflation, welfareContext, medicalInflation,
             input.getCareType().getDescription(), estimatedPension, estimatedPension);
+    }
+
+    private void validateSimulationResponse(SimulationDetailResponse response) {
+        if (response == null) {
+            throw new IllegalStateException("AI 응답 객체가 생성되지 않았습니다.");
+        }
+
+        // 1. 소득 상세 정보 검증
+        if (response.getIncomeDetails() == null) {
+            throw new IllegalArgumentException("필수 필드 누락: income_details가 없습니다.");
+        }
+
+        // 2. 연령대별 시뮬레이션 데이터 검증
+        if (response.getAgeSegments() == null || response.getAgeSegments().isEmpty()) {
+            throw new IllegalArgumentException("필수 필드 누락: age_segments가 비어있거나 없습니다.");
+        }
+
+        // 3. 첫 번째 세그먼트의 상세 데이터 존재 여부 검증
+        SimulationDetailResponse.AgeSegment firstSegment = response.getAgeSegments().get(0);
+        if (firstSegment.getDetail() == null) {
+            throw new IllegalArgumentException("필수 필드 누락: age_segments 내의 상세 비용(detail) 정보가 없습니다.");
+        }
+
+        // 4. AI 의견 존재 여부 검증
+        if (response.getAiOpinion() == null || response.getAiOpinion().isBlank()) {
+            throw new IllegalArgumentException("필수 필드 누락: ai_opinion이 없습니다.");
+        }
+
+        log.info("[Gemini] AI 응답 데이터 검증 성공");
     }
 }

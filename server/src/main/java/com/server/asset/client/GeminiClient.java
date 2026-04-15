@@ -7,6 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -35,7 +36,7 @@ public class GeminiClient {
     public GeminiResponse generateContent(GeminiRequest.RequestBody requestBody) {
         try {
             URI uri = UriComponentsBuilder
-                .fromHttpUrl(baseUrl + GENERATE_PATH)
+                .fromUriString(baseUrl + GENERATE_PATH)
                 .queryParam("key", apiKey)
                 .build(false)
                 .toUri();
@@ -49,9 +50,12 @@ public class GeminiClient {
 
             return restTemplate.postForObject(uri, entity, GeminiResponse.class);
 
+        } catch (RestClientResponseException e) {
+            log.error("[Gemini] API 호출 실패: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw e;
         } catch (Exception e) {
-            log.error("[Gemini] API 호출 실패: {}", e.getMessage());
-            throw new RuntimeException("Gemini API 호출 실패", e);
+            log.error("[Gemini] 예상치 못한 오류 발생: {}", e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

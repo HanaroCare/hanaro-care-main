@@ -44,7 +44,7 @@ public class BokjiroClient {
 
     @Cacheable(
         cacheNames = "welfare",
-        key = "#srchKeyCode + ':' + #searchWrd + ':' + #pageNo",
+        key = "#srchKeyCode + ':' + #searchWrd + ':' + #lifeArray + ':' + #pageNo + ':' + #numOfRows",
         unless = "#result == null"
     )
     public PublicDataResponse.WelfareListResponse getWelfareServices(

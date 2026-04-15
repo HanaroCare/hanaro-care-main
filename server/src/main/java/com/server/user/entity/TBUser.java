@@ -1,8 +1,11 @@
 package com.server.user.entity;
 
+import java.time.LocalDateTime;
+
 import com.server.user.enums.LoginMeans;
 import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +13,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +26,7 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"userAddr", "userPhone", "userPwd"})
 @Table(name = "TB_USER")
 public class TBUser {
 

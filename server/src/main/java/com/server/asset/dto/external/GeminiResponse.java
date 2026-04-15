@@ -1,7 +1,11 @@
 package com.server.asset.dto.external;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,12 +29,19 @@ public class GeminiResponse {
     }
 
     public String getText() {
-        if (candidates != null && !candidates.isEmpty() &&
-            candidates.get(0).getContent() != null &&
-            candidates.get(0).getContent().getParts() != null &&
-            !candidates.get(0).getContent().getParts().isEmpty()) {
-            return candidates.get(0).getContent().getParts().get(0).getText();
+        if (candidates == null || candidates.isEmpty()) {
+            return "";
         }
-        return "";
+
+        Candidate firstCandidate = candidates.getFirst();
+        if (firstCandidate.getContent() == null || firstCandidate.getContent().getParts() == null) {
+            return "";
+        }
+
+        // 모든 Part의 text를 순회하며 null이 아닌 것들을 하나로 합침
+        return firstCandidate.getContent().getParts().stream()
+            .map(Part::getText)
+            .filter(Objects::nonNull)
+            .collect(Collectors.joining(""));
     }
 }
