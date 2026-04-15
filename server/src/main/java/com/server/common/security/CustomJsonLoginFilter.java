@@ -83,7 +83,7 @@ public class CustomJsonLoginFilter extends AbstractAuthenticationProcessingFilte
       case PASSWORD -> {
         if (!PASSWORD_VALIDATOR.isValid(userPwd, null)) {
           throw new LoginValidationException("userPwd",
-              "비밀번호는 영문, 숫자, 특수문자(@$!%*#?&)를 포함한 8~16자여야 합니다.");
+              "비밀번호는 영문, 숫자를 포함한 8~16자여야 합니다.");
         }
       }
       case SIMPLE_PASSWORD -> {
