@@ -36,18 +36,16 @@ public class PensionPayoutService {
 
 	private static final int COMPARISON_YEARS = 20;
 	private static final BigDecimal BASE_MONTHLY_RATE   = new BigDecimal("0.0038");
-	private static final BigDecimal FRONT_EARLY_RATIO   = new BigDecimal("1.20"); // 초기 120%
-	private static final BigDecimal FRONT_LATE_RATIO    = new BigDecimal("0.73");  // 이후 73%
+	private static final BigDecimal FRONT_EARLY_RATIO   = new BigDecimal("1.20");
+	private static final BigDecimal FRONT_LATE_RATIO    = new BigDecimal("0.73");
 	private static final int        FRONT_BREAK_YEAR    = 10;
-	private static final BigDecimal GROWING_START_RATIO = new BigDecimal("0.70"); // 70%로 시작
-	private static final BigDecimal GROWING_ANNUAL_RATE = new BigDecimal("0.035"); // 연 3.5% 증가
+	private static final BigDecimal GROWING_START_RATIO = new BigDecimal("0.70");
+	private static final BigDecimal GROWING_ANNUAL_RATE = new BigDecimal("0.035");
 
 	private static final List<Integer> CHART_YEARS = buildChartYears();
 
 	private static List<Integer> buildChartYears() {
-		List<Integer> years = new ArrayList<>();
-		// 1년, 10년, 11년(전환점), 20년 등 주요 시점 강조
-		years.addAll(List.of(1, 10, 11, 20));
+		List<Integer> years = new ArrayList<>(List.of(1, 10, 11, 20));
 		return years.stream().distinct().sorted().toList();
 	}
 
@@ -62,9 +60,6 @@ public class PensionPayoutService {
 	private final ObjectMapper objectMapper;
 	private final PensionMapper pensionMapper;
 
-	/**
-	 * 주택연금 수령 방식 상세 비교 (Race Condition 방어 적용)
-	 */
 	@CheckUser(key = "#userId")
 	@Transactional
 	public PensionPayoutComparisonResponse compare(Long userId, Long realAssetId) {
@@ -72,29 +67,23 @@ public class PensionPayoutService {
 		validateOwner(userId, asset);
 		BigDecimal currentEvalAmt = asset.getEvalAmt();
 
-		// 1. 비관적 락을 사용하여 동일 자산에 대한 동시 생성/수정 방지
 		TBPensionSimulation simulation = pensionSimulationRepository
 			.findByRealAsset_RealAssetId(realAssetId)
 			.orElseGet(() -> TBPensionSimulation.builder().realAsset(asset).build());
 
-		// 2. 캐시 히트 체크 (집값이 변하지 않았다면 기존 결과 반환)
 		if (simulation.getPensionSimulationId() != null
 			&& simulation.getEvalAmtSnapshot() != null
 			&& simulation.getEvalAmtSnapshot().compareTo(currentEvalAmt) == 0) {
 			return deserializePlans(simulation);
 		}
 
-		// 3. 연금 수령액 계산
 		PensionPayoutComparisonResponse response = calculate(asset);
-
-		// 4. 시뮬레이션 엔티티 업데이트
 		updateSimulation(simulation, response, currentEvalAmt);
 
-		// 5. 신규 생성 시 발생할 수 있는 데이터 위반 예외 최종 방어
 		try {
 			pensionSimulationRepository.saveAndFlush(simulation);
 		} catch (DataIntegrityViolationException e) {
-			log.warn("중복된 시뮬레이션 생성 시도 감지. 기존 데이터를 재조회하여 갱신합니다. assetId={}", realAssetId);
+			log.warn("중복된 시뮬레이션 생성 시도 감지. 기존 데이터를 갱신합니다. assetId={}", realAssetId);
 			simulation = pensionSimulationRepository.findByRealAsset_RealAssetId(realAssetId)
 				.orElseThrow(() -> new ApiException(ErrorStatus._INTERNAL_SERVER_ERROR));
 			updateSimulation(simulation, response, currentEvalAmt);
@@ -125,7 +114,6 @@ public class PensionPayoutService {
 
 		List<PensionPayoutPlanDto> plans = List.of(fixed, frontLoaded, growing);
 
-		// 누적 수령액이 가장 높은 플랜 추천
 		PensionPayoutPlanDto recommended = plans.stream()
 			.max(Comparator.comparing(PensionPayoutPlanDto::getTotalCumulativeAmount))
 			.orElse(fixed);
@@ -143,13 +131,13 @@ public class PensionPayoutService {
 			.findFirst()
 			.orElseThrow(() -> new IllegalStateException("추천 플랜 누락"));
 
-		// 첫 달 수령액 추출
 		BigDecimal monthlyAmt = recommendedPlan.getYearlyData().get(0).getMonthlyAmount();
 
 		simulation.setRecommendedType(PensionPayoutType.valueOf(response.getRecommendedType()));
 		simulation.setRecommendedMonthlyAmt(monthlyAmt);
 		simulation.setRecommendedCumulativeAmt(recommendedPlan.getTotalCumulativeAmount());
 		simulation.setEvalAmtSnapshot(evalAmt);
+		// 핵심 변경: 직렬화 실패 시 런타임 예외 발생으로 롤백 유도
 		simulation.setPlansJson(serializePlans(response.getPlans()));
 	}
 
@@ -219,8 +207,9 @@ public class PensionPayoutService {
 		try {
 			return objectMapper.writeValueAsString(plans);
 		} catch (Exception e) {
-			log.error("JSON 직렬화 실패", e);
-			return null;
+			log.error("주택연금 시뮬레이션 직렬화 실패", e);
+			// null을 반환하여 오염된 데이터를 저장하는 대신 예외를 던져 롤백
+			throw new ApiException(ErrorStatus._INTERNAL_SERVER_ERROR);
 		}
 	}
 
