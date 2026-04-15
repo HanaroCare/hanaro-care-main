@@ -32,16 +32,11 @@ public class UserController {
     return ApiResponse.onSuccess(userService.findAllUsers());
   }
 
-  `@Operation`(summary = "유저 상세 조회", description = "특정 유저의 상세 정보를 조회합니다. 탈퇴한 유저는 조회되지 않습니다.")
-  `@PreAuthorize`("isAuthenticated()")
-  `@GetMapping`("/{userId}")
+  @Operation(summary = "유저 상세 조회", description = "특정 유저의 상세 정보를 조회합니다. 탈퇴한 유저는 조회되지 않습니다.")
+  @GetMapping("/{userId}")
   public ApiResponse<UserDetailResponseDTO> getUserDetail(
-      `@AuthenticationPrincipal` SubscriberDTO subscriber,
-      `@Parameter`(description = "조회할 유저 ID", example = "1001")
-      `@PathVariable` Long userId) {
-    if (!subscriber.getUserId().equals(userId)) {
-      throw new ApiException(ErrorStatus._FORBIDDEN);
-    }
+      @Parameter(description = "조회할 유저 ID", example = "1001")
+      @PathVariable Long userId) {
     return ApiResponse.onSuccess(userService.findUserById(userId));
   }
 
