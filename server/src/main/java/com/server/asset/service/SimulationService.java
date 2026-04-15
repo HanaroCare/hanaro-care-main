@@ -39,7 +39,7 @@ public class SimulationService {
 
     @Transactional
     @CheckUser(key = "#userId")
-    @CacheEvict(value = "simulationDetail", key = "#userId + #request.targetAge + #request.careType.name()")
+    @CacheEvict(value = "simulationDetail", key = "#userId + ':' + `#request.targetAge` + ':' + `#request.careType.name`()")
     public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
         // 1. 사용자 컨텍스트 수집 (소비, 거주지, 자산 등)
         AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
@@ -59,9 +59,9 @@ public class SimulationService {
         BigDecimal shortageAmt = monthlyCost.subtract(totalIncomeAmt);
         boolean isSufficient = shortageAmt.compareTo(BigDecimal.ZERO) <= 0;
 
-        BigDecimal livingCost = (firstSegment != null) ? firstSegment.getDetail().getLiving() : BigDecimal.ZERO;
-        BigDecimal medicalCost = (firstSegment != null) ? firstSegment.getDetail().getMedical() : BigDecimal.ZERO;
-        BigDecimal careCost = (firstSegment != null) ? firstSegment.getDetail().getCare() : BigDecimal.ZERO;
+        BigDecimal livingCost = (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail().getLiving() : BigDecimal.ZERO;
+        BigDecimal medicalCost = (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail().getMedical() : BigDecimal.ZERO;
+        BigDecimal careCost = (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail().getCare() : BigDecimal.ZERO;
 
         String ageRangeDetails;
         try {
@@ -104,7 +104,11 @@ public class SimulationService {
     }
 
     @CheckUser(key = "#userId")
-    @Cacheable(value = "simulationDetail", key = "#userId + #request.targetAge + #request.careType.name()", unless = "#result == null")
+    @Cacheable(
+        value = "simulationDetail",
+        key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()",
+        unless = "#result == null"
+    )
     public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
         TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(userId, request.getTargetAge(), request.getCareType())
             .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));

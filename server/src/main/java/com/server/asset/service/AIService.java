@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.client.GeminiClient;
@@ -31,7 +32,10 @@ public class AIService {
 
     @Cacheable(
         cacheNames = "gemini",
-        key = "#input.userAge + ':' + #input.targetAge + ':' + #input.careType.name() + ':' + #input.userAddr",
+        key = "#input.userId + ':' + #input.userAge + ':' + #input.targetAge + ':' + "
+            + "#input.careType.name() + ':' + #input.userAddr + ':' + "
+            + "#input.averageMonthlySpending + ':' + #input.totalAssetAmt + ':' + "
+            + "#input.spendingByCategory",
         unless = "#result == null"
     )
     public SimulationDetailResponse analyzeFutureCosts(
@@ -58,15 +62,16 @@ public class AIService {
 
             for (int retryCount = 0; retryCount < maxRetries; retryCount++) {
                 try {
-                    // GeminiClient가 내부적으로 apiKey를 주입받아 처리
                     response = geminiClient.generateContent(requestBody);
                     break;
-                } catch (Exception e) {
-                    if (e.getMessage().contains("429") && retryCount < maxRetries - 1) {
-                        log.warn("[Gemini] 요청 한도 초과(429). 재시도 중... ({}/{})", retryCount + 1, maxRetries);
-                        Thread.sleep(2000L * (retryCount + 1)); // 지수 백오프
+                } catch (RestClientResponseException ex) {
+                    // 429 Too Many Requests 인지 상태 코드로 명확히 확인
+                    if (ex.getStatusCode().value() == 429 && retryCount < maxRetries - 1) {
+                        log.warn("[Gemini] 할당량 초과(429). 재시도 중... ({}/{})", retryCount + 1, maxRetries);
+                        Thread.sleep(2000L * (retryCount + 1));
                     } else {
-                        throw e;
+                        // 할당량 초과가 아니거나 재시도 횟수를 초과한 경우 그대로 던짐
+                        throw ex;
                     }
                 }
             }

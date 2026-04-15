@@ -71,7 +71,7 @@ public class BokjiroClient {
             }
 
             URI uri = URI.create(url.toString());
-            log.debug("[복지로] 목록 조회 URI: {}", uri);
+            log.debug("[복지로] 목록 조회 URI: {}", uri.toString().replaceAll("serviceKey=[^&]+", "serviceKey=***"));
 
             String raw = restTemplate.getForObject(uri, String.class);
             log.debug("[복지로] 응답 원문: {}", raw);
