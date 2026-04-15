@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,6 +25,7 @@ public class InheritanceService {
 
   // 가족 조회
   @CheckUser(key = "#userId")
+  @Cacheable(value = "familyList", key = "#userId")
   public List<FamilySummaryDto> getFamily(Long userId) {
     List<TBFamilyAuth> families = familyAuthRepository.findAllByGrantorUserId(userId);
     return families.stream().map(f -> FamilySummaryDto.builder().name(f.getGrantee().getUserNm())

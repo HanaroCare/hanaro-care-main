@@ -13,6 +13,7 @@ import com.server.user.repository.TBFamilyAuthRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,6 +25,7 @@ public class InsuranceService {
 
   // 보험(자신+grantor) 조회
   @CheckUser(key = "#userId")
+  @Cacheable(value = "insuranceList", key = "#userId")
   public List<InsuranceDto> getInsurances(Long userId) {
     List<TBAccount> account = accountRepository.findAllByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
@@ -53,6 +55,7 @@ public class InsuranceService {
 
   // 권한에 따른 보험 상세 조회
   @CheckUser(key = "#userId")
+  @Cacheable(value = "insuranceDetail", key = "#userId + ':' + #insuranceId")
   public InsuranceDetailDto getInsurance(Long userId, Long insuranceId) {
     TBAccount account = accountRepository.findByAccountIdAndAssetCateCd(
             insuranceId, AssetCategory.INSURANCE)
