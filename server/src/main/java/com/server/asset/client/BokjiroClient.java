@@ -11,8 +11,6 @@ public interface BokjiroClient {
 
     /**
      * 중앙부처 복지서비스 목록조회
-     * callTp: L (목록), D (상세)
-     * srchKeyCode: 001 제목, 002 내용, 003 제목+내용
      */
     @GetMapping("/B554287/NationalWelfareInformationsV001/NationalWelfarelistV001")
     PublicDataResponse.WelfareListResponse getWelfareServices(
@@ -23,6 +21,16 @@ public interface BokjiroClient {
         @RequestParam("srchKeyCode") String srchKeyCode,
         @RequestParam(value = "searchWrd", required = false) String searchWrd,
         @RequestParam(value = "lifeArray", required = false) String lifeArray,
-        @RequestParam(value = "_type", defaultValue = "json") String type
+        @RequestParam(value = "dataType", defaultValue = "json") String dataType
+    );
+
+    /**
+     * 중앙부처 복지서비스 상세조회
+     */
+    @GetMapping("/B554287/NationalWelfareInformationsV001/NationalWelfaredetailedV001")
+    String getWelfareDetail(
+        @RequestParam("serviceKey") String apiKey,
+        @RequestParam("callTp") String callTp,
+        @RequestParam("servId") String servId
     );
 }

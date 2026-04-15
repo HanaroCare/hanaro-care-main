@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.server.asset.client.BokjiroClient;
-import com.server.asset.client.KosisClient;
 import com.server.asset.dto.external.AIAnalysisInput;
 import com.server.asset.dto.external.publicdata.PublicDataResponse;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
@@ -24,21 +23,29 @@ public class SimulationEngine {
 
     private final AIService aiService;
     private final NationalPensionService pensionService;
-    private final KosisClient kosisClient;
     private final BokjiroClient bokjiroClient;
     private final ExternalApiProperties apiProperties;
 
+    // 통계 기반 상수 (2024-2025 최신 데이터 반영)
+    private static final BigDecimal AVG_WAGE_GROWTH = new BigDecimal("2.9"); // 우리나라 평균 임금 인상률 (2.9%)
+    private static final BigDecimal SENIOR_MEDICAL_COST_YEAR = new BigDecimal("6000000"); // 노인 1인당 연평균 진료비 (약 600만원)
+    private static final BigDecimal MEDICAL_INFLATION = new BigDecimal("4.5"); // 의료비 물가상승률 (고정값 사용)
+
     public SimulationDetailResponse run(AIAnalysisInput input) {
         // 1. 핵심 지표 산출
-        BigDecimal medicalInflation = fetchMedicalInflation();
+        BigDecimal medicalInflation = MEDICAL_INFLATION;
+        
+        // 임금 인상률을 반영한 예상 연금 (단순화: 매년 임금 상승분만큼 연금 가치도 소폭 상승한다고 가정하거나, 
+        // 소비지출의 미래 가치를 계산할 때 임금 상승률을 참고할 수 있음)
         BigDecimal estimatedPension = pensionService.estimateMonthlyPension(
             input.getUserAge(), input.getAverageMonthlySpending(), 20);
+        
         List<String> welfareServices = fetchWelfareServices(input.getUserAddr());
 
         log.info("[Simulation Start] User Age: {}, Target Age: {}, Care Type: {}", 
             input.getUserAge(), input.getTargetAge(), input.getCareType());
-        log.info("[Simulation Metrics] Medical Inflation: {}%, Estimated Pension: {} KRW, Welfare Services Count: {}", 
-            medicalInflation, estimatedPension, welfareServices.size());
+        log.info("[Simulation Metrics] Medical Inflation: {}%, Wage Growth: {}%, Welfare Services Count: {}", 
+            medicalInflation, AVG_WAGE_GROWTH, welfareServices.size());
 
         // 2. AI 분석 시도
         try {
@@ -53,24 +60,6 @@ public class SimulationEngine {
             log.info("[Simulation Success] Rule-based simulation completed as fallback.");
             return ruleResult;
         }
-    }
-
-    private BigDecimal fetchMedicalInflation() {
-        try {
-            String apiKey = apiProperties.getKosis().getApiKey();
-            if (isValidKey(apiKey)) {
-                log.info("[KOSIS Request] API Key: {}, Base URL: {}", apiKey.substring(0, 5) + "...", apiProperties.getKosis().getBaseUrl());
-                List<PublicDataResponse.KosisData> data = kosisClient.getMedicalInflation(
-                    apiKey, "getList", "json", "101", "Y", "2023", "2023");
-                if (data != null && !data.isEmpty()) {
-                    log.info("[KOSIS Success] Value: {}", data.get(0).getValue());
-                    return new BigDecimal(data.get(0).getValue());
-                }
-            }
-        } catch (Exception e) {
-            log.warn("[KOSIS Failed] Error: {}", e.getMessage());
-        }
-        return new BigDecimal("4.5");
     }
 
     private List<String> fetchWelfareServices(String addr) {
@@ -108,17 +97,23 @@ public class SimulationEngine {
             default -> new BigDecimal("1000000");
         };
 
-        // 70세 기준 시뮬레이션 (현재 소비 + 의료물가상승 반영 의료비 + 요양비)
-        // 기본 의료비를 월 30만원으로 가정하고 물가상승률 적용
-        BigDecimal futureMedical = new BigDecimal("300000")
+        // 기본 의료비: 노인 1인당 연평균 진료비(600만원) / 12개월 = 월 50만원
+        BigDecimal monthlyMedicalBase = SENIOR_MEDICAL_COST_YEAR.divide(new BigDecimal("12"), 0, java.math.RoundingMode.HALF_UP);
+        
+        // 물가상승률 반영 의료비
+        BigDecimal futureMedical = monthlyMedicalBase
             .multiply(BigDecimal.ONE.add(inflation.divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)));
+
+        // 임금 인상률을 반영한 예상 생활비 (매년 소폭 증가한다고 가정)
+        BigDecimal futureLiving = input.getAverageMonthlySpending()
+            .multiply(BigDecimal.ONE.add(AVG_WAGE_GROWTH.divide(new BigDecimal("100"), 2, java.math.RoundingMode.HALF_UP)));
 
         SimulationDetailResponse.AgeSegment segment1 = SimulationDetailResponse.AgeSegment.builder()
             .range("70-75세")
-            .income(pension.add(new BigDecimal("300000")))
-            .expense(input.getAverageMonthlySpending().add(futureMedical).add(careCostBase))
+            .income(pension.add(new BigDecimal("300000"))) // 연금 + 기초연금 수준 지원금
+            .expense(futureLiving.add(futureMedical).add(careCostBase))
             .detail(SimulationDetailResponse.AgeDetail.builder()
-                .living(input.getAverageMonthlySpending())
+                .living(futureLiving)
                 .medical(futureMedical)
                 .care(careCostBase)
                 .build())
@@ -131,7 +126,8 @@ public class SimulationEngine {
                 .totalMonthlyIncome(pension.add(new BigDecimal("300000")))
                 .build())
             .ageSegments(Arrays.asList(segment1))
-            .aiOpinion("현재 통계 기반 시뮬레이션 결과입니다. " + input.getCareType().getDescription() + " 중심의 노후 자금 준비가 필요합니다.")
+            .aiOpinion("통계 데이터(평균 임금 인상률 2.9%, 노인 평균 진료비 월 50만원)를 기반으로 한 시뮬레이션입니다. " 
+                + input.getCareType().getDescription() + " 이용 시 월 약 " + segment1.getExpense().divide(new BigDecimal("10000"), 0, java.math.RoundingMode.HALF_UP) + "만원의 지출이 예상됩니다.")
             .build();
     }
 }

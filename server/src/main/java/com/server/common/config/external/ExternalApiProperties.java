@@ -13,17 +13,10 @@ import lombok.Setter;
 public class ExternalApiProperties {
 
     private Gemini gemini = new Gemini();
-    private Kosis kosis = new Kosis();
     private PublicData publicData = new PublicData();
 
     @Getter @Setter
     public static class Gemini {
-        private String baseUrl;
-        private String apiKey;
-    }
-
-    @Getter @Setter
-    public static class Kosis {
         private String baseUrl;
         private String apiKey;
     }

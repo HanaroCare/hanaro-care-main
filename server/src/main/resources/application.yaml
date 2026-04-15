@@ -16,7 +16,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
 
@@ -40,18 +40,6 @@ spring:
   web:
     resources:
       add-mappings: false
-
-# External APIs
-external:
-  gemini:
-    base-url: https://generativelanguage.googleapis.com
-    api-key: ${GEMINI_API_KEY:YOUR_GEMINI_KEY}
-  kosis:
-    base-url: https://kosis.kr
-    api-key: ${KOSIS_API_KEY:YOUR_KOSIS_KEY}
-  public-data:
-    base-url: http://apis.data.go.kr
-    api-key: ${PUBLIC_DATA_API_KEY:YOUR_PUBLIC_KEY}
 
 springdoc:
   swagger-ui:

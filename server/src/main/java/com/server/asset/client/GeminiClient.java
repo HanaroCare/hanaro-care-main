@@ -10,7 +10,7 @@ import com.server.asset.dto.external.GeminiResponse;
 
 @FeignClient(name = "geminiClient", url = "${external.gemini.base-url}")
 public interface GeminiClient {
-    @PostMapping("/v1beta/models/gemini-1.5-flash-latest:generateContent")
+    @PostMapping("/v1beta/models/gemini-2.0-flash:generateContent")
     GeminiResponse generateContent(
         @RequestParam("key") String apiKey,
         @RequestBody GeminiRequest.RequestBody requestBody
