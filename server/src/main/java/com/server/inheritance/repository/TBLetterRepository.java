@@ -11,4 +11,6 @@ public interface TBLetterRepository extends JpaRepository<TBInheritLetter, Long>
 
   @Query("SELECT l FROM TBInheritLetter l WHERE l.inheritDetail.user.userId = :letterId")
   Optional<TBInheritLetter> findByUserId(Long letterId);
+
+  Optional<TBInheritLetter> findByInheritDetail_InheritDetailId(Long inheritDetailId);
 }
