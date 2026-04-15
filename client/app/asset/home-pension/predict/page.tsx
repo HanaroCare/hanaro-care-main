@@ -54,7 +54,7 @@ export default function HomeValueForecastPage() {
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
-        <Header title="집값 예측" isCloseButton />
+        <Header title="집값 예측" showBackButton />
 
         <main className="app-main no-scrollbar px-5 pt-1 pb-6">
           <section>

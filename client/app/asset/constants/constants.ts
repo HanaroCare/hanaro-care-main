@@ -1,3 +1,14 @@
+export type DataPoint = {
+  year: number | string;
+  bull?: number;
+  base?: number;
+  bear?: number;
+  past?: number;
+  fixed?: number;
+  boosted?: number;
+  growing?: number;
+};
+
 export type PeriodKey = '5' | '10' | '20';
 export type ScenarioKey = 'bull' | 'base' | 'bear';
 
@@ -7,34 +18,32 @@ export const periodOptions = [
   { key: '20', label: '20년' },
 ] as const;
 
-export const fullForecastChartData = [
+export const fullForecastChartData: DataPoint[] = [
   { year: 2020, bull: 6.0, base: 6.0, bear: 6.0, past: 6.0 },
   { year: 2021, bull: 6.4, base: 6.4, bear: 6.4, past: 6.4 },
   { year: 2022, bull: 6.9, base: 6.9, bear: 6.9, past: 6.9 },
   { year: 2023, bull: 7.3, base: 7.3, bear: 7.3, past: 7.3 },
   { year: 2024, bull: 8.0, base: 8.0, bear: 8.0, past: 8.0 },
-
-  // 예측 시작
   { year: 2025, bull: 8.3, base: 8.2, bear: 8.0 },
   { year: 2026, bull: 8.7, base: 8.4, bear: 8.0 },
   { year: 2027, bull: 9.0, base: 8.6, bear: 8.0 },
   { year: 2028, bull: 9.5, base: 8.7, bear: 8.0 },
-  { year: 2029, bull: 9.8, base: 8.8, bear: 8.0 }, // 5년
+  { year: 2029, bull: 9.8, base: 8.8, bear: 8.0 },
   { year: 2030, bull: 10.2, base: 9.0, bear: 8.0 },
   { year: 2031, bull: 10.6, base: 9.2, bear: 8.0 },
   { year: 2032, bull: 10.9, base: 9.4, bear: 8.0 },
   { year: 2033, bull: 11.3, base: 9.6, bear: 8.0 },
-  { year: 2034, bull: 11.8, base: 9.8, bear: 8.0 }, // 10년
+  { year: 2034, bull: 11.8, base: 9.8, bear: 8.0 },
   { year: 2035, bull: 12.1, base: 10.0, bear: 8.0 },
   { year: 2036, bull: 12.5, base: 10.2, bear: 8.0 },
   { year: 2037, bull: 12.9, base: 10.4, bear: 8.0 },
   { year: 2038, bull: 13.3, base: 10.6, bear: 8.0 },
-  { year: 2039, bull: 13.6, base: 10.8, bear: 8.0 }, // 15년
+  { year: 2039, bull: 13.6, base: 10.8, bear: 8.0 },
   { year: 2040, bull: 14.0, base: 11.0, bear: 8.0 },
   { year: 2041, bull: 14.4, base: 11.2, bear: 8.0 },
   { year: 2042, bull: 14.8, base: 11.4, bear: 8.0 },
   { year: 2043, bull: 15.2, base: 11.6, bear: 8.0 },
-  { year: 2044, bull: 15.6, base: 11.8, bear: 8.0 }, // 20년
+  { year: 2044, bull: 15.6, base: 11.8, bear: 8.0 },
 ];
 
 export const periodYearMap: Record<PeriodKey, number> = {
@@ -45,27 +54,11 @@ export const periodYearMap: Record<PeriodKey, number> = {
 
 export const scenarioMeta: Record<
   ScenarioKey,
-  {
-    label: string;
-    color: string;
-    bgColor: string;
-  }
+  { label: string; color: string; bgColor: string }
 > = {
-  bull: {
-    label: '낙관',
-    color: '#00D0CB',
-    bgColor: '#EAF8F7',
-  },
-  base: {
-    label: '중립',
-    color: '#00A8A6',
-    bgColor: '#EAF8F7',
-  },
-  bear: {
-    label: '비관',
-    color: '#0A5657',
-    bgColor: '#EAF8F7',
-  },
+  bull: { label: '낙관', color: '#00D0CB', bgColor: '#EAF8F7' },
+  base: { label: '중립', color: '#00A8A6', bgColor: '#EAF8F7' },
+  bear: { label: '비관', color: '#0A5657', bgColor: '#EAF8F7' },
 };
 
 export const scenarioDescriptionMap: Record<
@@ -178,28 +171,16 @@ export const aiDescriptionMap: Record<
 
 export type PensionType = 'fixed' | 'boosted' | 'growing';
 
-// 수령 방식별 10/20/30년 예상 금액 데이터
 export const pensionPeriodAmounts: Record<
   PensionType,
   { year10: string; year20: string; year30: string }
 > = {
-  fixed: {
-    year10: '300만원',
-    year20: '300만원',
-    year30: '300만원',
-  },
-  boosted: {
-    year10: '450만원', // 초기 많이 받음
-    year20: '320만원',
-    year30: '240만원',
-  },
-  growing: {
-    year10: '240만원',
-    year20: '360만원',
-    year30: '550만원', // 나중에 많이 받음
-  },
+  fixed: { year10: '300만원', year20: '300만원', year30: '300만원' },
+  boosted: { year10: '450만원', year20: '320만원', year30: '240만원' },
+  growing: { year10: '240만원', year20: '360만원', year30: '550만원' },
 };
 
+// 하단에 중복 선언되어 있던 pensionOptions 하나로 통일
 export const pensionOptions = [
   {
     key: 'fixed' as const,
@@ -230,7 +211,7 @@ export const pensionOptions = [
   },
 ];
 
-export const chartData = [
+export const chartData: DataPoint[] = [
   { year: '1년', fixed: 100, boosted: 800, growing: 100 },
   { year: '4년', fixed: 1000, boosted: 1300, growing: 700 },
   { year: '7년', fixed: 1900, boosted: 1800, growing: 1300 },
