@@ -12,8 +12,8 @@ import com.server.asset.entity.enums.StartType;
 import com.server.asset.mapper.PensionMapper;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.ProductRepository;
-import com.server.asset.repository.TBAccountRepository;
-import com.server.asset.repository.TBPensionSimulationRepository;
+import com.server.asset.repository.AccountRepository;
+import com.server.asset.repository.PensionSimulationRepository;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
@@ -42,8 +42,8 @@ public class AssetAdminService {
   private final ProductRepository productRepository;
   private final TrustMapper trustMapper;
   private final PensionMapper pensionMapper;
-  private final TBPensionSimulationRepository pensionSimulationRepository;
-  private final TBAccountRepository accountRepository;
+  private final PensionSimulationRepository pensionSimulationRepository;
+  private final AccountRepository accountRepository;
   private final FamilyAuthRepository familyAuthRepository;
 
   @Transactional

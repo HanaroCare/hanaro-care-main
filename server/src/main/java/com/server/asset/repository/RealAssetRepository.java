@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.server.asset.entity.TBRealAsset;
 
-public interface TBRealAssetRepository extends JpaRepository<TBRealAsset, Long> {
+public interface RealAssetRepository extends JpaRepository<TBRealAsset, Long> {
 	Optional<TBRealAsset> findByRealAssetIdAndUser_UserId(Long realAssetId, Long userId);
 	List<TBRealAsset> findAllByUser_UserId(Long userId);
 

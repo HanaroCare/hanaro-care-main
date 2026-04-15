@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
+public interface AccountRepository extends JpaRepository<TBAccount, Long> {
 
   List<TBAccount> findByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCateCd);
   @Query("""
