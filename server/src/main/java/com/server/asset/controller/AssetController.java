@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -44,52 +45,13 @@ public class AssetController {
 		return ApiResponse.onSuccess(assetService.getFinancialAssets(subscriberDTO.getUserId()));
 	}
 
-	@Operation(summary = "부동산 상세 목록 조회")
-	@ApiResponses({
-		@io.swagger.v3.oas.annotations.responses.ApiResponse(
-			responseCode = "200",
-			description = "조회 성공",
-			content = @Content(
-				mediaType = "application/json",
-				examples = @ExampleObject(
-					name = "부동산 목록 응답 예시",
-					value = """
-						{
-						  "isSuccess": true,
-						  "code": "COMMON200",
-						  "message": "성공입니다.",
-						  "result": [
-						    {
-						      "assetId": 3001,
-						      "assetCateCd": "REAL_ESTATE",
-						      "assetNm": "역삼동 아파트",
-						      "amount": 920000000.0,
-						      "addr": "서울 강남구 역삼동 123-45",
-						      "assetSize": 84.0,
-						      "assetDesc": "홍길동 자택",
-						      "createdAt": "2026-04-14T10:00:00",
-						      "updatedAt": "2026-04-14T10:00:00"
-						    }
-						  ]
-						}
-						"""
-				)
-			)
-		)
-	})
-	@GetMapping("/real-estate")
-	public ApiResponse<List<AssetDetailResponse>> getRealEstateAssets(
-		@AuthenticationPrincipal SubscriberDTO subscriberDTO
+	@Operation(summary = "실물 자산 상세 조회 (부동산, 자동차, 금)", description = "ID를 통해 특정 실물 자산의 상세 정보를 조회합니다.")
+	@GetMapping("/real-asset/{realAssetId}")
+	public ApiResponse<AssetDetailResponse> getRealAssetDetail(
+		@AuthenticationPrincipal SubscriberDTO subscriberDTO,
+		@PathVariable Long realAssetId
 	) {
-		return ApiResponse.onSuccess(assetService.getRealEstateAssets(subscriberDTO.getUserId()));
-	}
-
-	@Operation(summary = "자동차 상세 목록 조회")
-	@GetMapping("/vehicle")
-	public ApiResponse<List<AssetDetailResponse>> getVehicleAssets(
-		@AuthenticationPrincipal SubscriberDTO subscriberDTO
-	) {
-		return ApiResponse.onSuccess(assetService.getVehicleAssets(subscriberDTO.getUserId()));
+		return ApiResponse.onSuccess(assetService.getRealAssetDetail(subscriberDTO.getUserId(), realAssetId));
 	}
 
 	@Operation(summary = "보험 상세 목록 조회")
@@ -130,14 +92,6 @@ public class AssetController {
 		@AuthenticationPrincipal SubscriberDTO subscriberDTO
 	) {
 		return ApiResponse.onSuccess(assetService.getInsuranceAssets(subscriberDTO.getUserId()));
-	}
-
-	@Operation(summary = "금 자산 상세 목록 조회")
-	@GetMapping("/gold")
-	public ApiResponse<List<AssetDetailResponse>> getGoldAssets(
-		@AuthenticationPrincipal SubscriberDTO subscriberDTO
-	) {
-		return ApiResponse.onSuccess(assetService.getGoldAssets(subscriberDTO.getUserId()));
 	}
 
 }

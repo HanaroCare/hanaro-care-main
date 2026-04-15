@@ -12,11 +12,12 @@ import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
 import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
 import com.server.common.annotation.CheckUser;
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -61,30 +62,17 @@ public class AssetService {
 	}
 
 	@CheckUser(key = "#userId")
-	public List<AssetDetailResponse> getRealEstateAssets(Long userId) {
-		return assetMapper.toAssetDetailListFromReal(
-			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.REAL_ESTATE)
-		);
-	}
-
-	@CheckUser(key = "#userId")
-	public List<AssetDetailResponse> getVehicleAssets(Long userId) {
-		return assetMapper.toAssetDetailListFromReal(
-			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.VEHICLE)
-		);
+	public AssetDetailResponse getRealAssetDetail(Long userId, Long realAssetId) {
+		return tbRealAssetRepository.findById(realAssetId)
+			.filter(asset -> asset.getUser().getUserId().equals(userId)) // 소유권 확인
+			.map(assetMapper::toAssetDetailFromRealEntity) // Entity -> DTO 매퍼 호출
+			.orElseThrow(() -> new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
 	}
 
 	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
 		return assetMapper.toAssetDetailListFromAccount(
 			tbAccountRepository.findByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
-		);
-	}
-
-	@CheckUser(key = "#userId")
-	public List<AssetDetailResponse> getGoldAssets(Long userId) {
-		return assetMapper.toAssetDetailListFromReal(
-			tbRealAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.GOLD)
 		);
 	}
 }
