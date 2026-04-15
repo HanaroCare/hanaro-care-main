@@ -1,4 +1,4 @@
-package com.server.asset.dto.response;
+package com.server.asset.dto.simulation;
 
 import java.math.BigDecimal;
 
