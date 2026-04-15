@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronRight, Lock } from 'lucide-react';
+import { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -75,16 +76,29 @@ export default function SimulatorPage() {
             activeTab={activeTab}
             onTabChange={handleTabChange}
           />
-          <div className="flex items-center justify-between px-6 py-3 bg-[#F8F9FA] border-b border-[#EEE]">
-            <span className="text-[14px] font-bold text-hana-black-700">
-              부모님 신탁 확인하기
+          <div className="flex items-center justify-between">
+            <span
+              id="parent-mode-label"
+              className="text-[15px] font-medium text-[#4B5563]"
+            >
+              부모님 모드 확인
             </span>
+
             <button
+              type="button"
+              role="switch"
+              aria-checked={isParentMode}
+              aria-labelledby="parent-mode-label"
               onClick={() => setIsParentMode(!isParentMode)}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${isParentMode ? 'bg-hana-ez-600' : 'bg-gray-300'}`}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 outline-none focus-visible:ring-2 focus-visible:ring-hana-ez-600 focus-visible:ring-offset-2 ${
+                isParentMode ? 'bg-hana-ez-600' : 'bg-gray-300'
+              }`}
             >
               <span
-                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ${isParentMode ? 'translate-x-6' : 'translate-x-1'}`}
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition duration-200 ${
+                  isParentMode ? 'translate-x-6' : 'translate-x-1'
+                }`}
+                aria-hidden="true"
               />
             </button>
           </div>
@@ -93,7 +107,6 @@ export default function SimulatorPage() {
         <main className="flex flex-1 flex-col gap-6 px-6 pt-8 pb-24">
           {activeTab === 'asset' ? (
             <>
-              {/* 내 자산 모드 (토글 Off) */}
               {!isParentMode && (
                 <>
                   <SimulatorSummaryCard />
@@ -109,7 +122,7 @@ export default function SimulatorPage() {
                         부족한 병원비를 더 채워볼까요?
                       </h2>
                       <button
-                        onClick={() => router.push('/asset/products' as any)}
+                        onClick={() => router.push('/asset/products' as Route)}
                         className="text-[12px] font-medium text-[#9CA3AF] flex items-center gap-0.5"
                       >
                         상품 더 보기 <ChevronRight size={14} />

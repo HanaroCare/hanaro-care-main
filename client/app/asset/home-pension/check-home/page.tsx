@@ -47,42 +47,35 @@ export default function CheckHomePage() {
               {HOUSES.map((house) => {
                 const isSelected = selectedId === house.id;
                 return (
-                  <div
+                  <button
                     key={house.id}
-                    // 접근성 설정: 키보드 포커스 가능 및 버튼 역할 부여
-                    tabIndex={0}
-                    role="button"
+                    type="button"
                     aria-pressed={isSelected}
-                    // 마우스 이벤트
                     onClick={() => handleSelect(house.id)}
-                    // 키보드 이벤트: 엔터나 스페이스바 입력 시 선택
-                    onKeyUp={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        handleSelect(house.id);
-                      }
-                    }}
-                    className={`cursor-pointer rounded-[28px] border px-7 py-7 shadow-[0_2px_10px_rgba(0,0,0,0.03)] outline-none transition-all focus:ring-2 focus:ring-hana-ez-600 ${
+                    className={`w-full text-left cursor-pointer rounded-[28px] border px-7 py-7 shadow-[0_2px_10px_rgba(0,0,0,0.03)] outline-none transition-all focus:ring-2 focus:ring-hana-ez-600 ${
                       isSelected
                         ? 'border-hana-ez-600 bg-[#F0FDFD]'
                         : 'border-[#E5E7EB] bg-white hover:border-gray-300'
                     }`}
                   >
-                    {/* 상단: 주소(좌)와 금액(우)을 수평 배치 */}
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <p className="text-[18px] leading-7 font-bold tracking-tight text-[#111827]">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        {' '}
+                        <p className="text-[18px] leading-7 font-bold tracking-tight text-[#111827] break-keep">
                           {house.address}
                         </p>
                         <p className="mt-1 text-[14px] leading-5 font-medium tracking-tight text-[#6B7280]">
                           {house.detail}
                         </p>
                       </div>
-                      {/* 주소 오른쪽 상단에 위치하는 금액 */}
-                      <p className="text-[20px] leading-7 font-bold tracking-tight text-[#111827] whitespace-nowrap">
-                        {house.price}
-                      </p>
+
+                      <div className="flex-shrink-0 text-right">
+                        <p className="text-[20px] leading-7 font-bold tracking-tight text-[#111827] whitespace-nowrap">
+                          {house.price}
+                        </p>
+                      </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

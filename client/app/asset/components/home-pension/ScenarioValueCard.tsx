@@ -13,7 +13,7 @@ export function ScenarioValueCard({
   value,
   color,
   bgColor,
-  selected,
+  selected = false,
   onClick,
   badge,
 }: Props) {
@@ -21,7 +21,10 @@ export function ScenarioValueCard({
     <div className="relative flex-1 pt-10">
       {badge ? (
         <div className="absolute top-0 left-1/2 z-10 -translate-x-1/2">
-          <div className="inline-flex h-8 items-center justify-center whitespace-nowrap rounded-full bg-[#FCECEC] px-7 text-[15px] font-medium text-[#EF4444]">
+          <div
+            className="inline-flex h-8 items-center justify-center whitespace-nowrap rounded-full bg-[#FCECEC] px-7 text-[15px] font-medium text-[#EF4444]"
+            aria-hidden="true"
+          >
             {badge}
           </div>
         </div>
@@ -30,10 +33,12 @@ export function ScenarioValueCard({
       <button
         type="button"
         onClick={onClick}
-        className="flex h-[90px] w-full flex-col items-center justify-center rounded-[18px] px-4 text-center transition"
+        aria-pressed={selected}
+        className="flex h-[90px] w-full flex-col items-center justify-center rounded-[18px] px-4 text-center transition outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
         style={{
           backgroundColor: selected ? bgColor : '#F3F4F6',
           border: selected ? `2px solid ${color}` : '2px solid transparent',
+          boxShadow: selected ? 'none' : undefined,
         }}
       >
         <p
@@ -41,10 +46,11 @@ export function ScenarioValueCard({
           style={{ color: selected ? color : '#111827' }}
         >
           {label}
+          {selected && <span className="sr-only">(선택됨)</span>}
         </p>
 
         <p
-          className="mt-3 text-[px] leading-[1] font-bold tracking-tight"
+          className="mt-3 text-[18px] leading-[1] font-bold tracking-tight"
           style={{ color: selected ? color : '#111827' }}
         >
           {value}

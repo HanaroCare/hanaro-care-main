@@ -83,7 +83,6 @@ const chartData = [
 ];
 
 export default function HomePensionDashboard() {
-  // 연도 선택 상태 관리
   const years = useMemo(
     () => Object.keys(yearlyDepositData).sort().reverse(),
     [],
@@ -199,8 +198,15 @@ export default function HomePensionDashboard() {
 
               <div className="flex items-center gap-4 bg-[#F9FAFB] px-3 py-1.5 rounded-full border border-[#F1F5F9]">
                 <button
+                  type="button"
                   onClick={handlePrevYear}
-                  className={`text-[#9CA3AF] p-1 ${currentYearIdx === years.length - 1 ? 'opacity-30' : 'opacity-100'}`}
+                  disabled={currentYearIdx === years.length - 1}
+                  aria-label="이전 연도로 이동"
+                  className={`text-[#9CA3AF] p-1 transition-opacity ${
+                    currentYearIdx === years.length - 1
+                      ? 'opacity-30 cursor-not-allowed'
+                      : 'opacity-100 hover:text-[#374151]'
+                  }`}
                 >
                   <svg
                     width="18"
@@ -211,16 +217,29 @@ export default function HomePensionDashboard() {
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    aria-hidden="true"
                   >
                     <path d="m15 18-6-6 6-6" />
                   </svg>
                 </button>
-                <span className="text-[14px] font-bold text-[#374151] min-w-[60px] text-center">
+
+                <span
+                  className="text-[14px] font-bold text-[#374151] min-w-[60px] text-center"
+                  aria-live="polite"
+                >
                   {currentYear}
                 </span>
+
                 <button
+                  type="button"
                   onClick={handleNextYear}
-                  className={`text-[#9CA3AF] p-1 ${currentYearIdx === 0 ? 'opacity-30' : 'opacity-100'}`}
+                  disabled={currentYearIdx === 0}
+                  aria-label="다음 연도로 이동"
+                  className={`text-[#9CA3AF] p-1 transition-opacity ${
+                    currentYearIdx === 0
+                      ? 'opacity-30 cursor-not-allowed'
+                      : 'opacity-100 hover:text-[#374151]'
+                  }`}
                 >
                   <svg
                     width="18"
@@ -231,6 +250,7 @@ export default function HomePensionDashboard() {
                     strokeWidth="2.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    aria-hidden="true"
                   >
                     <path d="m9 18 6-6-6-6" />
                   </svg>
@@ -274,6 +294,7 @@ export default function HomePensionDashboard() {
               </AnimatePresence>
             </div>
           </section>
+
           <div className="mt-2 mb-8">
             <PrimaryButton label="상담 신청하기" onClick={() => {}} />
           </div>

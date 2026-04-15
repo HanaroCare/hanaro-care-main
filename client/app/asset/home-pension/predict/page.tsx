@@ -44,12 +44,16 @@ export default function HomeValueForecastPage() {
     };
   }, [selectedPoint]);
 
-  const fixedAiScenario = aiPredictionLabel[period];
+  // ─── AI 기준 데이터 추출 ───
+  const fixedAiScenario = aiPredictionLabel[period]; // 'bull' | 'base' | 'bear'
   const fixedAiSummary = aiDescriptionMap[period][fixedAiScenario];
   const aiMainValue = currentValues[fixedAiScenario];
 
-  // 현재 사용자가 클릭해서 보고 있는 시나리오의 정보 (추천 문구 포함)
-  const scenarioGuide = scenarioDescriptionMap[selectedScenario];
+  // ─── 추천 문구는 AI가 예측한 시나리오(fixedAiScenario)를 따라가야 함 ───
+  const aiScenarioGuide = scenarioDescriptionMap[fixedAiScenario];
+
+  // 사용자가 클릭해서 보고 있는 시나리오 설명 (중간 박스용)
+  const selectedGuide = scenarioDescriptionMap[selectedScenario];
 
   return (
     <div className="app-shell bg-white">
@@ -129,7 +133,7 @@ export default function HomeValueForecastPage() {
               </div>
             </div>
 
-            {/* 시나리오 상세 설명 박스 */}
+            {/* 시나리오 상세 설명 박스 (사용자가 클릭한 것 보여주기) */}
             <div
               className="mt-4 rounded-[18px] px-5 py-5 transition-all duration-300"
               style={{
@@ -140,13 +144,13 @@ export default function HomeValueForecastPage() {
                 className="text-[15px] font-bold"
                 style={{ color: scenarioMeta[selectedScenario].color }}
               >
-                {scenarioGuide.title}
+                {selectedGuide.title}
               </p>
               <p
                 className="mt-2 text-[13px] leading-5 font-medium whitespace-pre-wrap opacity-90"
                 style={{ color: scenarioMeta[selectedScenario].color }}
               >
-                {scenarioGuide.desc}
+                {selectedGuide.desc}
               </p>
             </div>
 
@@ -167,9 +171,10 @@ export default function HomeValueForecastPage() {
               </div>
             </div>
 
+            {/* ─── 하단 추천 박스: AI 예측 결과(fixedAiScenario)에 따라 고정 ─── */}
             <div className="mt-6 rounded-[20px] bg-[#FFF1F2] px-6 py-4 text-center border border-[#FECDD3]">
               <p className="text-[15px] leading-6 font-bold text-hana-red-500 whitespace-pre-wrap">
-                {scenarioGuide.recommendation}
+                {aiScenarioGuide.recommendation}
               </p>
             </div>
           </section>

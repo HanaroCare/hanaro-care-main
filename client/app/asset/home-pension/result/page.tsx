@@ -202,50 +202,56 @@ export default function PensionTypeComparePage() {
               </p>
 
               <div className="mt-5 flex flex-col gap-4">
-                <AnimatePresence mode="wait">
-                  {[
-                    { year: '10', amount: periodAmount.year10 },
-                    { year: '20', amount: periodAmount.year20 },
-                    { year: '30', amount: periodAmount.year30 },
-                  ].map((item, index) => (
-                    <motion.div
-                      key={`${selectedType}-${item.year}`}
-                      initial={{ opacity: 0, y: 15 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -15 }}
-                      transition={{
-                        duration: 0.35,
-                        delay: index * 0.1,
-                        ease: 'easeOut',
-                      }}
-                      className="rounded-[24px] bg-[#F0FDFD] px-7 py-6 border border-[#CCFBF1] transition-all hover:bg-white hover:shadow-md"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className="relative flex h-2 w-2">
-                            <span
-                              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                              style={{ backgroundColor: current.color }}
-                            ></span>
-                            <span
-                              className="relative inline-flex rounded-full h-2 w-2"
-                              style={{ backgroundColor: current.color }}
-                            ></span>
+                {/* mode를 "popLayout" 또는 "sync"로 변경하여 여러 요소의 동시 애니메이션을 허용합니다. */}
+                <AnimatePresence mode="popLayout">
+                  <motion.div
+                    key={selectedType} // 타입이 바뀔 때 리스트 전체가 다시 애니메이션 되도록 래퍼에 key 부여
+                    className="flex flex-col gap-4"
+                  >
+                    {[
+                      { year: '10', amount: periodAmount.year10 },
+                      { year: '20', amount: periodAmount.year20 },
+                      { year: '30', amount: periodAmount.year30 },
+                    ].map((item, index) => (
+                      <motion.div
+                        key={`${selectedType}-${item.year}`}
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -15 }}
+                        transition={{
+                          duration: 0.35,
+                          delay: index * 0.1, // 순차적으로 나타나는 효과 유지
+                          ease: 'easeOut',
+                        }}
+                        className="rounded-[24px] bg-[#F0FDFD] px-7 py-6 border border-[#CCFBF1] transition-all hover:bg-white hover:shadow-md"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="relative flex h-2 w-2">
+                              <span
+                                className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                                style={{ backgroundColor: current.color }}
+                              ></span>
+                              <span
+                                className="relative inline-flex rounded-full h-2 w-2"
+                                style={{ backgroundColor: current.color }}
+                              ></span>
+                            </div>
+                            <span className="text-[17px] leading-7 font-bold tracking-tight text-[#111827]">
+                              {item.year}년 뒤
+                            </span>
                           </div>
-                          <span className="text-[17px] leading-7 font-bold tracking-tight text-[#111827]">
-                            {item.year}년 뒤
+
+                          <span
+                            className="text-[19px] font-black tracking-tight"
+                            style={{ color: current.color }}
+                          >
+                            {item.amount}
                           </span>
                         </div>
-
-                        <span
-                          className="text-[19px] font-black tracking-tight"
-                          style={{ color: current.color }}
-                        >
-                          {item.amount}
-                        </span>
-                      </div>
-                    </motion.div>
-                  ))}
+                      </motion.div>
+                    ))}
+                  </motion.div>
                 </AnimatePresence>
               </div>
             </div>
