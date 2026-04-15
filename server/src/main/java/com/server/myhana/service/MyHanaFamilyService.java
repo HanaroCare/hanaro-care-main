@@ -74,7 +74,7 @@ public class MyHanaFamilyService {
 
     String token = jwtUtil.createInviteToken(grantorId);
     // 프론트엔드 URL (추후 설정 파일로 분리 가능)
-    String baseUrl = "http://localhost:3000"; 
+    String baseUrl = "http://localhost:3000";
     return String.format("%s/onboarding?token=%s", baseUrl, token);
   }
 
@@ -85,7 +85,6 @@ public class MyHanaFamilyService {
   public void updateInsuranceViewPermission(Long grantorId, GrantInsuranceViewRequest request) {
     Long granteeId = request.getGranteeId();
 
-    // 가족 권한 조회 (authStatus 체크 제거)
     TBFamilyAuth familyAuth = familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId,
             granteeId)
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
