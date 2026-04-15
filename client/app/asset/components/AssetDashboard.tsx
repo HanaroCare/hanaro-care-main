@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import type { AssetCategory, AssetDashboardResponse } from '../utils/types';
+import {formatKoreanCurrency} from "@/app/asset/utils/formatCurrency";
 
 const CATEGORY_META: Record<AssetCategory, { label: string; color: string }> = {
   STOCK:     { label: '주식',  color: '#015E5F' },
