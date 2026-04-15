@@ -3,6 +3,7 @@ package com.server.asset.controller;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.asset.service.AssetAdminService;
@@ -47,6 +48,32 @@ public class AssetAdminController {
 		@AuthenticationPrincipal Long userId
 	) {
 		Long userProdId = trustAdminService.subscribeTrustProduct(userId);
+		return ApiResponse.onSuccess(userProdId);
+	}
+
+	@PostMapping("/pension/subscribe")
+	@Operation(
+		summary = "주택연금 상품 가입 (테스트)",
+		description = "저장된 주택연금 비교 시뮬레이션 결과를 바탕으로 실제 주택연금 상품 가입 처리를 시뮬레이션합니다."
+	)
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200", description = "가입 성공",
+			content = @Content(examples = @ExampleObject(value = """
+              {
+                "isSuccess": true,
+                "code": "COMMON200",
+                "message": "성공입니다.",
+                "result": 126
+              }
+              """))
+		)
+	})
+	public ApiResponse<Long> subscribePensionProduct(
+		@AuthenticationPrincipal Long userId,
+		@RequestParam Long realAssetId
+	) {
+		Long userProdId = trustAdminService.subscribePensionProduct(userId, realAssetId);
 		return ApiResponse.onSuccess(userProdId);
 	}
 

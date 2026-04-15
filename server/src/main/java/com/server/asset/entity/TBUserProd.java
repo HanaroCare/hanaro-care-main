@@ -5,6 +5,7 @@ import java.time.LocalDate;
 
 import com.server.asset.entity.enums.InvestType;
 import com.server.asset.entity.enums.PayoutType;
+import com.server.asset.entity.enums.PensionPayoutType;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.StartType;
@@ -68,6 +69,10 @@ public class TBUserProd extends BaseEntity {
 	@Column(name = "PROD_STAT_CD", nullable = false)
 	private ProdStat prodStat;
 
+	@Enumerated(EnumType.STRING)
+	@Column(name = "PENSION_PAYOUT_TYPE_CD", nullable = true)
+	private PensionPayoutType pensionPayoutType;
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "TARGET_ASSET_ID", referencedColumnName = "REAL_ASSET_ID",
 		columnDefinition = "bigint unsigned",
@@ -79,9 +84,6 @@ public class TBUserProd extends BaseEntity {
 		precision = 13, scale = 2,
 		nullable = true)
 	private BigDecimal monthlyPayout;
-
-	@Column(name = "PERIOD", nullable = true)
-	private Byte period;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "INVEST_TYPE_CD", nullable = true)

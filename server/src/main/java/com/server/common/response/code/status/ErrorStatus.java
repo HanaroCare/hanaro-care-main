@@ -49,6 +49,8 @@ public enum ErrorStatus implements BaseErrorCode {
     PENSION_NO_EVAL_AMT(HttpStatus.BAD_REQUEST, "PENSION_003", "현재 평가금액이 없어 처리할 수 없습니다."),
     PENSION_INVALID_PERIOD(HttpStatus.BAD_REQUEST, "PENSION_004", "조회 기간은 5년, 10년, 20년만 가능합니다."),
     PENSION_SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "PENSION_005", "저장된 주택연금 시뮬레이션이 없습니다. 먼저 비교 조회를 실행해 주세요."),
+    PENSION_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "PENSION_006", "주택연금 상품 정보를 찾을 수 없습니다."),
+    PENSION_ALREADY_EXISTS(HttpStatus.CONFLICT, "PENSION_007", "이미 가입된 주택연금 상품이 있습니다."),
 
     // simulation
     SIMULATION_NOT_FOUND(HttpStatus.NOT_FOUND, "SIMULATION_404", "시뮬레이션 결과를 찾을 수 없습니다."),

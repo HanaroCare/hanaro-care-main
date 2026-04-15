@@ -39,7 +39,7 @@ public interface PensionMapper {
 
 	// ── TBPensionSimulation → PensionSimulationSummaryResponse ────────────────
 	@Mapping(target = "recommendedType",             expression = "java(simulation.getRecommendedType().name())")
-	@Mapping(target = "recommendedLabel",            expression = "java(simulation.getRecommendedType().getLabel())")
+	@Mapping(target = "recommendedLabel",            expression = "java(simulation.getRecommendedType().getDescription())")
 	@Mapping(target = "recommendedMonthlyAmount",    source = "recommendedMonthlyAmt")
 	@Mapping(target = "recommendedCumulativeAmount", source = "recommendedCumulativeAmt")
 	PensionSimulationSummaryResponse toSummaryResponse(TBPensionSimulation simulation);

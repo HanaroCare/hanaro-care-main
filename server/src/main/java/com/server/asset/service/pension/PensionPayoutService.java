@@ -237,7 +237,7 @@ public class PensionPayoutService {
 			);
 			return PensionPayoutComparisonResponse.builder()
 				.recommendedType(simulation.getRecommendedType().name())
-				.recommendedLabel(simulation.getRecommendedType().getLabel())
+				.recommendedLabel(simulation.getRecommendedType().getDescription())
 				.plans(plans)
 				.build();
 		} catch (Exception e) {
