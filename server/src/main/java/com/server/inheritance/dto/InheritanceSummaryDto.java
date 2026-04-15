@@ -17,6 +17,6 @@ public class InheritanceSummaryDto {
   private Long id;
   private String username;
   private BigDecimal percent;
-  private Integer amt;
+  private Long amt;
 
 }

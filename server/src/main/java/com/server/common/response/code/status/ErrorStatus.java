@@ -54,6 +54,7 @@ public enum ErrorStatus implements BaseErrorCode {
   ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
 
   // inheritance
+  INHERIT_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "상속 계획 정보를 찾을 수 없습니다."),
   INHERIT_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "상속 상세 정보를 찾을 수 없습니다."),
   VOICE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "INHERIT_400", "음성 파일을 첨부해야 합니다."),
   LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "편지 정보를 찾을 수 없습니다.");

@@ -46,7 +46,8 @@ public class LetterService {
   public List<InheritanceSummaryDto> getInheritanceInfo(Long userId) {
 
     TBInheritPlan plan = inheritPlanRepository.findByUser_UserId(userId)
-        .orElseThrow(() -> new IllegalArgumentException("계획하신 상속 비율을 정보를 확인할 수 없습니다."));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_PLAN_NOT_FOUND)
+        );
     List<TBInheritDetail> inheritDetails = inheritDetailRepository.findAllByInheritPlan_Id(
         plan.getId());
 
@@ -54,8 +55,9 @@ public class LetterService {
         .id(i.getUser().getUserId())
         .username(i.getUser().getUserNm())
         .percent(i.getDistRatio())
-        .amt(i.getInheritPlan().getTotalInheritAmt().intValue() * i.getDistRatio().intValue())
-        .build()).toList();
+        .amt(i.getInheritPlan().getTotalInheritAmt()
+            .multiply(i.getDistRatio())
+            .longValue()).build()).toList();
   }
 
   // 편지 생성

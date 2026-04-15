@@ -10,6 +10,9 @@ public class LetterRequestValidator implements
 
   @Override
   public boolean isValid(LetterRequestDto dto, ConstraintValidatorContext context) {
+    if (dto == null) {
+      return true;
+    }
     if (dto.getLetterTypeCd() == null) {
       return false;
     }
