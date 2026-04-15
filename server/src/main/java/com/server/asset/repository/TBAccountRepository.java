@@ -11,6 +11,10 @@ import org.springframework.data.repository.query.Param;
 
 public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
 
+  List<TBAccount> findByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCateCd);
+
+  List<TBAccount> findAllByUser_UserIdAndAssetCateCdNot(Long userId, AssetCategory assetCateCd);
+
   Optional<TBAccount> findByAccountId(Long accountId);
 
   @Query("""
@@ -27,8 +31,6 @@ public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
           WHERE a.user.userId = :userId
       """)
   BigDecimal findTotalBalanceByUserId(@Param("userId") Long userId);
-
-  List<TBAccount> findAllByUser_UserIdAndAssetCateCdNot(Long userId, AssetCategory assetCategory);
 
   List<TBAccount> findAllByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCategory);
 

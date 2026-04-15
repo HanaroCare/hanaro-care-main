@@ -1,6 +1,7 @@
 spring:
   config:
-    import: classpath:security.yaml
+    import:
+      - classpath:security.yaml
   application:
     name: server
 
@@ -38,6 +39,17 @@ spring:
   web:
     resources:
       add-mappings: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 3000ms
+
+cache:
+  gemini-ttl: 86400
+  welfare-ttl: 3600
+  simulation-ttl: 86000
 
 springdoc:
   swagger-ui:
