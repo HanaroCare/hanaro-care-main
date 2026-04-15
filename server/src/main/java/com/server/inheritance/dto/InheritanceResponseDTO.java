@@ -29,6 +29,8 @@ public class InheritanceResponseDTO {
         private FamilyRelation relation;
         private Double distRatio;
         private BigDecimal distributedAmt;
+        private Double minLegalRatio;    // 유류분 비율 (법정상속분의 0.5)
+        private BigDecimal minLegalAmt; // 유류분 금액
         private Boolean hasLetter;
         private Long letterId;
     }

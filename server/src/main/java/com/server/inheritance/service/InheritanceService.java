@@ -1,7 +1,7 @@
 package com.server.inheritance.service;
 
 import com.server.asset.dto.AssetSummaryDTO;
-import com.server.asset.dto.response.AssetDashboardResponse;
+import com.server.asset.dto.dashboard.AssetDashboardResponse;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.service.AssetService;
@@ -18,6 +18,7 @@ import com.server.inheritance.repository.InheritDetailRepository;
 import com.server.inheritance.repository.InheritLetterRepository;
 import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.user.entity.TBUser;
+import com.server.user.enums.FamilyRelation;
 import com.server.user.service.FamilyService;
 import com.server.user.service.UserService;
 import java.math.BigDecimal;
@@ -86,6 +87,13 @@ public class InheritanceService {
 
     List<InheritanceResponseDTO.HeirSummaryDTO> heirSummaries = new ArrayList<>();
 
+    // 유류분 계산을 위한 총 가중치 합산
+    double totalWeight = request.getDistributions().stream()
+        .mapToDouble(d -> d.getRelation() == FamilyRelation.SPOUSE ? 1.5 : 1.0)
+        .sum();
+
+    BigDecimal netInheritAmt = totalInheritAmt.subtract(tax);
+
     for (InheritanceRequestDTO.HeirDistributionDTO dist : request.getDistributions()) {
       TBUser heir = null;
       String hName = dist.getHeirName();
@@ -105,9 +113,16 @@ public class InheritanceService {
 
       detail = detailRepository.save(detail);
 
-      BigDecimal distributedAmt = totalInheritAmt.subtract(tax)
+      BigDecimal distributedAmt = netInheritAmt
           .multiply(BigDecimal.valueOf(dist.getDistRatio()))
           .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+
+      // 유류분 계산 (법정상속분의 0.5)
+      double weight = dist.getRelation() == FamilyRelation.SPOUSE ? 1.5 : 1.0;
+      double minLegalRatio = (weight / totalWeight) * 0.5;
+      BigDecimal minLegalAmt = netInheritAmt
+          .multiply(BigDecimal.valueOf(minLegalRatio))
+          .setScale(0, RoundingMode.HALF_UP);
 
       heirSummaries.add(InheritanceResponseDTO.HeirSummaryDTO.builder()
           .inheritDetailId(detail.getInheritDetailId())
@@ -116,6 +131,8 @@ public class InheritanceService {
           .relation(dist.getRelation())
           .distRatio(dist.getDistRatio())
           .distributedAmt(distributedAmt)
+          .minLegalRatio(Math.round(minLegalRatio * 1000.0) / 1000.0)
+          .minLegalAmt(minLegalAmt)
           .hasLetter(false)
           .build());
     }
@@ -137,7 +154,9 @@ public class InheritanceService {
 
     List<InheritanceResponseDTO.HeirSummaryDTO> heirSummaries = details.stream()
         .map(d -> {
-          BigDecimal distributedAmt = plan.getTotalInheritAmt().subtract(plan.getEstiTaxAmt())
+          BigDecimal netInheritAmt = plan.getTotalInheritAmt().subtract(plan.getEstiTaxAmt());
+
+          BigDecimal distributedAmt = netInheritAmt
               .multiply(d.getDistRatio())
               .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 
@@ -225,7 +244,9 @@ public class InheritanceService {
 
     if (dashboard.financialAssets() != null) {
       for (AssetDashboardResponse.FinancialAssetSummary fa : dashboard.financialAssets()) {
-        if (fa.assetCateCd() == AssetCategory.CARD) continue;
+        if (fa.assetCateCd() == AssetCategory.CARD) {
+          continue;
+        }
 
         switch (fa.assetCateCd()) {
           case CASH -> savings = savings.add(fa.totalBalance());
@@ -238,7 +259,9 @@ public class InheritanceService {
 
     if (dashboard.realAssets() != null) {
       for (AssetDashboardResponse.RealAssetSummary ra : dashboard.realAssets()) {
-        if (ra.assetCateCd() == RealAssetCategory.VEHICLE) continue;
+        if (ra.assetCateCd() == RealAssetCategory.VEHICLE) {
+          continue;
+        }
 
         if (ra.assetCateCd() == RealAssetCategory.REAL_ESTATE) {
           realEstate = realEstate.add(ra.totalValue());
