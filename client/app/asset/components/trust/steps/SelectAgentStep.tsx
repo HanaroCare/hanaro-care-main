@@ -1,7 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
+import { saveTrustSimulation } from '@/app/asset/actions/trust';
+import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import InfoBox from '@/components/modules/InfoBox';
 import TrustWizardStep from '../TrustWizardStep';
@@ -13,7 +15,17 @@ const agents = [
 
 export default function SelectAgentStep() {
   const router = useRouter();
-  const [selected, setSelected] = useState<string | null>(null);
+  const { form, setSelectedAgent } = useTrustForm();
+  const [selected, setSelected] = useState<string | null>(form.selectedAgent);
+  const [isPending, startTransition] = useTransition();
+
+  const handleSubmit = (agentId: string | null) => {
+    setSelectedAgent(agentId);
+    startTransition(async () => {
+      await saveTrustSimulation({ ...form, selectedAgent: agentId });
+      router.push('/asset/trust/result');
+    });
+  };
 
   return (
     <TrustWizardStep
@@ -22,9 +34,9 @@ export default function SelectAgentStep() {
         <DualActionFooter
           leftLabel="지금 안할래요"
           rightLabel="설계결과 보기"
-          rightDisabled={!selected}
-          onLeftClick={() => router.push('/asset/trust/result')}
-          onRightClick={() => router.push('/asset/trust/result')}
+          rightDisabled={!selected || isPending}
+          onLeftClick={() => handleSubmit(null)}
+          onRightClick={() => handleSubmit(selected)}
         />
       }
     >

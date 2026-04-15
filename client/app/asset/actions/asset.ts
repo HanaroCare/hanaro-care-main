@@ -8,6 +8,14 @@ import type {
   InsuranceAssetResponse
 } from '../utils/types';
 
+export type SimulationSummaryResponse = {
+  isSufficient: boolean;
+  shortageAmt: number;
+  livingCost: number;
+  medicalCost: number;
+  careCost: number;
+};
+
 export async function getAssetDashboard(): Promise<AssetDashboardResponse> {
   return serverFetch<AssetDashboardResponse>('/api/asset');
 }
@@ -22,4 +30,12 @@ export async function getInsuranceAssets(): Promise<InsuranceAssetResponse[]> {
 
 export async function getRealAssetDetail(assetId: string): Promise<AssetDetailResponse> {
   return serverFetch<AssetDetailResponse>(`/api/asset/real-asset/${assetId}`);
+}
+
+export async function getSimulationSummary(): Promise<SimulationSummaryResponse | null> {
+  try {
+    return await serverFetch<SimulationSummaryResponse>('/api/asset/simulation/summary');
+  } catch {
+    return null;
+  }
 }
