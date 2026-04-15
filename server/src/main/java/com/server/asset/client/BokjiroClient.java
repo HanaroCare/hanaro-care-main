@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.server.asset.dto.external.publicdata.PublicDataResponse;
+import com.server.asset.dto.external.PublicDataResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

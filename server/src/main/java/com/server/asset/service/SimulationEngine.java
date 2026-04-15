@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.server.asset.client.BokjiroClient;
 import com.server.asset.dto.external.AIAnalysisInput;
-import com.server.asset.dto.external.publicdata.PublicDataResponse;
+import com.server.asset.dto.external.PublicDataResponse;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
 
 import lombok.RequiredArgsConstructor;

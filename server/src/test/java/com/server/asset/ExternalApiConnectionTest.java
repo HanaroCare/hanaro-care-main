@@ -13,7 +13,7 @@ import com.server.asset.client.BokjiroClient;
 import com.server.asset.client.GeminiClient;
 import com.server.asset.dto.external.GeminiRequest;
 import com.server.asset.dto.external.GeminiResponse;
-import com.server.asset.dto.external.publicdata.PublicDataResponse;
+import com.server.asset.dto.external.PublicDataResponse;
 
 import lombok.extern.slf4j.Slf4j;
 

@@ -1,4 +1,4 @@
-package com.server.asset.dto.external.publicdata;
+package com.server.asset.dto.external;
 
 import java.io.Serializable;
 import java.util.List;
