@@ -12,6 +12,7 @@ import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
 import com.server.asset.entity.enums.AssetCategory;
+import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBRealAssetRepository;
@@ -54,12 +55,25 @@ public class AssetService {
 			.build();
 	}
 
-	@CheckUser(key = "#userId")
-	public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
-		return assetMapper.toFinancialAssetResponseList(
-			tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNot(userId, AssetCategory.INSURANCE)
-		);
-	}
+  @Transactional
+  @CheckUser(key = "#userId")
+  public void updateAssetLinkStatus(Long userId, List<Long> accountIds) {
+    List<TBAccount> userAccounts = tbAccountRepository.findAllByUser_UserId(
+        userId);
+
+    userAccounts.forEach(account -> {
+      boolean isLinked = accountIds.contains(account.getAccountId());
+      account.setIsLinked(isLinked);
+    });
+  }
+
+  @CheckUser(key = "#userId")
+  public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
+    return assetMapper.toFinancialAssetResponseList(
+        tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNotAndIsLinkedTrue(userId,
+            AssetCategory.INSURANCE)
+    );
+  }
 
 	@CheckUser(key = "#userId")
 	public AssetDetailResponse getRealAssetDetail(Long userId, Long realAssetId) {
