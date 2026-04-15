@@ -245,7 +245,6 @@ public class TrustService {
     BigDecimal principalAmount = TrustCalculator.defaultIfNull(userProd.getPrincipalAmount());
     BigDecimal profit = TrustCalculator.defaultIfNull(userProd.getProfit());
     BigDecimal profitRate = TrustCalculator.defaultIfNull(userProd.getProfitRate());
-    BigDecimal currentAmount = TrustCalculator.calculateCurrentAmount(principalAmount, profit);
 
     TrustSimulationSaveRequest.PayoutSettingsDto payoutSettings = parsePayoutSettings(
         userProd.getPayoutSettings());
@@ -257,8 +256,11 @@ public class TrustService {
     );
     long monthsPassed = TrustCalculator.calculateMonthsPassed(
         userProd.getCreatedAt().toLocalDate());
-    BigDecimal executionAmount = TrustCalculator.calculateTotalExecution(monthlyTotal,
-        monthsPassed);
+    BigDecimal executionAmount = TrustCalculator.calculateTotalExecution(monthlyTotal, monthsPassed);
+
+    BigDecimal currentAmount = principalAmount
+        .add(profit)
+        .subtract(executionAmount);
 
     return trustMapper.toProductResponse(
         userProd, currentAmount, profitRate, principalAmount, executionAmount, profit,

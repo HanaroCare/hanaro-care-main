@@ -1,124 +1,110 @@
+import { formatKoreanCurrency } from '../../utils/formatCurrency';
 import SectionCard from '../trust/SectionCard';
 
 type TrustUsageType = 'hospital' | 'living' | 'both';
 
-export function ExecutionListCard({ type }: { type: TrustUsageType }) {
-  // 경우에 따른 아이템 데이터 세트
-  const getItems = () => {
-    switch (type) {
-      case 'hospital':
-        return [
-          {
-            date: '04.12',
-            title: '삼성서울병원',
-            sub: '병원비 자동 집행',
-            price: '-43만원',
-          },
-          {
-            date: '04.10',
-            title: '서울대학교병원',
-            sub: '병원비 자동 집행',
-            price: '-12만원',
-          },
-          {
-            date: '04.05',
-            title: '행복약국',
-            sub: '의약품 구매',
-            price: '-3.5만원',
-          },
-        ];
-      case 'living':
-        return [
-          {
-            date: '04.15',
-            title: '현대마트',
-            sub: '생활비 자동 지급',
-            price: '-25만원',
-          },
-          {
-            date: '04.11',
-            title: '관리비 납부',
-            sub: '생활비 집행',
-            price: '-18만원',
-          },
-          {
-            date: '04.03',
-            title: '쿠팡 결제',
-            sub: '생활용품 구매',
-            price: '-4.2만원',
-          },
-        ];
-      case 'both':
-      default:
-        return [
-          {
-            date: '04.12',
-            title: '삼성서울병원',
-            sub: '병원비 자동 집행',
-            price: '-43만원',
-          },
-          {
-            date: '04.10',
-            title: '현대마트',
-            sub: '생활비 자동 지급',
-            price: '-25만원',
-          },
-          {
-            date: '04.05',
-            title: '행복약국',
-            sub: '의약품 구매',
-            price: '-3.5만원',
-          },
-        ];
-    }
-  };
+type Props = {
+  type: TrustUsageType;
+  hospitalAmount?: number;
+  livingAmount?: number;
+};
 
-  const items = getItems();
+type MonthlyItem = {
+  month: string;
+  title: string;
+  amount: number;
+};
+
+function getRecentMonths(count: number) {
+  const now = new Date();
+  return Array.from({ length: count }, (_, index) => {
+    const date = new Date(now.getFullYear(), now.getMonth() - index, 1);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}.${month}`;
+  });
+}
+
+export function ExecutionListCard({
+  type,
+  hospitalAmount,
+  livingAmount,
+}: Props) {
+  const months = getRecentMonths(3);
+
+  const items: MonthlyItem[] = months.flatMap((month) => {
+    const monthItems: MonthlyItem[] = [];
+
+    if ((type === 'hospital' || type === 'both') && (hospitalAmount ?? 0) > 0) {
+      monthItems.push({
+        month,
+        title: '병원비 자동 집행',
+        amount: hospitalAmount ?? 0,
+      });
+    }
+
+    if ((type === 'living' || type === 'both') && (livingAmount ?? 0) > 0) {
+      monthItems.push({
+        month,
+        title: '생활비 자동 집행',
+        amount: livingAmount ?? 0,
+      });
+    }
+
+    return monthItems;
+  });
 
   return (
     <SectionCard>
-      <p className="mb-4 font-semibold text-[16px] text-[#111827]">사용 내역</p>
+      <p className="mb-4 text-[16px] font-semibold text-[#111827]">
+        설정 집행 내역
+      </p>
 
       <div className="space-y-5">
-        {items.map((item, idx) => (
-          <Item
-            key={idx}
-            date={item.date}
-            title={item.title}
-            sub={item.sub}
-            price={item.price}
-          />
-        ))}
+        {items.length > 0 ? (
+          items.map((item, idx) => (
+            <Item
+              key={`${item.month}-${item.title}-${idx}`}
+              month={item.month}
+              title={item.title}
+              amount={item.amount}
+            />
+          ))
+        ) : (
+          <p className="text-[14px] text-[#9CA3AF]">
+            설정된 월 집행 항목이 없어요.
+          </p>
+        )}
       </div>
     </SectionCard>
   );
 }
 
 function Item({
-  date,
+  month,
   title,
-  sub,
-  price,
+  amount,
 }: {
-  date: string;
+  month: string;
   title: string;
-  sub: string;
-  price: string;
+  amount: number;
 }) {
   return (
     <div className="flex items-center justify-between">
-      <span className="w-14 text-[13px] text-[#9CA3AF] font-medium">
-        {date}
+      <span className="w-16 text-[13px] font-medium text-[#9CA3AF]">
+        {month}
       </span>
 
-      <div className="flex-1 flex flex-col justify-center">
-        <p className="text-[14px] text-[#1F2937] font-semibold leading-tight">
+      <div className="flex-1">
+        <p className="text-[14px] font-semibold leading-tight text-[#1F2937]">
           {title}
         </p>
-        <p className="text-[12px] text-[#6B7280] mt-1">{sub}</p>
+        <p className="mt-1 text-[12px] text-[#6B7280]">매월 자동 집행</p>
       </div>
 
-      <span className="text-[15px] text-[#EF4444] font-bold">{price}</span>
+      <span className="text-[15px] font-bold text-[#EF4444]">
+        -{formatKoreanCurrency(amount)}
+      </span>
     </div>
   );
 }

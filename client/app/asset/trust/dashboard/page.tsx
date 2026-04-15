@@ -1,6 +1,12 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  getFamilyTrustDetail,
+  getTrustProductSummary,
+  type TrustProductDetail,
+} from '@/app/asset/actions/trust';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import InfoBox from '@/components/modules/InfoBox';
 import Header from '@/components/navigation/Header';
@@ -10,14 +16,51 @@ import { AssetSummaryCard } from '../../components/trust/AssetSummaryCard';
 import { ExecutionListCard } from '../../components/trust/ExecutionListCard';
 import { PortfolioCard } from '../../components/trust/PortfolioCard';
 
-// 테스트를 위해 타입을 정의합니다: 'hospital' | 'living' | 'both'
 type TrustUsageType = 'hospital' | 'living' | 'both';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const grantorId = searchParams.get('grantorId');
 
-  // 실제 연동 시에는 상태 관리나 쿼리 파라미터에서 가져오게 됩니다.
-  const usageType: TrustUsageType = 'both';
+  const [detail, setDetail] = useState<TrustProductDetail | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const isParentMode = Boolean(grantorId);
+
+  useEffect(() => {
+    const fetchDetail = async () => {
+      try {
+        setIsLoading(true);
+
+        if (grantorId) {
+          const data = await getFamilyTrustDetail(Number(grantorId));
+          setDetail(data);
+        } else {
+          const data = await getTrustProductSummary();
+          setDetail(data);
+        }
+      } catch (error) {
+        console.error('신탁 상세 조회 실패', error);
+        setDetail(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDetail();
+  }, [grantorId]);
+
+  const usageType: TrustUsageType = useMemo(() => {
+    if (!detail?.executionSetting) return 'both';
+
+    const { hospitalEnabled, livingEnabled } = detail.executionSetting;
+
+    if (hospitalEnabled && livingEnabled) return 'both';
+    if (hospitalEnabled) return 'hospital';
+    if (livingEnabled) return 'living';
+    return 'both';
+  }, [detail]);
 
   const highlight = (text: string) => (
     <span className="text-red-500">{text}</span>
@@ -40,9 +83,32 @@ export default function DashboardPage() {
 
   const currentComment = commentData[usageType];
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white pb-20">
+        <Header title="신탁 운용 현황" showBackButton />
+        <div className="p-4 text-[14px] text-[#9CA3AF]">불러오는 중...</div>
+        <NavigationBar />
+      </div>
+    );
+  }
+
+  if (!detail) {
+    return (
+      <div className="min-h-screen bg-white pb-20">
+        <Header title="신탁 운용 현황" showBackButton />
+        <div className="p-4 text-[14px] text-[#9CA3AF]">
+          조회할 신탁 정보가 없어요.
+        </div>
+        <NavigationBar />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white pb-20">
       <Header title="신탁 운용 현황" showBackButton />
+
       <div className="space-y-4 p-4">
         <InfoBox
           title={currentComment.title}
@@ -52,19 +118,35 @@ export default function DashboardPage() {
           className="text-center"
         />
 
-        <AssetSummaryCard />
-        <AssetDetailCard />
+        <AssetSummaryCard
+          currentAmount={detail.currentAmount}
+          profitRate={detail.profitRate}
+        />
+
+        <AssetDetailCard
+          principalAmount={detail.principalAmount}
+          executionAmount={detail.executionAmount}
+          profit={detail.profit}
+          currentAmount={detail.currentAmount}
+        />
+
         <PortfolioCard />
 
-        {/* 2. 경우에 맞는 지출 내역 전달 */}
-        <ExecutionListCard type={usageType} />
-
-        <PrimaryButton
-          label="신탁 설정 변경하기"
-          className="h-14 rounded-2xl"
-          onClick={() => router.push('/asset/trust/change-usage')}
+        <ExecutionListCard
+          type={usageType}
+          hospitalAmount={detail.executionSetting?.hospitalAmount}
+          livingAmount={detail.executionSetting?.livingAmount}
         />
+
+        {!isParentMode && (
+          <PrimaryButton
+            label="신탁 설정 변경하기"
+            className="h-14 rounded-2xl"
+            onClick={() => router.push('/asset/trust/change-usage')}
+          />
+        )}
       </div>
+
       <NavigationBar />
     </div>
   );

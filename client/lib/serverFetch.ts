@@ -30,12 +30,18 @@ export async function serverFetch<T>(
   });
 
   if (!res.ok) {
-    throw new Error(`Spring API error ${res.status}: ${res.statusText}`);
+    const text = await res.text();
+    console.error('[serverFetch] 실패 URL:', path);
+    console.error('[serverFetch] 상태코드:', res.status);
+    console.error('[serverFetch] 응답본문:', text);
+    throw new Error(`Spring API error ${res.status}: ${path}`);
   }
 
   const json: SpringResponse<T> = await res.json();
   if (!json.isSuccess) {
-        throw new Error(`Spring API business error: ${json.code} - ${json.message}`);
+    throw new Error(
+      `Spring API business error: ${json.code} - ${json.message}`,
+    );
   }
   return json.result;
 }

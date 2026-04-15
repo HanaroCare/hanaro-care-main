@@ -21,6 +21,7 @@ type Props = {
 export default function SelectAssetsStepClient({ items }: Props) {
   const router = useRouter();
   const { form, setSelectedAssets } = useTrustForm();
+
   const [selected, setSelected] = useState<Set<string>>(
     new Set(form.selectedAssets),
   );
@@ -28,7 +29,11 @@ export default function SelectAssetsStepClient({ items }: Props) {
   const toggle = (id: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };
@@ -62,12 +67,12 @@ export default function SelectAssetsStepClient({ items }: Props) {
       }
     >
       <div className="mt-12">
-        <p className="font-bold text-[22px] text-black leading-[1.45] tracking-[-0.02em]">
+        <p className="text-[22px] leading-[1.45] font-bold tracking-[-0.02em] text-black">
           <span className="text-hana-ez-600">맡길 자산</span>을
           <br />
           선택해주세요
         </p>
-        <p className="mt-3 text-[#6A7282] text-[15px]">
+        <p className="mt-3 text-[15px] text-[#6A7282]">
           마이데이터로 자동 조회했어요
         </p>
       </div>

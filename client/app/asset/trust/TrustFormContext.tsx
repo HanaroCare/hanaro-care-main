@@ -1,99 +1,117 @@
 'use client';
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react';
-
-export type PayoutAmounts = {
-  hospital: number;
-  living: number;
-};
+import { createContext, useContext, useMemo, useState } from 'react';
 
 export type TrustFormState = {
-  // Step 1
   selectedAssets: string[];
   principalAmount: number;
-  // Step 2
   startTiming: string | null;
   startDate: string | null;
-  // Step 3
   operationType: string;
-  // Step 4
   payoutType: string | null;
-  // Step 5
   payoutItems: string[];
-  payoutAmounts: PayoutAmounts;
-  // Step 6
+  payoutAmounts: {
+    hospital: number;
+    living: number;
+  };
   selectedAgent: string | null;
 };
 
 type TrustFormContextValue = {
   form: TrustFormState;
-  setSelectedAssets: (ids: string[], amount: number) => void;
-  setStartTiming: (timing: string, date?: string | null) => void;
-  setOperationType: (type: string) => void;
-  setPayoutType: (type: string) => void;
-  setPayoutItems: (items: string[], amounts: PayoutAmounts) => void;
-  setSelectedAgent: (agentId: string | null) => void;
+  setSelectedAssets: (ids: string[], total: number) => void;
+  setStartTiming: (
+    startTiming: string | null,
+    startDate?: string | null,
+  ) => void;
+  setOperationType: (operationType: string) => void;
+  setPayoutType: (payoutType: string | null) => void;
+  setPayoutItems: (
+    payoutItems: string[],
+    payoutAmounts?: Partial<TrustFormState['payoutAmounts']>,
+  ) => void;
+  setSelectedAgent: (selectedAgent: string | null) => void;
+  resetForm: () => void;
 };
 
-const TrustFormContext = createContext<TrustFormContextValue | null>(null);
-
-const initialState: TrustFormState = {
+const initialFormState: TrustFormState = {
   selectedAssets: [],
   principalAmount: 0,
   startTiming: null,
   startDate: null,
   operationType: 'managed',
-  payoutType: 'free',
-  payoutItems: ['hospital', 'living'],
-  payoutAmounts: { hospital: 430000, living: 1000000 },
+  payoutType: null,
+  payoutItems: [],
+  payoutAmounts: {
+    hospital: 0,
+    living: 0,
+  },
   selectedAgent: null,
 };
 
-export function TrustFormProvider({ children }: { children: ReactNode }) {
-  const [form, setForm] = useState<TrustFormState>(initialState);
+const TrustFormContext = createContext<TrustFormContextValue | null>(null);
 
-  const setSelectedAssets = useCallback((ids: string[], amount: number) => {
-    setForm((prev) => ({ ...prev, selectedAssets: ids, principalAmount: amount }));
-  }, []);
+export function TrustFormProvider({ children }: { children: React.ReactNode }) {
+  const [form, setForm] = useState<TrustFormState>(initialFormState);
 
-  const setStartTiming = useCallback((timing: string, date?: string | null) => {
-    setForm((prev) => ({ ...prev, startTiming: timing, startDate: date ?? null }));
-  }, []);
-
-  const setOperationType = useCallback((type: string) => {
-    setForm((prev) => ({ ...prev, operationType: type }));
-  }, []);
-
-  const setPayoutType = useCallback((type: string) => {
-    setForm((prev) => ({ ...prev, payoutType: type }));
-  }, []);
-
-  const setPayoutItems = useCallback((items: string[], amounts: PayoutAmounts) => {
-    setForm((prev) => ({ ...prev, payoutItems: items, payoutAmounts: amounts }));
-  }, []);
-
-  const setSelectedAgent = useCallback((agentId: string | null) => {
-    setForm((prev) => ({ ...prev, selectedAgent: agentId }));
-  }, []);
-
-  const value = useMemo(
+  const value = useMemo<TrustFormContextValue>(
     () => ({
       form,
-      setSelectedAssets,
-      setStartTiming,
-      setOperationType,
-      setPayoutType,
-      setPayoutItems,
-      setSelectedAgent,
+
+      // ✅ 방법 1 핵심: selectedAssets 저장할 때 principalAmount도 같이 저장
+      setSelectedAssets: (ids, total) => {
+        setForm((prev) => ({
+          ...prev,
+          selectedAssets: ids,
+          principalAmount: total,
+        }));
+      },
+
+      setStartTiming: (startTiming, startDate = null) => {
+        setForm((prev) => ({
+          ...prev,
+          startTiming,
+          startDate,
+        }));
+      },
+
+      setOperationType: (operationType) => {
+        setForm((prev) => ({
+          ...prev,
+          operationType,
+        }));
+      },
+
+      setPayoutType: (payoutType) => {
+        setForm((prev) => ({
+          ...prev,
+          payoutType,
+        }));
+      },
+
+      setPayoutItems: (payoutItems, payoutAmounts = {}) => {
+        setForm((prev) => ({
+          ...prev,
+          payoutItems,
+          payoutAmounts: {
+            ...prev.payoutAmounts,
+            ...payoutAmounts,
+          },
+        }));
+      },
+
+      setSelectedAgent: (selectedAgent) => {
+        setForm((prev) => ({
+          ...prev,
+          selectedAgent,
+        }));
+      },
+
+      resetForm: () => {
+        setForm(initialFormState);
+      },
     }),
-    [form, setSelectedAssets, setStartTiming, setOperationType, setPayoutType, setPayoutItems, setSelectedAgent],
+    [form],
   );
 
   return (
@@ -104,7 +122,11 @@ export function TrustFormProvider({ children }: { children: ReactNode }) {
 }
 
 export function useTrustForm() {
-  const ctx = useContext(TrustFormContext);
-  if (!ctx) throw new Error('useTrustForm must be used inside TrustFormProvider');
-  return ctx;
+  const context = useContext(TrustFormContext);
+
+  if (!context) {
+    throw new Error('useTrustForm must be used within TrustFormProvider');
+  }
+
+  return context;
 }

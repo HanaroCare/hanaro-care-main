@@ -22,6 +22,7 @@ import Header from '@/components/navigation/Header';
 function formatWon(amount: number): string {
   const eok = Math.floor(amount / 100_000_000);
   const man = Math.floor((amount % 100_000_000) / 10_000);
+
   if (eok > 0 && man > 0) return `${eok}억 ${man.toLocaleString()}만원`;
   if (eok > 0) return `${eok}억원`;
   return `${man.toLocaleString()}만원`;
@@ -75,6 +76,7 @@ function ProfitBarChart({
           width={38}
           domain={[0, yMax]}
         />
+
         <Bar
           dataKey="principalAmount"
           stackId="a"
@@ -93,6 +95,7 @@ function ProfitBarChart({
             />
           ))}
         </Bar>
+
         <Bar
           dataKey="expectedProfit"
           stackId="a"
@@ -121,15 +124,20 @@ type Props = {
   amountResults: AmountResultDto[];
 };
 
-export default function TrustResultClient({ selectedDetail, amountResults }: Props) {
+export default function TrustResultClient({
+  selectedDetail,
+  amountResults,
+}: Props) {
   const router = useRouter();
 
-  const initialLabel =
-    amountResults.find((e) => e.selected)?.label ?? amountResults[0]?.label ?? '';
-  const [selectedLabel, setSelectedLabel] = useState(initialLabel);
+  // 기본값은 차트 막대 선택 없음 = 내 설계 기준
+  const [selectedLabel, setSelectedLabel] = useState('');
+  const [isCustomView, setIsCustomView] = useState(false);
 
   const currentEntry =
-    amountResults.find((e) => e.label === selectedLabel) ?? null;
+    isCustomView && selectedLabel
+      ? (amountResults.find((e) => e.label === selectedLabel) ?? null)
+      : null;
 
   const detail: SimulationDetailDto = currentEntry
     ? {
@@ -141,6 +149,16 @@ export default function TrustResultClient({ selectedDetail, amountResults }: Pro
       }
     : selectedDetail;
 
+  const handleSelectBar = (label: string) => {
+    setSelectedLabel(label);
+    setIsCustomView(true);
+  };
+
+  const handleResetToMyPlan = () => {
+    setSelectedLabel('');
+    setIsCustomView(false);
+  };
+
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
@@ -149,15 +167,18 @@ export default function TrustResultClient({ selectedDetail, amountResults }: Pro
           showCloseButton
           onClose={() => router.push('/asset/simulator' as Route)}
         />
+
         <main className="app-main no-scrollbar px-4 py-5">
           <div className="rounded-[24px] bg-linear-to-br from-hana-teal-600 to-hana-teal-300 px-6 py-7">
-            <p className="text-[13px] font-medium leading-5 text-white/80">
+            <p className="text-[13px] leading-5 font-medium text-white/80">
               5년 후
             </p>
-            <p className="mt-1 text-[28px] font-bold leading-[1.3] tracking-tight text-white">
+
+            <p className="mt-1 text-[28px] leading-[1.3] font-bold tracking-tight text-white">
               예상 자산 {formatWon(detail.expectedNetAmount)}
             </p>
-            <p className="mt-2 text-[14px] font-semibold leading-5">
+
+            <p className="mt-2 text-[14px] leading-5 font-semibold">
               <span className="text-white">원금 대비 </span>
               <span className="text-hana-red-500">
                 {formatPercent(detail.profitRate)}
@@ -166,32 +187,45 @@ export default function TrustResultClient({ selectedDetail, amountResults }: Pro
           </div>
 
           <div className="mt-4 rounded-4xl border border-[#E5E7EB] bg-white px-6 py-6">
-            <p className="text-[16px] font-semibold leading-6 tracking-tight text-[#1F2937]">
+            <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
               상세 내역
             </p>
+
             <div className="mt-5 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <span className="text-[14px] leading-5 font-normal text-[#6A7282]">원금</span>
+                <span className="text-[14px] leading-5 font-normal text-[#6A7282]">
+                  원금
+                </span>
                 <span className="text-[14px] leading-5 font-medium text-[#1F2937]">
                   {formatWon(detail.principalAmount)}
                 </span>
               </div>
+
               <div className="flex items-center justify-between">
-                <span className="text-[14px] leading-5 font-normal text-[#6A7282]">예상 총 수익</span>
+                <span className="text-[14px] leading-5 font-normal text-[#6A7282]">
+                  예상 총 수익
+                </span>
                 <span className="text-[14px] leading-5 font-medium text-hana-ez-600">
                   +{formatWon(detail.expectedProfit)}
                 </span>
               </div>
+
               <div className="flex items-center justify-between">
-                <span className="text-[14px] leading-5 font-normal text-[#6A7282]">세금 (15.4%)</span>
+                <span className="text-[14px] leading-5 font-normal text-[#6A7282]">
+                  세금 (15.4%)
+                </span>
                 <span className="text-[14px] leading-5 font-medium text-hana-red-500">
                   -{formatWon(detail.tax)}
                 </span>
               </div>
             </div>
+
             <div className="my-5 h-px bg-[#F2F3F5]" />
+
             <div className="flex items-center justify-between">
-              <span className="text-[14px] leading-5 font-semibold text-[#1F2937]">예상 실 수령액</span>
+              <span className="text-[14px] leading-5 font-semibold text-[#1F2937]">
+                예상 실 수령액
+              </span>
               <span className="text-[18px] leading-6 font-bold text-hana-ez-600">
                 {formatWon(detail.expectedNetAmount)}
               </span>
@@ -199,29 +233,49 @@ export default function TrustResultClient({ selectedDetail, amountResults }: Pro
           </div>
 
           <div className="mt-4 rounded-4xl border border-[#E5E7EB] bg-white px-5 py-6">
-            <p className="text-[15px] font-semibold leading-6 tracking-tight text-[#1F2937]">
-              예치 금액별 수익 비교
+            <p className="text-[15px] leading-6 font-semibold tracking-tight text-[#1F2937]">
+              다른 투자 금액별 예상 수익
             </p>
+
             <div className="mt-3 flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <div className="h-3 w-3 rounded-full bg-[#B2E4E2]" />
-                <span className="text-[11px] leading-4 font-normal text-[#6A7282]">원금</span>
+                <span className="text-[11px] leading-4 font-normal text-[#6A7282]">
+                  원금
+                </span>
               </div>
+
               <div className="flex items-center gap-1.5">
                 <div className="h-3 w-3 rounded-full bg-[#FBBFBF]" />
-                <span className="text-[11px] leading-4 font-normal text-[#6A7282]">수익</span>
+                <span className="text-[11px] leading-4 font-normal text-[#6A7282]">
+                  수익
+                </span>
               </div>
             </div>
+
             <div className="mt-4 [&_*:focus]:outline-none [&_*:focus-visible]:outline-none">
               <ProfitBarChart
                 amountResults={amountResults}
                 selectedLabel={selectedLabel}
-                onSelect={setSelectedLabel}
+                onSelect={handleSelectBar}
               />
             </div>
+
             <p className="mt-2 text-center text-[11px] leading-4 font-normal text-[#9CA3AF]">
-              * 현재 선택: {selectedLabel}
+              {isCustomView
+                ? `* 현재 비교: ${selectedLabel}`
+                : '* 현재 선택: 내 설계 기준'}
             </p>
+
+            {isCustomView && (
+              <button
+                type="button"
+                onClick={handleResetToMyPlan}
+                className="mt-4 w-full rounded-2xl border border-hana-ez-600 py-3 text-[14px] font-semibold text-hana-ez-600 transition active:bg-[#F5FFFE]"
+              >
+                내 설계 기준으로 돌아가기
+              </button>
+            )}
           </div>
         </main>
 

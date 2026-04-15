@@ -3,10 +3,16 @@
 import { ChevronRight, Lock } from 'lucide-react';
 import { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
+  getFamilyTrustDetail,
   getTrustFamilyAccess,
+  getTrustFamilyGrantors,
+  getTrustProductSummary,
+  getTrustSimulationSummary,
   type TrustAccessLevel,
+  type TrustProductDetail,
+  type TrustSimulationSummary,
 } from '@/app/asset/actions/trust';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
@@ -28,6 +34,7 @@ const DASHBOARD_TABS = [
 
 export default function SimulatorPage() {
   const router = useRouter();
+
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
   const [hasResult, setHasResult] = useState<boolean | null>(null);
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -36,6 +43,17 @@ export default function SimulatorPage() {
 
   const [isParentMode, setIsParentMode] = useState(false);
   const [accessLevel, setAccessLevel] = useState<TrustAccessLevel | null>(null);
+  const [grantorId, setGrantorId] = useState<number | null>(null);
+
+  const [myTrustSimulationSummary, setMyTrustSimulationSummary] =
+    useState<TrustSimulationSummary | null>(null);
+  const [myTrustProductSummary, setMyTrustProductSummary] =
+    useState<TrustProductDetail | null>(null);
+  const [isLoadingMyTrust, setIsLoadingMyTrust] = useState(false);
+
+  const [parentTrustDetail, setParentTrustDetail] =
+    useState<TrustProductDetail | null>(null);
+  const [isLoadingParentTrust, setIsLoadingParentTrust] = useState(false);
 
   const handleTabChange = (tabId: string) => {
     if (tabId === 'asset') {
@@ -64,12 +82,85 @@ export default function SimulatorPage() {
     });
   }, []);
 
+  useEffect(() => {
+    if (accessLevel !== 'READ_WRITE') {
+      setGrantorId(null);
+      return;
+    }
+
+    getTrustFamilyGrantors().then((list) => {
+      if (list.length > 0) {
+        setGrantorId(list[0].grantorId);
+      } else {
+        setGrantorId(null);
+      }
+    });
+  }, [accessLevel]);
+
+  useEffect(() => {
+    const fetchMyTrustState = async () => {
+      if (!hasResult || isRecalculating) {
+        setMyTrustProductSummary(null);
+        setMyTrustSimulationSummary(null);
+        return;
+      }
+
+      try {
+        setIsLoadingMyTrust(true);
+
+        const [productSummary, simulationSummary] = await Promise.all([
+          getTrustProductSummary(),
+          getTrustSimulationSummary(),
+        ]);
+
+        setMyTrustProductSummary(productSummary);
+        setMyTrustSimulationSummary(simulationSummary);
+      } finally {
+        setIsLoadingMyTrust(false);
+      }
+    };
+
+    fetchMyTrustState();
+  }, [hasResult, isRecalculating]);
+
+  useEffect(() => {
+    const fetchParentTrustState = async () => {
+      if (!isParentMode || accessLevel !== 'READ_WRITE' || !grantorId) {
+        setParentTrustDetail(null);
+        return;
+      }
+
+      try {
+        setIsLoadingParentTrust(true);
+        const detail = await getFamilyTrustDetail(grantorId);
+        setParentTrustDetail(detail);
+      } finally {
+        setIsLoadingParentTrust(false);
+      }
+    };
+
+    fetchParentTrustState();
+  }, [isParentMode, accessLevel, grantorId]);
+
   const handleOnboardingComplete = () => {
     localStorage.setItem(ONBOARDING_KEY, 'true');
     setShowOnboarding(false);
   };
 
   const handleRecalculate = () => setIsRecalculating(true);
+
+  const shouldShowParentToggle = accessLevel !== null && accessLevel !== 'NONE';
+  const shouldShowMyActivePension = !isParentMode;
+  const shouldShowParentProxyBanner =
+    isParentMode && accessLevel === 'PROXY_ONLY';
+  const shouldShowParentTrustActive =
+    isParentMode && accessLevel === 'READ_WRITE';
+
+  const myTrustStatus = useMemo(() => {
+    if (myTrustProductSummary) return 'active' as const;
+    if (myTrustSimulationSummary) return 'designed' as const;
+    return 'recommend' as const;
+  }, [myTrustProductSummary, myTrustSimulationSummary]);
 
   if (showOnboarding === null) return null;
 
@@ -85,14 +176,14 @@ export default function SimulatorPage() {
   if (hasResult && !isRecalculating) {
     return (
       <div className="flex min-h-screen flex-col bg-white">
-        {/* 상단 탭 및 토글 고정 영역 */}
         <div className="sticky top-0 z-50 bg-white shadow-sm">
           <TabNavigation
             tabs={DASHBOARD_TABS}
             activeTab={activeTab}
             onTabChange={handleTabChange}
           />
-          {accessLevel && accessLevel !== 'NONE' && (
+
+          {shouldShowParentToggle && (
             <div className="flex items-center justify-between px-4 py-3">
               <span
                 id="parent-mode-label"
@@ -100,6 +191,7 @@ export default function SimulatorPage() {
               >
                 부모님 신탁 현황 확인
               </span>
+
               <button
                 type="button"
                 role="switch"
@@ -127,57 +219,64 @@ export default function SimulatorPage() {
               {!isParentMode && (
                 <>
                   <SimulatorSummaryCard />
+
                   <PrimaryButton
                     label="다시 계산하기"
                     variant="secondary"
                     onClick={handleRecalculate}
                   />
 
-                  <div className="flex flex-col gap-5 mt-4">
+                  <div className="mt-4 flex flex-col gap-5">
                     <div className="flex items-center justify-between">
-                      <h2 className="font-bold text-[19px] text-hana-black-900">
+                      <h2 className="text-[19px] font-bold text-hana-black-900">
                         부족한 병원비를 더 채워볼까요?
                       </h2>
                       <button
                         onClick={() => router.push('/asset/products' as Route)}
-                        className="text-[12px] font-medium text-[#9CA3AF] flex items-center gap-0.5"
+                        className="flex items-center gap-0.5 text-[12px] font-medium text-[#9CA3AF]"
                       >
                         상품 더 보기 <ChevronRight size={14} />
                       </button>
                     </div>
+
                     <div className="flex flex-col gap-4">
                       <ProductStatusCard type="pension" status="recommend" />
-                      <ProductStatusCard type="trust" status="recommend" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4">
-                    <ProductStatusCard type="trust" status="designed" />
+                    <ProductStatusCard
+                      type="trust"
+                      status={myTrustStatus}
+                      isLoading={isLoadingMyTrust}
+                      simulationSummary={myTrustSimulationSummary}
+                      productSummary={myTrustProductSummary}
+                    />
                     <ProductStatusCard type="pension" status="designed" />
                   </div>
                 </>
               )}
 
-              {/* 가입 및 운용 현황 (공통/부모 모드) */}
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-1 gap-4">
-                  {!isParentMode && (
+                  {shouldShowMyActivePension && (
                     <ProductStatusCard type="pension" status="active" />
                   )}
 
-                  {isParentMode && accessLevel === 'PROXY_ONLY' ? (
+                  {shouldShowParentProxyBanner && (
                     <button
                       type="button"
                       onClick={() =>
                         router.push('/asset/trust/change-agent-child')
                       }
-                      className="w-full rounded-[28px] border-2 border-dashed border-[#E5E7EB] bg-[#F9FAFB] p-8 flex flex-col items-center text-center gap-3 transition-all hover:border-hana-ez-600 hover:bg-[#F0F9F9]"
+                      className="flex w-full flex-col items-center gap-3 rounded-[28px] border-2 border-dashed border-[#E5E7EB] bg-[#F9FAFB] p-8 text-center transition-all hover:border-hana-ez-600 hover:bg-[#F0F9F9]"
                     >
                       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm">
                         <Lock size={22} className="text-[#9CA3AF]" />
                       </div>
+
                       <div className="space-y-1">
-                        <p className="font-bold text-[16px] text-hana-black-800">
+                        <p className="text-[16px] font-bold text-hana-black-800">
                           신탁 현황 열람 권한이 없어요
                         </p>
                         <p className="text-[13px] text-[#9CA3AF]">
@@ -186,54 +285,70 @@ export default function SimulatorPage() {
                           열람 권한 신청을 먼저 진행해주세요.
                         </p>
                       </div>
+
                       <div className="mt-2 flex items-center justify-center gap-1 rounded-full bg-[#F0F9F9] px-6 py-2.5 text-[14px] font-bold text-hana-ez-600 shadow-sm">
-                        권한 위임 신청하기{' '}
+                        권한 위임 신청하기
                         <ChevronRight size={16} strokeWidth={3} />
                       </div>
                     </button>
-                  ) : null}
+                  )}
 
-                  {isParentMode && accessLevel === 'READ_WRITE' ? (
-                    <ProductStatusCard type="trust" status="active" />
-                  ) : null}
+                  {shouldShowParentTrustActive && (
+                    <ProductStatusCard
+                      type="trust"
+                      status="active"
+                      isLoading={isLoadingParentTrust}
+                      productSummary={parentTrustDetail}
+                      ownerLabel="부모님 신탁"
+                      onAction={() => {
+                        if (!grantorId) return;
+                        router.push(
+                          `/asset/trust/dashboard?grantorId=${grantorId}` as Route,
+                        );
+                      }}
+                    />
+                  )}
                 </div>
               </div>
             </>
           ) : (
-            <div className="flex h-full items-center justify-center py-20 text-hana-black-500 font-medium">
+            <div className="flex h-full items-center justify-center py-20 font-medium text-hana-black-500">
               상속 준비 중...
             </div>
           )}
         </main>
+
         <NavigationBar />
       </div>
     );
   }
 
-  // 입력 화면 (최초/재계산)
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <main className="flex flex-1 flex-col gap-10 bg-linear-to-b from-[#F0FDFA] via-[#EFF6FF] to-[#ECFEFF] px-6 pt-10 pb-20">
-        <div className="flex flex-col text-center gap-1">
-          <h1 className="font-bold text-[24px] text-hana-black-900">
+        <div className="flex flex-col gap-1 text-center">
+          <h1 className="text-[24px] font-bold text-hana-black-900">
             미래 병원비 계산기
           </h1>
-          <h2 className="font-bold text-[24px] text-hana-green-700">
+          <h2 className="text-[24px] font-bold text-hana-green-700">
             조건을 선택해주세요
           </h2>
         </div>
+
         <div className="flex flex-col gap-4">
-          <span className="font-semibold text-[16px] text-hana-black-800">
+          <span className="text-[16px] font-semibold text-hana-black-800">
             몇살까지 준비할까요?
           </span>
           <LifeExpectancySlider />
         </div>
+
         <div className="flex flex-col gap-4">
-          <span className="font-semibold text-[16px] text-hana-black-800">
+          <span className="text-[16px] font-semibold text-hana-black-800">
             원하는 요양 방식을 선택해주세요
           </span>
           <CareMethodSelector value={careMethod} onChange={setCareMethod} />
         </div>
+
         <div className="mt-auto">
           <PrimaryButton
             label="계산 결과 보기"
@@ -245,6 +360,7 @@ export default function SimulatorPage() {
           />
         </div>
       </main>
+
       <NavigationBar />
     </div>
   );
