@@ -41,6 +41,11 @@ spring:
     resources:
       add-mappings: false
 
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
