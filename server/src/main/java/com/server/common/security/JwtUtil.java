@@ -112,15 +112,14 @@ public class JwtUtil {
   }
 
   /**
-   * 가족 초대용 토큰 생성 (grantorId와 relation 포함)
+   * 가족 초대용 토큰 생성 (grantorId 포함)
    */
-  public String createInviteToken(Long grantorId, String relation) {
+  public String createInviteToken(Long grantorId) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + INVITE_EXPIRATION);
 
     return Jwts.builder()
         .claim("grantorId", grantorId)
-        .claim("relation", relation)
         .issuedAt(now)
         .expiration(expiryDate)
         .signWith(key)
@@ -135,7 +134,6 @@ public class JwtUtil {
       Claims claims = parseClaims(token);
       Map<String, Object> info = new HashMap<>();
       info.put("grantorId", claims.get("grantorId", Long.class));
-      info.put("relation", claims.get("relation", String.class));
       return info;
     } catch (Exception e) {
       throw new CustomJwtException("INVALID_INVITE_TOKEN", "유효하지 않은 초대 토큰입니다.");
