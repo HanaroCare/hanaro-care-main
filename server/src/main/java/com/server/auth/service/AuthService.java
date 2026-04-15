@@ -1,6 +1,5 @@
 package com.server.auth.service;
 
-import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
 import com.server.auth.dto.UnlockDormantRequestDTO;
@@ -9,18 +8,13 @@ import com.server.auth.repository.RefreshTokenRepository;
 import com.server.common.exception.ApiException;
 import com.server.common.exception.CustomJwtException;
 import com.server.common.response.code.status.ErrorStatus;
-import com.server.common.security.AuthConstants;
 import com.server.common.security.JwtUtil;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
-import com.server.user.entity.TBUserSimpleAuth;
-import com.server.user.enums.LoginMeans;
 import com.server.user.enums.UserStatus;
 import com.server.user.repository.UserRepository;
-import com.server.user.repository.UserSimpleAuthRepository;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,8 +33,6 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final RefreshTokenRepository refreshTokenRepository;
-  private final LoginLogService loginLogService;
-  private final UserSimpleAuthRepository simpleAuthRepository;
   private final SmsAuthService smsAuthService;
   private final JwtUtil jwtUtil;
   private final BCryptPasswordEncoder passwordEncoder;
@@ -99,31 +91,6 @@ public class AuthService {
   }
 
   @Transactional(rollbackFor = {Exception.class, Error.class})
-  public TokenResponseDTO login(LoginRequestDTO request) {
-    TBUser user = userRepository.findByLoginId(request.getLoginId())
-        .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS));
-
-    if (user.getUserStatusCd() != UserStatus.ACTIVE) {
-      log.warn("[로그인 실패] 비활성 계정 - loginId={}", user.getLoginId());
-      loginLogService.save(user, request.getMeans(), false);
-      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
-    }
-
-    LoginMeans means = request.getMeans();
-    verifyCredential(user, request.getUserPwd(), means);
-
-    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-      @Override
-      public void afterCommit() {
-        loginLogService.save(user, means, true);
-        log.info("[로그인 성공] loginId={}, means={}", user.getLoginId(), means.getDescription());
-      }
-    });
-
-    return issueTokens(user);
-  }
-
-  @Transactional(rollbackFor = {Exception.class, Error.class})
   public TokenResponseDTO refresh(String refreshTokenValue) {
     jwtUtil.validateToken(refreshTokenValue);
 
@@ -163,86 +130,35 @@ public class AuthService {
         .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS));
 
     if (user.getUserStatusCd() != UserStatus.DORMANT) {
-      log.warn("[휴면 해제 실패] 대상 계정이 휴면 상태가 아님 - loginId={}", request.getLoginId());
+      log.warn("[휴면 해제 실패] 이미 활성 상태이거나 정지된 계정: loginId={}", request.getLoginId());
       throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
     }
 
+    // SMS 인증 확인
     if (!smsAuthService.isVerified(user.getUserPhone())) {
-      log.warn("[휴면 해제 실패] SMS 인증 누락 - loginId={}, phone={}",
-          user.getLoginId(), user.getUserPhone());
-      throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED); // 또는 AUTH_BAD_CREDENTIALS
+      log.warn("[휴면 해제 실패] SMS 인증 미완료: loginId={}, phone={}", user.getLoginId(),
+          user.getUserPhone());
+      throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
 
-    LocalDateTime now = LocalDateTime.now();
+    // 상태 변경 및 비번 갱신
     user.setUserStatusCd(UserStatus.ACTIVE);
     user.setUserPwd(passwordEncoder.encode(request.getNewUserPwd()));
+
+    // 마지막 로그인 시간 등을 갱신 -> 바로 로그인 가능
+    LocalDateTime now = LocalDateTime.now();
     user.setPwdChangedAt(now);
     user.setLastLoginAt(now);
+
     userRepository.save(user);
 
     TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
       @Override
       public void afterCommit() {
         smsAuthService.clearVerification(user.getUserPhone());
-        log.info("[휴면 해제 성공] loginId={}", user.getLoginId());
+        log.info("[휴면 해제 성공] 계정이 다시 활성화됨: loginId={}", user.getLoginId());
       }
     });
-  }
-
-  private void verifyCredential(TBUser user, String inputSecret, LoginMeans means) {
-    if (user.getAuthMeansCd() != means) {
-      log.warn("[로그인 실패] 인증 수단 불일치 - loginId={}, registered={}, requested={}",
-          user.getLoginId(), user.getAuthMeansCd(), means);
-      loginLogService.save(user, means, false);
-      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
-    }
-
-    if (means == LoginMeans.PASSWORD) {
-      if (!passwordEncoder.matches(inputSecret, user.getUserPwd())) {
-        log.warn("[로그인 실패] 비밀번호 불일치 - loginId={}", user.getLoginId());
-        loginLogService.save(user, means, false);
-        throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
-      }
-      return;
-    }
-
-    if (!user.getIsHanaCert()) {
-      log.warn("[간편 로그인 실패] 하나 인증 미완료 - loginId={}, means={}", user.getLoginId(),
-          means.getDescription());
-      loginLogService.save(user, means, false);
-      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
-    }
-
-    Optional<TBUserSimpleAuth> authOpt = simpleAuthRepository.findByUserAndAuthMeansCd(user, means);
-    if (authOpt.isEmpty()) {
-      log.warn("[간편 로그인 실패] 등록된 인증 정보 없음 - loginId={}, means={}", user.getLoginId(),
-          means.getDescription());
-      loginLogService.save(user, means, false);
-      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
-    }
-
-    if (!passwordEncoder.matches(inputSecret, authOpt.get().getAuthValue())) {
-      log.warn("[간편 로그인 실패] 인증 값 불일치 - loginId={}, means={}", user.getLoginId(),
-          means.getDescription());
-      loginLogService.save(user, means, false);
-      throw new ApiException(ErrorStatus.AUTH_BAD_CREDENTIALS);
-    }
-  }
-
-  private TokenResponseDTO issueTokens(TBUser user) {
-    SubscriberDTO subscriberDTO = createSubscriberDTO(user);
-    String accessToken = jwtUtil.createAccessToken(subscriberDTO);
-    String refreshToken = jwtUtil.createRefreshToken(subscriberDTO);
-
-    saveRefreshToken(user, refreshToken);
-
-    return TokenResponseDTO.builder()
-        .accessToken(accessToken)
-        .refreshToken(refreshToken)
-        .grantType(AuthConstants.TOKEN_TYPE)
-        .userRole(user.getUserRole().name())
-        .loginId(user.getLoginId())
-        .build();
   }
 
   private SubscriberDTO createSubscriberDTO(TBUser user) {
@@ -254,17 +170,6 @@ public class AuthService {
         user.getIsHanaCert(),
         Collections.singletonList(new SimpleGrantedAuthority(user.getUserRole().name()))
     );
-  }
-
-  private void saveRefreshToken(TBUser user, String refreshToken) {
-    TBRefreshToken tbRefreshToken = refreshTokenRepository.findById(user.getUserId())
-        .orElseGet(() -> TBRefreshToken.builder()
-            .userId(user.getUserId())
-            .build());
-
-    tbRefreshToken.setTokenValue(refreshToken);
-    tbRefreshToken.setExpiryDt(calculateExpiryDt());
-    refreshTokenRepository.save(tbRefreshToken);
   }
 
   private LocalDateTime calculateExpiryDt() {

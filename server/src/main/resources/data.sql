@@ -22,20 +22,29 @@ SET FOREIGN_KEY_CHECKS = 1;
 SET time_zone = 'Asia/Seoul';
 
 -- ========================
--- TB_USER
--- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
+-- TB_USER 데이터 삽입
+-- 비밀번호: password123 (BCrypt 암호화 결과)
 -- ========================
-INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT, USER_STAT_CD,
-                     USER_ROLE)
-VALUES (1001, '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01011112222',
-        65, 1, 'ACTIVE', 'ROLE_USER'),
-       (1002, '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01022223333',
-        40, 0, 'ACTIVE', 'ROLE_USER'),
-       (1003, '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01033334444',
-        63, 1, 'ACTIVE', 'ROLE_USER'),
-       (1004, '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01055556666',
-        35, 1, 'ACTIVE', 'ROLE_ADMIN');
+INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE,
+                     IS_HANA_CERT, USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT,
+                     PWD_CHANGED_AT)
+VALUES
+    -- 1. 홍길동: 일반 비밀번호 유저
+    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
 
+    -- 2. 김철수: 간편 비밀번호 유저
+    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2',
+     '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 3. 이영희: 휴면 계정 예시
+    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER',
+     DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+
+    -- 4. 박관리: 관리자 계정
+    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
 -- ========================
 -- TB_PRODUCT
 -- ========================
@@ -158,14 +167,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2050000,
     "cumulativeAmount": 492000000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 2050000, "cumulativeAmount": 24600000},
-      {"year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000},
-      {"year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000},
-      {"year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000},
-      {"year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000},
-      {"year": 16, "monthlyAmount": 2050000, "cumulativeAmount": 393600000},
-      {"year": 19, "monthlyAmount": 2050000, "cumulativeAmount": 467400000},
-      {"year": 20, "monthlyAmount": 2050000, "cumulativeAmount": 492000000}
+      {
+        "year": 1,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 24600000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 98400000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 172200000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 246000000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 319800000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 393600000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 467400000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 492000000
+      }
     ]
   },
   {
@@ -174,14 +215,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2870000,
     "cumulativeAmount": 447720000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 2870000, "cumulativeAmount": 34440000},
-      {"year": 4,  "monthlyAmount": 2870000, "cumulativeAmount": 137760000},
-      {"year": 7,  "monthlyAmount": 2870000, "cumulativeAmount": 241080000},
-      {"year": 10, "monthlyAmount": 2009000, "cumulativeAmount": 310188000},
-      {"year": 13, "monthlyAmount": 2009000, "cumulativeAmount": 382512000},
-      {"year": 16, "monthlyAmount": 2009000, "cumulativeAmount": 410196000},
-      {"year": 19, "monthlyAmount": 2009000, "cumulativeAmount": 434448000},
-      {"year": 20, "monthlyAmount": 2009000, "cumulativeAmount": 447720000}
+      {
+        "year": 1,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 34440000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 137760000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 241080000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 310188000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 382512000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 410196000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 434448000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 447720000
+      }
     ]
   },
   {
@@ -190,14 +263,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2583000,
     "cumulativeAmount": 495936000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 1640000, "cumulativeAmount": 19680000},
-      {"year": 4,  "monthlyAmount": 1853000, "cumulativeAmount": 89484000},
-      {"year": 7,  "monthlyAmount": 2094000, "cumulativeAmount": 170712000},
-      {"year": 10, "monthlyAmount": 2367000, "cumulativeAmount": 265404000},
-      {"year": 13, "monthlyAmount": 2674000, "cumulativeAmount": 376704000},
-      {"year": 16, "monthlyAmount": 3023000, "cumulativeAmount": 445380000},
-      {"year": 19, "monthlyAmount": 3416000, "cumulativeAmount": 478524000},
-      {"year": 20, "monthlyAmount": 3416000, "cumulativeAmount": 495936000}
+      {
+        "year": 1,
+        "monthlyAmount": 1640000,
+        "cumulativeAmount": 19680000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 1853000,
+        "cumulativeAmount": 89484000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2094000,
+        "cumulativeAmount": 170712000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2367000,
+        "cumulativeAmount": 265404000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2674000,
+        "cumulativeAmount": 376704000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 3023000,
+        "cumulativeAmount": 445380000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 3416000,
+        "cumulativeAmount": 478524000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 3416000,
+        "cumulativeAmount": 495936000
+      }
     ]
   }
 ]');

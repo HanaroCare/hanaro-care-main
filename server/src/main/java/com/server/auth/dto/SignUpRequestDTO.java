@@ -1,6 +1,7 @@
 package com.server.auth.dto;
 
 import com.server.common.validator.LoginId;
+import com.server.common.validator.Password;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -40,7 +41,7 @@ public class SignUpRequestDTO {
   private String userPhone;
 
   @NotBlank(message = "비밀번호는 필수 입력 사항입니다.")
-  @Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하로 입력해주세요.")
-  @Schema(description = "비밀번호", example = "password123")
+  @Password
+  @Schema(description = "비밀번호 (영문+숫자 조합, 8~16자)", example = "test1234")
   private String userPwd;
 }

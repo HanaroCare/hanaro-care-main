@@ -47,11 +47,15 @@ public class AuthController {
 
   @Operation(
       summary = "통합 로그인 API",
-      description = "일반(PASSWORD) 및 간편인증(SIMPLE_PASSWORD, PATTERN, FACEID) 로그인을 통합 처리합니다."
+      description = """
+          일반(PASSWORD) 및 간편인증(SIMPLE_PASSWORD, PATTERN, FACEID) 로그인을 처리합니다.
+          실제 인증은 Spring Security Filter(CustomJsonLoginFilter)가 처리하며,
+          이 메서드는 Swagger 문서화 전용입니다.
+          """
   )
   @PostMapping("/login")
-  public ApiResponse<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-    return ApiResponse.onSuccess(authService.login(request));
+  public ResponseEntity<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+    throw new IllegalStateException("이 메서드는 Security Filter가 가로채야 합니다.");
   }
 
   @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급한다.")
@@ -62,7 +66,14 @@ public class AuthController {
 
   @Operation(
       summary = "휴면 계정 해제 API",
-      description = "본인인증 완료 후 휴면 상태를 해제하고 새 비밀번호를 설정한다."
+      description = """
+          본인인증(SMS) 완료 후 휴면 상태를 해제하고 새 비밀번호를 설정합니다.
+          
+          [인증 절차]
+          1. SMS 인증번호 발송/확인 API를 통해 본인인증을 먼저 완료해야 합니다.
+          2. 테스트 시 등록된 전화번호(01033334444)로 인증이 완료된 상태여야 요청이 성공합니다.
+          3. 새 비밀번호 규칙: 영문+숫자 조합 8~16자 (특수문자 선택)
+          """
   )
   @PostMapping("/unlock-dormant")
   public ResponseEntity<Void> unlockDormant(@Valid @RequestBody UnlockDormantRequestDTO request) {

@@ -34,9 +34,19 @@ public class LoginRequestDTO {
   private LoginMeans means;
 
   /**
-   * 인증 값
+   * 인증 값 (means별 형식 상이) - PASSWORD: 영문+숫자조합 8~16자 - SIMPLE_PASSWORD: 숫자 6자리 - PATTERN: 숫자 4~9자리
+   * FACEID: 비어있지 않은 토큰 문자열
    */
   @NotBlank(message = "인증 값은 필수 입력 사항입니다.")
-  @Schema(description = "인증 수단에 해당하는 값 (일반: 영숫자 비밀번호, 간편: 숫자 6자리)", example = "test1234")
+  @Schema(
+      description = """
+          인증 수단별 입력 형식:
+          PASSWORD → 영문+숫자 8~16자,
+          SIMPLE_PASSWORD → 숫자 6자리,
+          PATTERN → 숫자 4~9자리,
+          FACEID → 비어있지 않은 토큰 문자열
+          """,
+      example = "test1234"
+  )
   private String userPwd;
 }

@@ -10,27 +10,27 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorStatus implements BaseErrorCode {
-    //일반 응답
-    _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
-    _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
-    _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
-    _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
-    // auth
-    AUTH_BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH_001", "아이디 또는 비밀번호가 일치하지 않습니다."),
-    AUTH_DUPLICATE_USERNAME(HttpStatus.CONFLICT, "AUTH_002", "이미 사용 중인 아이디입니다."),
-    AUTH_CERT_REQUIRED(HttpStatus.FORBIDDEN, "AUTH_003", "하나 인증이 완료된 사용자만 간편 로그인을 사용할 수 있습니다."),
-    AUTH_SIMPLE_NOT_REGISTERED(HttpStatus.NOT_FOUND, "AUTH_004", "등록된 인증 정보가 없습니다."),
-    AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH_005", "유효하지 않은 토큰입니다."),
-    AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_006", "토큰이 만료되었습니다."),
-    AUTH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH_007", "토큰이 일치하지 않습니다. 다시 로그인하세요."),
-    AUTH_ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "AUTH_008", "이용이 정지된 계정입니다. 고객센터에 문의해주세요."),
-    AUTH_ACCOUNT_DORMANT(HttpStatus.FORBIDDEN, "AUTH_009", "휴면 계정입니다. 본인인증을 통해 계정을 복구해 주세요."),
-    AUTH_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH_010", "아이디 또는 전화번호가 일치하는 사용자를 찾을 수 없습니다."),
-    // sms
-    SMS_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SMS_001", "인증번호 발송에 실패했습니다. 잠시 후 다시 시도해 주세요."),
-    SMS_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "SMS_002", "인증 시간이 만료되었습니다. 다시 시도해 주세요."),
-    SMS_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "SMS_003", "인증번호가 일치하지 않습니다."),
-    SMS_NOT_VERIFIED(HttpStatus.FORBIDDEN, "SMS_004", "전화번호 인증이 완료되지 않았습니다."),
+  // 일반 응답
+  _INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "COMMON500", "서버 에러, 관리자에게 문의 바랍니다."),
+  _BAD_REQUEST(HttpStatus.BAD_REQUEST, "COMMON400", "잘못된 요청입니다."),
+  _UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "COMMON401", "인증이 필요합니다."),
+  _FORBIDDEN(HttpStatus.FORBIDDEN, "COMMON403", "금지된 요청입니다."),
+  // auth
+  AUTH_BAD_CREDENTIALS(HttpStatus.UNAUTHORIZED, "AUTH_001", "아이디 또는 비밀번호가 일치하지 않습니다."),
+  AUTH_DUPLICATE_USERNAME(HttpStatus.CONFLICT, "AUTH_002", "이미 사용 중인 아이디입니다."),
+  AUTH_CERT_REQUIRED(HttpStatus.FORBIDDEN, "AUTH_003", "하나 인증이 완료된 사용자만 간편 로그인을 사용할 수 있습니다."),
+  AUTH_SIMPLE_NOT_REGISTERED(HttpStatus.NOT_FOUND, "AUTH_004", "등록된 인증 정보가 없습니다."),
+  AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH_005", "유효하지 않은 토큰입니다."),
+  AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_006", "토큰이 만료되었습니다."),
+  AUTH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH_007", "토큰이 일치하지 않습니다. 다시 로그인하세요."),
+  AUTH_ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "AUTH_008", "이용이 정지된 계정입니다. 고객센터에 문의해주세요."),
+  AUTH_ACCOUNT_DORMANT(HttpStatus.FORBIDDEN, "AUTH_009", "휴면 계정입니다. 본인인증을 통해 계정을 복구해 주세요."),
+  AUTH_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_001", "아이디 또는 비밀번호가 일치하지 않습니다."),
+  // sms
+  SMS_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SMS_001", "인증번호 발송에 실패했습니다. 잠시 후 다시 시도해 주세요."),
+  SMS_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "SMS_002", "인증 시간이 만료되었습니다. 다시 시도해 주세요."),
+  SMS_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "SMS_003", "인증번호가 일치하지 않습니다."),
+  SMS_NOT_VERIFIED(HttpStatus.FORBIDDEN, "SMS_004", "전화번호 인증이 완료되지 않았습니다."),
 
   FAMILY_AUTH_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY4041", "가족 권한 정보를 찾을 수 없습니다."),
   FAMILY_AUTH_NOT_APPROVED(HttpStatus.FORBIDDEN, "FAMILY4031", "아직 승인되지 않은 가족 권한입니다."),
