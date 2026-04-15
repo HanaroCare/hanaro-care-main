@@ -2,8 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import {
+  formatKoreanAmount,
+  parseKoreanAmount,
+} from '@/app/asset/constants/trustUtils';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import { formatKoreanAmount, parseKoreanAmount } from '@/app/asset/trust/trustUtils';
 import TrustAmountList from '../TrustAmountList';
 import TrustWizardStep from '../TrustWizardStep';
 
@@ -42,13 +45,13 @@ export default function SelectAssetsStep() {
         </footer>
       }
     >
-      <div className="mt-14">
+      <div className="mt-12">
         <p className="font-bold text-[22px] text-black leading-[1.45] tracking-[-0.02em]">
           <span className="text-hana-ez-600">맡길 자산</span>을
           <br />
           선택해주세요
         </p>
-        <p className="mt-3 text-[#6A7282] text-[12px]">
+        <p className="mt-3 text-[#6A7282] text-[15px]">
           마이데이터로 자동 조회했어요
         </p>
       </div>

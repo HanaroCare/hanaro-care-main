@@ -1,43 +1,61 @@
-export function ScenarioValueCard({
-  label,
-  share,
-  value,
-  selected,
-  onClick,
-  color,
-  bgColor,
-}: {
+type Props = {
   label: string;
-  share: string;
   value: string;
-  selected: boolean;
-  onClick: () => void;
   color: string;
   bgColor: string;
-}) {
+  selected?: boolean;
+  onClick?: () => void;
+  badge?: string;
+};
+
+export function ScenarioValueCard({
+  label,
+  value,
+  color,
+  bgColor,
+  selected = false,
+  onClick,
+  badge,
+}: Props) {
   return (
-    <button
-      type="button"
-      aria-pressed={selected}
-      aria-label={`${label} 시나리오 ${selected ? '선택됨' : '선택 안됨'}`}
-      onClick={onClick}
-      className="flex flex-1 flex-col items-center rounded-3xl px-4 py-3 text-center transition"
-      style={{
-        backgroundColor: selected ? bgColor : '#F3F4F6',
-      }}
-    >
-      <p
-        className="text-[12px] leading-4 font-semibold"
-        style={{ color: selected ? color : '#C0C4CC' }}
+    <div className="relative flex-1 pt-10">
+      {badge ? (
+        <div className="absolute top-0 left-1/2 z-10 -translate-x-1/2">
+          <div
+            className="inline-flex h-8 items-center justify-center whitespace-nowrap rounded-full bg-[#FCECEC] px-7 text-[15px] font-medium text-[#EF4444]"
+            aria-hidden="true"
+          >
+            {badge}
+          </div>
+        </div>
+      ) : null}
+
+      <button
+        type="button"
+        onClick={onClick}
+        aria-pressed={selected}
+        className="flex h-[90px] w-full flex-col items-center justify-center rounded-[18px] px-4 text-center transition outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        style={{
+          backgroundColor: selected ? bgColor : '#F3F4F6',
+          border: selected ? `2px solid ${color}` : '2px solid transparent',
+          boxShadow: selected ? 'none' : undefined,
+        }}
       >
-        {label}({share})
-      </p>
-      <p
-        className="mt-1 text-[14px] leading-5 font-bold"
-        style={{ color: selected ? color : '#B4B8BF' }}
-      >
-        {value}
-      </p>
-    </button>
+        <p
+          className="text-[16px] leading-6 font-semibold"
+          style={{ color: selected ? color : '#111827' }}
+        >
+          {label}
+          {selected && <span className="sr-only">(선택됨)</span>}
+        </p>
+
+        <p
+          className="mt-3 text-[18px] leading-[1] font-bold tracking-tight"
+          style={{ color: selected ? color : '#111827' }}
+        >
+          {value}
+        </p>
+      </button>
+    </div>
   );
 }
