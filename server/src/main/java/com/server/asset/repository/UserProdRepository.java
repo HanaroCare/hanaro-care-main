@@ -11,6 +11,8 @@ public interface UserProdRepository extends JpaRepository<TBUserProd, Long> {
 
   boolean existsByUser_UserIdAndProdTypeAndProdStat(Long userId, ProdType prodType, ProdStat prodStat);
 
+  Optional<TBUserProd> findByUser_UserIdAndProdTypeAndProdStat(Long userId, ProdType prodType, ProdStat prodStat);
+
   Optional<TBUserProd> findByUser_UserIdAndProduct_ProdCateAndProdStat(
       Long userId,
       ProdCate prodCate,

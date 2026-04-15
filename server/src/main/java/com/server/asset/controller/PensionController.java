@@ -2,9 +2,12 @@ package com.server.asset.controller;
 
 import com.server.asset.dto.pension.PensionForecastResponse;
 import com.server.asset.dto.pension.PensionPayoutComparisonResponse;
+import com.server.asset.dto.pension.PensionPayoutHistoryResponse;
 import com.server.asset.dto.pension.PensionSimulationSummaryResponse;
+import com.server.asset.dto.pension.PensionStatusResponse;
 import com.server.asset.service.pension.PensionForecastService;
 import com.server.asset.service.pension.PensionPayoutService;
+import com.server.asset.service.pension.PensionStatusService;
 import com.server.common.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -24,6 +27,107 @@ public class PensionController {
 
 	private final PensionForecastService pensionForecastService;
 	private final PensionPayoutService pensionPayoutService;
+	private final PensionStatusService pensionStatusService;
+
+	@GetMapping("/status")
+	@Operation(
+		summary = "주택연금 운용 현황",
+		description = """
+			가입 중인 주택연금의 이달 수령액, 수령 방식, 누적 수령액 차트를 반환합니다.
+
+			차트 범위: 현재 연차 ~ 현재 + 10년 (최대 20년차)
+			차트 포인트 상태:
+			- CURRENT: 현재 연차 (floor 스냅샷 기준)
+			- FUTURE: 앞으로의 연차
+
+			누적 수령액 계산:
+			- floor 스냅샷 누적액 + 초과 개월 × 이달 수령액으로 보정
+			"""
+	)
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200", description = "조회 성공",
+			content = @Content(examples = @ExampleObject(value = """
+				{
+				  "isSuccess": true,
+				  "code": "COMMON200",
+				  "message": "성공입니다.",
+				  "result": {
+				    "pensionPayoutType": "FIXED",
+				    "pensionPayoutLabel": "정액형",
+				    "startDate": "2026-05-01",
+				    "elapsedYear": 3,
+				    "currentMonthlyPayout": 2050000,
+				    "currentCumulativeAmount": 73800000,
+				    "chartPoints": [
+				      { "year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000,  "status": "CURRENT" },
+				      { "year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000, "status": "FUTURE" },
+				      { "year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000, "status": "FUTURE" },
+				      { "year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000, "status": "FUTURE" }
+				    ]
+				  }
+				}
+				"""))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404", description = "가입된 연금 없음",
+			content = @Content(examples = @ExampleObject(value = """
+				{
+				  "isSuccess": false,
+				  "code": "PENSION_008",
+				  "message": "가입된 주택연금 상품이 없습니다.",
+				  "result": null
+				}
+				"""))
+		)
+	})
+	public ResponseEntity<ApiResponse<PensionStatusResponse>> getStatus(
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getStatus(userId)));
+	}
+
+	@GetMapping("/payout-history")
+	@Operation(
+		summary = "주택연금 수령 내역",
+		description = "가입 시작일부터 현재까지 월별 수령 내역을 최신순으로 반환합니다. DB 저장 없이 계산으로 생성합니다."
+	)
+	@ApiResponses({
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "200", description = "조회 성공",
+			content = @Content(examples = @ExampleObject(value = """
+				{
+				  "isSuccess": true,
+				  "code": "COMMON200",
+				  "message": "성공입니다.",
+				  "result": {
+				    "totalReceivedAmount": 73800000,
+				    "history": [
+				      { "payoutDate": "2029-03-01", "amount": 2050000 },
+				      { "payoutDate": "2029-02-01", "amount": 2050000 },
+				      { "payoutDate": "2029-01-01", "amount": 2050000 }
+				    ]
+				  }
+				}
+				"""))
+		),
+		@io.swagger.v3.oas.annotations.responses.ApiResponse(
+			responseCode = "404", description = "가입된 연금 없음",
+			content = @Content(examples = @ExampleObject(value = """
+				{
+				  "isSuccess": false,
+				  "code": "PENSION_008",
+				  "message": "가입된 주택연금 상품이 없습니다.",
+				  "result": null
+				}
+				"""))
+		)
+	})
+	public ResponseEntity<ApiResponse<PensionPayoutHistoryResponse>> getPayoutHistory(
+		@AuthenticationPrincipal Long userId
+	) {
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getPayoutHistory(userId)));
+	}
 
 	@GetMapping("/{realAssetId}/forecast")
 	@Operation(

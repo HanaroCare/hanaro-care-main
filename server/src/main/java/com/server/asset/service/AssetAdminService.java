@@ -1,16 +1,19 @@
 package com.server.asset.service;
 
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
+import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBProduct;
 import com.server.asset.entity.TBTrustSimulation;
 import com.server.asset.entity.TBUserProd;
+import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.PayoutType;
 import com.server.asset.entity.enums.ProdCate;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.ProductRepository;
+import com.server.asset.repository.TBAccountRepository;
 import com.server.asset.repository.TBPensionSimulationRepository;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
@@ -34,6 +37,7 @@ public class AssetAdminService {
 	private final ProductRepository productRepository;
 	private final TrustMapper trustMapper;
 	private final TBPensionSimulationRepository pensionSimulationRepository;
+	private final TBAccountRepository accountRepository;
 
 	@Transactional
 	public Long subscribeTrustProduct(Long userId) {
@@ -83,6 +87,8 @@ public class AssetAdminService {
 			throw new ApiException(ErrorStatus.PENSION_ALREADY_EXISTS);
 		}
 
+		BigDecimal monthlyPayout = simulation.getRecommendedMonthlyAmt();
+
 		TBUserProd userProd = TBUserProd.builder()
 			.user(user)
 			.product(product)
@@ -91,10 +97,27 @@ public class AssetAdminService {
 			.pensionPayoutType(simulation.getRecommendedType())
 			.prodStat(ProdStat.IN_PROGRESS)
 			.targetAsset(simulation.getRealAsset())
-			.monthlyPayout(simulation.getRecommendedMonthlyAmt())
+			.monthlyPayout(monthlyPayout)
 			.build();
 
-		return userProdRepository.save(userProd).getUserProdId();
+		TBUserProd savedProd = userProdRepository.save(userProd);
+
+		TBAccount account = TBAccount.builder()
+			.user(user)
+			.instNm("한국주택금융공사")
+			.accountNm("주택연금 (" + simulation.getRecommendedType().getDescription() + ")")
+			.accountNum("HF-" + savedProd.getUserProdId())
+			.balanceAmt(BigDecimal.ZERO)
+			.assetCateCd(AssetCategory.PENSION)
+			.profitRate(BigDecimal.ZERO)
+			.payAmt(monthlyPayout)
+			.monthlyPremAmt(BigDecimal.ZERO)
+			.contrDt(userProd.getStartDate())
+			.build();
+
+		accountRepository.save(account);
+
+		return savedProd.getUserProdId();
 	}
 
 	@Transactional
