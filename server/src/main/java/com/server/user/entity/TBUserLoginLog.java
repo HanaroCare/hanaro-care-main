@@ -2,6 +2,7 @@ package com.server.user.entity;
 
 import com.server.common.entity.BaseEntity;
 import com.server.user.enums.LoginMeans;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,14 +16,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -48,14 +51,12 @@ public class TBUserLoginLog extends BaseEntity {
   @Column(name = "USER_MEANS_CD", nullable = false, length = 20)
   private LoginMeans userMeansCd;
 
-  @Builder.Default
-  @Column(name = "USER_RESULT_YN", nullable = false, length = 1)
-  private String userResultYn = "Y";
+  @Column(name = "IS_SUCCESS", nullable = false)
+  private Boolean isSuccess;
 
   @Column(name = "ACCESS_IP_ADDR", length = 50)
   private String accessIpAddr;
 
-  @Column(name = "ACCESS_DEV_NM", length = 255)
+  @Column(name = "ACCESS_DEV_NM")
   private String accessDevNm;
-
 }

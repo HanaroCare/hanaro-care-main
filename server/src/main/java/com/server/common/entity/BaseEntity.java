@@ -12,7 +12,7 @@ import lombok.Getter;
 @MappedSuperclass
 public class BaseEntity extends BaseCreatedEntity{
 	@UpdateTimestamp
-	@Column(columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", nullable = false)
+	@Column(name = "UPDATED_AT", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP", nullable = false)
 	private LocalDateTime updatedAt;
 
 	@Override

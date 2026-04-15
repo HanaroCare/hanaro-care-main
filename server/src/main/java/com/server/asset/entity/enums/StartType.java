@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum StartType {
 	NOW("01", "지금"),
-	SCHEDULED("02", "아플때");
+	SCHEDULED("02", "아플때"),
+	CUSTOM("03", "직접지정");
 
 	private final String code;
 	private final String description;

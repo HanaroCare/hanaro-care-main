@@ -1,8 +1,12 @@
 package com.server.asset.entity;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,8 +18,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,7 +38,7 @@ public class TBAccount extends BaseEntity {
   @Id
   @Tsid
   @Column(name = "ACCOUNT_ID", columnDefinition = "bigint unsigned")
-  private Long id;
+  private Long accountId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID",
@@ -61,7 +63,7 @@ public class TBAccount extends BaseEntity {
   @Column(name = "ASSET_CATE_CD", nullable = false)
   private AssetCategory assetCateCd;
 
-  @Column(name = "PROFIT_RATE", precision = 4, scale = 2)
+  @Column(name = "PROFIT_RATE", precision = 5, scale = 2)
   private BigDecimal profitRate;
 
   @Column(name = "LIMIT_AMT", precision = 13, scale = 2)
