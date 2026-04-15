@@ -1,16 +1,11 @@
 package com.server.asset.service;
 
-import java.math.BigDecimal;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.server.asset.dto.dashboard.AssetDashboardResponse;
 import com.server.asset.dto.dashboard.AssetDashboardResponse.FinancialAssetSummary;
 import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
+import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.mapper.AssetMapper;
 import com.server.asset.repository.TBAccountRepository;
@@ -20,15 +15,27 @@ import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AssetService {
 
-	private final TBAccountRepository tbAccountRepository;
-	private final TBRealAssetRepository tbRealAssetRepository;
-	private final AssetMapper assetMapper;
+  private final TBAccountRepository tbAccountRepository;
+  private final TBRealAssetRepository tbRealAssetRepository;
+  private final AssetMapper assetMapper;
+
+  @CheckUser(key = "#userId")
+  public AssetDashboardResponse getAssetDashboard(Long userId) {
+    BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserIdAndIsLinkedTrue(
+        userId);
+    totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
+
+    List<FinancialAssetSummary> financialAssets = assetMapper.toFinancialAssetSummaryList(
+        tbAccountRepository.findBalanceSumGroupByCategoryByUserIdAndIsLinkedTrue(userId)
+    );
 
 	@CheckUser(key = "#userId")
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
@@ -47,19 +54,19 @@ public class AssetService {
 			tbRealAssetRepository.findAllByUser_UserId(userId)
 		);
 
-		return AssetDashboardResponse.builder()
-			.totalFinancialAmt(totalFinancialAmt)
-			.financialAssets(financialAssets)
-			.realAssets(realAssets)
-			.build();
-	}
+    userAccounts.forEach(account -> {
+      boolean isLinked = accountIds.contains(account.getAccountId());
+      account.setIsLinked(isLinked);
+    });
+  }
 
-	@CheckUser(key = "#userId")
-	public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
-		return assetMapper.toFinancialAssetResponseList(
-			tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNot(userId, AssetCategory.INSURANCE)
-		);
-	}
+  @CheckUser(key = "#userId")
+  public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
+    return assetMapper.toFinancialAssetResponseList(
+        tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNotAndIsLinkedTrue(userId,
+            AssetCategory.INSURANCE)
+    );
+  }
 
 	@CheckUser(key = "#userId")
 	public AssetDetailResponse getRealAssetDetail(Long userId, Long realAssetId) {
