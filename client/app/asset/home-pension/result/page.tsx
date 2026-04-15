@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
@@ -17,54 +17,12 @@ import {
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import InfoBox from '@/components/modules/InfoBox';
 import Header from '@/components/navigation/Header';
-
-type PensionType = 'fixed' | 'boosted' | 'growing';
-
-const pensionOptions = [
-  {
-    key: 'fixed' as const,
-    label: '정액형',
-    color: '#0B666A',
-    infoTitle: '정액형이란?',
-    infoDesc: '고정된 금액을 평생 수령하는 방식이에요',
-    monthlyAmount: '300만원',
-    recommendTitle: '권하나님의 주택 연금 수령 방식은',
-    recommendHighlight: '정액형',
-    recommendSuffix: '으로 추천드립니다.',
-  },
-  {
-    key: 'boosted' as const,
-    label: '초기증액형',
-    color: '#1098A0',
-    infoTitle: '초기증액형이란?',
-    infoDesc: '초기 몇 년간 더 많이 받고 이후에는 줄어드는 방식이에요',
-    monthlyAmount: '280만원',
-    recommendTitle: '권하나님의 주택 연금 수령 방식은',
-    recommendHighlight: '초기증액형',
-    recommendSuffix: '으로 추천드립니다.',
-  },
-  {
-    key: 'growing' as const,
-    label: '정기증가형',
-    color: '#13C2C9',
-    infoTitle: '정기증가형이란?',
-    infoDesc: '시간이 지날수록 월 수령액이 점차 증가하는 방식이에요',
-    monthlyAmount: '350만원',
-    recommendTitle: '권하나님의 주택 연금 수령 방식은',
-    recommendHighlight: '정기증가형',
-    recommendSuffix: '으로 추천드립니다.',
-  },
-];
-
-const chartData = [
-  { year: '1년', fixed: 100, boosted: 800, growing: 100 },
-  { year: '4년', fixed: 1000, boosted: 1300, growing: 700 },
-  { year: '7년', fixed: 1900, boosted: 1800, growing: 1300 },
-  { year: '10년', fixed: 2800, boosted: 2300, growing: 1900 },
-  { year: '13년', fixed: 3600, boosted: 2800, growing: 2500 },
-  { year: '16년', fixed: 4400, boosted: 3300, growing: 3100 },
-  { year: '19년', fixed: 5100, boosted: 3900, growing: 3800 },
-];
+import {
+  chartData,
+  type PensionType,
+  pensionOptions,
+  pensionPeriodAmounts,
+} from '../../constants/constants';
 
 function LegendDot({ color }: { color: string }) {
   return (
@@ -72,66 +30,6 @@ function LegendDot({ color }: { color: string }) {
       className="inline-block h-3.5 w-3.5 rounded-full"
       style={{ backgroundColor: color }}
     />
-  );
-}
-
-function MonthlyAmountCard({
-  label,
-  value,
-  color,
-}: {
-  label: string;
-  value: string;
-  color: string;
-}) {
-  return (
-    <motion.div
-      key={label}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.28, ease: 'easeOut' }}
-      className="rounded-4xl bg-[#EAF8F7] px-6 py-6"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <span
-            className="h-3.5 w-3.5 rounded-full"
-            style={{ backgroundColor: color }}
-          />
-          <span className="text-[16px] leading-6 font-semibold tracking-tight text-[#0F172A]">
-            {label}
-          </span>
-        </div>
-
-        <span
-          className="text-[18px] leading-7 font-bold tracking-tight"
-          style={{ color }}
-        >
-          {value}
-        </span>
-      </div>
-    </motion.div>
-  );
-}
-
-function AnimatedRangeBar({ color }: { color: string }) {
-  return (
-    <div className="mt-4">
-      <div className="h-4 w-full rounded-full bg-[#E5E7EB] overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: '22%' }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-          className="h-full rounded-full"
-          style={{ backgroundColor: color }}
-        />
-      </div>
-
-      <div className="mt-3 flex items-center justify-between text-[14px] leading-5 font-medium text-[#6B7280]">
-        <span>1년 후</span>
-        <span>20년 후</span>
-      </div>
-    </div>
   );
 }
 
@@ -144,37 +42,38 @@ export default function PensionTypeComparePage() {
     [selectedType],
   );
 
+  const periodAmount = pensionPeriodAmounts[selectedType];
+
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
         <Header
-          title="주택 연금"
+          title="맞춤형 수령 방식 추천"
           showCloseButton
           onClose={() => router.push('/asset/simulator' as Route)}
         />
         <main className="app-main no-scrollbar px-5 pt-10 pb-6">
           <section>
+            {/* 상단 추천 섹션 */}
             <div>
               <p className="text-[17px] leading-7 font-semibold tracking-tight text-[#4B5563]">
                 {current.recommendTitle}
               </p>
               <p
-                className="text-[28px] leading-10 font-bold tracking-tight"
+                className="text-[28px] leading-12 font-bold tracking-tight"
                 style={{ color: current.color }}
               >
                 {current.recommendHighlight}
-              </p>
-              <p className="text-[17px] leading-7 font-medium tracking-tight text-[#4B5563]">
-                {current.recommendSuffix}
               </p>
             </div>
 
             <InfoBox
               title={current.infoTitle}
               desc={current.infoDesc}
-              className="mt-6"
+              className="mt-2"
             />
 
+            {/* 탭 버튼 */}
             <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
               {pensionOptions.map((item) => (
                 <button
@@ -196,9 +95,10 @@ export default function PensionTypeComparePage() {
               ))}
             </div>
 
-            <div className="mt-6 rounded-[24px] border border-[#E5E7EB] bg-white px-5 py-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
+            {/* 누적 연금 추이 그래프 (복구 완료) */}
+            <div className="mt-4 rounded-[24px] border border-[#E5E7EB] bg-white px-5 py-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
               <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
-                수령 방식별 추이
+                수령 방식별 누적 연금
               </p>
 
               <div className="mt-5 h-[300px] w-full">
@@ -241,6 +141,7 @@ export default function PensionTypeComparePage() {
                       content={() => null}
                     />
 
+                    {/* 누적 데이터를 보여주는 Area 컴포넌트들 */}
                     <Area
                       type="linear"
                       dataKey="fixed"
@@ -294,33 +195,68 @@ export default function PensionTypeComparePage() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-[24px] border border-[#E5E7EB] bg-white px-5 py-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
-              <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
-                방식별 예상 월 수령액
+            {/* 하단 기간별 예상 월 수령액 섹션 (제안 디자인 적용) */}
+            <div className="mt-10">
+              <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937] px-1">
+                기간별 예상 월 수령액
               </p>
 
-              <AnimatedRangeBar color={current.color} />
+              <div className="mt-5 flex flex-col gap-4">
+                <AnimatePresence mode="wait">
+                  {[
+                    { year: '10', amount: periodAmount.year10 },
+                    { year: '20', amount: periodAmount.year20 },
+                    { year: '30', amount: periodAmount.year30 },
+                  ].map((item, index) => (
+                    <motion.div
+                      key={`${selectedType}-${item.year}`}
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      transition={{
+                        duration: 0.35,
+                        delay: index * 0.1,
+                        ease: 'easeOut',
+                      }}
+                      className="rounded-[24px] bg-[#F0FDFD] px-7 py-6 border border-[#CCFBF1] transition-all hover:bg-white hover:shadow-md"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="relative flex h-2 w-2">
+                            <span
+                              className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
+                              style={{ backgroundColor: current.color }}
+                            ></span>
+                            <span
+                              className="relative inline-flex rounded-full h-2 w-2"
+                              style={{ backgroundColor: current.color }}
+                            ></span>
+                          </div>
+                          <span className="text-[17px] leading-7 font-bold tracking-tight text-[#111827]">
+                            {item.year}년 뒤
+                          </span>
+                        </div>
 
-              <div className="mt-7">
-                <MonthlyAmountCard
-                  label={current.label}
-                  value={current.monthlyAmount}
-                  color={current.color}
-                />
+                        <span
+                          className="text-[19px] font-black tracking-tight"
+                          style={{ color: current.color }}
+                        >
+                          {item.amount}
+                        </span>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             </div>
           </section>
         </main>
+
         <DualActionFooter
           leftLabel="결과 저장하기"
           rightLabel="상담 예약하기"
-          onLeftClick={() => {
-            // TODO: 저장 로직
-          }}
-          onRightClick={() => {
-            // TODO: 상담 페이지 이동
-            // router.push('/some-path' as Route);
-          }}
+          onLeftClick={() => {}}
+          onRightClick={() => {}}
         />
       </div>
     </div>

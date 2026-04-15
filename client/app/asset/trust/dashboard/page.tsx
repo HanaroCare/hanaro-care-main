@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import InfoBox from '@/components/modules/InfoBox';
+import Header from '@/components/navigation/Header';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { ActionPanelCard } from '../../components/trust/ActionPanelCard';
 import { AssetDetailCard } from '../../components/trust/AssetDetailCard';
@@ -14,6 +15,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-white pb-20">
+      <Header title="신탁 운용 현황" showBackButton />
       <div className="space-y-4 p-4">
         <AssetSummaryCard />
         <AssetDetailCard />

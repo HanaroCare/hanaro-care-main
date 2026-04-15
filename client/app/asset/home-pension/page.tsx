@@ -1,4 +1,5 @@
 'use client';
+
 import { CircleCheck } from 'lucide-react';
 import type { Route } from 'next';
 import Image from 'next/image';
@@ -8,10 +9,24 @@ import ConfirmModal from '@/components/modules/ConfirmModal';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
 
-const benefits = [
-  'KB시세가 있는 아파트',
-  '나를 위한 맞춤형 주택 매각 계획 알기',
-  '영업점 방문 없이 모바일로 간편하게',
+interface BenefitItem {
+  title: string;
+  description: string;
+}
+
+const mainBenefits: BenefitItem[] = [
+  {
+    title: '평생 거주 + 평생 지급',
+    description: '내 집에서 계속 살면서, 평생 매달 연금을 받아요',
+  },
+  {
+    title: '집값이 내려가도 연금은 그대로',
+    description: '나중에 집값이 떨어져도 정해진 연금액은 국가가 보증해요',
+  },
+  {
+    title: '남은 집값은 자녀에게 상속',
+    description: '받아온 연금보다 집값이 비싸면 차액은 자녀에게 상속돼요',
+  },
 ];
 
 export default function HomePensionPage() {
@@ -22,56 +37,74 @@ export default function HomePensionPage() {
     <div className="app-shell">
       <div className="app-layout relative bg-white">
         <Header title="주택 연금" />
+
         <main className="app-main no-scrollbar">
-          <section className="px-7 pt-9">
-            <p className="mb-2 text-[12px] leading-[18px] font-normal text-[#6A7282]">
-              하나은행 주택연금
-            </p>
+          <section className="px-6.25 pt-6">
+            {/* 상단 텍스트 영역 */}
+            <div className="flex flex-col">
+              <p className="mb-1 font-normal text-[#6A7282] text-[12px] leading-4.5">
+                하나은행 주택연금
+              </p>
 
-            <h2 className="text-[28px] leading-[42px] font-bold tracking-[-0.03em] text-[#101828]">
-              신청부터 약정까지
-              <br />
-              모바일로 간편하게
-            </h2>
+              <h1 className="m-0 font-bold text-[#101828] text-[28px] leading-10.5">
+                평생 내 집에서
+                <br />
+                매달 든든한 월급 받기
+              </h1>
+            </div>
 
-            <div className="mt-9 flex justify-center">
+            {/* 중앙 일러스트 영역 */}
+            <div className="mt-10 flex justify-center">
               <Image
-                src="/images/asset/housing.svg"
+                src="/images/asset/housing.svg" // 사진 속 3D 건물 이미지와 유사한 경로
                 alt="주택연금 건물 일러스트"
-                width={210}
-                height={180}
-                className="h-[180px] w-[210px] object-contain"
+                width={240}
+                height={200}
+                className="h-[200px] w-[240px] object-contain"
                 priority
               />
             </div>
 
-            <div className="mt-5 rounded-[24px] bg-hana-silver-50 px-6 py-6">
-              <div className="flex flex-col gap-5">
-                {benefits.map((item) => (
-                  <div key={item} className="flex items-center gap-3">
-                    <CircleCheck
-                      size={20}
-                      className="shrink-0 text-[#5E6B7A]"
-                    />
-                    <p className="text-[16px] leading-6 font-medium tracking-[-0.02em] text-[#4B5563]">
-                      {item}
-                    </p>
-                  </div>
-                ))}
-              </div>
+            {/* 수령액 안내 */}
+            <div className="mt-5">
+              <p className="text-[15px] leading-6 font-medium text-[#4B5563]">
+                지금 가입하면 평생 동안 최대
+              </p>
+              <p className="mt-2 text-[30px] leading-[44px] font-extrabold tracking-[-0.02em] text-[#111827]">
+                4억원 수령
+              </p>
             </div>
 
+            {/* 장점 리스트 섹션 */}
             <div className="mt-5">
-              <p className="text-[13px] leading-5 font-normal text-[#9CA3AF]">
-                최대 한도
-              </p>
-              <p className="mt-1 text-[22px] leading-8 font-bold tracking-[-0.02em] text-[#111827]">
-                4억원
-              </p>
+              <h2 className="mb-3 ml-1.5 font-medium text-[16px] text-black leading-6 tracking-[-0.64px]">
+                이런 점이 좋아요
+              </h2>
+              <div className="rounded-[24px] bg-[#F3F4F6] px-6 py-8">
+                <div className="flex flex-col gap-8">
+                  {mainBenefits.map((benefit) => (
+                    <div
+                      key={benefit.title}
+                      className="flex items-start gap-2.25"
+                    >
+                      <div className="mt-0.5 shrink-0">
+                        <CircleCheck size={20} className="text-[#4A5565]" />
+                      </div>
+
+                      <div className="flex flex-col gap-0.5">
+                        <p className="m-0 font-medium text-[16px] text-hana-black-800 leading-5.5 tracking-[-0.04em]">
+                          {benefit.title}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         </main>
 
+        {/* 하단 버튼 영역 */}
         <DualActionFooter
           leftLabel="상담 신청"
           rightLabel="설계해보기"
@@ -81,6 +114,7 @@ export default function HomePensionPage() {
           }}
         />
 
+        {/* 모달 */}
         <ConfirmModal
           isOpen={showEmptyModal}
           title={

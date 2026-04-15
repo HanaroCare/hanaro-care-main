@@ -66,9 +66,6 @@ export default function TrustPage() {
                     <p className="m-0 font-medium text-[16px] text-hana-black-800 leading-5.5 tracking-[-0.04em]">
                       {benefit.title}
                     </p>
-                    <p className="m-0 font-normal text-[12px] text-hana-black-800 leading-4.5 tracking-[-0.04em]">
-                      {benefit.desc}
-                    </p>
                   </div>
                 </div>
               ))}

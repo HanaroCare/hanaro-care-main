@@ -1,6 +1,5 @@
 'use client';
 
-import { AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -9,10 +8,14 @@ import { ForecastChart } from '../../components/home-pension/ForecastChart';
 import { ForecastLegend } from '../../components/home-pension/ForecastLegend';
 import { ScenarioValueCard } from '../../components/home-pension/ScenarioValueCard';
 import {
-  chartDataByPeriod,
+  aiDescriptionMap,
+  aiPredictionLabel,
+  fullForecastChartData,
   type PeriodKey,
   periodOptions,
+  periodYearMap,
   type ScenarioKey,
+  scenarioDescriptionMap,
   scenarioMeta,
 } from '../../constants/constants';
 
@@ -26,54 +29,36 @@ export default function HomeValueForecastPage() {
   const [period, setPeriod] = useState<PeriodKey>('5');
   const [selectedScenario, setSelectedScenario] = useState<ScenarioKey>('bull');
 
-  const chartData = useMemo(() => chartDataByPeriod[period], [period]);
+  const chartData = fullForecastChartData;
+
+  const selectedPoint = useMemo(() => {
+    const targetYear = periodYearMap[period];
+    return chartData.find((item) => item.year === targetYear);
+  }, [period, chartData]);
 
   const currentValues = useMemo(() => {
-    const last = chartData[chartData.length - 1];
-
     return {
-      bull: formatEok(last?.bull),
-      base: formatEok(last?.base),
-      bear: formatEok(last?.bear),
+      bull: formatEok(selectedPoint?.bull),
+      base: formatEok(selectedPoint?.base),
+      bear: formatEok(selectedPoint?.bear),
     };
-  }, [chartData]);
+  }, [selectedPoint]);
 
-  const summaryText = useMemo(() => {
-    if (selectedScenario === 'bull') {
-      return {
-        title: '낙관 (집값 상승)',
-        desc1: `${period}년 후 매도 → 약 ${currentValues.bull} 예상돼요!`,
-        desc2: `${period}년 후 매각을 추천해요!`,
-      };
-    }
+  const fixedAiScenario = aiPredictionLabel[period];
+  const fixedAiSummary = aiDescriptionMap[period][fixedAiScenario];
+  const aiMainValue = currentValues[fixedAiScenario];
 
-    if (selectedScenario === 'base') {
-      return {
-        title: '중립 (현상 유지)',
-        desc1: '안정 수입을 원하시면',
-        desc2: '연금을 추천해요!',
-      };
-    }
-
-    return {
-      title: '비관 (집값 정체)',
-      desc1: '매도보다 연금 총액이 더 많아요',
-      desc2: '연금이 유리해요!',
-    };
-  }, [selectedScenario, period, currentValues]);
-
-  const currentScenario = scenarioMeta[selectedScenario];
+  // 현재 사용자가 클릭해서 보고 있는 시나리오의 정보 (추천 문구 포함)
+  const scenarioGuide = scenarioDescriptionMap[selectedScenario];
 
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
-        <Header title="집값 예측" />
-        <main className="app-main no-scrollbar px-5 pt-7 pb-6">
-          <section>
-            <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
-              하나 AI 기반 예측
-            </p>
+        <Header title="집값 예측" isCloseButton />
 
+        <main className="app-main no-scrollbar px-5 pt-1 pb-6">
+          <section>
+            {/* 기간 선택 탭 */}
             <div className="mt-4 rounded-[14px] border border-[#D8DCE3] p-1">
               <div className="grid grid-cols-3 gap-0">
                 {periodOptions.map((item) => {
@@ -85,7 +70,7 @@ export default function HomeValueForecastPage() {
                       onClick={() => setPeriod(item.key)}
                       className={`h-10 rounded-[10px] text-[14px] leading-5 font-semibold transition ${
                         active
-                          ? 'bg-hana-ez-600 text-white'
+                          ? 'bg-hana-ez-600 text-white shadow-sm'
                           : 'bg-white text-[#6B7280]'
                       }`}
                     >
@@ -96,114 +81,105 @@ export default function HomeValueForecastPage() {
               </div>
             </div>
 
-            <div className="mt-6">
-              <ForecastChart data={chartData} />
-              <ForecastLegend />
+            {/* AI 예측 핵심 대시보드 */}
+            <div className="mt-5 overflow-hidden rounded-[28px] border border-[#E5E7EB] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+              <div className="px-6 py-5.5 text-center border-b border-[#F3F4F6]">
+                <p className="text-[17px] font-semibold text-[#6B7280]">
+                  AI가 예측하는 우리집 미래 가치는?
+                </p>
+                <div className="mt-1 flex flex-col items-center justify-center">
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-[40px] font-black tracking-tighter text-[#111827]">
+                      {aiMainValue.replace('억', '')}
+                    </span>
+                    <span className="text-[22px] font-bold text-[#111827]">
+                      억 원
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {
-              <div className="mt-5 rounded-[24px] bg-[#EAF8F7] px-6 py-6 text-center">
-                <p className="text-[14px] leading-5 font-medium text-hana-ez-600">
-                  {period}년 뒤 집값이
-                </p>
-                <p className="mt-2 text-[20px] leading-7 font-bold text-hana-ez-600">
-                  8.8억~9.0억일 확률이
-                </p>
-                <p className="text-[20px] leading-7 font-bold text-hana-red-500">
-                  가장 높아요!
-                </p>
+            {/* 차트 영역 */}
+            <div className="mt-4">
+              <ForecastChart data={chartData} />
+              <div className="mt-2 border-t border-[#F3F4F6] pt-2">
+                <ForecastLegend />
               </div>
-            }
+            </div>
 
-            <div className="mt-6">
+            {/* 시나리오 선택 섹션 */}
+            <div className="mt-8">
               <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
                 {period}년 후 예상 시세
               </p>
-
               <div className="mt-3 flex gap-3">
                 {(['bull', 'base', 'bear'] as ScenarioKey[]).map((key) => (
                   <ScenarioValueCard
                     key={key}
                     label={scenarioMeta[key].label}
-                    share={scenarioMeta[key].share}
                     value={currentValues[key]}
                     color={scenarioMeta[key].color}
                     bgColor={scenarioMeta[key].bgColor}
                     selected={selectedScenario === key}
                     onClick={() => setSelectedScenario(key)}
+                    badge={fixedAiScenario === key ? 'AI 예상' : undefined}
                   />
                 ))}
               </div>
             </div>
 
-            <div className="mt-6">
-              <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
-                AI 추천
-              </p>
-
-              <div className="mt-3">
-                <div className="inline-flex items-center rounded-full bg-[#EFE7C8] px-3 py-1">
-                  <span className="text-[11px] leading-4 font-medium text-[#8B7441]">
-                    • 부정확할 수 있어요
-                  </span>
-                </div>
-              </div>
-
-              <div
-                className="mt-4 rounded-[20px] px-5 py-5"
-                style={{ backgroundColor: currentScenario.bgColor }}
+            {/* 시나리오 상세 설명 박스 */}
+            <div
+              className="mt-4 rounded-[18px] px-5 py-5 transition-all duration-300"
+              style={{
+                backgroundColor: scenarioMeta[selectedScenario].bgColor,
+              }}
+            >
+              <p
+                className="text-[15px] font-bold"
+                style={{ color: scenarioMeta[selectedScenario].color }}
               >
-                <p
-                  className="text-[18px] leading-7 font-bold tracking-tight"
-                  style={{ color: currentScenario.color }}
-                >
-                  {summaryText.title}
-                </p>
+                {scenarioGuide.title}
+              </p>
+              <p
+                className="mt-2 text-[13px] leading-5 font-medium whitespace-pre-wrap opacity-90"
+                style={{ color: scenarioMeta[selectedScenario].color }}
+              >
+                {scenarioGuide.desc}
+              </p>
+            </div>
 
-                <p
-                  className="mt-3 text-[14px] leading-6 font-medium"
-                  style={{ color: currentScenario.color }}
-                >
-                  {summaryText.desc1}
+            {/* AI 예측 근거 (고정 시나리오 기준) */}
+            <div className="mt-8">
+              <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
+                AI 예측 근거
+              </p>
+              <div className="mt-4 rounded-[20px] px-6 py-6 bg-[#F3F4F6] border border-[#E5E7EB]">
+                <p className="text-[17px] leading-7 font-bold text-[#111827]">
+                  {fixedAiSummary.title}
+                </p>
+                <p className="mt-3 text-[14px] leading-6 font-medium text-[#4B5563] opacity-90">
+                  {fixedAiSummary.desc1}
                   <br />
-                  {summaryText.desc2}
+                  {fixedAiSummary.desc2}
                 </p>
               </div>
             </div>
 
-            <div className="mt-6 rounded-[20px] border border-[#E5E7EB] bg-white px-5 py-5">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-hana-ez-600 text-white">
-                  <AlertCircle size={12} />
-                </div>
-
-                <div className="flex-1">
-                  <p className="text-[13px] leading-5 font-medium text-[#4B5563]">
-                    매각이랑 주택연금을 서로 비교해보고 싶나요?
-                  </p>
-
-                  <button
-                    type="button"
-                    className="mt-3 rounded-full bg-[#EAF8F7] px-4 py-2 text-[13px] leading-5 font-semibold text-hana-ez-600"
-                    onClick={() => {
-                      router.push('/asset/home-pension/compare');
-                    }}
-                  >
-                    → 주택 매각 vs 연금 비교해보러 가기
-                  </button>
-                </div>
-              </div>
+            <div className="mt-6 rounded-[20px] bg-[#FFF1F2] px-6 py-4 text-center border border-[#FECDD3]">
+              <p className="text-[15px] leading-6 font-bold text-hana-red-500 whitespace-pre-wrap">
+                {scenarioGuide.recommendation}
+              </p>
             </div>
           </section>
         </main>
 
-        <footer className="shrink-0 bg-white px-5 pb-6 pt-3">
+        <footer className="sticky bottom-0 shrink-0 bg-white/95 backdrop-blur-sm px-5 pb-8 pt-4 border-t border-[#F3F4F6]">
           <PrimaryButton
-            label="주택 연금 시뮬레이션"
-            className="h-14 rounded-2xl text-[16px] leading-6"
-            onClick={() => {
-              router.push('/asset/home-pension/result');
-            }}
+            label="최적화된 주택 연금 수령방식 보기"
+            className="h-14 rounded-2xl text-[16px] leading-6 font-bold"
+            onClick={() => router.push('/asset/home-pension/result')}
           />
         </footer>
       </div>
