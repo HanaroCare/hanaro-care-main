@@ -1,5 +1,6 @@
 package com.server.inheritance.service;
 
+import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.inheritance.dto.InheritanceSummaryDto;
@@ -41,6 +42,7 @@ public class LetterService {
   String baseUrl;
 
   // 상속비율 및 가족 조회
+  @CheckUser(key = "#userId")
   public List<InheritanceSummaryDto> getInheritanceInfo(Long userId) {
 
     TBInheritPlan plan = inheritPlanRepository.findByUser_UserId(userId)
@@ -57,6 +59,8 @@ public class LetterService {
   }
 
   // 편지 생성
+  @Transactional
+  @CheckUser(key = "#userId")
   public void sendLetter(Long userId, LetterRequestDto dto, MultipartFile voice)
       throws IOException {
     TBInheritDetail detail = inheritDetailRepository.findById(dto.getInheritDetailId())
@@ -84,6 +88,7 @@ public class LetterService {
   }
 
   // 편지 조회
+  @CheckUser(key = "#userId")
   public LetterResponseDto getLetter(Long userId, Long inheritDetailId) {
 
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
@@ -120,6 +125,7 @@ public class LetterService {
   }
 
   @Transactional
+  @CheckUser(key = "#userId")
   public Long deleteLetter(Long userId, Long inheritDetailId) {
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
