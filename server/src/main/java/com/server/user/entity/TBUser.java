@@ -1,8 +1,8 @@
 package com.server.user.entity;
 
+import com.server.user.enums.LoginMeans;
 import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
-
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +10,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,7 +33,10 @@ public class TBUser {
   @Column(name = "USER_ID", columnDefinition = "bigint unsigned")
   private Long userId;
 
-  @Column(name = "USER_NM", nullable = false, length = 20, unique = true)
+  @Column(name = "LOGIN_ID", nullable = false, unique = true, length = 20)
+  private String loginId;
+
+  @Column(name = "USER_NM", nullable = false, length = 20)
   private String userNm;
 
   @Column(name = "USER_AGE", nullable = false)
@@ -57,6 +61,17 @@ public class TBUser {
 
   @Builder.Default
   @Enumerated(EnumType.STRING)
+  @Column(name = "AUTH_MEANS_CD", nullable = false, length = 20)
+  private LoginMeans authMeansCd = LoginMeans.PASSWORD; // 기본값은 일반 로그인
+
+  @Builder.Default
+  @Enumerated(EnumType.STRING)
   @Column(name = "USER_ROLE", nullable = false, length = 20)
   private SubscriberRole userRole = SubscriberRole.ROLE_USER;
+
+  @Column(name = "LAST_LOGIN_AT")
+  private LocalDateTime lastLoginAt;
+
+  @Column(name = "PWD_CHANGED_AT")
+  private LocalDateTime pwdChangedAt;
 }

@@ -57,9 +57,6 @@ public class TBFamilyAuth extends BaseEntity {
   @Column(name = "IS_INS_VIEW", nullable = false)
   private Boolean isInsView = false;
 
-  @Column(name = "AUTH_STATUS", nullable = false)
-  private Boolean authStatus; // BOOLEAN (true: 승인, false: 거절/대기)
-
   @Enumerated(EnumType.STRING)
   @Column(name = "RELATION_CD", nullable = false)
   private FamilyRelation relationCd; // ENUM (01: 배우자, 02: 자녀, 03: 부모, 04: 기타 가족)
