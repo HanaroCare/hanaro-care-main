@@ -1,8 +1,11 @@
 package com.server.user.entity;
 
+import java.time.LocalDateTime;
+
 import com.server.user.enums.LoginMeans;
 import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
+
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,7 +13,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +26,7 @@ import lombok.ToString;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString(exclude = {"userAddr", "userPhone", "userPwd"})
 @Table(name = "TB_USER")
 public class TBUser {
 
@@ -32,9 +34,6 @@ public class TBUser {
   @Tsid
   @Column(name = "USER_ID", columnDefinition = "bigint unsigned")
   private Long userId;
-
-  @Column(name = "LOGIN_ID", nullable = false, unique = true, length = 20)
-  private String loginId;
 
   @Column(name = "USER_NM", nullable = false, length = 20)
   private String userNm;
@@ -44,6 +43,9 @@ public class TBUser {
 
   @Column(name = "USER_PHONE", nullable = false, length = 11)
   private String userPhone;
+
+  @Column(name = "USER_ADDR", length = 255)
+  private String userAddr;
 
   @Column(name = "USER_PWD", nullable = false)
   private String userPwd;

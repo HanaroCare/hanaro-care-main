@@ -19,5 +19,11 @@ services:
       - --log_bin_trust_function_creators=1
       - --innodb_ft_server_stopword_table=hanacare/StopWord
 
-#    volumes:
-#      - ./mysql:/var/lib/mysql
+  redis:
+    container_name: hanacare-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    environment:
+      - TZ=Asia/Seoul
+    command: redis-server --save 60 1 --loglevel warning
