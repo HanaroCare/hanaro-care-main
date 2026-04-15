@@ -20,6 +20,26 @@ type SimulationTrendChartProps = {
 };
 
 export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
+  const isLarge = data.length >= 6;
+  const bottomMargin = isLarge ? 30 : 0;
+
+  const renderExpenseLabel = (props: any) => {
+    const { x, y, value, index } = props;
+    if (isLarge && index % 2 !== 0) return null;
+    return (
+      <text
+        x={x}
+        y={y - 12}
+        textAnchor="middle"
+        fontSize={12}
+        fontWeight={500}
+        fill="var(--color-hana-red-500)"
+      >
+        {`${value}만원`}
+      </text>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -30,7 +50,7 @@ export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
-            margin={{ top: 40, right: 20, left: 20, bottom: 0 }}
+            margin={{ top: 40, right: 20, left: 20, bottom: bottomMargin }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -41,7 +61,12 @@ export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
               dataKey="age"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: 'var(--color-hana-black-500)' }}
+              tick={
+                isLarge
+                  ? { fontSize: 11, fill: 'var(--color-hana-black-500)', textAnchor: 'end' }
+                  : { fontSize: 12, fill: 'var(--color-hana-black-500)' }
+              }
+              angle={isLarge ? -35 : 0}
               interval={0}
               padding={{ left: 20, right: 20 }}
             />
@@ -54,13 +79,7 @@ export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
               dot={{ r: 5, fill: 'var(--color-hana-red-500)', strokeWidth: 0 }}
               activeDot={{ r: 7, fill: 'var(--color-hana-red-500)' }}
             >
-              <LabelList
-                dataKey="expense"
-                position="top"
-                offset={12}
-                formatter={(v: any) => `${v}만원`}
-                style={{ fontSize: 12, fontWeight: 500, fill: 'var(--color-hana-red-500)' }}
-              />
+              <LabelList dataKey="expense" content={renderExpenseLabel} />
             </Line>
           </LineChart>
         </ResponsiveContainer>
