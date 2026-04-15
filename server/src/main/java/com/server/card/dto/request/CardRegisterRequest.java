@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.Getter;
 
 @Getter
@@ -31,4 +32,7 @@ public class CardRegisterRequest {
   @Pattern(regexp = "^[A-E]$", message = "디자인 코드는 A~E 중 하나여야 합니다.")
   @Schema(description = "카드 디자인 코드 (A~E)", example = "A")
   private String designCd;
+
+  @Schema(description = "카드 공유할 가족 권한 ID 목록", example = "[1, 2]")
+  private List<Long> familyAuthIds;
 }

@@ -7,6 +7,7 @@ TRUNCATE TABLE TB_USER_PROD;
 TRUNCATE TABLE TB_USER_LOGIN_LOG;
 TRUNCATE TABLE TB_FAMILY_AUTH;
 TRUNCATE TABLE TB_CARD;
+TRUNCATE TABLE TB_CARD_USAGE;
 TRUNCATE TABLE TB_ASSET_SIMULATION;
 TRUNCATE TABLE TB_TRUST_SIMULATION;
 TRUNCATE TABLE TB_PENSION_SIMULATION;
@@ -105,9 +106,35 @@ VALUES (3001, 1001, '역삼동 아파트', 'REAL_ESTATE', 920000000.00, '서울 
 -- ========================
 -- TB_CARD
 -- ========================
-INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE)
-VALUES (4001, 2001, '하나 시니어 행복카드', 5000000.00, 0.00, 1),
-       (4002, 2001, '하나 요양비 전용카드', 2000000.00, 500000.00, 1);
+INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE, BALANCE_AMT)
+VALUES (4001, 2001, '한금순 요양보호사 간병비 카드', 5000000.00, 0.00, 1, 320000.00),
+       (4002, 2001, '최고운 요양보호사 생활비 카드', 2000000.00, 500000.00, 1, 150000.00);
+
+-- ========================
+-- TB_CARD_USAGE
+-- ========================
+INSERT INTO TB_CARD_USAGE (CARD_USAGE_ID, CARD_ID, USAGE_NM, USAGE_LOC, USAGE_TYPE_CD, USAGE_AMT, ABNML_YN, APRVL_YN)
+VALUES
+    (9001, 4001, '강남성심병원', '서울 강남구 도곡동', 'SPEND', 25000.00, 'N', 'Y'),
+    (9002, 4001, '홍길동', NULL, 'CHARGE', 300000.00, 'N', 'Y'),
+    (9003, 4001, '네일샵 강남점', '서울 강남구 강남대로', 'SPEND', 45000.00, 'Y', 'Y'),
+    (9004, 4001, '삼성서울병원 약국', '서울 강남구 일원동', 'SPEND', 18500.00, 'N', 'Y'),
+    (9005, 4001, '강남구보건소', '서울 강남구 삼성동', 'SPEND', 5000.00, 'N', 'Y'),
+    (9006, 4001, '온누리약국 역삼점', '서울 강남구 역삼동', 'SPEND', 12800.00, 'N', 'Y'),
+    (9007, 4001, '노래방 강남점', '서울 강남구 역삼동', 'SPEND', 35000.00, 'Y', 'Y'),
+    (9008, 4001, '의료기기센터 강남', '서울 강남구 논현동', 'SPEND', 45000.00, 'N', 'Y'),
+    (9009, 4001, '강남재활의학과', '서울 강남구 역삼동', 'SPEND', 32000.00, 'N', 'Y'),
+    (9010, 4001, '한마음약국', '서울 강남구 대치동', 'SPEND', 9500.00, 'N', 'Y'),
+    (9011, 4002, '이마트 도곡점', '서울 강남구 도곡동', 'SPEND', 62000.00, 'N', 'Y'),
+    (9012, 4002, '홍길동', NULL, 'CHARGE', 200000.00, 'N', 'Y'),
+    (9013, 4002, 'GS25 역삼점', '서울 강남구 역삼동', 'SPEND', 7500.00, 'N', 'Y'),
+    (9014, 4002, '올리브영 강남점', '서울 강남구 강남대로', 'SPEND', 28000.00, 'N', 'Y'),
+    (9015, 4002, '코리아마트 논현점', '서울 강남구 논현동', 'SPEND', 41000.00, 'N', 'Y'),
+    (9016, 4002, '홍길동', NULL, 'CHARGE', 150000.00, 'N', 'Y'),
+    (9017, 4002, 'CU 논현점', '서울 강남구 논현동', 'SPEND', 5800.00, 'N', 'Y'),
+    (9018, 4002, '롯데마트 강남점', '서울 강남구 대치동', 'SPEND', 55000.00, 'N', 'Y'),
+    (9019, 4002, '강남세탁소', '서울 강남구 역삼동', 'SPEND', 15000.00, 'N', 'Y'),
+    (9020, 4002, '한강공원 편의점', '서울 강남구 강남대로', 'SPEND', 8200.00, 'N', 'Y');
 
 -- ========================
 -- TB_ASSET_SIMULATION

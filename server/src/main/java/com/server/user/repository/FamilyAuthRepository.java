@@ -15,4 +15,10 @@ public interface FamilyAuthRepository extends JpaRepository<TBFamilyAuth, Long> 
   List<TBFamilyAuth> findAllByGrantee_UserIdAndIsTrustViewTrue(Long granteeUserId);
 
   List<TBFamilyAuth> findAllByGrantee_UserId(Long granteeId);
+
+  List<TBFamilyAuth> findAllByGrantor_UserId(Long grantorId);
+
+  List<TBFamilyAuth> findAllByGrantor_UserIdAndIsCardViewTrue(Long userId);
+
+  List<TBFamilyAuth> findAllByGrantee_UserIdAndIsCardViewTrue(Long userId);
 }

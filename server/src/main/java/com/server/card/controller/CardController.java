@@ -1,10 +1,13 @@
 package com.server.card.controller;
 
+import com.server.card.dto.request.CardChargeRequest;
 import com.server.card.dto.request.CardRegisterRequest;
 import com.server.card.dto.request.CardUpdateRequest;
 import com.server.card.dto.response.AccountListResponse;
 import com.server.card.dto.response.CardRegisterResponse;
 import com.server.card.dto.response.CardUpdateResponse;
+import com.server.card.dto.response.CardUsageResponse;
+import com.server.card.dto.response.FamilyMemberResponse;
 import com.server.card.entity.TBCard;
 import com.server.card.service.CardService;
 import com.server.common.response.ApiResponse;
@@ -15,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -123,5 +127,59 @@ public class CardController {
   public ApiResponse<List<AccountListResponse>> getCashAccounts(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO) {
     return ApiResponse.onSuccess(cardService.getCashAccounts(subscriberDTO.getUserId()));
+  }
+
+  @Operation(
+      summary = "카드 사용 내역 조회",
+      description = "특정 카드의 사용 내역을 최신순으로 조회합니다."
+  )
+  @GetMapping("/{cardId}/usages")
+  public ApiResponse<List<CardUsageResponse>> getCardUsages(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+      @PathVariable Long cardId) {
+    return ApiResponse.onSuccess(cardService.getCardUsages(subscriberDTO.getUserId(), cardId));
+  }
+
+  @Operation(
+      summary = "가족 목록 조회",
+      description = "카드 발급 시 공유할 가족 목록을 조회합니다."
+  )
+  @GetMapping("/family")
+  public ApiResponse<List<FamilyMemberResponse>> getFamilyMembers(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO) {
+    return ApiResponse.onSuccess(cardService.getFamilyMembers(subscriberDTO.getUserId()));
+  }
+
+  @Operation(
+      summary = "내 카드 목록 조회",
+      description = "내가 발급했거나 공유받은 카드 목록을 조회합니다."
+  )
+  @GetMapping
+  public ApiResponse<List<CardRegisterResponse>> getMyCards(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO) {
+    return ApiResponse.onSuccess(cardService.getMyCards(subscriberDTO.getUserId()));
+  }
+
+  @Operation(
+      summary = "카드 충전",
+      description = "선택한 계좌에서 카드로 충전합니다. 1회 최대 60만원, 카드 총 잔액 200만원 이하."
+  )
+  @PostMapping("/charge")
+  public ApiResponse<Void> chargeCard(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+      @Valid @RequestBody CardChargeRequest request) {
+    cardService.chargeCard(subscriberDTO.getUserId(), request);
+    return ApiResponse.onSuccess(null);
+  }
+
+  @Operation(
+      summary = "카드 잔액 조회",
+      description = "특정 카드의 현재 잔액을 조회합니다."
+  )
+  @GetMapping("/{cardId}/balance")
+  public ApiResponse<BigDecimal> getCardBalance(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+      @PathVariable Long cardId) {
+    return ApiResponse.onSuccess(cardService.getCardBalance(subscriberDTO.getUserId(), cardId));
   }
 }

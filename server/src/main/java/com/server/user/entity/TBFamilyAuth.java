@@ -66,6 +66,10 @@ public class TBFamilyAuth extends BaseEntity {
   @Column(name = "IS_CARD_VIEW", nullable = false)
   private Boolean isCardView = false;
 
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "CARD_ID", columnDefinition = "bigint unsigned")
+  private TBCard card;
+
   @Builder.Default
   @Column(name = "IS_PROXY_CLAIM", nullable = false)
   private Boolean isProxyClaim = false; // 대리청구 가능 여부
