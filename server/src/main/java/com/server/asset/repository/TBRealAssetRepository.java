@@ -1,6 +1,7 @@
 package com.server.asset.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,7 @@ public interface TBRealAssetRepository extends JpaRepository<TBRealAsset, Long> 
         GROUP BY r.assetCateCd
     """)
 	List<Object[]> findEvalAmtSumGroupByCategoryByUserId(@Param("userId") Long userId);
+
+	Optional<TBRealAsset> findByRealAssetId(Long realAssetId);
+
 }
