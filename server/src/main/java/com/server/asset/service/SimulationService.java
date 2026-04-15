@@ -1,5 +1,12 @@
 package com.server.asset.service;
 
+import java.math.BigDecimal;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.dto.external.AIAnalysisInput;
@@ -15,12 +22,8 @@ import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.repository.UserRepository;
-import java.math.BigDecimal;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +39,7 @@ public class SimulationService {
 
   @Transactional
   @CheckUser(key = "#userId")
-  @CacheEvict(value = "simulationDetail", key = "#userId + ':' + `#request.targetAge` + ':' + `#request.careType.name`()")
+  @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()")
   public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
     // 1. 사용자 컨텍스트 수집 (소비, 거주지, 자산 등)
     AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
