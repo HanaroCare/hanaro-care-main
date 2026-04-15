@@ -16,7 +16,6 @@ import com.server.asset.repository.TBPensionSimulationRepository;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
-import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBUser;
@@ -39,7 +38,6 @@ public class AssetAdminService {
 	private final TBPensionSimulationRepository pensionSimulationRepository;
 	private final TBAccountRepository accountRepository;
 
-	@CheckUser(key = "#userId")
 	@Transactional
 	public Long subscribeTrustProduct(Long userId) {
 		TBUser user = userRepository.findById(userId)
@@ -67,7 +65,6 @@ public class AssetAdminService {
 		return userProdRepository.save(userProd).getUserProdId();
 	}
 
-	@CheckUser(key = "#userId")
 	@Transactional
 	public Long subscribePensionProduct(Long userId, Long realAssetId) {
 		TBUser user = userRepository.findById(userId)
@@ -100,7 +97,6 @@ public class AssetAdminService {
 		return savedProd.getUserProdId();
 	}
 
-	@CheckUser(key = "#userId")
 	@Transactional
 	public void enableAgentView(Long userId) {
 		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(

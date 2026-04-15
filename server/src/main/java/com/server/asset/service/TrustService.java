@@ -144,6 +144,22 @@ public class TrustService {
 
 	@CheckUser(key = "#granteeUserId")
 	@Transactional(readOnly = true)
+	public TrustGrantorResponse getFamilyGrantors(Long granteeUserId) {
+		List<TrustGrantorResponse.GrantorItem> items = familyAuthRepository
+			.findAllByGrantee_UserIdAndIsTrustViewTrue(granteeUserId)
+			.stream()
+			.map(auth -> new TrustGrantorResponse.GrantorItem(
+				auth.getGrantor().getUserId(),
+				auth.getGrantor().getUserNm(),
+				auth.getRelationCd().name(),
+				auth.getRelationCd().getDescription()
+			))
+			.toList();
+		return new TrustGrantorResponse(items);
+	}
+
+	@CheckUser(key = "#granteeUserId")
+	@Transactional(readOnly = true)
 	public TrustAccessResponse getTrustAccess(Long granteeUserId, Long grantorUserId) {
 		TBFamilyAuth familyAuth = familyAuthRepository
 			.findByGrantor_UserIdAndGrantee_UserId(grantorUserId, granteeUserId)

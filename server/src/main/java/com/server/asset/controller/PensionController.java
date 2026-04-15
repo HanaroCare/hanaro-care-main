@@ -9,6 +9,7 @@ import com.server.asset.service.pension.PensionForecastService;
 import com.server.asset.service.pension.PensionPayoutService;
 import com.server.asset.service.pension.PensionStatusService;
 import com.server.common.response.ApiResponse;
+import com.server.common.security.dto.SubscriberDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -82,9 +83,9 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionStatusResponse>> getStatus(
-		@AuthenticationPrincipal Long userId
+		@AuthenticationPrincipal SubscriberDTO loginUser
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getStatus(userId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getStatus(loginUser.getUserId())));
 	}
 
 	@GetMapping("/payout-history")
@@ -124,9 +125,9 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionPayoutHistoryResponse>> getPayoutHistory(
-		@AuthenticationPrincipal Long userId
+		@AuthenticationPrincipal SubscriberDTO loginUser
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getPayoutHistory(userId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getPayoutHistory(loginUser.getUserId())));
 	}
 
 	@GetMapping("/{realAssetId}/forecast")
@@ -244,11 +245,11 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionForecastResponse>> getForecast(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal SubscriberDTO loginUser,
 		@PathVariable Long realAssetId,
 		@RequestParam(defaultValue = "5") Integer periodYears
 	) {
-		PensionForecastResponse response = pensionForecastService.getForecast(userId, realAssetId, periodYears);
+		PensionForecastResponse response = pensionForecastService.getForecast(loginUser.getUserId(), realAssetId, periodYears);
 		return ResponseEntity.ok(ApiResponse.onSuccess(response));
 	}
 
@@ -352,10 +353,10 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionPayoutComparisonResponse>> getPayoutComparison(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal SubscriberDTO loginUser,
 		@PathVariable Long realAssetId
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.compare(userId, realAssetId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.compare(loginUser.getUserId(), realAssetId)));
 	}
 
 	@GetMapping("/{realAssetId}/payout-summary")
@@ -393,9 +394,9 @@ public class PensionController {
 		)
 	})
 	public ResponseEntity<ApiResponse<PensionSimulationSummaryResponse>> getPayoutSummary(
-		@AuthenticationPrincipal Long userId,
+		@AuthenticationPrincipal SubscriberDTO loginUser,
 		@PathVariable Long realAssetId
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.getSummary(userId, realAssetId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.getSummary(loginUser.getUserId(), realAssetId)));
 	}
 }
