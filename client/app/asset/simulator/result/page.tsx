@@ -59,22 +59,32 @@ export default function SimulatorResultPage() {
   const care = Number(data.careCost) || 0;
   const totalCost = living + medical + care || 1;
 
+  const formatWon = (won: number): string => {
+    const manwon = Math.floor(won / 10000);
+    if (manwon >= 10000) {
+      const uk = Math.floor(manwon / 10000);
+      const rem = manwon % 10000;
+      return rem > 0 ? `${uk}억 ${rem.toLocaleString()}만원` : `${uk}억원`;
+    }
+    return `${manwon.toLocaleString()}만원`;
+  };
+
   const detailItems = [
     {
       label: '생활비',
-      amount: `${Math.floor(living / 10000).toLocaleString()}만원`,
+      amount: formatWon(living),
       progress: living / totalCost,
       opacity: 1.0,
     },
     {
       label: '병원비',
-      amount: `${Math.floor(medical / 10000).toLocaleString()}만원`,
+      amount: formatWon(medical),
       progress: medical / totalCost,
       opacity: 0.8,
     },
     {
       label: '요양비',
-      amount: `${Math.floor(care / 10000).toLocaleString()}만원`,
+      amount: formatWon(care),
       progress: care / totalCost,
       opacity: 0.6,
     },
@@ -119,13 +129,6 @@ export default function SimulatorResultPage() {
                   <p className="font-bold text-[24px] text-hana-red-500 leading-snug">
                     {shortageManwon.toLocaleString()}만원이 부족해요
                   </p>
-              )}
-              {monthlyIncomeManwon !== null && monthlyExpenseManwon !== null && (
-                <div className="mt-2 flex items-center gap-2 text-[13px] font-medium text-hana-black-500">
-                  <span className="text-hana-green-700">수입 {monthlyIncomeManwon.toLocaleString()}만원</span>
-                  <span>·</span>
-                  <span className="text-hana-red-500">지출 {monthlyExpenseManwon.toLocaleString()}만원</span>
-                </div>
               )}
             </div>
 
