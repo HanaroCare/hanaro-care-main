@@ -6,10 +6,10 @@ import com.server.common.security.JwtUtil;
 import com.server.myhana.dto.request.FamilyInviteRequest;
 import com.server.myhana.dto.request.GrantInsuranceViewRequest;
 import com.server.myhana.dto.response.FamilyMemberResponse;
-import com.server.myhana.repository.MyHanaFamilyRepository;
 import com.server.user.entity.TBFamilyAuth;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.FamilyRelation;
+import com.server.user.repository.TBFamilyAuthRepository;
 import com.server.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MyHanaFamilyService {
 
-  private final MyHanaFamilyRepository familyRepository;
+  private final TBFamilyAuthRepository familyAuthRepository;
   private final UserRepository userRepository;
   private final JwtUtil jwtUtil;
 
@@ -47,7 +47,7 @@ public class MyHanaFamilyService {
         .build());
 
     // 2. 가족 목록 조회
-    List<TBFamilyAuth> familyAuths = familyRepository.findAllByGrantor_UserId(userId);
+    List<TBFamilyAuth> familyAuths = familyAuthRepository.findAllByGrantorUserId(userId);
 
     List<FamilyMemberResponse> families = familyAuths.stream()
         .map(auth -> FamilyMemberResponse.builder()
@@ -86,7 +86,7 @@ public class MyHanaFamilyService {
     Long granteeId = request.getGranteeId();
 
     // 가족 권한 조회 (authStatus 체크 제거)
-    TBFamilyAuth familyAuth = familyRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId,
+    TBFamilyAuth familyAuth = familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId,
             granteeId)
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
