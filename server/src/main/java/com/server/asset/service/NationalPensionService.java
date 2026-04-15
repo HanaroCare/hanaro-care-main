@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.repository.TBAccountRepository;
+import com.server.asset.repository.AccountRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class NationalPensionService {
 
-    private final TBAccountRepository tbAccountRepository;
+    private final AccountRepository accountRepository;
 
     /**
      * 월 연금 수령액 추정
@@ -28,7 +28,7 @@ public class NationalPensionService {
     public BigDecimal estimateMonthlyPension(Long userId, int currentAge, BigDecimal monthlyIncome, int totalYears) {
         // 1. DB에서 실제 연금 데이터 조회
         try {
-            List<TBAccount> pensionAccounts = tbAccountRepository
+            List<TBAccount> pensionAccounts = accountRepository
                 .findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION);
 
             BigDecimal totalPension = pensionAccounts.stream()

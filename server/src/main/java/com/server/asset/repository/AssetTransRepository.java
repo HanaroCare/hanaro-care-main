@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import com.server.asset.entity.TBAssetTrans;
 import com.server.asset.entity.enums.TransType;
 
-public interface TBAssetTransRepository extends JpaRepository<TBAssetTrans, Long> {
+public interface AssetTransRepository extends JpaRepository<TBAssetTrans, Long> {
 
     @Query("SELECT t FROM TBAssetTrans t WHERE t.userProd.user.userId = :userId " +
            "AND t.transType = :transType AND t.transDt > :transDt")

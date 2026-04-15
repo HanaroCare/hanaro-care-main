@@ -10,8 +10,8 @@ import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.PensionPayoutType;
 import com.server.asset.mapper.PensionMapper;
-import com.server.asset.repository.TBPensionSimulationRepository;
-import com.server.asset.repository.TBRealAssetRepository;
+import com.server.asset.repository.PensionSimulationRepository;
+import com.server.asset.repository.RealAssetRepository;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
@@ -55,8 +55,8 @@ public class PensionPayoutService {
 		"GROWING",      "정기증가형"
 	);
 
-	private final TBRealAssetRepository realAssetRepository;
-	private final TBPensionSimulationRepository pensionSimulationRepository;
+	private final RealAssetRepository realAssetRepository;
+	private final PensionSimulationRepository pensionSimulationRepository;
 	private final ObjectMapper objectMapper;
 	private final PensionMapper pensionMapper;
 
