@@ -79,10 +79,10 @@ export function SimulationExpenseAccordion({ items }: SimulationExpenseAccordion
               </span>
               <div className="flex items-center gap-3">
                 <div className="flex flex-col items-end gap-0.5">
-                  <span className="font-bold text-[15px] text-hana-green-700">
+                  <span className="font-semi-bold text-[14px] text-hana-green-700">
                     수입 {item.totalIncome.toLocaleString()}만원
                   </span>
-                  <span className="font-bold text-[15px] text-hana-red-500">
+                  <span className="font-semi-bold text-[14px] text-hana-red-500">
                     지출 {item.totalExpense.toLocaleString()}만원
                   </span>
                 </div>

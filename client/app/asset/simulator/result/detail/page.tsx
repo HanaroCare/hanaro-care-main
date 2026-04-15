@@ -66,14 +66,6 @@ export default function SimulationDetailPage() {
             월 지출 추이 상세
           </h2>
           <SimulationTrendChart data={trendData} />
-
-          {data?.ai_opinion && (
-            <div className="mt-4 rounded-[20px] border border-hana-silver-100 bg-white p-6 shadow-sm">
-              <p className="text-[14px] text-hana-black-500 leading-relaxed">
-                {data.ai_opinion}
-              </p>
-            </div>
-          )}
         </section>
 
         <section className="flex flex-col gap-4.5">
@@ -82,6 +74,14 @@ export default function SimulationDetailPage() {
           </h2>
           <SimulationExpenseAccordion items={ageSegments} />
         </section>
+
+        {data?.ai_opinion && (
+            <div className="mt-4 rounded-[20px] border border-hana-silver-100 bg-white p-6 shadow-sm">
+              <p className="whitespace-pre-wrap break-keep text-[14px] text-hana-black-500 leading-relaxed">
+                {data.ai_opinion}
+              </p>
+            </div>
+        )}
       </main>
     </div>
   );
