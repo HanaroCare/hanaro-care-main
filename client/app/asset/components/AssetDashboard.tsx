@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
-import type { AssetCategory, AssetDashboardResponse } from '../types';
+import type { AssetCategory, AssetDashboardResponse } from '../utils/types';
 
 // ─── 카테고리별 UI 매핑 ──────────────────────────────────────────
 const CATEGORY_META: Record<AssetCategory, { label: string; color: string }> = {
