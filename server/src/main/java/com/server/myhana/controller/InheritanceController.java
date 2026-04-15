@@ -38,7 +38,7 @@ public class InheritanceController {
   @PostMapping("/contract")
   ResponseEntity<byte[]> downloadContract(@AuthenticationPrincipal SubscriberDTO user,
       @RequestBody ContractDto dto) throws Exception {
-    byte[] file = inheritanceService.generateContract(dto);
+    byte[] file = inheritanceService.generateContract(user.getUserId(), dto);
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contract.docx")
         .contentType(MediaType.APPLICATION_OCTET_STREAM)

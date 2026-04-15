@@ -51,12 +51,13 @@ public enum ErrorStatus implements BaseErrorCode {
 
   // asset
   ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
-  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다.");
+  ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
 
   // inheritance
 
   // myhana
-
+  INSURANCE_NOT_FOUND(HttpStatus.FORBIDDEN, "INS_404", "보험 정보를 찾을 수 없습니다."),
+  INSURANCE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INS_403", "보험 접근 권한이 없습니다.");
 
   private final HttpStatus httpStatus;        // HTTP 상태 코드
   private final String code;                  // 내부적인 에러 코드. 도메인명 + 숫자로 구성. 숫자는 HTTP 상태코드 100의자리 참고

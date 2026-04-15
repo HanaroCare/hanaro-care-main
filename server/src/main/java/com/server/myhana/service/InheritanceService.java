@@ -1,5 +1,6 @@
 package com.server.myhana.service;
 
+import com.server.common.annotation.CheckUser;
 import com.server.myhana.dto.ContractDto;
 import com.server.myhana.dto.FamilySummaryDto;
 import com.server.user.entity.TBFamilyAuth;
@@ -22,6 +23,7 @@ public class InheritanceService {
   private final TBFamilyAuthRepository familyAuthRepository;
 
   // 가족 조회
+  @CheckUser(key = "#userId")
   public List<FamilySummaryDto> getFamily(Long userId) {
     List<TBFamilyAuth> families = familyAuthRepository.findAllByGrantorUserId(userId);
     return families.stream().map(f -> FamilySummaryDto.builder().name(f.getGrantee().getUserNm())
@@ -30,7 +32,8 @@ public class InheritanceService {
   }
 
   // 계약서 생성하기
-  public byte[] generateContract(ContractDto dto) throws Exception {
+  @CheckUser(key = "#userId")
+  public byte[] generateContract(Long userId, ContractDto dto) throws Exception {
     InputStream template = getClass().getResourceAsStream("/templates/contract.docx");
     XWPFDocument doc = new XWPFDocument(template);
 

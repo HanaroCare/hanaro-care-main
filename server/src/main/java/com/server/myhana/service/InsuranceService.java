@@ -3,6 +3,9 @@ package com.server.myhana.service;
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.repository.TBAccountRepository;
+import com.server.common.annotation.CheckUser;
+import com.server.common.exception.ApiException;
+import com.server.common.response.code.status.ErrorStatus;
 import com.server.myhana.dto.InsuranceDetailDto;
 import com.server.myhana.dto.InsuranceDto;
 import com.server.user.entity.TBFamilyAuth;
@@ -20,6 +23,7 @@ public class InsuranceService {
   private final TBAccountRepository accountRepository;
 
   // 보험(자신+grantor) 조회
+  @CheckUser(key = "#userId")
   public List<InsuranceDto> getInsurances(Long userId) {
     List<TBAccount> account = accountRepository.findAllByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
@@ -30,7 +34,6 @@ public class InsuranceService {
     List<TBAccount> accounts = new ArrayList<>();
     accounts.addAll(account);
 
-    // flatMap으로 TBAccount[]를 펼쳐서 합치기
     family.stream()
         .flatMap(f ->
             accountRepository.findAllByUser_UserIdAndAssetCateCd(
@@ -48,9 +51,10 @@ public class InsuranceService {
   }
 
   // 권한에 따른 보험 상세 조회
+  @CheckUser(key = "#userId")
   public InsuranceDetailDto getInsurance(Long userId, Long insuranceId) {
     TBAccount account = accountRepository.findByAccountId(insuranceId)
-        .orElseThrow(() -> new IllegalArgumentException("해당 보험을 찾을 수 없습니다."));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INSURANCE_NOT_FOUND));
 
     Long accountOwnerId = account.getUser().getUserId();
 
@@ -61,7 +65,7 @@ public class InsuranceService {
           .isPresent();
 
       if (!hasAuth) {
-        throw new IllegalArgumentException("해당 보험에 접근할 수 없습니다.");
+        throw new ApiException(ErrorStatus.INSURANCE_ACCESS_DENIED);
       }
     }
 
