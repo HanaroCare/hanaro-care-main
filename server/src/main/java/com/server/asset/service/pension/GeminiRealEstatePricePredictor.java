@@ -15,6 +15,7 @@ import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -48,6 +49,11 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 	private final ObjectMapper objectMapper;
 
 	@Override
+	@Cacheable(
+		cacheNames = "pensionForecast",
+		key = "#command.addr + ':' + #command.currentPrice + ':' + #command.assetSize + ':' + #command.periodYears",
+		unless = "#result == null"
+	)
 	public PensionForecastInternalDto.Result predict(PensionForecastInternalDto.Command command) {
 		GeminiScenarioResult geminiResult = callGemini(command);
 		return buildResult(command, geminiResult);

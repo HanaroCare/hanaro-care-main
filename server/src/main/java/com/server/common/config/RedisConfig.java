@@ -32,6 +32,9 @@ public class RedisConfig {
   @Value("${cache.simulation-ttl}")
   private long simulationTtl;
 
+  @Value("${cache.pension-forecast-ttl}")
+  private long pensionForecastTtl;
+
   private GenericJackson2JsonRedisSerializer redisSerializer() {
     ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
@@ -71,7 +74,9 @@ public class RedisConfig {
     cacheConfigs.put("gemini", defaultConfig.entryTtl(Duration.ofSeconds(geminiTtl)));
     cacheConfigs.put("welfare", defaultConfig.entryTtl(Duration.ofSeconds(welfareTtl)));
     cacheConfigs.put("simulationDetail",
-        defaultConfig.entryTtl(Duration.ofSeconds(simulationTtl))); // 24시간
+        defaultConfig.entryTtl(Duration.ofSeconds(simulationTtl)));
+    cacheConfigs.put("pensionForecast",
+        defaultConfig.entryTtl(Duration.ofSeconds(pensionForecastTtl))); // 7일
 
     return RedisCacheManager.builder(factory)
         .cacheDefaults(defaultConfig)
