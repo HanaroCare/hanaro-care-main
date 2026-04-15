@@ -49,25 +49,29 @@ export default function SimulatorResultPage() {
   const isLeeway = data.sufficient ?? false;
   const shortageManwon = Math.floor(Math.abs(Number(data.shortageAmt) || 0) / 10000);
 
-  const maxCost = Math.max(Number(data.livingCost) || 0, Number(data.medicalCost) || 0, Number(data.careCost) || 0) || 1;
+  const living = Number(data.livingCost) || 0;
+  const medical = Number(data.medicalCost) || 0;
+  const care = Number(data.careCost) || 0;
+  const totalCost = living + medical + care || 1;
+
   const detailItems = [
     {
       label: '생활비',
-      amount: `${Math.floor((Number(data.livingCost) || 0) / 10000).toLocaleString()}만원`,
-      progress: (Number(data.livingCost) || 0) / maxCost,
-      opacity: 1.0
+      amount: `${Math.floor(living / 10000).toLocaleString()}만원`,
+      progress: living / totalCost,
+      opacity: 1.0,
     },
     {
       label: '병원비',
-      amount: `${Math.floor((Number(data.medicalCost) || 0) / 10000).toLocaleString()}만원`,
-      progress: (Number(data.medicalCost) || 0) / maxCost,
-      opacity: 0.8
+      amount: `${Math.floor(medical / 10000).toLocaleString()}만원`,
+      progress: medical / totalCost,
+      opacity: 0.8,
     },
     {
       label: '요양비',
-      amount: `${Math.floor((Number(data.careCost) || 0) / 10000).toLocaleString()}만원`,
-      progress: (Number(data.careCost) || 0) / maxCost,
-      opacity: 0.6
+      amount: `${Math.floor(care / 10000).toLocaleString()}만원`,
+      progress: care / totalCost,
+      opacity: 0.6,
     },
   ];
 

@@ -50,14 +50,24 @@ public class NationalPensionService {
         return estimateByStatistics(currentAge, monthlyIncome, totalYears);
     }
 
+    // 통계 기반 국민연금 최저 추정액 (2024년 기준 평균 수급액 약 65만원)
+    private static final BigDecimal MIN_PENSION = new BigDecimal("650000");
+    // 통계 기반 국민연금 평균 추정액 (가입 이력 있는 일반적인 수급자 기준)
+    private static final BigDecimal AVG_PENSION = new BigDecimal("650000");
+
     private BigDecimal estimateByStatistics(int currentAge, BigDecimal monthlyIncome, int totalYears) {
-        if (monthlyIncome == null || monthlyIncome.compareTo(BigDecimal.ZERO) == 0) {
-            return new BigDecimal("350000");
+        // monthlyIncome이 지출 데이터이거나 너무 낮으면 평균 연금으로 대체
+        if (monthlyIncome == null || monthlyIncome.compareTo(BigDecimal.ZERO) == 0
+                || monthlyIncome.compareTo(new BigDecimal("500000")) < 0) {
+            log.info("[연금 추정] 소득 데이터 부족 - 통계 평균 연금 사용: {}원", AVG_PENSION);
+            return AVG_PENSION;
         }
 
+        // 소득 대체율 40%, 가입 기간 가중치 적용
         BigDecimal replacementRate = new BigDecimal("0.4");
         BigDecimal durationWeight = new BigDecimal(totalYears)
-            .divide(new BigDecimal("20"), 2, RoundingMode.HALF_UP);
+            .divide(new BigDecimal("20"), 2, RoundingMode.HALF_UP)
+            .min(new BigDecimal("1.5")); // 최대 1.5배 상한
 
         BigDecimal estimatedAmt = monthlyIncome
             .multiply(replacementRate)
@@ -69,6 +79,8 @@ public class NationalPensionService {
             estimatedAmt = estimatedAmt.multiply(BigDecimal.valueOf(inflation));
         }
 
-        return estimatedAmt.setScale(0, RoundingMode.HALF_UP);
+        BigDecimal result = estimatedAmt.setScale(0, RoundingMode.HALF_UP);
+        // 최저 하한선 적용
+        return result.compareTo(MIN_PENSION) < 0 ? MIN_PENSION : result;
     }
 }

@@ -37,66 +37,79 @@ public class SimulationService {
   private final SimulationEngine simulationEngine;
   private final ObjectMapper objectMapper;
 
+  /**
+   * "70-75세", "80-83세" 같은 range 문자열에서 실제 구간 개월 수를 파싱합니다.
+   * 파싱 실패 시 기본값 60개월(5년)을 반환합니다.
+   */
+  private int extractMonthsFromRange(String range) {
+    if (range == null || range.isBlank()) return 60;
+    try {
+      String cleaned = range.replace("세", "").trim();
+      String[] parts = cleaned.split("-");
+      int startAge = Integer.parseInt(parts[0].trim());
+      int endAge = Integer.parseInt(parts[1].trim());
+      int years = endAge - startAge;
+      return years > 0 ? years * 12 : 60;
+    } catch (Exception e) {
+      return 60;
+    }
+  }
+
   @Transactional
   @CheckUser(key = "#userId")
   @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()")
   public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
-    // 1. 사용자 컨텍스트 수집 (소비, 거주지, 자산 등)
     AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
-
-    // 2. 시뮬레이션 엔진 가동 (통계 + 연금 + 지원금 + AI 분석 결합)
     SimulationDetailResponse aiResult = simulationEngine.run(input);
 
-    // 3. 분석 결과를 DB 엔티티로 변환 및 요약 정보 계산
-    BigDecimal totalIncomeAmt = (aiResult.getIncomeDetails() != null
-        && aiResult.getIncomeDetails().getTotalMonthlyIncome() != null)
-        ? aiResult.getIncomeDetails().getTotalMonthlyIncome() : BigDecimal.ZERO;
+    BigDecimal totalAccumulatedCost = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedLiving = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedMedical = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedCare = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedIncome = BigDecimal.ZERO;
 
-    // 첫 번째 세그먼트 데이터를 기본 요약 정보로 사용
-    SimulationDetailResponse.AgeSegment firstSegment =
-        (aiResult.getAgeSegments() != null && !aiResult.getAgeSegments().isEmpty())
-            ? aiResult.getAgeSegments().getFirst() : null;
+    if (aiResult.getAgeSegments() != null) {
+      for (SimulationDetailResponse.AgeSegment segment : aiResult.getAgeSegments()) {
+        // range 문자열("70-75세", "80-83세" 등)에서 실제 구간 개월 수를 파싱
+        BigDecimal months = new BigDecimal(extractMonthsFromRange(segment.getRange()));
 
-    BigDecimal monthlyCost =
-        (firstSegment != null && firstSegment.getExpense() != null) ? firstSegment.getExpense()
-            : BigDecimal.ZERO;
-    BigDecimal shortageAmt = monthlyCost.subtract(totalIncomeAmt);
+        totalAccumulatedCost = totalAccumulatedCost.add(segment.getExpense().multiply(months));
+        totalAccumulatedIncome = totalAccumulatedIncome.add(segment.getIncome().multiply(months));
+
+        if (segment.getDetail() != null) {
+          totalAccumulatedLiving = totalAccumulatedLiving.add(segment.getDetail().getLiving().multiply(months));
+          totalAccumulatedMedical = totalAccumulatedMedical.add(segment.getDetail().getMedical().multiply(months));
+          totalAccumulatedCare = totalAccumulatedCare.add(segment.getDetail().getCare().multiply(months));
+        }
+      }
+    }
+
+    // 부족 금액 재계산 (누적 지출 - 누적 수입)
+    BigDecimal shortageAmt = totalAccumulatedCost.subtract(totalAccumulatedIncome);
     boolean isSufficient = shortageAmt.compareTo(BigDecimal.ZERO) <= 0;
-
-    BigDecimal livingCost =
-        (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail()
-            .getLiving() : BigDecimal.ZERO;
-    BigDecimal medicalCost =
-        (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail()
-            .getMedical() : BigDecimal.ZERO;
-    BigDecimal careCost =
-        (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail()
-            .getCare() : BigDecimal.ZERO;
-
     String ageRangeDetails;
     try {
       ageRangeDetails = objectMapper.writeValueAsString(aiResult);
     } catch (JsonProcessingException e) {
+      // 이미 정의해두신 에러 상태를 사용합니다.
       throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
     }
-
-    // 4. DB 저장
+    // [DB 저장] 이제 '한 달치'가 아닌 '누적 합계'를 넣습니다.
     TBAssetSimulation simulation = TBAssetSimulation.builder()
         .user(UserRepository.getReferenceById(userId))
         .targetAge(request.getTargetAge())
         .careType(request.getCareType())
-        .totalIncomeAmt(totalIncomeAmt)
-        .shortageAmt(shortageAmt)
+        .totalIncomeAmt(totalAccumulatedIncome) // 누적 수입
+        .shortageAmt(shortageAmt)               // 누적 부족액
         .isSufficient(isSufficient)
-        .livingCost(livingCost)
-        .medicalCost(medicalCost)
-        .careCost(careCost)
-        .monthlyCost(monthlyCost)
+        .livingCost(totalAccumulatedLiving)    // 누적 생활비
+        .medicalCost(totalAccumulatedMedical)  // 누적 의료비
+        .careCost(totalAccumulatedCare)        // 누적 요양비
+        .monthlyCost(totalAccumulatedCost)     // 전체 총 지출
         .ageRangeDetails(ageRangeDetails)
         .build();
 
     TBAssetSimulation savedSimulation = assetSimulationRepository.save(simulation);
-
     return simulationMapper.toSimulationResponse(savedSimulation);
   }
 
