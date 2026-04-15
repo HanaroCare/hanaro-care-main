@@ -120,33 +120,30 @@ public class TrustService {
 
 	@CheckUser(key = "#userId")
 	@Transactional(readOnly = true)
-	public TrustProductResponse getProductSummary(Long userId, Long userProdId) {
-		TBUserProd userProd = userProdRepository.findById(userProdId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
-
-		validateOwner(userId, userProd);
+	public TrustProductResponse getProductSummary(Long userId) {
+		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 		return convertToProductResponse(userProd);
 	}
 
-	@CheckUser(key = "#granteeUserId")
+	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
-	public TrustProductResponse getFamilyTrustDetail(Long granteeUserId, Long grantorUserId) {
-		validateTrustAccess(granteeUserId, grantorUserId);
+	public TrustProductResponse getFamilyTrustDetail(Long granteeId, Long grantorId) {
+		validateTrustAccess(granteeId, grantorId);
 
 		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
-			grantorUserId,
-			ProdCate.TRUST,
-			ProdStat.IN_PROGRESS
+			grantorId, ProdCate.TRUST, ProdStat.IN_PROGRESS
 		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
 		return convertToProductResponse(userProd);
 	}
 
-	@CheckUser(key = "#granteeUserId")
+	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
-	public TrustGrantorResponse getFamilyGrantors(Long granteeUserId) {
+	public TrustGrantorResponse getFamilyGrantors(Long granteeId) {
 		List<TrustGrantorResponse.GrantorItem> items = familyAuthRepository
-			.findAllByGrantee_UserIdAndIsTrustViewTrue(granteeUserId)
+			.findAllByGrantee_UserIdAndIsTrustViewTrue(granteeId)
 			.stream()
 			.map(auth -> new TrustGrantorResponse.GrantorItem(
 				auth.getGrantor().getUserId(),
@@ -158,37 +155,40 @@ public class TrustService {
 		return new TrustGrantorResponse(items);
 	}
 
-	@CheckUser(key = "#granteeUserId")
+	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
-	public TrustAccessResponse getTrustAccess(Long granteeUserId, Long grantorUserId) {
-		TBFamilyAuth familyAuth = familyAuthRepository
-			.findByGrantor_UserIdAndGrantee_UserId(grantorUserId, granteeUserId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
+	public TrustAccessResponse getFamilyAccessList(Long granteeId) {
+		List<TrustAccessResponse.AccessItem> items = familyAuthRepository
+			.findAllByGrantee_UserId(granteeId)
+			.stream()
+			.map(auth -> {
+				boolean canView = Boolean.TRUE.equals(auth.getIsTrustView());
+				boolean isProxy = Boolean.TRUE.equals(auth.getIsProxyClaim());
 
-		boolean canView = Boolean.TRUE.equals(familyAuth.getIsTrustView());
-		boolean isProxy = Boolean.TRUE.equals(familyAuth.getIsProxyClaim());
+				TrustAccessLevel accessLevel;
+				if (isProxy && canView) {
+					accessLevel = TrustAccessLevel.READ_WRITE;
+				} else if (isProxy) {
+					accessLevel = TrustAccessLevel.PROXY_ONLY;
+				} else {
+					accessLevel = TrustAccessLevel.NONE;
+				}
 
-		TrustAccessLevel accessLevel;
-		if (isProxy && canView) {
-			accessLevel = TrustAccessLevel.READ_WRITE;
-		} else if (isProxy) {
-			accessLevel = TrustAccessLevel.PROXY_ONLY;
-		} else {
-			accessLevel = TrustAccessLevel.NONE;
-		}
-
-		return new TrustAccessResponse(
-			grantorUserId,
-			granteeUserId,
-			accessLevel
-		);
+				return new TrustAccessResponse.AccessItem(
+					auth.getGrantor().getUserId(),
+					auth.getGrantor().getUserNm(),
+					accessLevel
+				);
+			})
+			.toList();
+		return new TrustAccessResponse(items);
 	}
 
-	@CheckUser(key = "#granteeUserId")
+	@CheckUser(key = "#granteeId")
 	@Transactional(readOnly = true)
-	public void validateTrustAccess(Long granteeUserId, Long grantorUserId) {
+	public void validateTrustAccess(Long granteeId, Long grantorId) {
 		TBFamilyAuth familyAuth = familyAuthRepository
-			.findByGrantor_UserIdAndGrantee_UserId(grantorUserId, granteeUserId)
+			.findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
 			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
 		if (!Boolean.TRUE.equals(familyAuth.getIsTrustView())) {
@@ -198,10 +198,10 @@ public class TrustService {
 
 	@CheckUser(key = "#userId")
 	@Transactional
-	public void updatePayoutSettings(Long userId, Long userProdId, TrustPayoutSettingsUpdateRequest request) {
-		TBUserProd userProd = userProdRepository.findById(userProdId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
-		validateOwner(userId, userProd);
+	public void updatePayoutSettings(Long userId, TrustPayoutSettingsUpdateRequest request) {
+		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
 		try {
 			userProd.setPayoutSettings(objectMapper.writeValueAsString(request));
@@ -212,15 +212,23 @@ public class TrustService {
 
 	@CheckUser(key = "#userId")
 	@Transactional
-	public void updateAgentView(Long userId, Long userProdId, TrustAgentViewUpdateRequest request) {
-		TBUserProd userProd = userProdRepository.findById(userProdId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
-		validateOwner(userId, userProd);
+	public void updateAgentView(Long userId, TrustAgentViewUpdateRequest request) {
+		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
+			userId, ProdCate.TRUST, ProdStat.IN_PROGRESS
+		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
-		if (userProd.getClaimAgent() == null) {
+		TBUser claimAgent = userProd.getClaimAgent();
+		if (claimAgent == null) {
 			throw new ApiException(ErrorStatus.TRUST_CLAIM_AGENT_NOT_FOUND);
 		}
-		userProd.setIsAgentView(Boolean.TRUE.equals(request.agentViewEnabled()));
+
+		boolean enabled = Boolean.TRUE.equals(request.agentViewEnabled());
+		userProd.setIsAgentView(enabled);
+
+		TBFamilyAuth familyAuth = familyAuthRepository
+			.findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
+		familyAuth.setIsTrustView(enabled);
 	}
 
 	private TrustProductResponse convertToProductResponse(TBUserProd userProd) {
@@ -263,9 +271,5 @@ public class TrustService {
 			}
 		}
 		return new TrustProductResponse.ExecutionSetting(hEnabled, hAmount, lEnabled, lAmount);
-	}
-
-	private void validateOwner(Long userId, TBUserProd userProd) {
-		if (!userProd.getUser().getUserId().equals(userId)) throw new ApiException(ErrorStatus._FORBIDDEN);
 	}
 }

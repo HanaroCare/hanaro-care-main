@@ -77,7 +77,7 @@ public class TrustController {
 		return ResponseEntity.ok(ApiResponse.onSuccess(trustService.getSimulationResult(loginUser.getUserId())));
 	}
 
-	@GetMapping("/{userProdId}/summary")
+	@GetMapping("/product/summary")
 	@Operation(summary = "가입한 신탁상품 운용 현황 조회")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
@@ -87,13 +87,12 @@ public class TrustController {
 		)
 	})
 	public ResponseEntity<ApiResponse<TrustProductResponse>> getProductSummary(
-		@AuthenticationPrincipal SubscriberDTO loginUser,
-		@PathVariable Long userProdId
+		@AuthenticationPrincipal SubscriberDTO loginUser
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(trustService.getProductSummary(loginUser.getUserId(), userProdId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(trustService.getProductSummary(loginUser.getUserId())));
 	}
 
-	@PatchMapping("/products/{userProdId}/payout-settings")
+	@PatchMapping("/product/payout-settings")
 	@Operation(summary = "신탁 자금 사용처 수정")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(
@@ -103,14 +102,13 @@ public class TrustController {
 	})
 	public ResponseEntity<ApiResponse<Void>> updatePayoutSettings(
 		@AuthenticationPrincipal SubscriberDTO loginUser,
-		@PathVariable Long userProdId,
 		@Valid @RequestBody TrustPayoutSettingsUpdateRequest request
 	) {
-		trustService.updatePayoutSettings(loginUser.getUserId(), userProdId, request);
+		trustService.updatePayoutSettings(loginUser.getUserId(), request);
 		return ResponseEntity.ok(ApiResponse.onSuccess(null));
 	}
 
-	@PatchMapping("/products/{userProdId}/agent-view")
+	@PatchMapping("/product/agent-view")
 	@Operation(summary = "신탁 현황 열람 권한 수정")
 	@ApiResponses({
 		@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "수정 성공"),
@@ -124,10 +122,9 @@ public class TrustController {
 	})
 	public ResponseEntity<ApiResponse<Void>> updateAgentView(
 		@AuthenticationPrincipal SubscriberDTO loginUser,
-		@PathVariable Long userProdId,
 		@Valid @RequestBody TrustAgentViewUpdateRequest request
 	) {
-		trustService.updateAgentView(loginUser.getUserId(), userProdId, request);
+		trustService.updateAgentView(loginUser.getUserId(), request);
 		return ResponseEntity.ok(ApiResponse.onSuccess(null));
 	}
 
@@ -142,13 +139,15 @@ public class TrustController {
 		return ResponseEntity.ok(ApiResponse.onSuccess(trustService.getFamilyGrantors(granteeUser.getUserId())));
 	}
 
-	@GetMapping("/{grantorUserId}/access")
-	@Operation(summary = "가족 신탁 권한 수준 조회")
-	public ResponseEntity<ApiResponse<TrustAccessResponse>> getTrustAccess(
-		@AuthenticationPrincipal SubscriberDTO granteeUser,
-		@PathVariable Long grantorUserId
+	@GetMapping("/family/access")
+	@Operation(
+		summary = "가족 신탁 권한 수준 조회",
+		description = "로그인한 사용자(자녀)가 조회 가능한 모든 부모(grantor)의 신탁 권한 수준 목록을 반환합니다."
+	)
+	public ResponseEntity<ApiResponse<TrustAccessResponse>> getFamilyAccessList(
+		@AuthenticationPrincipal SubscriberDTO granteeUser
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(trustService.getTrustAccess(granteeUser.getUserId(), grantorUserId)));
+		return ResponseEntity.ok(ApiResponse.onSuccess(trustService.getFamilyAccessList(granteeUser.getUserId())));
 	}
 
 	@GetMapping("/family/{grantorId}/summary")

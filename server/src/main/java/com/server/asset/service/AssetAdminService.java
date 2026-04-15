@@ -18,7 +18,9 @@ import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
+import com.server.user.entity.TBFamilyAuth;
 import com.server.user.entity.TBUser;
+import com.server.user.repository.TBFamilyAuthRepository;
 import com.server.user.repository.TBUserRepository;
 import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +39,7 @@ public class AssetAdminService {
 	private final PensionMapper pensionMapper;
 	private final TBPensionSimulationRepository pensionSimulationRepository;
 	private final TBAccountRepository accountRepository;
+	private final TBFamilyAuthRepository familyAuthRepository;
 
 	@Transactional
 	public Long subscribeTrustProduct(Long userId) {
@@ -61,6 +64,15 @@ public class AssetAdminService {
 		SimulationDetailDto detail = TrustCalculator.calculateDetail(principal, annualRate);
 
 		TBUserProd userProd = trustMapper.toUserProd(simulation, user, product, principal, detail);
+
+		TBUser claimAgent = simulation.getClaimAgent();
+		if (claimAgent != null) {
+			userProd.setIsAgentView(true);
+			TBFamilyAuth familyAuth = familyAuthRepository
+				.findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+				.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
+			familyAuth.setIsTrustView(true);
+		}
 
 		return userProdRepository.save(userProd).getUserProdId();
 	}
@@ -105,10 +117,16 @@ public class AssetAdminService {
 			ProdStat.IN_PROGRESS
 		).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
 
-		if (userProd.getClaimAgent() == null) {
+		TBUser claimAgent = userProd.getClaimAgent();
+		if (claimAgent == null) {
 			throw new ApiException(ErrorStatus.TRUST_CLAIM_AGENT_NOT_FOUND);
 		}
 
 		userProd.setIsAgentView(true);
+
+		TBFamilyAuth familyAuth = familyAuthRepository
+			.findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+			.orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
+		familyAuth.setIsTrustView(true);
 	}
 }
