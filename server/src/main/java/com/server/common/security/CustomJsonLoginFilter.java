@@ -2,12 +2,12 @@ package com.server.common.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.auth.dto.LoginRequestDTO;
-import com.server.common.exception.LoginValidationException;
 import com.server.common.validator.AuthPatternValidator;
 import com.server.common.validator.FaceIdValidator;
 import com.server.common.validator.LoginIdValidator;
 import com.server.common.validator.PasswordValidator;
 import com.server.common.validator.PinValidator;
+import com.server.user.exception.LoginValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -69,8 +69,8 @@ public class CustomJsonLoginFilter extends AbstractAuthenticationProcessingFilte
   }
 
   /**
-   * loginId 형식 검증 및 means별 userPwd 형식 검증.
-   * 검증 실패 시 LoginValidationException을 던져 LoginFailureHandler로 전달합니다.
+   * loginId 형식 검증 및 means별 userPwd 형식 검증. 검증 실패 시 LoginValidationException을 던져 LoginFailureHandler로
+   * 전달합니다.
    */
   private void validateLoginRequest(LoginRequestDTO dto) {
     if (!LOGIN_ID_VALIDATOR.isValid(dto.getLoginId(), null)) {

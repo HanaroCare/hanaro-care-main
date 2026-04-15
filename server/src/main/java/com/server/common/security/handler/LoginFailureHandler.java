@@ -3,7 +3,7 @@ package com.server.common.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.common.exception.AccountDormantException;
 import com.server.common.exception.AccountSuspendedException;
-import com.server.common.exception.LoginValidationException;
+import com.server.user.exception.LoginValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
