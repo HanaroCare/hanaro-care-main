@@ -1,4 +1,4 @@
-package com.server.asset.dto.request;
+package com.server.asset.dto.simulation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.server.asset.entity.enums.CareType;
