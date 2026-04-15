@@ -33,9 +33,6 @@ public class TBUser {
   @Column(name = "USER_ID", columnDefinition = "bigint unsigned")
   private Long userId;
 
-  @Column(name = "LOGIN_ID", nullable = false, unique = true, length = 20)
-  private String loginId;
-
   @Column(name = "USER_NM", nullable = false, length = 20)
   private String userNm;
 
