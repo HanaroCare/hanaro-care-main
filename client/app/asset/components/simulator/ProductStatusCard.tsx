@@ -18,6 +18,7 @@ export function ProductStatusCard({ type, status, onAction }: Props) {
   const title = isTrust ? '내맘대로신탁' : '주택연금';
   const Icon = isTrust ? CircleDollarSign : Home;
   const isActive = status === 'active';
+  const isRecommend = status === 'recommend';
 
   const handleNavigation = () => {
     if (onAction) {
@@ -25,14 +26,25 @@ export function ProductStatusCard({ type, status, onAction }: Props) {
       return;
     }
 
+    // 1. 상세 보기 (운용 중일 때)
     if (isActive) {
       if (isTrust) {
         router.push('/asset/trust/dashboard' as Route);
       } else {
         router.push('/asset/home-pension/dashboard' as Route);
       }
-    } else {
-      console.log('상담하기 및 설계하기 기능은 현재 준비 중입니다.');
+    }
+    // 2. 맞춤형 설계해보기 (추천 상태일 때)
+    else if (isRecommend) {
+      if (isTrust) {
+        router.push('/asset/trust' as Route);
+      } else {
+        router.push('/asset/home-pension' as Route);
+      }
+    }
+    // 3. 상담 예약하기 (designed 상태일 때) -> 비워둠
+    else {
+      console.log('상담 예약 기능은 준비 중입니다.');
     }
   };
 
