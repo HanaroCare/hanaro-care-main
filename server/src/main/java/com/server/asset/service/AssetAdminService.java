@@ -1,16 +1,14 @@
 package com.server.asset.service;
 
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
-import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBProduct;
 import com.server.asset.entity.TBTrustSimulation;
 import com.server.asset.entity.TBUserProd;
-import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.entity.enums.PayoutType;
 import com.server.asset.entity.enums.ProdCate;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
+import com.server.asset.mapper.PensionMapper;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.ProductRepository;
 import com.server.asset.repository.TBAccountRepository;
@@ -18,6 +16,7 @@ import com.server.asset.repository.TBPensionSimulationRepository;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
+import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBUser;
@@ -36,9 +35,11 @@ public class AssetAdminService {
 	private final UserProdRepository userProdRepository;
 	private final ProductRepository productRepository;
 	private final TrustMapper trustMapper;
+	private final PensionMapper pensionMapper;
 	private final TBPensionSimulationRepository pensionSimulationRepository;
 	private final TBAccountRepository accountRepository;
 
+	@CheckUser(key = "#userId")
 	@Transactional
 	public Long subscribeTrustProduct(Long userId) {
 		TBUser user = userRepository.findById(userId)
@@ -66,6 +67,7 @@ public class AssetAdminService {
 		return userProdRepository.save(userProd).getUserProdId();
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional
 	public Long subscribePensionProduct(Long userId, Long realAssetId) {
 		TBUser user = userRepository.findById(userId)
@@ -87,39 +89,18 @@ public class AssetAdminService {
 			throw new ApiException(ErrorStatus.PENSION_ALREADY_EXISTS);
 		}
 
-		BigDecimal monthlyPayout = simulation.getRecommendedMonthlyAmt();
+		TBUserProd savedProd = userProdRepository.save(
+			pensionMapper.toUserProd(simulation, user, product)
+		);
 
-		TBUserProd userProd = TBUserProd.builder()
-			.user(user)
-			.product(product)
-			.prodType(ProdType.HOUSING_PENSION)
-			.payoutType(PayoutType.PENSION)
-			.pensionPayoutType(simulation.getRecommendedType())
-			.prodStat(ProdStat.IN_PROGRESS)
-			.targetAsset(simulation.getRealAsset())
-			.monthlyPayout(monthlyPayout)
-			.build();
-
-		TBUserProd savedProd = userProdRepository.save(userProd);
-
-		TBAccount account = TBAccount.builder()
-			.user(user)
-			.instNm("한국주택금융공사")
-			.accountNm("주택연금 (" + simulation.getRecommendedType().getDescription() + ")")
-			.accountNum("HF-" + savedProd.getUserProdId())
-			.balanceAmt(BigDecimal.ZERO)
-			.assetCateCd(AssetCategory.PENSION)
-			.profitRate(BigDecimal.ZERO)
-			.payAmt(monthlyPayout)
-			.monthlyPremAmt(BigDecimal.ZERO)
-			.contrDt(userProd.getStartDate())
-			.build();
-
-		accountRepository.save(account);
+		accountRepository.save(
+			pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(), simulation)
+		);
 
 		return savedProd.getUserProdId();
 	}
 
+	@CheckUser(key = "#userId")
 	@Transactional
 	public void enableAgentView(Long userId) {
 		TBUserProd userProd = userProdRepository.findByUser_UserIdAndProduct_ProdCateAndProdStat(
