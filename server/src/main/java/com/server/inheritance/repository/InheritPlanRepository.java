@@ -11,4 +11,6 @@ public interface InheritPlanRepository extends JpaRepository<TBInheritPlan, Long
 
   @Query("SELECT p FROM TBInheritPlan p WHERE p.user.userId = :userId")
   Optional<TBInheritPlan> findByUserId(Long userId);
+
+  Optional<TBInheritPlan> findByUser_UserId(Long userId);
 }

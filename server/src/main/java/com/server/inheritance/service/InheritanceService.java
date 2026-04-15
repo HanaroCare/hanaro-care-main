@@ -19,6 +19,7 @@ import com.server.inheritance.repository.InheritLetterRepository;
 import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.FamilyRelation;
+import com.server.user.repository.UserRepository;
 import com.server.user.service.FamilyService;
 import com.server.user.service.UserService;
 import java.math.BigDecimal;
@@ -41,6 +42,7 @@ public class InheritanceService {
   private final AssetService assetService;
   private final UserService userService;
   private final FamilyService familyService;
+  private final UserRepository userRepository;
 
   public InheritanceContextDTO getInheritanceContext(Long userId) {
     // AssetService의 대시보드 데이터를 호출
@@ -63,7 +65,8 @@ public class InheritanceService {
       throw new ApiException(ErrorStatus.INHERIT_INVALID_RATIO);
     }
 
-    TBUser user = userService.getUserById(userId);
+    TBUser user = userRepository.findById(userId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
 
     // 자산 대시보드 데이터 호출 및 총 상속 자산 계산
     AssetDashboardResponse dashboard = assetService.getAssetDashboard(userId);
@@ -99,7 +102,8 @@ public class InheritanceService {
       String hName = dist.getHeirName();
 
       if (dist.getHeirUserId() != null) {
-        heir = userService.getUserById(dist.getHeirUserId());
+        heir = userRepository.findById(dist.getHeirUserId())
+            .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
         hName = heir.getUserNm();
       }
 
@@ -264,9 +268,9 @@ public class InheritanceService {
         }
 
         if (ra.assetCateCd() == RealAssetCategory.REAL_ESTATE) {
-          realEstate = realEstate.add(ra.totalValue());
+          realEstate = realEstate.add(ra.evalAmt());
         } else {
-          others = others.add(ra.totalValue());
+          others = others.add(ra.evalAmt());
         }
       }
     }

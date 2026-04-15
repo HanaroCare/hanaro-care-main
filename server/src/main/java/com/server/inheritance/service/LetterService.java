@@ -10,10 +10,10 @@ import com.server.inheritance.entity.TBInheritDetail;
 import com.server.inheritance.entity.TBInheritLetter;
 import com.server.inheritance.entity.TBInheritPlan;
 import com.server.inheritance.enums.LetterType;
-import com.server.inheritance.repository.TBInheritDetailRepository;
-import com.server.inheritance.repository.TBInheritPlanRepository;
-import com.server.inheritance.repository.TBLetterRepository;
-import com.server.user.repository.TBFamilyAuthRepository;
+import com.server.inheritance.repository.InheritDetailRepository;
+import com.server.inheritance.repository.InheritPlanRepository;
+import com.server.inheritance.repository.InheritLetterRepository;
+import com.server.user.repository.FamilyAuthRepository;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,10 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class LetterService {
 
-  private final TBFamilyAuthRepository familyAuthRepository;
-  private final TBLetterRepository letterRepository;
-  private final TBInheritDetailRepository inheritDetailRepository;
-  private final TBInheritPlanRepository inheritPlanRepository;
+  private final FamilyAuthRepository familyAuthRepository;
+  private final InheritLetterRepository letterRepository;
+  private final InheritDetailRepository inheritDetailRepository;
+  private final InheritPlanRepository inheritPlanRepository;
 
   @Value("${voice.upload-dir}")
   String uploadDir;

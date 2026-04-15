@@ -4,7 +4,7 @@ import com.server.common.annotation.CheckUser;
 import com.server.myhana.dto.ContractDto;
 import com.server.myhana.dto.FamilySummaryDto;
 import com.server.user.entity.TBFamilyAuth;
-import com.server.user.repository.TBFamilyAuthRepository;
+import com.server.user.repository.FamilyAuthRepository;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class InheritanceService {
+public class MyHanaInheritanceService {
 
-  private final TBFamilyAuthRepository familyAuthRepository;
+  private final FamilyAuthRepository familyAuthRepository;
 
   // 가족 조회
   @CheckUser(key = "#userId")

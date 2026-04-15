@@ -23,6 +23,13 @@ public enum ErrorStatus implements BaseErrorCode {
   AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH_005", "유효하지 않은 토큰입니다."),
   AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_006", "토큰이 만료되었습니다."),
   AUTH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH_007", "토큰이 일치하지 않습니다. 다시 로그인하세요."),
+  AUTH_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH_008", "사용자를 찾을 수 없습니다."),
+
+  // sms
+  SMS_CODE_EXPIRED(HttpStatus.BAD_REQUEST, "SMS_001", "인증번호가 만료되었습니다."),
+  SMS_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "SMS_002", "인증번호가 일치하지 않습니다."),
+  SMS_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SMS_003", "인증번호 발송에 실패했습니다."),
+  SMS_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "SMS_004", "휴대폰 인증이 필요합니다."),
 
   FAMILY_AUTH_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY4041", "가족 권한 정보를 찾을 수 없습니다."),
   FAMILY_AUTH_NOT_APPROVED(HttpStatus.FORBIDDEN, "FAMILY4031", "아직 승인되지 않은 가족 권한입니다."),
@@ -67,9 +74,17 @@ public enum ErrorStatus implements BaseErrorCode {
   // inheritance
   INHERIT_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "상속 계획 정보를 찾을 수 없습니다."),
   INHERIT_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "상속 상세 정보를 찾을 수 없습니다."),
+  INHERIT_INVALID_RATIO(HttpStatus.BAD_REQUEST, "INHERIT_001", "상속 비율의 합은 100%여야 합니다."),
+  INHERIT_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_002", "편지를 찾을 수 없습니다."),
+  INHERIT_HEIR_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_003", "상속인 정보를 찾을 수 없습니다."),
   VOICE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "INHERIT_400", "음성 파일을 첨부해야 합니다."),
   LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "편지 정보를 찾을 수 없습니다."),
   LETTER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "INHERIT_400", "이미 편지가 존재합니다."),
+
+  // user
+  USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "사용자를 찾을 수 없습니다."),
+  USER_ALREADY_WITHDRAWN(HttpStatus.BAD_REQUEST, "USER_002", "이미 탈퇴한 사용자입니다."),
+
   // myhana
   INSURANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "INS_404", "보험 정보를 찾을 수 없습니다."),
   INSURANCE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INS_403", "보험 접근 권한이 없습니다."),
