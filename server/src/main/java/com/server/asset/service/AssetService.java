@@ -63,7 +63,8 @@ public class AssetService {
   @CheckUser(key = "#userId")
   public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
     return assetMapper.toFinancialAssetResponseList(
-        tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNot(userId, AssetCategory.INSURANCE)
+        tbAccountRepository.findAllByUser_UserIdAndAssetCateCdNotAndIsLinkedTrue(userId,
+            AssetCategory.INSURANCE)
     );
   }
 
@@ -85,7 +86,8 @@ public class AssetService {
   @CheckUser(key = "#userId")
   public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
     return assetMapper.toAssetDetailListFromAccount(
-        tbAccountRepository.findByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
+        tbAccountRepository.findByUser_UserIdAndAssetCateCdAndIsLinkedTrue(userId,
+            AssetCategory.INSURANCE)
     );
   }
 
