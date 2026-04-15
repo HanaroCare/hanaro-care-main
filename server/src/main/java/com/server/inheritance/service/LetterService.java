@@ -67,17 +67,17 @@ public class LetterService {
   @CheckUser(key = "#userId")
   public LetterResponseDto sendLetter(Long userId, LetterRequestDto dto, MultipartFile voice)
       throws IOException {
-
-    if (letterRepository.findByInheritDetail_InheritDetailId(dto.getInheritDetailId())
-        .isPresent()) {
-      throw new ApiException(ErrorStatus.LETTER_ALREADY_EXISTS);
-    }
     TBInheritDetail detail = inheritDetailRepository.findById(dto.getInheritDetailId())
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
     if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId,
         detail.getUser().getUserId())) {
       throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+    }
+
+    if (letterRepository.findByInheritDetail_InheritDetailId(dto.getInheritDetailId())
+        .isPresent()) {
+      throw new ApiException(ErrorStatus.LETTER_ALREADY_EXISTS);
     }
 
     String filename = "";
