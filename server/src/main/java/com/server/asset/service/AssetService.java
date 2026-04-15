@@ -33,17 +33,16 @@ public class AssetService {
 
 	@CheckUser(key = "#userId")
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
-		// 1. 금융 자산 총액 조회
-		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
+		// 1. 금융 자산 총액 조회 (연동된 계좌만 합산하도록 수정)
+		BigDecimal totalFinancialAmt = tbAccountRepository.findTotalBalanceByUserIdAndIsLinkedTrue(userId);
 		totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
 
-		// 2. 금융 자산 카테고리별 합계 (차트용 - 기존 유지)
+		// 2. 금융 자산 카테고리별 합계 (연동된 계좌만 그룹화하도록 수정)
 		List<FinancialAssetSummary> financialAssets = assetMapper.toFinancialAssetSummaryList(
-			tbAccountRepository.findBalanceSumGroupByCategoryByUserId(userId)
+			tbAccountRepository.findBalanceSumGroupByCategoryByUserIdAndIsLinkedTrue(userId)
 		);
 
-		// 3. 실물 자산 상세 리스트 (카드 리스트용 - 수정)
-		// findEvalAmtSumGroupByCategory... 대신 findAllByUserId... 사용
+		// 3. 실물 자산 상세 리스트 (실물 자산은 통상 연동 해제 개념이 없으므로 기존 유지)
 		List<RealAssetSummary> realAssets = assetMapper.toRealAssetSummaryListFromEntity(
 			tbRealAssetRepository.findAllByUser_UserId(userId)
 		);
@@ -84,8 +83,9 @@ public class AssetService {
 
 	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
+		// 기존 findByUser_UserIdAndAssetCateCd 대신 연동 여부(IsLinkedTrue)를 체크하는 메서드 호출
 		return assetMapper.toAssetDetailListFromAccount(
-			tbAccountRepository.findByUser_UserIdAndAssetCateCd(userId, AssetCategory.INSURANCE)
+			tbAccountRepository.findByUser_UserIdAndAssetCateCdAndIsLinkedTrue(userId, AssetCategory.INSURANCE)
 		);
 	}
 }

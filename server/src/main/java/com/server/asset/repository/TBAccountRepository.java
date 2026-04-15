@@ -12,11 +12,6 @@ import org.springframework.data.repository.query.Param;
 public interface TBAccountRepository extends JpaRepository<TBAccount, Long> {
 
   List<TBAccount> findByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCateCd);
-
-  List<TBAccount> findAllByUser_UserIdAndAssetCateCdNot(Long userId, AssetCategory assetCateCd);
-
-  Optional<TBAccount> findByAccountId(Long accountId);
-
   @Query("""
           SELECT a.assetCateCd, SUM(a.balanceAmt)
           FROM TBAccount a
