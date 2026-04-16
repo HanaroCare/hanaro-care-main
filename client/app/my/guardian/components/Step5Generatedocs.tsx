@@ -4,8 +4,8 @@ import { FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
-import type { GuardianData } from '../types/types';
 import { getContractBlob, getUserName } from '../../actions/guardianActions';
+import type { GuardianData } from '../types/types';
 
 type Props = {
   data: GuardianData;
@@ -55,11 +55,20 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
       setIsDownloading(true);
 
       // 백엔드 ContractDto 규격에 맞게 조립
-      await getContractBlob({
+      const blob = await getContractBlob({
         guardianName: guardianName,
         guardianRelation: data.relationship,
         permission: data.permissions, // [true, false, ...] boolean[5]
       });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+
+      a.href = url;
+      a.download = 'contract.docx'; // 파일명
+      a.click();
+
+      URL.revokeObjectURL(url);
 
       // 다운로드 완료 후 다음 단계로 이동
       onNext();
