@@ -63,8 +63,8 @@ export default async function Home() {
 
   // ─── 표시할 배너 1개 결정 ───
   const activeBanner: ActiveBanner = (() => {
-    // Group 1: 시뮬레이션 (최우선)
-    if (!hasCompletedSimulation) return { type: 'simulation-cta' };
+    // Group 1: 시뮬레이션 (최우선) — 마이데이터 미연결 시 미표시
+    if (hasLinkedMyData && !hasCompletedSimulation) return { type: 'simulation-cta' };
     // 시뮬레이션만으로는 미표시 — 주택연금 상품 실제 가입 시에만 표시
     if (housingPensionProduct) {
       return {
@@ -93,13 +93,6 @@ export default async function Home() {
           <span className="text-hana-green-700">Care</span>
         </div>
       </div>
-
-      <AssetDashboard data={assetData} />
-      <MedicalBudgetCard
-        data={simulationData}
-        totalFinancialAmt={assetData?.totalFinancialAmt ?? 0}
-      />
-      <RealAssetCard data={assetData?.realAssets} />
 
       {activeBanner?.type === 'simulation-cta' && (
         <BannerCard
@@ -163,6 +156,13 @@ export default async function Home() {
           // href="/asset/home-pension"
         />
       )}
+      <AssetDashboard data={assetData} />
+      <MedicalBudgetCard
+        data={simulationData}
+        totalFinancialAmt={assetData?.totalFinancialAmt ?? 0}
+      />
+      <RealAssetCard data={assetData?.realAssets} />
+
 
       <NavigationBar />
     </main>
