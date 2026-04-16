@@ -1,6 +1,5 @@
-'use client';
-
 import { NavigationBar } from '@/components/navigation/NavigationBar';
+import { getAssetDashboard } from './asset/actions/asset';
 import { AssetDashboard } from './asset/components/AssetDashboard';
 import { MedicalBudgetCard } from './asset/components/MedicalBudgetCard';
 import { BannerCard } from './asset/components/notification/BannerCard';
@@ -10,7 +9,9 @@ import { MedicalBillCard } from './asset/components/notification/MedicalBillCard
 import { PensionCard } from './asset/components/notification/PensionCard';
 import { RealAssetCard } from './asset/components/RealAssetListCard';
 
-export default function Home() {
+export default async function Home() {
+  const assetData = await getAssetDashboard().catch(() => null);
+
   return (
     <main className="flex flex-col items-center gap-6 px-6 pt-6 pb-25">
       <div className="flex w-full justify-start">
@@ -19,14 +20,14 @@ export default function Home() {
           <span className="text-hana-green-700">Care</span>
         </div>
       </div>
-      <AssetDashboard />
+      <AssetDashboard data={assetData} />
       <MedicalBudgetCard
         usedAmount={0.8}
         totalAmount={2.0}
         usagePercent={40}
         yearsLeft={12}
       />
-      <RealAssetCard />
+      <RealAssetCard data={assetData?.realAssets} />
 
       <BannerCard
         title={<>내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?</>}

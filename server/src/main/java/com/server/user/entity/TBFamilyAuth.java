@@ -1,5 +1,6 @@
 package com.server.user.entity;
 
+import com.server.card.entity.TBCard;
 import com.server.common.entity.BaseEntity;
 import com.server.user.enums.FamilyRelation;
 import io.hypersistence.utils.hibernate.id.Tsid;
@@ -64,6 +65,10 @@ public class TBFamilyAuth extends BaseEntity {
   @Builder.Default
   @Column(name = "IS_CARD_VIEW", nullable = false)
   private Boolean isCardView = false;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "CARD_ID", columnDefinition = "bigint unsigned")
+  private TBCard card;
 
   @Builder.Default
   @Column(name = "IS_PROXY_CLAIM", nullable = false)

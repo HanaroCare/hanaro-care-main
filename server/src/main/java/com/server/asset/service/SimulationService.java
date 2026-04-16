@@ -1,6 +1,7 @@
 package com.server.asset.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -16,12 +17,12 @@ import com.server.asset.dto.simulation.SimulationResponse;
 import com.server.asset.dto.simulation.SimulationSummaryResponse;
 import com.server.asset.entity.TBAssetSimulation;
 import com.server.asset.mapper.SimulationMapper;
-import com.server.asset.repository.TBAssetSimulationRepository;
+import com.server.asset.repository.AssetSimulationRepository;
 import com.server.asset.util.UserContextUtil;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
-import com.server.user.repository.TBUserRepository;
+import com.server.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,93 +31,128 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 public class SimulationService {
 
-    private final TBAssetSimulationRepository tbAssetSimulationRepository;
-    private final TBUserRepository tbUserRepository;
-    private final SimulationMapper simulationMapper;
-    private final UserContextUtil userContextUtil;
-    private final SimulationEngine simulationEngine;
-    private final ObjectMapper objectMapper;
+  private final AssetSimulationRepository assetSimulationRepository;
+  private final UserRepository UserRepository;
+  private final SimulationMapper simulationMapper;
+  private final UserContextUtil userContextUtil;
+  private final SimulationEngine simulationEngine;
+  private final ObjectMapper objectMapper;
 
-    @Transactional
-    @CheckUser(key = "#userId")
-    @CacheEvict(value = "simulationDetail", key = "#userId + ':' + `#request.targetAge` + ':' + `#request.careType.name`()")
-    public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
-        // 1. 사용자 컨텍스트 수집 (소비, 거주지, 자산 등)
-        AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
+  /**
+   * "70-75세", "80-83세" 같은 range 문자열에서 실제 구간 개월 수를 파싱합니다.
+   * 파싱 실패 시 기본값 60개월(5년)을 반환합니다.
+   */
+  private int extractMonthsFromRange(String range) {
+    if (range == null || range.isBlank()) return 60;
+    try {
+      String cleaned = range.replace("세", "").trim();
+      String[] parts = cleaned.split("-");
+      int startAge = Integer.parseInt(parts[0].trim());
+      int endAge = Integer.parseInt(parts[1].trim());
+      int years = endAge - startAge;
+      return years > 0 ? years * 12 : 60;
+    } catch (Exception e) {
+      return 60;
+    }
+  }
 
-        // 2. 시뮬레이션 엔진 가동 (통계 + 연금 + 지원금 + AI 분석 결합)
-        SimulationDetailResponse aiResult = simulationEngine.run(input);
+  @Transactional
+  @CheckUser(key = "#userId")
+  @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()")
+  public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
+    AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
+    SimulationDetailResponse aiResult = simulationEngine.run(input);
 
-        // 3. 분석 결과를 DB 엔티티로 변환 및 요약 정보 계산
-        BigDecimal totalIncomeAmt = (aiResult.getIncomeDetails() != null && aiResult.getIncomeDetails().getTotalMonthlyIncome() != null)
-            ? aiResult.getIncomeDetails().getTotalMonthlyIncome() : BigDecimal.ZERO;
+    BigDecimal totalAccumulatedCost = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedLiving = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedMedical = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedCare = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedIncome = BigDecimal.ZERO;
 
-        // 첫 번째 세그먼트 데이터를 기본 요약 정보로 사용
-        SimulationDetailResponse.AgeSegment firstSegment = (aiResult.getAgeSegments() != null && !aiResult.getAgeSegments().isEmpty())
-            ? aiResult.getAgeSegments().getFirst() : null;
+    int totalMonths = 0; // 루프 안에서 한 번에 계산하기 위해 이동
 
-        BigDecimal monthlyCost = (firstSegment != null && firstSegment.getExpense() != null) ? firstSegment.getExpense() : BigDecimal.ZERO;
-        BigDecimal shortageAmt = monthlyCost.subtract(totalIncomeAmt);
-        boolean isSufficient = shortageAmt.compareTo(BigDecimal.ZERO) <= 0;
+    if (aiResult.getAgeSegments() != null) {
+      for (SimulationDetailResponse.AgeSegment segment : aiResult.getAgeSegments()) {
+        int segmentMonths = extractMonthsFromRange(segment.getRange());
+        BigDecimal months = new BigDecimal(segmentMonths);
+        totalMonths += segmentMonths;
 
-        BigDecimal livingCost = (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail().getLiving() : BigDecimal.ZERO;
-        BigDecimal medicalCost = (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail().getMedical() : BigDecimal.ZERO;
-        BigDecimal careCost = (firstSegment != null && firstSegment.getDetail() != null) ? firstSegment.getDetail().getCare() : BigDecimal.ZERO;
+        totalAccumulatedCost = totalAccumulatedCost.add(segment.getExpense().multiply(months));
+        totalAccumulatedIncome = totalAccumulatedIncome.add(segment.getIncome().multiply(months));
 
-        String ageRangeDetails;
-        try {
-            ageRangeDetails = objectMapper.writeValueAsString(aiResult);
-        } catch (JsonProcessingException e) {
-            throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
+        if (segment.getDetail() != null) {
+          totalAccumulatedLiving = totalAccumulatedLiving.add(segment.getDetail().getLiving().multiply(months));
+          totalAccumulatedMedical = totalAccumulatedMedical.add(segment.getDetail().getMedical().multiply(months));
+          totalAccumulatedCare = totalAccumulatedCare.add(segment.getDetail().getCare().multiply(months));
         }
-
-        // 4. DB 저장
-        TBAssetSimulation simulation = TBAssetSimulation.builder()
-            .user(tbUserRepository.getReferenceById(userId))
-            .targetAge(request.getTargetAge())
-            .careType(request.getCareType())
-            .totalIncomeAmt(totalIncomeAmt)
-            .shortageAmt(shortageAmt)
-            .isSufficient(isSufficient)
-            .livingCost(livingCost)
-            .medicalCost(medicalCost)
-            .careCost(careCost)
-            .monthlyCost(monthlyCost)
-            .ageRangeDetails(ageRangeDetails)
-            .build();
-
-        TBAssetSimulation savedSimulation = tbAssetSimulationRepository.save(simulation);
-
-        return simulationMapper.toSimulationResponse(savedSimulation);
+      }
     }
 
-    @CheckUser(key = "#userId")
-    public SimulationSummaryResponse getSimulationSummary(Long userId) {
-        TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
-            .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
+    BigDecimal totalShortageAmt = totalAccumulatedCost.subtract(totalAccumulatedIncome);
 
-        try {
-            SimulationDetailResponse detailData = objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
-            return simulationMapper.toSimulationSummaryResponse(simulation, detailData.getAgeSegments(), detailData.getAiOpinion());
-        } catch (JsonProcessingException e) {
-            throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
-        }
+    BigDecimal monthlyShortageAmt = totalMonths > 0
+        ? totalShortageAmt.divide(new BigDecimal(totalMonths), 0, RoundingMode.HALF_UP)
+        : BigDecimal.ZERO;
+
+    boolean isSufficient = totalShortageAmt.compareTo(BigDecimal.ZERO) <= 0;
+
+    String ageRangeDetails;
+    try {
+      ageRangeDetails = objectMapper.writeValueAsString(aiResult);
+    } catch (JsonProcessingException e) {
+      throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
     }
 
-    @CheckUser(key = "#userId")
-    @Cacheable(
-        value = "simulationDetail",
-        key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()",
-        unless = "#result == null"
-    )
-    public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
-        TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(userId, request.getTargetAge(), request.getCareType())
-            .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
+    TBAssetSimulation simulation = TBAssetSimulation.builder()
+        .user(UserRepository.getReferenceById(userId))
+        .targetAge(request.getTargetAge())
+        .careType(request.getCareType())
+        .totalIncomeAmt(totalAccumulatedIncome)
+        .shortageAmt(monthlyShortageAmt)
+        .isSufficient(isSufficient)
+        .livingCost(totalAccumulatedLiving)
+        .medicalCost(totalAccumulatedMedical)
+        .careCost(totalAccumulatedCare)
+        .monthlyCost(totalAccumulatedCost)
+        .ageRangeDetails(ageRangeDetails)
+        .build();
 
-        try {
-            return objectMapper.readValue(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);
-        } catch (JsonProcessingException e) {
-            throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
-        }
+    TBAssetSimulation savedSimulation = assetSimulationRepository.save(simulation);
+    return simulationMapper.toSimulationResponse(savedSimulation);
+  }
+
+  @CheckUser(key = "#userId")
+  public SimulationSummaryResponse getSimulationSummary(Long userId) {
+    TBAssetSimulation simulation = assetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(
+            userId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
+
+    try {
+      SimulationDetailResponse detailData = objectMapper.readValue(simulation.getAgeRangeDetails(),
+          SimulationDetailResponse.class);
+      return simulationMapper.toSimulationSummaryResponse(simulation, detailData.getAgeSegments(),
+          detailData.getAiOpinion());
+    } catch (JsonProcessingException e) {
+      throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
     }
+  }
+
+  @CheckUser(key = "#userId")
+  @Cacheable(
+      value = "simulationDetail",
+      key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()",
+      unless = "#result == null"
+  )
+  public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
+    TBAssetSimulation simulation = assetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(
+            userId, request.getTargetAge(), request.getCareType())
+        .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
+
+    try {
+      return objectMapper.readValue(simulation.getAgeRangeDetails(),
+          SimulationDetailResponse.class);
+    } catch (JsonProcessingException e) {
+      throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
+    }
+  }
 }

@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.server.common.entity.BaseEntity;
-import com.server.inheritance.enums.FamilyRelation;
 import com.server.user.entity.TBUser;
+import com.server.user.enums.FamilyRelation;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -21,6 +21,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -60,10 +61,13 @@ public class TBInheritDetail extends BaseEntity {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID",
-      columnDefinition = "bigint unsigned not null",
+      columnDefinition = "bigint unsigned",
       foreignKey = @ForeignKey(name = "fk_InheritDetail_userId_User"
       ))
   private TBUser user;
+
+  @Column(name = "HEIR_NAME", length = 50)
+  private String heirName;
 
   @JsonManagedReference
   @OneToOne(mappedBy = "inheritDetail", cascade = CascadeType.ALL, orphanRemoval = true)

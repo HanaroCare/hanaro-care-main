@@ -1,51 +1,104 @@
 package com.server.auth.controller;
 
 import com.server.auth.dto.LoginRequestDTO;
+import com.server.auth.dto.PasswordFindRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
+import com.server.auth.dto.SmsRequestDTO;
+import com.server.auth.dto.SmsVerifyRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
+import com.server.auth.dto.UnlockDormantRequestDTO;
+import com.server.auth.response.ApiPasswordFindResponse;
+import com.server.auth.response.ApiSmsVerifyResponse;
 import com.server.auth.service.AuthService;
+import com.server.auth.service.SmsAuthService;
+import com.server.common.response.ApiResponse;
+import com.server.common.validator.LoginId;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "인증 API")
+@Validated
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
   private final AuthService authService;
+  private final SmsAuthService smsAuthService;
 
   @Operation(summary = "회원가입 API", description = "신규 회원을 등록한다.")
   @PostMapping("/signup")
-  public ResponseEntity<Void> signUp(@Valid @RequestBody SignUpRequestDTO request) {
+  public ApiResponse<String> signUp(@Valid @RequestBody SignUpRequestDTO request) {
     authService.signUp(request);
-    return ResponseEntity.status(HttpStatus.CREATED).build();
+    return ApiResponse.onSuccess("회원가입이 완료되었습니다.");
   }
 
-  @Operation(summary = "로그인 API", description = "아이디/비번으로 Access/Refresh 토큰을 발급한다. Security 필터가 처리한다.")
+  @Operation(
+      summary = "통합 로그인 API",
+      description = "실제 인증은 Security Filter가 처리하며, 이 메서드는 Swagger 문서화 전용입니다."
+  )
   @PostMapping("/login")
-  public ResponseEntity<TokenResponseDTO> login(@RequestBody LoginRequestDTO request) {
-    throw new IllegalStateException("이 메서드는 스프링 시큐리티 필터에 의해 처리되어야 합니다.");
-  }
-
-  @Operation(summary = "간편 로그인 API", description = "패턴 / 간편비밀번호 / FaceID로 로그인한다. means와 userPwd를 Body로 전달한다.")
-  @PostMapping("/login/simple")
-  public ResponseEntity<TokenResponseDTO> loginBySimpleMeans(
-      @Valid @RequestBody LoginRequestDTO request) {
-    return ResponseEntity.ok(authService.login(request));
+  public ApiResponse<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
+    // 1번 방식(Filter 기반)에서는 이 코드가 실행되지 않아야 함
+    throw new IllegalStateException("Security Filter가 가로채지 못했습니다. 설정을 확인하세요.");
   }
 
   @Operation(summary = "토큰 재발급", description = "리프레시 토큰을 이용해 새로운 액세스 토큰을 발급한다.")
   @PostMapping("/refresh")
-  public ResponseEntity<TokenResponseDTO> refresh(@RequestBody TokenResponseDTO request) {
-    return ResponseEntity.ok(authService.refresh(request.getRefreshToken()));
+  public ApiResponse<TokenResponseDTO> refresh(@RequestBody TokenResponseDTO request) {
+    return ApiResponse.onSuccess(authService.refresh(request.getRefreshToken()));
+  }
+
+  @Operation(
+      summary = "휴면 계정 해제 API",
+      description = "본인인증 완료 후 휴면 상태를 해제하고 새 비밀번호를 설정합니다."
+  )
+  @PostMapping("/unlock-dormant")
+  public ApiResponse<String> unlockDormant(@Valid @RequestBody UnlockDormantRequestDTO request) {
+    authService.unlockDormant(request);
+    return ApiResponse.onSuccess("휴면 계정 해제가 완료되었습니다.");
+  }
+
+  @Operation(summary = "아이디 중복 체크", description = "이미 사용 중이면 ApiException(USER_ALREADY_EXISTS)을 던집니다.")
+  @GetMapping("/check-id")
+  public ApiResponse<String> checkLoginId(
+      @Parameter(description = "아이디 (영문·숫자 4~20자)", example = "hong1234")
+      @RequestParam @LoginId String loginId) {
+    authService.checkLoginId(loginId); // 중복 시 서비스에서 ApiException 발생
+    return ApiResponse.onSuccess("사용 가능한 아이디입니다.");
+  }
+
+  @Operation(summary = "SMS 인증번호 발송")
+  @PostMapping("/sms/send")
+  public ApiResponse<String> sendSms(@Valid @RequestBody SmsRequestDTO request) {
+    smsAuthService.sendAuthCode(request);
+    return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
+  }
+
+  @Operation(summary = "비밀번호 찾기용 인증번호 발송")
+  @ApiPasswordFindResponse
+  @PostMapping("/sms/send/password-find")
+  public ApiResponse<String> sendPasswordFindCode(
+      @Valid @RequestBody PasswordFindRequestDTO request) {
+    smsAuthService.sendPasswordFindCode(request);
+    return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
+  }
+
+  @Operation(summary = "SMS 인증번호 확인")
+  @ApiSmsVerifyResponse
+  @PostMapping("/sms/verify")
+  public ApiResponse<String> verifySms(@Valid @RequestBody SmsVerifyRequestDTO request) {
+    smsAuthService.verifySms(request);
+    return ApiResponse.onSuccess("인증에 성공하였습니다.");
   }
 }

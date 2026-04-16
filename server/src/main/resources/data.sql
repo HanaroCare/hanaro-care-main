@@ -7,6 +7,7 @@ TRUNCATE TABLE TB_USER_PROD;
 TRUNCATE TABLE TB_USER_LOGIN_LOG;
 TRUNCATE TABLE TB_FAMILY_AUTH;
 TRUNCATE TABLE TB_CARD;
+TRUNCATE TABLE TB_CARD_USAGE;
 TRUNCATE TABLE TB_ASSET_SIMULATION;
 TRUNCATE TABLE TB_TRUST_SIMULATION;
 TRUNCATE TABLE TB_PENSION_SIMULATION;
@@ -25,23 +26,35 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- TB_USER
 -- 비밀번호: $2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su
 -- ========================
-INSERT INTO TB_USER (USER_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE, IS_HANA_CERT,
-                     USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT, PWD_CHANGED_AT)
+INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE,
+                     IS_HANA_CERT, USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT,
+                     PWD_CHANGED_AT)
 VALUES
-    -- 1. 정상 유저 (최근 로그인)
-    (1001, '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01011112222', 65, 1, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
-    -- 2. 휴면 후보 유저 (마지막 로그인이 7개월 전이라 로그인 시점에 DORMANT로 바뀔 대상)
-    (1002, '김철수', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01022223333', 40, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH),
-     DATE_SUB(NOW(), INTERVAL 7 MONTH)),
-    -- 3. 이미 휴면 상태인 유저
-    (1003, '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01033334444', 63, 1, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 8 MONTH),
-     DATE_SUB(NOW(), INTERVAL 8 MONTH)),
-    -- 4. 관리자
-    (1004, '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01055556666', 35, 1, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW());
+    -- 1. 홍길동: 일반 비밀번호 유저
+    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 2. 김철수: 간편 비밀번호 유저
+    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2',
+     '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 3. 이영희: 휴면 계정 예시
+    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER',
+     DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH)),
+
+    -- 4. 박관리: 관리자 계정
+    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW()),
+
+    -- 5. 시뮬레이션 테스트용 부모 유저
+    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 6. 시뮬레이션 테스트용 자녀 유저
+    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
+
 
 -- ========================
 -- TB_PRODUCT
@@ -55,17 +68,51 @@ VALUES (1, '하나 연금신탁', '안정적인 노후 연금 상품', 'PENSION'
 -- ========================
 INSERT INTO TB_ACCOUNT (ACCOUNT_ID, USER_ID, INST_NM, ACCOUNT_NM, ACCOUNT_NUM, BALANCE_AMT,
                         ASSET_CATE_CD, PROFIT_RATE, PAY_DAY, PAY_AMT, MONTHLY_PREM_AMT, CONTR_DT,
-                        EXPIRE_DT, LIMIT_AMT)
-VALUES (2001, 1001, '하나은행', '하나 자유입출금', '111-222-333333', 50000000.00, 'CASH', 0.10, 1, 0.00, 0.00,
-        '2020-01-01', '2099-12-31', 0.00),
-       (2002, 1001, '하나은행', '하나 정기예금', '111-222-444444', 30000000.00, 'CASH', 3.50, 1, 0.00, 0.00,
-        '2024-01-01', '2025-01-01', 0.00),
-       (2003, 1001, '하나증권', '삼성전자 외 3종목', '444-555-666666', 72000000.00, 'STOCK', 5.20, 1, 0.00,
-        0.00, '2023-05-10', '2099-12-31', 0.00),
-       (2004, 1001, '국민연금공단', '국민연금 수령 예정', '777-888-999999', 30000000.00, 'PENSION', 0.00, 25,
-        1300000.00, 0.00, '1990-01-01', '2045-01-01', 0.00),
-       (2005, 1001, '하나생명', '하나 건강보험', '111-222-555555', 42000000.00, 'INSURANCE', 0.00, 1, 0.00,
-        150000.00, '2021-03-15', '2051-03-15', 100000000.00);
+                        EXPIRE_DT, LIMIT_AMT, IS_LINKED)
+VALUES
+    -- [1001 홍길동] 자산가 시나리오
+    (2001, 1001, '하나은행', '하나 자유입출금', '111-222-100101', 55000000.00, 'CASH', 0.1, 1, 0, 0,
+     '2020-01-01', '2099-12-31', 0, 1),
+    (2002, 1001, '하나증권', '국내주식 종합계좌', '444-555-100102', 120000000.00, 'STOCK', 8.5, 1, 0, 0,
+     '2021-05-10', '2099-12-31', 0, 1),
+    (2003, 1001, '하나생명', '무배당 하나연금보험', '111-222-100103', 85000000.00, 'INSURANCE', 0, 1, 0, 300000,
+     '2015-03-20', '2045-03-20', 200000000, 1),
+    (2004, 1001, '하나카드', '하나 CLUB H 카드', '1234-5678-****-1001', 2450000.00, 'CARD', 0, 13, 0, 0,
+     '2022-01-15', '2027-01-15', 10000000, 1),
+
+    -- [1002 김철수] 일반 유저 시나리오
+    (2005, 1002, '신한은행', '신한 주거래 우대통장', '333-444-100201', 8200000.00, 'CASH', 0.1, 1, 0, 0,
+     '2018-11-01', '2099-12-31', 0, 1),
+    (2006, 1002, '미래에셋증권', '해외주식 소수점투자', '555-666-100202', 15000000.00, 'STOCK', -2.3, 1, 0, 0,
+     '2023-01-10', '2099-12-31', 0, 1),
+    (2007, 1002, '현대해상', '무배당 하이카운전자보험', '777-888-100203', 3000000.00, 'INSURANCE', 0, 5, 0, 55000,
+     '2022-06-01', '2042-06-01', 50000000, 1),
+    (2008, 1002, '현대카드', '현대카드 M Edition3', '9876-5432-****-1002', 4580000.00, 'CARD', 0, 25, 0, 0,
+     '2021-09-01', '2026-09-01', 15000000, 1),
+
+    -- [1003 이영희] 휴면 계정
+    (2009, 1003, '국민은행', 'KB스타트예금', '666-777-100301', 125000.00, 'CASH', 0.1, 1, 0, 0, '2019-02-15',
+     '2099-12-31', 0, 1),
+    (2010, 1003, '삼성증권', 'CMA 계좌', '888-999-100302', 54000.00, 'STOCK', 1.2, 1, 0, 0, '2020-05-20',
+     '2099-12-31', 0, 1),
+
+    -- [1004 박관리] 테스트용 관리자
+    (2011, 1004, '하나은행', '관리자 테스트 통장', '000-000-100401', 10000000.00, 'CASH', 0.1, 1, 0, 0,
+     '2024-01-01', '2099-12-31', 0, 1),
+    (2012, 1004, '하나증권', '테스트 주식계좌', '000-000-100402', 5000000.00, 'STOCK', 10.0, 1, 0, 0,
+     '2024-01-01', '2099-12-31', 0, 1),
+    (2013, 1004, '하나생명', '테스트 보험상품', '000-000-100403', 1000000.00, 'INSURANCE', 0, 1, 0, 100000,
+     '2024-01-01', '2044-01-01', 10000000, 1),
+    (2014, 1004, '하나카드', '테스트 신용카드', '0000-0000-****-1004', 500000.00, 'CARD', 0, 15, 0, 0,
+     '2024-01-01', '2029-01-01', 5000000, 1),
+
+    -- [1005 정순자] 시뮬레이션 부모
+    (2015, 1005, '하나은행', '하나 연금통장', '111-333-100501', 35000000.00, 'CASH', 0.1, 1, 0, 0,
+     '2018-06-01', '2099-12-31', 0, 1),
+    (2016, 1005, '하나증권', '하나OCIO알아서펀드', '444-111-100502', 15000000.00, 'STOCK', 2.8, 1, 0, 0,
+     '2024-01-10', '2099-12-31', 0, 1),
+    (2017, 1005, '삼성생명', '삼성 종신보험', '222-333-100503', 30000000.00, 'INSURANCE', 0, 15, 0, 120000,
+     '2010-05-01', '2045-05-01', 80000000, 1);
 
 -- ========================
 -- TB_REAL_ASSET
@@ -76,14 +123,44 @@ VALUES (3001, 1001, '역삼동 아파트', 'REAL_ESTATE', 920000000.00, '서울 
         '자가 거주 중인 아파트'),
        (3002, 1001, '그랜저 IG 2021', 'VEHICLE', 28500000.00, '서울 강남구 역삼동 주차장', 0.00,
         '2021년식 · 37,200km'),
-       (3003, 1001, '금 · 37.5g', 'GOLD', 4380000.00, '하나은행 대여금고', 37.50, 'KRX 금시장 구매분');
+       (3003, 1001, '금 · 37.5g', 'GOLD', 4380000.00, '하나은행 대여금고', 37.50, 'KRX 금시장 구매분'),
+       (3004, 1005, '마포구 아파트', 'REAL_ESTATE', 780000000.00, '서울 마포구 공덕동 456-78', 76.00,
+        '자가 거주 중인 아파트'),
+       (3005, 1005, '아반떼 CN7 2022', 'VEHICLE', 18000000.00, '서울 마포구 공덕동 주차장', 0.00,
+        '2022년식 · 22,500km');
 
 -- ========================
 -- TB_CARD
 -- ========================
-INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE)
-VALUES (4001, 2001, '하나 시니어 행복카드', 5000000.00, 0.00, 1),
-       (4002, 2001, '하나 요양비 전용카드', 2000000.00, 500000.00, 1);
+INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE, BALANCE_AMT, PAY_DAY)
+VALUES (4001, 2001, '한금순 요양보호사 간병비 카드', 5000000.00, 0.00, 1, 320000.00, 15),
+       (4002, 2001, '최고운 요양보호사 생활비 카드', 2000000.00, 500000.00, 1, 150000.00, 20);
+
+-- ========================
+-- TB_CARD_USAGE
+-- ========================
+INSERT INTO TB_CARD_USAGE (CARD_USAGE_ID, CARD_ID, USAGE_NM, USAGE_LOC, USAGE_TYPE_CD, USAGE_AMT, ABNML_YN, APRVL_YN)
+VALUES
+    (9001, 4001, '강남성심병원', '서울 강남구 도곡동', 'SPEND', 25000.00, 'N', 'Y'),
+    (9002, 4001, '홍길동', NULL, 'CHARGE', 300000.00, 'N', 'Y'),
+    (9003, 4001, '네일샵 강남점', '서울 강남구 강남대로', 'SPEND', 45000.00, 'Y', 'Y'),
+    (9004, 4001, '삼성서울병원 약국', '서울 강남구 일원동', 'SPEND', 18500.00, 'N', 'Y'),
+    (9005, 4001, '강남구보건소', '서울 강남구 삼성동', 'SPEND', 5000.00, 'N', 'Y'),
+    (9006, 4001, '온누리약국 역삼점', '서울 강남구 역삼동', 'SPEND', 12800.00, 'N', 'Y'),
+    (9007, 4001, '노래방 강남점', '서울 강남구 역삼동', 'SPEND', 35000.00, 'Y', 'Y'),
+    (9008, 4001, '의료기기센터 강남', '서울 강남구 논현동', 'SPEND', 45000.00, 'N', 'Y'),
+    (9009, 4001, '강남재활의학과', '서울 강남구 역삼동', 'SPEND', 32000.00, 'N', 'Y'),
+    (9010, 4001, '한마음약국', '서울 강남구 대치동', 'SPEND', 9500.00, 'N', 'Y'),
+    (9011, 4002, '이마트 도곡점', '서울 강남구 도곡동', 'SPEND', 62000.00, 'N', 'Y'),
+    (9012, 4002, '홍길동', NULL, 'CHARGE', 200000.00, 'N', 'Y'),
+    (9013, 4002, 'GS25 역삼점', '서울 강남구 역삼동', 'SPEND', 7500.00, 'N', 'Y'),
+    (9014, 4002, '올리브영 강남점', '서울 강남구 강남대로', 'SPEND', 28000.00, 'N', 'Y'),
+    (9015, 4002, '코리아마트 논현점', '서울 강남구 논현동', 'SPEND', 41000.00, 'N', 'Y'),
+    (9016, 4002, '홍길동', NULL, 'CHARGE', 150000.00, 'N', 'Y'),
+    (9017, 4002, 'CU 논현점', '서울 강남구 논현동', 'SPEND', 5800.00, 'N', 'Y'),
+    (9018, 4002, '롯데마트 강남점', '서울 강남구 대치동', 'SPEND', 55000.00, 'N', 'Y'),
+    (9019, 4002, '강남세탁소', '서울 강남구 역삼동', 'SPEND', 15000.00, 'N', 'Y'),
+    (9020, 4002, '한강공원 편의점', '서울 강남구 강남대로', 'SPEND', 8200.00, 'N', 'Y');
 
 -- ========================
 -- TB_ASSET_SIMULATION
@@ -165,14 +242,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2050000,
     "cumulativeAmount": 492000000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 2050000, "cumulativeAmount": 24600000},
-      {"year": 4,  "monthlyAmount": 2050000, "cumulativeAmount": 98400000},
-      {"year": 7,  "monthlyAmount": 2050000, "cumulativeAmount": 172200000},
-      {"year": 10, "monthlyAmount": 2050000, "cumulativeAmount": 246000000},
-      {"year": 13, "monthlyAmount": 2050000, "cumulativeAmount": 319800000},
-      {"year": 16, "monthlyAmount": 2050000, "cumulativeAmount": 393600000},
-      {"year": 19, "monthlyAmount": 2050000, "cumulativeAmount": 467400000},
-      {"year": 20, "monthlyAmount": 2050000, "cumulativeAmount": 492000000}
+      {
+        "year": 1,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 24600000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 98400000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 172200000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 246000000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 319800000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 393600000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 467400000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 2050000,
+        "cumulativeAmount": 492000000
+      }
     ]
   },
   {
@@ -181,14 +290,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2870000,
     "cumulativeAmount": 447720000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 2870000, "cumulativeAmount": 34440000},
-      {"year": 4,  "monthlyAmount": 2870000, "cumulativeAmount": 137760000},
-      {"year": 7,  "monthlyAmount": 2870000, "cumulativeAmount": 241080000},
-      {"year": 10, "monthlyAmount": 2009000, "cumulativeAmount": 310188000},
-      {"year": 13, "monthlyAmount": 2009000, "cumulativeAmount": 382512000},
-      {"year": 16, "monthlyAmount": 2009000, "cumulativeAmount": 410196000},
-      {"year": 19, "monthlyAmount": 2009000, "cumulativeAmount": 434448000},
-      {"year": 20, "monthlyAmount": 2009000, "cumulativeAmount": 447720000}
+      {
+        "year": 1,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 34440000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 137760000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2870000,
+        "cumulativeAmount": 241080000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 310188000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 382512000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 410196000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 434448000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 2009000,
+        "cumulativeAmount": 447720000
+      }
     ]
   },
   {
@@ -197,14 +338,46 @@ VALUES (1, 3001, 'FIXED', 2050000.00, 492000000.00, 920000000.00, '[
     "monthlyAmount": 2583000,
     "cumulativeAmount": 495936000,
     "yearlyData": [
-      {"year": 1,  "monthlyAmount": 1640000, "cumulativeAmount": 19680000},
-      {"year": 4,  "monthlyAmount": 1853000, "cumulativeAmount": 89484000},
-      {"year": 7,  "monthlyAmount": 2094000, "cumulativeAmount": 170712000},
-      {"year": 10, "monthlyAmount": 2367000, "cumulativeAmount": 265404000},
-      {"year": 13, "monthlyAmount": 2674000, "cumulativeAmount": 376704000},
-      {"year": 16, "monthlyAmount": 3023000, "cumulativeAmount": 445380000},
-      {"year": 19, "monthlyAmount": 3416000, "cumulativeAmount": 478524000},
-      {"year": 20, "monthlyAmount": 3416000, "cumulativeAmount": 495936000}
+      {
+        "year": 1,
+        "monthlyAmount": 1640000,
+        "cumulativeAmount": 19680000
+      },
+      {
+        "year": 4,
+        "monthlyAmount": 1853000,
+        "cumulativeAmount": 89484000
+      },
+      {
+        "year": 7,
+        "monthlyAmount": 2094000,
+        "cumulativeAmount": 170712000
+      },
+      {
+        "year": 10,
+        "monthlyAmount": 2367000,
+        "cumulativeAmount": 265404000
+      },
+      {
+        "year": 13,
+        "monthlyAmount": 2674000,
+        "cumulativeAmount": 376704000
+      },
+      {
+        "year": 16,
+        "monthlyAmount": 3023000,
+        "cumulativeAmount": 445380000
+      },
+      {
+        "year": 19,
+        "monthlyAmount": 3416000,
+        "cumulativeAmount": 478524000
+      },
+      {
+        "year": 20,
+        "monthlyAmount": 3416000,
+        "cumulativeAmount": 495936000
+      }
     ]
   }
 ]');
@@ -256,7 +429,8 @@ VALUES (1, 1001, 1000000000.00, 45000000.00);
 -- ========================
 INSERT INTO TB_INHERIT_DETAIL (INHERIT_DETAIL_ID, INHERIT_PLAN_ID, USER_ID, RELATION_CD, DIST_RATIO)
 VALUES (1, 1, 1002, 'CHILD', 0.50),
-       (2, 1, 1003, 'SPOUSE', 0.50);
+       (2, 1, 1003, 'SPOUSE', 0.50),
+       (3, 1, 1004, 'CHILD', 0.00);
 
 -- ========================
 -- TB_INHERIT_LETTER
@@ -270,7 +444,9 @@ VALUES (1, 1, '아들아, 건강하게 잘 살아라.', 'https://s3.aws.com/voic
 -- =====================
 INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
-VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1);
+VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1),
+       (2, 1005, 1006, 'CHILD', 0, 0, 0, 0),
+       (3, 1001, 1004, 'CHILD', 1, 1, 1, 1);
 
 -- ========================
 -- TB_USER_LOGIN_LOG
@@ -284,9 +460,8 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- TB_USER_SIMPLE_AUTH
 -- ========================
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
-VALUES (8001, 1001, '$2a$12$R9h/lSAbvI7.Ctf386zUn.9v78RREI7K7T9I.X06C58L4iFm3lG8i',
-        'SIMPLE_PASSWORD'),
-       (8002, 1002, 'BIO_TOKEN_VALUE', 'FACEID');
+VALUES (8001, 1002, '$2a$12$3vbJaMEQ0c8gmy8vOTUq4u0oKkUZEiI584xqRz1bFKHe.drWmV3/G',
+        'SIMPLE_PASSWORD');
 
 -- ========================
 -- TB_REFRESH_TOKEN

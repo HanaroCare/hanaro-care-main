@@ -1,66 +1,47 @@
-'use client';
+import {
+  getAssetDashboard,
+  getFinancialAssets,
+  getInsuranceAssets,
+} from '@/app/asset/actions/asset';
+import SelectAssetsStepClient, {
+  type AssetItem,
+} from './SelectAssetsStepClient';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import { formatKoreanAmount, parseKoreanAmount } from '@/app/asset/trust/trustUtils';
-import TrustAmountList from '../TrustAmountList';
-import TrustWizardStep from '../TrustWizardStep';
+export default async function SelectAssetsStep() {
+  const [financialAssetsResult, insuranceAssetsResult, dashboardResult] =
+    await Promise.allSettled([
+      getFinancialAssets(),
+      getInsuranceAssets(),
+      getAssetDashboard(),
+    ]);
 
-const assets = [
-  { id: 'cash', title: '현금 / 예금', amount: '8,000만원' },
-  { id: 'insurance', title: '보험 해지환급금', amount: '약 4,200만원' },
-  { id: 'realestate', title: '부동산', amount: '10억원' },
-];
+  if (
+    financialAssetsResult.status === 'rejected' ||
+    insuranceAssetsResult.status === 'rejected' ||
+    dashboardResult.status === 'rejected'
+  ) {
+    return <SelectAssetsStepClient items={[]} /* hasLoadError */ />;
+  }
 
-export default function SelectAssetsStep() {
-  const router = useRouter();
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const financialAssets = financialAssetsResult.value;
+  const insuranceAssets = insuranceAssetsResult.value;
+  const dashboard = dashboardResult.value;
 
-  const toggle = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
-  };
+  const cashAmount = financialAssets
+    .filter((a) => a.assetCateCd === 'CASH')
+    .reduce((sum, a) => sum + a.balanceAmt, 0);
 
-  const total = assets
-    .filter((a) => selected.has(a.id))
-    .reduce((sum, a) => sum + parseKoreanAmount(a.amount), 0);
+  const insuranceAmount = insuranceAssets.reduce((sum, a) => sum + a.amount, 0);
 
-  return (
-    <TrustWizardStep
-      step={1}
-      footer={
-        <footer className="bg-white px-6 pt-10 pb-8">
-          <PrimaryButton
-            label="연결하기"
-            disabled={selected.size === 0}
-            onClick={() => router.push('/asset/trust/start-timing')}
-          />
-        </footer>
-      }
-    >
-      <div className="mt-14">
-        <p className="font-bold text-[22px] text-black leading-[1.45] tracking-[-0.02em]">
-          <span className="text-hana-ez-600">맡길 자산</span>을
-          <br />
-          선택해주세요
-        </p>
-        <p className="mt-3 text-[#6A7282] text-[12px]">
-          마이데이터로 자동 조회했어요
-        </p>
-      </div>
+  const realEstateAmount = (dashboard?.realAssets ?? [])
+    .filter((a) => a.assetCateCd === 'REAL_ESTATE')
+    .reduce((sum, a) => sum + (a.evalAmt ?? 0), 0);
 
-      <TrustAmountList
-        className="mt-6"
-        items={assets}
-        selected={selected}
-        onToggle={toggle}
-        totalLabel="선택 합계"
-        formattedTotal={formatKoreanAmount(total)}
-      />
-    </TrustWizardStep>
-  );
+  const items: AssetItem[] = [
+    { id: 'cash', title: '현금 / 예금', rawAmount: cashAmount },
+    { id: 'insurance', title: '보험 해지환급금', rawAmount: insuranceAmount },
+    { id: 'realestate', title: '부동산', rawAmount: realEstateAmount },
+  ].filter((item) => item.rawAmount > 0);
+
+  return <SelectAssetsStepClient items={items} />;
 }

@@ -1,7 +1,15 @@
 package com.server.common.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.server.common.exception.CustomJwtException;
+import com.server.common.response.ApiResponse;
+import com.server.common.security.dto.SubscriberDTO;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,20 +17,25 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.common.exception.CustomJwtException;
-import com.server.common.response.ApiResponse;
-import com.server.common.security.dto.SubscriberDTO;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+//  강사님 강의에 있던데 생각좀 해볼개요
+//  private static final String[] EXCLUDE_PATTERNS = {
+//      "/api/subscriber/login",
+//      "/api/subscriber/signup",
+//      "/posts/**",
+//      "/api/public/**",
+//      "/api/auth/**",
+//      "/apis/files/*/static",
+//      "/favicon.ico",
+//      "/actuator/**",
+//      "/*.html",
+//      "/swagger-ui/**",
+//      "/hana8/api-docs/**",
+//      "/broadcast/**"
+//  };
 
   private final JwtUtil jwtUtil;
   private final ObjectMapper objectMapper;

@@ -49,6 +49,9 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // aws
+    implementation 'software.amazon.awssdk:s3:2.25.39'
+
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -71,10 +74,17 @@ dependencies {
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
     annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
 
+    // 문서 생성
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
     // api & utilities
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
+    // 문서 생성
+    implementation 'org.apache.poi:poi-ooxml:5.2.3'
+
 }
 
 tasks.named('test') {
