@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import type { AssetCategory, AssetDashboardResponse } from '../utils/types';
@@ -25,25 +26,45 @@ interface Props {
 export function AssetDashboard({ data }: Props) {
   const router = useRouter();
 
-  const totalAmt = data ? formatKoreanCurrency(data.totalFinancialAmt) : '-';
-  const shortAmt = data ? formatShort(data.totalFinancialAmt) : '';
+  if (!data || !data.isMyDataLinked) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex w-81.25 cursor-pointer flex-col overflow-hidden rounded-4xl shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
+        style={{ background: 'linear-gradient(135deg, #075558 0%, #0A9293 100%)' }}
+      >
+        <div className="p-6">
+          <div className="space-y-1">
+            <p className="font-medium text-[14px] text-white/80">내 자산 한눈에 확인해볼까요?</p>
+          </div>
+        </div>
+        <div
+          className="mx-3 mb-3 flex items-center justify-between rounded-4xl bg-white px-5 py-4 shadow-lg"
+          onClick={() => router.push('/mydata/connect')}
+        >
+          <span className="font-bold text-[15px] text-hana-black-900">마이데이터 연결하기</span>
+          <ChevronRight size={20} className="text-hana-black-500" />
+        </div>
+      </motion.div>
+    );
+  }
 
-  const total = data
-    ? data.financialAssets.reduce((sum, a) => sum + a.totalBalance, 0)
-    : 0;
+  const totalAmt = formatKoreanCurrency(data.totalFinancialAmt);
+  const shortAmt = formatShort(data.totalFinancialAmt);
 
-  const chartData = data
-    ? data.financialAssets.map((a) => {
-        const meta = CATEGORY_META[a.assetCateCd];
-        return {
-          name: meta.label,
-          value: a.totalBalance,
-          percentage: total > 0 ? (a.totalBalance / total) * 100 : 0,
-          color: meta.color,
-          displayValue: formatKoreanCurrency(a.totalBalance),
-        };
-      })
-    : [];
+  const total = data.financialAssets.reduce((sum, a) => sum + a.totalBalance, 0);
+
+  const chartData = data.financialAssets.map((a) => {
+    const meta = CATEGORY_META[a.assetCateCd];
+    return {
+      name: meta.label,
+      value: a.totalBalance,
+      percentage: total > 0 ? (a.totalBalance / total) * 100 : 0,
+      color: meta.color,
+      displayValue: formatKoreanCurrency(a.totalBalance),
+    };
+  });
 
   const pieData =
     chartData.length > 0

@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Car, ChevronRight, Coins, Home } from "lucide-react";
-import type { RealAssetSummary } from "../utils/types";
+import { Car, ChevronRight, Coins, Home, Link2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { formatKoreanCurrency } from "../utils/formatCurrency";
-import {useRouter} from "next/navigation";
+import type { RealAssetSummary } from "../utils/types";
 
 const ASSET_ICON_MAP = {
 	REAL_ESTATE: Home,
@@ -18,6 +19,21 @@ const TAB_MAPPING = {
 	GOLD: "gold",
 };
 
+const FAKE_ASSETS = [
+	{ id: "fake-1", icon: Home, name: "서울 마포구 아파트", desc: "84㎡ · 전세", value: 450000000 },
+	{ id: "fake-2", icon: Car, name: "현대 그랜저 IG", desc: "2021년식", value: 28000000 },
+	{ id: "fake-3", icon: Coins, name: "KRX 금 현물", desc: "10g · 금 현물", value: 1050000 },
+];
+
+const FAKE_CHART_DATA = [
+	{ name: "7월", value: 3.8 },
+	{ name: "8월", value: 4.1 },
+	{ name: "9월", value: 3.9 },
+	{ name: "10월", value: 4.3 },
+	{ name: "11월", value: 4.6 },
+	{ name: "12월", value: 4.8 },
+];
+
 type RealAssetCardProps = {
 	data?: RealAssetSummary[];
 };
@@ -25,9 +41,96 @@ type RealAssetCardProps = {
 export function RealAssetCard({ data }: RealAssetCardProps) {
 	const router = useRouter();
 
-	// 데이터가 없으면 표시하지 않거나 빈 상태를 보여줄 수 있음
 	if (!data || data.length === 0) {
-		return null;
+		return (
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				className="relative flex w-81.25 flex-col rounded-4xl bg-white p-6 shadow-[0_4px_10px_rgba(0,0,0,0.07)] overflow-hidden"
+			>
+				<div className="mb-5 flex items-center justify-between">
+					<h3 className="font-bold text-[15px] text-hana-black-900 tracking-tight">
+						실물 자산
+					</h3>
+				</div>
+
+				{/* 연동 필요 안내 배너 */}
+				<div
+					className="mb-5 flex items-center justify-between rounded-2xl bg-hana-teal-50 px-4 py-3 cursor-pointer"
+					onClick={() => router.push("/mydata/house")}
+				>
+					<div className="flex items-center gap-2">
+						<Link2 size={16} className="text-hana-green-700" />
+						<span className="font-bold text-[13px] text-hana-green-700">
+							실물자산 연동이 필요해요
+						</span>
+					</div>
+					<ChevronRight size={16} className="text-hana-green-700" />
+				</div>
+
+				{/* 블러 처리된 가라 리스트 */}
+				<div className="relative">
+					<div className="flex flex-col gap-4 blur-sm select-none pointer-events-none">
+						{FAKE_ASSETS.map((asset, index) => {
+							const AssetIcon = asset.icon;
+							return (
+								<div key={asset.id} className="flex flex-col">
+									<div className="flex items-start gap-3">
+										<div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-hana-black-800">
+											<AssetIcon size={20} strokeWidth={2.5} />
+										</div>
+										<div className="flex flex-1 flex-col">
+											<div className="flex items-center justify-between">
+												<span className="font-bold text-[13px] text-hana-black-800">
+													{asset.name}
+												</span>
+												<span className="font-medium text-[13px] text-hana-black-900">
+													{formatKoreanCurrency(asset.value)}
+												</span>
+											</div>
+											<div className="mt-1">
+												<span className="text-[11px] text-hana-black-500">
+													{asset.desc}
+												</span>
+											</div>
+										</div>
+									</div>
+									{index !== FAKE_ASSETS.length - 1 && (
+										<div className="mt-4 h-px w-full bg-border-gray" />
+									)}
+								</div>
+							);
+						})}
+					</div>
+				</div>
+
+				{/* 블러 처리된 가라 그래프 */}
+				<div className="mt-6 blur-sm select-none pointer-events-none">
+					<p className="mb-3 font-bold text-[13px] text-hana-black-800">6개월 자산 변화</p>
+					<div className="h-40 w-full">
+						<ResponsiveContainer width="100%" height="100%">
+							<BarChart
+								data={FAKE_CHART_DATA}
+								margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
+								barSize={28}
+							>
+								<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.5} />
+								<XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#888988" }} dy={10} />
+								<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#888988" }} domain={[3, 5.5]} ticks={[3, 3.5, 4, 4.5, 5]} />
+								<Bar dataKey="value" radius={[4, 4, 0, 0]}>
+									{FAKE_CHART_DATA.map((_, index) => (
+										<Cell
+											key={FAKE_CHART_DATA[index].name}
+											fill={index === FAKE_CHART_DATA.length - 1 ? "#008485" : "#E5E5E5"}
+										/>
+									))}
+								</Bar>
+							</BarChart>
+						</ResponsiveContainer>
+					</div>
+				</div>
+			</motion.div>
+		);
 	}
 
 	const handleCardClick = (category: keyof typeof TAB_MAPPING) => {

@@ -5,6 +5,7 @@ export type AssetCategory = 'CASH' | 'PENSION' | 'CARD' | 'INSURANCE' | 'STOCK';
 export type RealAssetCategory = 'REAL_ESTATE' | 'VEHICLE' | 'GOLD';
 
 export interface AssetDashboardResponse {
+    isMyDataLinked: boolean;
     totalFinancialAmt: number;
     financialAssets: FinancialAssetSummary[];
     realAssets: RealAssetSummary[];

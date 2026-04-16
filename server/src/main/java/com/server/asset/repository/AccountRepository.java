@@ -44,4 +44,6 @@ public interface AccountRepository extends JpaRepository<TBAccount, Long> {
 
   List<TBAccount> findByUser_UserIdAndAssetCateCdAndIsLinkedTrue(Long userId,
       AssetCategory category);
+
+  boolean existsByUser_UserIdAndIsLinkedTrue(Long userId);
 }
