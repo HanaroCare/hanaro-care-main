@@ -1,40 +1,32 @@
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { getAssetDashboard, getSimulationSummary } from './asset/actions/asset';
-import {
-  getBatchNotificationStatus,
-  getHousingPensionStatus,
-  getInheritancePlanStatus,
-} from './asset/actions/notificationStatus';
-import { getTrustProductSummary } from './asset/actions/trust';
+import { getBannerStatus } from './asset/actions/notificationStatus';
 import { AssetDashboard } from './asset/components/AssetDashboard';
 import { MedicalBudgetCard } from './asset/components/MedicalBudgetCard';
 import { BannerCard } from './asset/components/notification/BannerCard';
 import { InheritanceStepCard } from './asset/components/notification/InheritanceStepCard';
-import { LivingExpenseCard } from './asset/components/notification/LivingExpenseCard';
 import { MedicalBillCard } from './asset/components/notification/MedicalBillCard';
 import { PensionCard } from './asset/components/notification/PensionCard';
 import { RealAssetCard } from './asset/components/RealAssetListCard';
 
 export default async function Home() {
-  const [
-    assetData,
-    simulationResult,
-    trustProduct,
-    hasInheritancePlan,
-    hasHousingPension,
-    batchNotifications,
-  ] = await Promise.all([
+  const [assetData, simulationResult, bannerStatus] = await Promise.all([
     getAssetDashboard().catch(() => null),
     getSimulationSummary(),
-    getTrustProductSummary(),
-    getInheritancePlanStatus(),
-    getHousingPensionStatus(),
-    getBatchNotificationStatus(),
+    getBannerStatus(),
   ]);
 
   const simulationData = simulationResult.ok ? simulationResult.data : null;
-  const hasCompletedSimulation = simulationResult.ok;
-  const hasTrustProduct = trustProduct !== null;
+
+  const {
+    hasCompletedSimulation,
+    hasInheritancePlan,
+    hasHousingPension,
+    hasTrustProduct,
+    medicalBill,
+    pension,
+  } = bannerStatus;
+
   const hasLinkedMyData = assetData?.isMyDataLinked ?? false;
   const hasRegisteredRealAssets = (assetData?.realAssets?.length ?? 0) > 0;
   const hasLinkedAssets = hasLinkedMyData && hasRegisteredRealAssets;
@@ -110,28 +102,25 @@ export default async function Home() {
         />
       )}
 
-      {/* 배치 기반 알림: 요양보호사 이번달 지출 */}
-      {batchNotifications.medicalBill && (
+      {/* 요양보호사 카드 이번달 지출 (카드 있을 때만) */}
+      {medicalBill && (
         <MedicalBillCard
-          usedAmount={batchNotifications.medicalBill.usedAmount}
-          totalLimit={batchNotifications.medicalBill.totalLimit}
+          usedAmount={medicalBill.usedAmount}
+          totalLimit={medicalBill.totalLimit}
         />
       )}
 
-      {/* 배치 기반 알림: 이번달 연금 수령일 */}
-      {batchNotifications.pension && (
+      {/* 오늘이 연금 수령일일 때만 표시 */}
+      {pension && (
         <PensionCard
-          totalAmount={batchNotifications.pension.totalAmount}
-          items={batchNotifications.pension.items}
+          totalAmount={pension.totalAmount}
+          items={pension.items}
         />
       )}
 
-      {/* 배치 기반 알림: 생활비 예산 초과 */}
-      {batchNotifications.livingExpense && (
-        <LivingExpenseCard
-          overAmount={batchNotifications.livingExpense.overAmount}
-        />
-      )}
+      {/* 생활비 초과 - 지출 데이터 구축 후 활성화
+      {livingExpense && <LivingExpenseCard overAmount={livingExpense.overAmount} />}
+      */}
 
       {/* 상속 설계 단계 카드 (모두 완료 시 숨김) */}
       {inheritanceStep !== null && (

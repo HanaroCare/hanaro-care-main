@@ -1,48 +1,35 @@
 'use server';
 
-import { ServerFetchError, serverFetch } from '@/lib/serverFetch';
+import { serverFetch } from '@/lib/serverFetch';
 
-// ─── 주택연금 설계 완료 여부 ───
-export async function getHousingPensionStatus(): Promise<boolean> {
-  try {
-    await serverFetch<unknown>('/api/asset/pension/status');
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-// ─── 상속 설계 완료 여부 ───
-// 백엔드에서 GET /api/inheritance/my/summary (@AuthenticationPrincipal 기반) 추가 필요
-// 현재 /api/inheritance/summary/{userId} 는 userId를 path로 받아서 서버컴포넌트에서 직접 호출 불가
-export async function getInheritancePlanStatus(): Promise<boolean> {
-  try {
-    await serverFetch<unknown>('/api/inheritance/my/summary');
-    return true;
-  } catch (error) {
-    if (error instanceof ServerFetchError && error.status === 404) return false;
-    // 엔드포인트 미구현 시 false 처리
-    return false;
-  }
-}
-
-// ─── 배치 기반 알림 상태 ───
-// 백엔드에서 Spring Batch로 계산 후 GET /api/notifications/banner-status 제공 필요
-export type BatchNotificationStatus = {
+export type BannerStatusResponse = {
+  hasCompletedSimulation: boolean;
+  hasInheritancePlan: boolean;
+  hasHousingPension: boolean;
+  hasTrustProduct: boolean;
   medicalBill: { usedAmount: number; totalLimit: number } | null;
   pension: {
     totalAmount: number;
     items: { name: string; amount: number }[];
   } | null;
-  livingExpense: { overAmount: number } | null;
+  // livingExpense 는 지출 데이터 미구축으로 항상 null
 };
 
-export async function getBatchNotificationStatus(): Promise<BatchNotificationStatus> {
+const EMPTY_STATUS: BannerStatusResponse = {
+  hasCompletedSimulation: false,
+  hasInheritancePlan: false,
+  hasHousingPension: false,
+  hasTrustProduct: false,
+  medicalBill: null,
+  pension: null,
+};
+
+export async function getBannerStatus(): Promise<BannerStatusResponse> {
   try {
-    return await serverFetch<BatchNotificationStatus>(
+    return await serverFetch<BannerStatusResponse>(
       '/api/notifications/banner-status',
     );
   } catch {
-    return { medicalBill: null, pension: null, livingExpense: null };
+    return EMPTY_STATUS;
   }
 }
