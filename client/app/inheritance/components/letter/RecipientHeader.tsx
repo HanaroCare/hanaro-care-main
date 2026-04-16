@@ -1,32 +1,32 @@
-import { User } from "lucide-react";
-import type { Recipient } from "../../types";
-import { formatAmount } from "../../utils/format";
+import { User } from 'lucide-react';
+import type { InheritanceSummaryDto } from '../../letter/types';
+import { formatAmount } from '../../utils/format';
 
 interface Props {
-  recipient: Recipient;
+  recipient: InheritanceSummaryDto;
   onEdit: () => void;
 }
 
 export default function RecipientHeader({ recipient, onEdit }: Props) {
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 flex items-center justify-between">
+    <div className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-4 py-3">
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-[#E9F8F9] flex items-center justify-center">
-          <User className="w-5 h-5 text-hana-green-700" strokeWidth={1.5} />
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#E9F8F9]">
+          <User className="h-5 w-5 text-hana-green-700" strokeWidth={1.5} />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-semibold text-gray-900">
-            {recipient.name}
+          <span className="font-semibold text-gray-900 text-sm">
+            {recipient.username}
           </span>
-          <span className="text-xs text-gray-400">
-            {recipient.percentage}% · {formatAmount(recipient.amount)}
+          <span className="text-gray-400 text-xs">
+            {recipient.percent * 100}% · {formatAmount(recipient.amt)}
           </span>
         </div>
       </div>
       <button
         type="button"
         onClick={onEdit}
-        className="text-sm pr-1 text-hana-green-700 font-medium hover:opacity-70 transition-opacity"
+        className="pr-1 font-medium text-hana-green-700 text-sm transition-opacity hover:opacity-70"
       >
         변경 &gt;
       </button>

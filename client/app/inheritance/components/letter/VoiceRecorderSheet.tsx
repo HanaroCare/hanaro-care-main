@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Mic, RotateCcw, Square, X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import type { RecordingState } from "../../types";
-import AudioPlayer from "./AudioPlayer";
+import { Mic, RotateCcw, Square, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import type { RecordingState } from '../../types';
+import AudioPlayer from './AudioPlayer';
 
 interface Props {
   onClose: () => void;
@@ -13,7 +13,7 @@ interface Props {
 const MAX_SECONDS = 60;
 
 export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
-  const [state, setState] = useState<RecordingState>("idle");
+  const [state, setState] = useState<RecordingState>('idle');
   const [elapsed, setElapsed] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -24,8 +24,8 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
   const streamRef = useRef<MediaStream | null>(null);
 
   const formatTime = (seconds: number) => {
-    const m = String(Math.floor(seconds / 60)).padStart(2, "0");
-    const s = String(seconds % 60).padStart(2, "0");
+    const m = String(Math.floor(seconds / 60)).padStart(2, '0');
+    const s = String(seconds % 60).padStart(2, '0');
     return `${m} : ${s}`;
   };
 
@@ -40,14 +40,14 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
 
       mediaRecorder.ondataavailable = (e) => chunksRef.current.push(e.data);
       mediaRecorder.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
         setAudioBlob(blob);
         setAudioUrl(URL.createObjectURL(blob));
-        setState("recorded");
+        setState('recorded');
       };
 
       mediaRecorder.start();
-      setState("recording");
+      setState('recording');
 
       timerRef.current = setInterval(() => {
         setElapsed((prev) => {
@@ -59,20 +59,22 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
         });
       }, 1000);
     } catch (error) {
-      console.error("마이크 접근 실패:", error);
-      alert("마이크 접근 권한이 필요합니다. 브라우저 설정을 확인해주세요.");
+      console.error('마이크 접근 실패:', error);
+      alert('마이크 접근 권한이 필요합니다. 브라우저 설정을 확인해주세요.');
     }
   };
 
   const stopRecording = () => {
     mediaRecorderRef.current?.stop();
-    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current?.getTracks().forEach((track) => {
+      track.stop();
+    });
     if (timerRef.current) clearInterval(timerRef.current);
   };
 
   const handleMicButton = () => {
-    if (state === "idle") startRecording();
-    else if (state === "recording") stopRecording();
+    if (state === 'idle') startRecording();
+    else if (state === 'recording') stopRecording();
   };
 
   const handleReRecord = () => {
@@ -80,7 +82,7 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
     setElapsed(0);
     setAudioUrl(null);
     setAudioBlob(null);
-    setState("idle");
+    setState('idle');
   };
 
   const handleSave = () => {
@@ -90,81 +92,88 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
   useEffect(() => {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
-      streamRef.current?.getTracks().forEach((track) => track.stop());
-      if (audioUrl) URL.revokeObjectURL(audioUrl);
+      streamRef.current?.getTracks().forEach((track) => {
+        track.stop();
+      });
     };
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center">
+    <div className="fixed inset-0 z-100 flex items-end justify-center">
       <button
         type="button"
         className="absolute inset-0 bg-black/30"
         onClick={onClose}
       />
-      <div className="relative w-full bg-white rounded-t-3xl px-6 pt-6 pb-10 flex flex-col items-center gap-6">
+      <div className="relative flex w-full flex-col items-center gap-6 rounded-t-3xl bg-white px-6 pt-6 pb-10">
         {/* 헤더 */}
-        <div className="w-full flex items-center justify-between">
-          <span className="text-base font-semibold text-gray-900">
+        <div className="flex w-full items-center justify-between">
+          <span className="font-semibold text-base text-gray-900">
             녹음으로 대신하기
           </span>
           <button type="button" onClick={onClose}>
-            <X className="w-5 h-5 text-gray-500" />
+            <X className="h-5 w-5 text-gray-500" />
           </button>
         </div>
 
         {/* idle 상태 */}
-        {state === "idle" && (
+        {state === 'idle' && (
           <>
-            <p className="text-sm text-center text-gray-500 leading-relaxed">
+            <p className="text-center text-gray-500 text-sm leading-relaxed">
               아래 버튼을 눌러 목소리로
               <br />
-              <span className="text-hana-green-700 font-medium">
+              <span className="font-medium text-hana-green-700">
                 소중한 마음을 전달해보세요
               </span>
             </p>
-            <p className="text-4xl font-bold text-gray-900 tracking-widest">
+            <p className="font-bold text-4xl text-gray-900 tracking-widest">
               {formatTime(elapsed)}
             </p>
-            <p className="text-sm text-gray-400">최대 1분까지 녹음 가능해요</p>
+            <p className="text-gray-400 text-sm">최대 1분까지 녹음 가능해요</p>
             <button
               type="button"
               onClick={handleMicButton}
-              className="w-20 h-20 rounded-full bg-hana-green-700 flex items-center justify-center hover:bg-hana-green-600 transition-colors"
+              className="flex h-20 w-20 items-center justify-center rounded-full bg-hana-green-700 transition-colors hover:bg-hana-green-600"
             >
-              <Mic className="w-8 h-8 text-white" strokeWidth={1.5} />
+              <Mic className="h-8 w-8 text-white" strokeWidth={1.5} />
             </button>
-            <p className="text-sm text-gray-400">눌러서 녹음 시작</p>
+            <p className="text-gray-400 text-sm">눌러서 녹음 시작</p>
           </>
         )}
 
         {/* recording 상태 */}
-        {state === "recording" && (
+        {state === 'recording' && (
           <>
-            <p className="text-sm text-center text-gray-500 leading-relaxed">
+            <p className="text-center text-gray-500 text-sm leading-relaxed">
               녹음 중이에요.
               <br />
-              <span className="text-red-400 font-medium">
+              <span className="font-medium text-red-400">
                 완료하려면 버튼을 다시 눌러주세요.
               </span>
             </p>
-            <p className="text-4xl font-bold text-gray-900 tracking-widest">
+            <p className="font-bold text-4xl text-gray-900 tracking-widest">
               {formatTime(elapsed)}
             </p>
-            <p className="text-sm text-gray-400">
+            <p className="text-gray-400 text-sm">
               {MAX_SECONDS - elapsed}초 남음
             </p>
             <button
               type="button"
               onClick={handleMicButton}
-              className="w-20 h-20 rounded-full bg-red-400 flex items-center justify-center hover:bg-red-500 transition-colors"
+              className="flex h-20 w-20 items-center justify-center rounded-full bg-red-400 transition-colors hover:bg-red-500"
             >
-              <Square className="w-8 h-8 text-white fill-white" />
+              <Square className="h-8 w-8 fill-white text-white" />
             </button>
-            <p className="text-sm text-gray-400">녹음 중 · 눌러서 완료</p>
+            <p className="text-gray-400 text-sm">녹음 중 · 눌러서 완료</p>
             <button
               type="button"
-              className="w-full bg-red-300 rounded-xl p-3"
+              className="w-full rounded-xl bg-red-300 p-3"
               onClick={onClose}
             >
               취소
@@ -173,17 +182,17 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
         )}
 
         {/* recorded 상태 */}
-        {state === "recorded" && audioUrl && (
+        {state === 'recorded' && audioUrl && (
           <>
-            <div className="w-full flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-hana-green-700 flex items-center justify-center">
-                <Mic className="w-6 h-6 text-white" strokeWidth={1.5} />
+            <div className="flex w-full items-center gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-hana-green-700">
+                <Mic className="h-6 w-6 text-white" strokeWidth={1.5} />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">
+                <p className="font-semibold text-gray-900 text-sm">
                   음성 메시지
                 </p>
-                <p className="text-xs text-gray-400">
+                <p className="text-gray-400 text-xs">
                   {formatTime(elapsed)} 녹음됨
                 </p>
               </div>
@@ -195,23 +204,23 @@ export default function VoiceRecorderSheet({ onClose, onSave }: Props) {
             <button
               type="button"
               onClick={handleReRecord}
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700"
+              className="flex items-center gap-1.5 text-gray-500 text-sm hover:text-gray-700"
             >
-              <RotateCcw className="w-4 h-4" />
+              <RotateCcw className="h-4 w-4" />
               다시 녹음하기
             </button>
 
-            <div className="w-full flex gap-3">
+            <div className="flex w-full gap-3">
               <button
                 type="button"
-                className="flex-1 rounded-xl bg-[#E9F8F9] text-hana-green-700 p-2 pr-0"
+                className="flex-1 rounded-xl bg-[#E9F8F9] p-2 pr-0 text-hana-green-700"
                 onClick={onClose}
               >
                 취소
               </button>
               <button
                 type="button"
-                className="flex-1 rounded-xl bg-hana-green-700 hover:bg-hana-green-600 text-white p-2 pl-0"
+                className="flex-1 rounded-xl bg-hana-green-700 p-2 pl-0 text-white hover:bg-hana-green-600"
                 onClick={handleSave}
               >
                 저장하기
