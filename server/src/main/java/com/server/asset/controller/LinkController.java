@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.server.asset.dto.link.RealAssetRequest;
-import com.server.asset.service.AssetService;
 import com.server.asset.service.RealAssetService;
 import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;
