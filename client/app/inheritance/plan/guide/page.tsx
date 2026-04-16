@@ -1,6 +1,5 @@
 import { Lightbulb, Scale, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
-import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
 import styles from './page.module.css';
 
@@ -108,8 +107,11 @@ export default function InheritanceGuidePage() {
         </div>
 
         <footer className="shrink-0 border-gray-100 border-t bg-white p-6 pb-10">
-          <Link href="/inheritance/plan/1">
-            <PrimaryButton label="확인했습니다" />
+          <Link
+            href="/inheritance/plan/1"
+            className="w-full h-14 rounded-[10px] bg-hana-ez-600 text-white text-[17px] font-semibold transition flex items-center justify-center gap-2"
+          >
+            확인했습니다
           </Link>
         </footer>
       </div>
