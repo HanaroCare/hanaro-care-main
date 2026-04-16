@@ -132,9 +132,9 @@ VALUES (3001, 1001, '역삼동 아파트', 'REAL_ESTATE', 920000000.00, '서울 
 -- ========================
 -- TB_CARD
 -- ========================
-INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE, BALANCE_AMT)
-VALUES (4001, 2001, '한금순 요양보호사 간병비 카드', 5000000.00, 0.00, 1, 320000.00),
-       (4002, 2001, '최고운 요양보호사 생활비 카드', 2000000.00, 500000.00, 1, 150000.00);
+INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE, BALANCE_AMT, PAY_DAY)
+VALUES (4001, 2001, '한금순 요양보호사 간병비 카드', 5000000.00, 0.00, 1, 320000.00, 15),
+       (4002, 2001, '최고운 요양보호사 생활비 카드', 2000000.00, 500000.00, 1, 150000.00, 20);
 
 -- ========================
 -- TB_CARD_USAGE

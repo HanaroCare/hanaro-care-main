@@ -58,4 +58,8 @@ public class TBCard extends BaseEntity {
   @Column(name = "BALANCE_AMT", nullable = false, precision = 18, scale = 2)
   @Builder.Default
   private BigDecimal balanceAmt = BigDecimal.ZERO;
+
+  @Column(name = "PAY_DAY", nullable = false)
+  @Builder.Default
+  private Integer payDay = 1;
 }

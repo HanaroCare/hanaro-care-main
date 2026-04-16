@@ -2,6 +2,8 @@ package com.server.card.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -35,4 +37,10 @@ public class CardRegisterRequest {
 
   @Schema(description = "카드 공유할 가족 권한 ID 목록", example = "[1, 2]")
   private List<Long> familyAuthIds;
+
+  @NotNull
+  @Min(1)
+  @Max(28)
+  @Schema(description = "자동이체일 (1~28일)", example = "15")
+  private Integer payDay;
 }

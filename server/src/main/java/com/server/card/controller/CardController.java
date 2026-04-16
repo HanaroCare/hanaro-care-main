@@ -96,7 +96,7 @@ public class CardController {
 
   @Operation(
       summary = "카드 설정 변경",
-      description = "카드의 월 한도와 충전 계좌를 변경합니다."
+      description = "충전 계좌, 자동이체일, 자동이체 목표 잔액 변경합니다. (최대 200만원, 잔액 부족분만 자동 충전) "
   )
   @PatchMapping("/{cardId}/settings")
   public ApiResponse<CardUpdateResponse> updateCard(

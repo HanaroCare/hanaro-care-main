@@ -2,7 +2,7 @@ package com.server.card.service;
 
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.repository.TBAccountRepository;
+import com.server.asset.repository.AccountRepository;
 import com.server.card.dto.request.CardChargeRequest;
 import com.server.card.dto.request.CardRegisterRequest;
 import com.server.card.dto.request.CardUpdateRequest;
@@ -30,13 +30,14 @@ public class CardService {
 
   private final CardRepository cardRepository;
   private final CardUsageRepository cardUsageRepository;
-  private final TBAccountRepository accountRepository;
+  private final AccountRepository accountRepository;
   private final FamilyAuthRepository familyAuthRepository;
 
   @Transactional
   public TBCard registerCard(Long userId, CardRegisterRequest request) {
     if (request.getLimitAmt().compareTo(new BigDecimal("600000")) > 0) {
-      throw new ApiException(ErrorStatus._BAD_REQUEST);
+      // 600000 초과
+      throw new ApiException(ErrorStatus.CARD_LIMIT_EXCEEDED);
     }
 
     TBAccount account = accountRepository.findById(request.getAccountId())
@@ -44,7 +45,7 @@ public class CardService {
 
     // 본인 계좌인지 검증
     if (!account.getUser().getUserId().equals(userId)) {
-      throw new ApiException(ErrorStatus._FORBIDDEN);
+      throw new ApiException(ErrorStatus.ACCOUNT_FORBIDDEN);
     }
 
     TBCard card = TBCard.builder()
@@ -54,6 +55,7 @@ public class CardService {
             ? request.getAutoTransAmt()
             : BigDecimal.ZERO)
         .account(account)
+        .payDay(request.getPayDay())
         .build();
 
     TBCard savedCard = cardRepository.save(card);
@@ -73,8 +75,9 @@ public class CardService {
 
   @Transactional
   public TBCard updateCard(Long userId, Long cardId, CardUpdateRequest request) {
+    // 카드 조회 실패
     TBCard card = cardRepository.findById(cardId)
-        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
 
     // 카드 권한 검증
     validateCardAccess(userId, card);
@@ -82,8 +85,21 @@ public class CardService {
     TBAccount account = accountRepository.findById(request.getAccountId())
         .orElseThrow(() -> new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
 
-    card.setLimitAmt(request.getLimitAmt());
+    // 1. 본인 계좌 검증
+    if (!account.getUser().getUserId().equals(userId)) {
+      throw new ApiException(ErrorStatus.ACCOUNT_FORBIDDEN);
+    }
+    // 2. CASH 계좌 검증
+    if (account.getAssetCateCd() != AssetCategory.CASH) {
+      throw new ApiException(ErrorStatus.ACCOUNT_NOT_CASH);
+    }
+
+    if (request.getPayDay() != null) {
+      card.setPayDay(request.getPayDay());
+    }
+
     card.setAccount(account);
+    card.setAutoTransAmt(request.getAutoTransAmt());
 
     return cardRepository.save(card);
   }
@@ -91,7 +107,7 @@ public class CardService {
   @Transactional
   public void cancelCard(Long userId, Long cardId) {
     TBCard card = cardRepository.findById(cardId)
-        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
 
     // 카드 권한 검증
     validateCardAccess(userId, card);
@@ -109,7 +125,7 @@ public class CardService {
 
   public List<CardUsageResponse> getCardUsages(Long userId, Long cardId) {
     TBCard card = cardRepository.findById(cardId)
-        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
 
     //카드 권한 검증
     validateCardAccess(userId, card);
@@ -147,39 +163,44 @@ public class CardService {
   @Transactional
   public void chargeCard(Long userId, CardChargeRequest request) {
     TBCard card = cardRepository.findById(request.getCardId())
-        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
 
     // 카드 권한 검증
     validateCardAccess(userId, card);
 
     // 카드 사용 가능 여부
     if (!card.getIsUse()) {
-      throw new ApiException(ErrorStatus._BAD_REQUEST);
+      throw new ApiException(ErrorStatus.CARD_DISABLED);
     }
 
     // 총 잔액 200만원 초과 검증
     BigDecimal newBalance = card.getBalanceAmt().add(request.getChargeAmt());
     if (newBalance.compareTo(new BigDecimal("2000000")) > 0) {
-      throw new ApiException(ErrorStatus._BAD_REQUEST);
+      throw new ApiException(ErrorStatus.CARD_BALANCE_EXCEEDED);
     }
 
     TBAccount account = accountRepository.findById(request.getAccountId())
         .orElseThrow(() -> new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
 
-    // 본인 계좌인지 검증
+    // 1. 본인 계좌 검증
     if (!account.getUser().getUserId().equals(userId)) {
-      throw new ApiException(ErrorStatus._FORBIDDEN);
+      throw new ApiException(ErrorStatus.ACCOUNT_FORBIDDEN);
+    }
+    // 2. CASH 계좌 검증
+    if (account.getAssetCateCd() != AssetCategory.CASH) {
+      throw new ApiException(ErrorStatus.ACCOUNT_NOT_CASH);
     }
 
     // 계좌 잔액 차감
     if (account.getBalanceAmt().compareTo(request.getChargeAmt()) < 0) {
-      throw new ApiException(ErrorStatus._BAD_REQUEST);
+      // 계좌 잔액 부족
+      throw new ApiException(ErrorStatus.ACCOUNT_INSUFFICIENT);
     }
     account.setBalanceAmt(account.getBalanceAmt().subtract(request.getChargeAmt()));
 
     // 현금 계좌인지 검증
     if (account.getAssetCateCd() != AssetCategory.CASH) {
-      throw new ApiException(ErrorStatus._BAD_REQUEST);
+      throw new ApiException(ErrorStatus.ACCOUNT_NOT_CASH);
     }
 
     // 잔액 업데이트
@@ -201,7 +222,7 @@ public class CardService {
   @Transactional(readOnly = true)
   public BigDecimal getCardBalance(Long userId, Long cardId) {
     TBCard card = cardRepository.findById(cardId)
-        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
 
     // 카드 권한 검증
     validateCardAccess(userId, card);
@@ -222,7 +243,7 @@ public class CardService {
             auth.getCard().getCardId().equals(card.getCardId()));
 
     if (!hasAccess) {
-      throw new ApiException(ErrorStatus._FORBIDDEN);
+      throw new ApiException(ErrorStatus.CARD_FORBIDDEN);
     }
   }
 }

@@ -83,9 +83,21 @@ public enum ErrorStatus implements BaseErrorCode {
   VOICE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "INHERIT_400", "음성 파일을 첨부해야 합니다."),
   LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "편지 정보를 찾을 수 없습니다."),
   LETTER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "INHERIT_400", "이미 편지가 존재합니다."),
+
+  // card
+  CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "CARD_404", "카드를 찾을 수 없습니다."),
+  CARD_FORBIDDEN(HttpStatus.FORBIDDEN, "CARD_403", "카드 접근 권한이 없습니다."),
+  CARD_DISABLED(HttpStatus.BAD_REQUEST, "CARD_400", "비활성화된 카드입니다."),
+  CARD_BALANCE_EXCEEDED(HttpStatus.BAD_REQUEST, "CARD_401", "카드 잔액 한도를 초과했습니다."),
+  CARD_CHARGE_EXCEEDED(HttpStatus.BAD_REQUEST, "CARD_402", "1회 충전 한도를 초과했습니다."),
+  ACCOUNT_NOT_CASH(HttpStatus.BAD_REQUEST, "ACCOUNT_401", "CASH 계좌만 사용 가능합니다."),
+  ACCOUNT_FORBIDDEN(HttpStatus.FORBIDDEN, "ACCOUNT_403", "본인 계좌만 사용 가능합니다."),
+  CARD_LIMIT_EXCEEDED(HttpStatus.BAD_REQUEST, "CARD_403", "카드 한도를 초과했습니다."),
+  ACCOUNT_INSUFFICIENT(HttpStatus.BAD_REQUEST, "ACCOUNT_402", "계좌 잔액이 부족합니다."),
   // myhana
   INSURANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "INS_404", "보험 정보를 찾을 수 없습니다."),
   INSURANCE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INS_403", "보험 접근 권한이 없습니다.");
+
 
   private final HttpStatus httpStatus;        // HTTP 상태 코드
   private final String code;                  // 내부적인 에러 코드. 도메인명 + 숫자로 구성. 숫자는 HTTP 상태코드 100의자리 참고
