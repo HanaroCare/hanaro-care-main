@@ -1,32 +1,42 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import AuthInput from "../../components/AuthInput";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2 } from "lucide-react";
 import { validatePassword, validatePasswordMatch } from "../../utils/validators";
 import Header from "@/components/navigation/Header";
 import PrimaryButton from "@/components/baseelements/PrimaryButton";
+import { resetPassword } from "../../actions/auth";
 
-/**
- * 새 비밀번호 설정 페이지
- */
-export default function NewPasswordPage() {
+function NewPasswordContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const loginId = searchParams.get("loginId") ?? "";
+  const username = searchParams.get("username") ?? "";
+  const phoneNumber = searchParams.get("phoneNumber") ?? "";
+
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-
+  const [isPending, setIsPending] = useState(false);
+  const [apiError, setApiError] = useState("");
   const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const isPasswordSecure = useMemo(() => validatePassword(password), [password]);
   const isMatch = useMemo(() => validatePasswordMatch(password, confirmPassword), [password, confirmPassword]);
   const isFormValid = useMemo(() => isPasswordSecure && isMatch, [isPasswordSecure, isMatch]);
 
-  const handleComplete = () => {
-    if (isFormValid) {
-      // TODO: 비밀번호 변경 API 호출 (서버 연동 시점)
+  const handleComplete = async () => {
+    if (!isFormValid || isPending) return;
+    setIsPending(true);
+    setApiError("");
+    const result = await resetPassword(loginId, username, phoneNumber, password);
+    setIsPending(false);
+    if (result.ok) {
       setShowSuccessPopup(true);
+    } else {
+      setApiError(result.error);
     }
   };
 
@@ -43,7 +53,7 @@ export default function NewPasswordPage() {
         <main className="app-main flex flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[2rem]">
             <h2 className="text-[1.5rem] font-bold leading-tight text-foreground">
-              새로운 비밀번호를
+              새로운 <span className="text-primary">비밀번호</span>를
               <br />
               입력해 주세요
             </h2>
@@ -60,10 +70,13 @@ export default function NewPasswordPage() {
                 type="password"
                 placeholder="새 비밀번호 입력"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (apiError) setApiError("");
+                }}
               />
               {password.length > 0 && !isPasswordSecure && (
-                <p className="ml-[0.2rem] mt-[0.25rem] text-[0.75rem] text-hana-red-500">
+                <p className="ml-[0.2rem] text-[0.75rem] text-hana-red-500">
                   6~8자 영문 포함하여 입력해주세요.
                 </p>
               )}
@@ -76,11 +89,19 @@ export default function NewPasswordPage() {
                 type="password"
                 placeholder="비밀번호 다시 입력"
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (apiError) setApiError("");
+                }}
               />
               {confirmPassword.length > 0 && !isMatch && (
-                <p className="ml-[0.2rem] mt-[0.25rem] text-[0.75rem] text-hana-red-500">
+                <p className="ml-[0.2rem] text-[0.75rem] text-hana-red-500">
                   비밀번호가 일치하지 않습니다.
+                </p>
+              )}
+              {apiError && (
+                <p className="ml-[0.2rem] text-[0.75rem] text-hana-red-500 animate-in fade-in slide-in-from-top-1">
+                  {apiError}
                 </p>
               )}
             </div>
@@ -88,8 +109,8 @@ export default function NewPasswordPage() {
 
           <div className="mt-auto pb-[3rem]">
             <PrimaryButton
-              label="변경 완료"
-              disabled={!isFormValid}
+              label={isPending ? "변경 중..." : "변경 완료"}
+              disabled={!isFormValid || isPending}
               onClick={handleComplete}
             />
           </div>
@@ -98,7 +119,6 @@ export default function NewPasswordPage() {
         <AnimatePresence>
           {showSuccessPopup && (
             <div className="fixed inset-0 z-[100] flex items-center justify-center px-[2rem]">
-
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -106,7 +126,6 @@ export default function NewPasswordPage() {
                 onClick={handlePopupConfirm}
                 className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
               />
-
               <motion.div
                 initial={{ scale: 0.9, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -134,5 +153,13 @@ export default function NewPasswordPage() {
         </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+export default function NewPasswordPage() {
+  return (
+    <Suspense>
+      <NewPasswordContent />
+    </Suspense>
   );
 }

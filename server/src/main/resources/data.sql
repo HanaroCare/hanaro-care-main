@@ -53,7 +53,19 @@ VALUES
 
     -- 6. 시뮬레이션 테스트용 자녀 유저
     (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
+     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 7. Tsid: 간편비밀번호(654321) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
+    (1007, 'Tsid', '하나테스터', '$2a$12$BYTWmmP4M2n/t2Fb/L.QnOejBuoHqILdK1syQ1rk62sfWBKtam9Ji',
+     '01012345678', 30, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW()),
+
+    -- 8. TsidZ: 패턴(Z모양: 0124678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
+    (1008, 'TsidZ', '패턴Z테스터', '$2a$12$1Sk8P7kehKkY933ANOAj1.AC52WVGH2/SB54gyil1Go.SMIm7IJKm',
+     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
+
+    -- 9. TsidL: 패턴(ㄴ모양: 03678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
+    (1009, 'TsidL', '패턴L테스터', '$2a$12$heAv.jDZ5PHLQ.fupN2e.uRIbjWd7o7PfYiTSkc5XFyDvXd7/jQ7q',
+     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW());
 
 
 -- ========================
@@ -459,9 +471,18 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- ========================
 -- TB_USER_SIMPLE_AUTH
 -- ========================
+-- 평문 → BCrypt(strength=12) 매핑
+-- 1002 chulsoo7 : SIMPLE_PASSWORD (기존)
+-- 1007 Tsid     : SIMPLE_PASSWORD "654321"
+-- 1008 TsidZ    : PATTERN         "0124678"  (Z모양)
+-- 1009 TsidL    : PATTERN         "03678"    (ㄴ모양)
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
 VALUES (8001, 1002, '$2a$12$3vbJaMEQ0c8gmy8vOTUq4u0oKkUZEiI584xqRz1bFKHe.drWmV3/G',
-        'SIMPLE_PASSWORD');
+        'SIMPLE_PASSWORD'),
+       (8002, 1007, '$2b$12$AoCj7a0AsEeEjo5udi57AuuQF9epqRY39.HzYvcafdQ3Ck7MrL22e',
+        'SIMPLE_PASSWORD'),
+       (8003, 1008, '$2b$12$B07o/MgdB1C0JpHHj7OGuu0zoOTy6dTmNmZU2SXPqPQ9lP/Psjnkq', 'PATTERN'),
+       (8004, 1009, '$2b$12$/8bGIb4EbZtDaFlFIe8uXeZM.vK5Mflt686CZb89q4Ax98KMnft4e', 'PATTERN');
 
 -- ========================
 -- TB_REFRESH_TOKEN

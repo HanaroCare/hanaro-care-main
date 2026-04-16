@@ -40,17 +40,17 @@ export default function Header({
 
   return (
     <header
-      className={`sticky top-0 z-50 flex h-16.25 w-full items-center justify-between border-black/10 border-b bg-white px-4 ${className}`}
+      className={`sticky top-0 z-50 flex h-[4.0625rem] w-full items-center justify-between border-black/10 border-b bg-white px-[1rem] ${className}`}
     >
-      <div className="flex w-8 items-center justify-start">
+      <div className="flex w-[2rem] items-center justify-start">
         {showBackButton && (
           <button
             type="button"
             onClick={handleBack}
-            className="-ml-1 p-2 text-hana-black-900"
+            className="-ml-[0.25rem] p-[0.5rem] text-hana-black-900"
             aria-label="뒤로가기"
           >
-            <ChevronLeft size={24} aria-hidden="true" />
+            <ChevronLeft className="w-[1.5rem] h-[1.5rem]" aria-hidden="true" />
           </button>
         )}
       </div>
@@ -59,15 +59,15 @@ export default function Header({
         {title}
       </h1>
 
-      <div className="flex w-8 items-center justify-end">
+      <div className="flex w-[2rem] items-center justify-end">
         {showCloseButton && (
           <button
             type="button"
             onClick={handleClose}
-            className="-mr-1 p-2 text-hana-black-900"
+            className="-mr-[0.25rem] p-[0.5rem] text-hana-black-900"
             aria-label="닫기"
           >
-            <X size={24} aria-hidden="true" />
+            <X className="w-[1.5rem] h-[1.5rem]" aria-hidden="true" />
           </button>
         )}
       </div>

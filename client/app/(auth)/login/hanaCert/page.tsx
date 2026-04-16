@@ -1,41 +1,117 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import FaceIdAuth from "../components/FaceIdAuth";
 import PatternAuth from "../components/PatternAuth";
 import SimplePasswordAuth from "../components/SimplePasswordAuth";
 import LoginMethodSheet from "../components/LoginMethodSheet";
 import Header from "@/components/navigation/Header";
+import { loginWithHanaCert, type LoginMeans } from "../actions/auth";
 
 type AuthMode = "pattern" | "pin" | "faceid";
 
-/**
- * 하나인증서 간편 로그인 페이지
- */
+const MODE_TO_MEANS: Record<AuthMode, LoginMeans> = {
+	pin: "SIMPLE_PASSWORD",
+	pattern: "PATTERN",
+	faceid: "FACEID",
+};
+
+const MODE_TO_LOGIN_ID: Record<AuthMode, string> = {
+	pin: "Tsid",
+	pattern: "TsidZ",
+	faceid: "Tsid",
+};
+
 export default function HanaCertLoginPage() {
 	const router = useRouter();
 
 	const [authMode, setAuthMode] = useState<AuthMode>("pin");
 	const [isSheetOpen, setIsSheetOpen] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState("");
+	const [errorKey, setErrorKey] = useState(0);
 
-	const [isVerified, setIsVerified] = useState(false);
-	const handleAuthSuccess = useCallback(async (mode: AuthMode) => {
-		console.log(`${mode} 인증 시도...`);
+	const isLoadingRef = useRef(false);
 
-		// TODO: 실제 API 검증 로직이 들어갈 자리
-		const verificationSuccess = true;
+	useEffect(() => {
+		setError("");
+	}, [authMode]);
 
-		if (verificationSuccess) {
-			localStorage.setItem("accessToken", "temp-token");
-			localStorage.setItem("LAST_LOGIN_METHOD", "HANA");
-			localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
-			setIsVerified(true);
-			router.replace("/");
-		} else {
-			alert("인증에 실패했습니다. 다시 시도해주세요.");
-		}
-	}, [router]);
+	const handleAuthSuccess = useCallback(
+		async (mode: AuthMode, value: string) => {
+			if (isLoadingRef.current) return;
+			isLoadingRef.current = true;
+			setIsLoading(true);
+			setError("");
+
+			const maxAge = "max-age=31536000; path=/";
+
+			if (mode === "faceid") {
+				localStorage.setItem("HAS_SEEN_FONT_CONFIG", "true");
+				localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+				localStorage.setItem("AUTH_TYPE", "HANA_CERT");
+
+				document.cookie = `HAS_SEEN_FONT_CONFIG=true; ${maxAge}`;
+				document.cookie = `HAS_SEEN_ONBOARDING=true; ${maxAge}`;
+				document.cookie = `AUTH_TYPE=HANA_CERT; ${maxAge}`;
+				document.cookie = `AUTH_TOKEN=FACE_ID_MOCK; ${maxAge}`;
+
+				setTimeout(() => {
+					setIsLoading(false);
+					isLoadingRef.current = false;
+					router.replace("/");
+					setTimeout(() => {
+						window.location.href = "/";
+					}, 500);
+				}, 800);
+				return;
+			}
+
+			try {
+				const result = await loginWithHanaCert(
+					MODE_TO_LOGIN_ID[mode],
+					MODE_TO_MEANS[mode],
+					value,
+				);
+
+				if (result.ok) {
+					localStorage.setItem("HAS_SEEN_FONT_CONFIG", "true");
+					localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+					localStorage.setItem("AUTH_TYPE", "HANA_CERT");
+
+					document.cookie = `HAS_SEEN_FONT_CONFIG=true; ${maxAge}`;
+					document.cookie = `HAS_SEEN_ONBOARDING=true; ${maxAge}`;
+					document.cookie = `AUTH_TYPE=HANA_CERT; ${maxAge}`;
+
+					router.replace("/");
+					return;
+				}
+
+				setError(result.error);
+				setErrorKey((k) => k + 1);
+			} catch {
+				setError("인증 과정에서 오류가 발생했습니다.");
+			} finally {
+				isLoadingRef.current = false;
+				setIsLoading(false);
+			}
+		},
+		[router],
+	);
+
+	const handlePatternSuccess = useCallback(
+		(val: string) => handleAuthSuccess("pattern", val),
+		[handleAuthSuccess],
+	);
+	const handlePinSuccess = useCallback(
+		(val: string) => handleAuthSuccess("pin", val),
+		[handleAuthSuccess],
+	);
+	const handleFaceIdSuccess = useCallback(
+		(val: string) => handleAuthSuccess("faceid", val),
+		[handleAuthSuccess],
+	);
 
 	const modeTitles: Record<AuthMode, string> = {
 		pin: "비밀번호를 입력해주세요",
@@ -55,7 +131,13 @@ export default function HanaCertLoginPage() {
 				<main className="app-main flex flex-1 flex-col items-center px-[1.5rem]">
 					<div className="pt-[4rem] pb-[3rem] text-center">
 						<h2 className="text-[1.5rem] font-bold leading-tight text-foreground">
-							{modeTitles[authMode]}
+							{authMode === "faceid" ? (
+								<>
+									<span className="text-primary">Face ID</span> 인증
+								</>
+							) : (
+								modeTitles[authMode]
+							)}
 						</h2>
 						<p className="mt-[0.75rem] text-[0.9375rem] text-muted-foreground">
 							{authMode === "faceid"
@@ -67,22 +149,43 @@ export default function HanaCertLoginPage() {
 					<div className="flex-1 w-full">
 						{authMode === "pattern" && (
 							<div className="flex justify-center">
-								<PatternAuth onSuccess={() => handleAuthSuccess("pattern")} />
+								<PatternAuth
+									key={errorKey}
+									onSuccess={handlePatternSuccess}
+								/>
 							</div>
 						)}
 						{authMode === "pin" && (
-							<SimplePasswordAuth onSuccess={() => handleAuthSuccess("pin")} />
+							<SimplePasswordAuth
+								key={errorKey}
+								onSuccess={handlePinSuccess}
+							/>
 						)}
 						{authMode === "faceid" && (
-							<FaceIdAuth onSuccess={() => handleAuthSuccess("faceid")} />
+							<FaceIdAuth
+								key={errorKey}
+								onSuccess={handleFaceIdSuccess}
+							/>
 						)}
 					</div>
+
+					{error && !isLoading && (
+						<p className="mb-[1.5rem] text-[0.75rem] font-medium text-red-500 animate-in fade-in slide-in-from-top-1">
+							{error}
+						</p>
+					)}
+					{isLoading && (
+						<p className="mb-[1.5rem] text-[0.75rem] font-medium text-hana-ez-600">
+							인증 처리 중...
+						</p>
+					)}
 
 					<div className="w-full pb-[3rem] pt-[2rem]">
 						<button
 							type="button"
+							disabled={isLoading}
 							onClick={() => setIsSheetOpen(true)}
-							className="mx-auto flex items-center justify-center gap-1 text-[0.9375rem] font-medium text-muted-foreground hover:text-foreground underline underline-offset-4"
+							className="mx-auto flex items-center justify-center gap-1 text-[0.9375rem] font-medium text-muted-foreground hover:text-foreground underline underline-offset-4 disabled:opacity-40"
 						>
 							다른 방법으로 로그인
 						</button>
@@ -96,7 +199,8 @@ export default function HanaCertLoginPage() {
 					onSelect={(mode) => {
 						setAuthMode(mode as AuthMode);
 						setIsSheetOpen(false);
-						setIsVerified(false);
+						setError("");
+						setErrorKey((k) => k + 1);
 					}}
 				/>
 			</div>

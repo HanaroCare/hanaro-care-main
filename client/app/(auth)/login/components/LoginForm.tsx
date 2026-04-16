@@ -7,12 +7,13 @@ import PrimaryButton from "@/components/baseelements/PrimaryButton";
 
 type LoginFormProps = {
   onSubmit: (data: { id: string; pw: string }) => void;
+  isSubmitting?: boolean;
 };
 
 /**
  * 일반 로그인 폼 컴포넌트
  */
-export default function LoginForm({ onSubmit }: LoginFormProps) {
+export default function LoginForm({ onSubmit, isSubmitting = false }: LoginFormProps) {
   const [userId, setUserId] = useState("");
   const [userPw, setUserPw] = useState("");
 
@@ -46,8 +47,8 @@ export default function LoginForm({ onSubmit }: LoginFormProps) {
       </div>
 
       <PrimaryButton
-        label="로그인하기"
-        disabled={!isFormValid}
+        label={isSubmitting ? "로그인 중..." : "로그인하기"}
+        disabled={!isFormValid || isSubmitting}
         onClick={handleSubmit}
       />
     </div>
