@@ -17,9 +17,12 @@ import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.TBAssetTrans;
 import com.server.asset.entity.enums.AssetCategory;
+import com.server.asset.entity.enums.ProdStat;
+import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.TransType;
 import com.server.asset.repository.AccountRepository;
 import com.server.asset.repository.AssetTransRepository;
+import com.server.asset.repository.UserProdRepository;
 import com.server.common.exception.ApiException;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.UserRepository;
@@ -34,6 +37,7 @@ public class UserContextUtil {
   private final UserRepository tbUserRepository;
   private final AssetTransRepository assetTransRepository;
   private final AccountRepository accountRepository;
+  private final UserProdRepository userProdRepository;
 
   public AIAnalysisInput collectUserContext(Long userId, SimulationRequest request) {
     TBUser user = tbUserRepository.findById(userId)
@@ -56,6 +60,12 @@ public class UserContextUtil {
     BigDecimal retirementPensionBalance = sumLinkedBalance(userId, AssetCategory.PENSION_RETIRE);
     BigDecimal personalPensionBalance = sumLinkedBalance(userId, AssetCategory.PENSION_PERSONAL);
 
+    BigDecimal housingPensionMonthlyPayout = userProdRepository
+        .findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
+            userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS)
+        .map(prod -> prod.getMonthlyPayout() != null ? prod.getMonthlyPayout() : BigDecimal.ZERO)
+        .orElse(BigDecimal.ZERO);
+
     return AIAnalysisInput.builder()
         .userId(userId)
         .userAge(user.getUserAge())
@@ -67,6 +77,7 @@ public class UserContextUtil {
         .totalAssetAmt(totalAssetAmt)
         .retirementPensionBalance(retirementPensionBalance)
         .personalPensionBalance(personalPensionBalance)
+        .housingPensionMonthlyPayout(housingPensionMonthlyPayout)
         .build();
   }
 

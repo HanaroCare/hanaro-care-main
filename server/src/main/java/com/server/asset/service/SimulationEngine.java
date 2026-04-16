@@ -41,7 +41,10 @@ public class SimulationEngine {
             false  // 지출 데이터 기반이므로 true
         );
 
-        BigDecimal estimatedPension = pensionResult.getAmount();
+        // 국민연금 + 주택연금 월수령액을 합산하여 AI/룰 양쪽에 동일하게 반영
+        BigDecimal housingPayout = input.getHousingPensionMonthlyPayout() != null
+            ? input.getHousingPensionMonthlyPayout() : BigDecimal.ZERO;
+        BigDecimal estimatedPension = pensionResult.getAmount().add(housingPayout);
         boolean isLinked = pensionResult.isLinked();
 
         List<String> welfareServices = fetchWelfareServices(input.getUserAddr());

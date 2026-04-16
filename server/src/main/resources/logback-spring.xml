@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOGS_DIR" value="./logs"/>
+
+    <!-- ══════════════════════════════════════════
+         Appenders
+    ══════════════════════════════════════════ -->
+
+    <!-- 콘솔 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%d{HH:mm:ss}] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 시뮬레이션 서비스 로그 -->
+    <appender name="SIMULATION_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_DIR}/simulation.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}] %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 자산 서비스 로그 -->
+    <appender name="ASSET_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_DIR}/asset.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}] %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 배치 로그 -->
+    <appender name="BATCH_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_DIR}/batch.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>[%d{yyyy-MM-dd HH:mm:ss}] %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ══════════════════════════════════════════
+         Loggers — 시뮬레이션
+    ══════════════════════════════════════════ -->
+
+    <logger name="com.server.asset.service.SimulationService" level="INFO" additivity="false">
+        <appender-ref ref="SIMULATION_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="com.server.asset.service.SimulationEngine" level="INFO" additivity="false">
+        <appender-ref ref="SIMULATION_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="com.server.asset.service.SimulationRefreshService" level="INFO" additivity="false">
+        <appender-ref ref="SIMULATION_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!-- ══════════════════════════════════════════
+         Loggers — 자산
+    ══════════════════════════════════════════ -->
+
+    <logger name="com.server.asset.service.AssetService" level="INFO" additivity="false">
+        <appender-ref ref="ASSET_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="com.server.asset.service.AssetAdminService" level="INFO" additivity="false">
+        <appender-ref ref="ASSET_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="com.server.asset.service.NationalPensionService" level="INFO" additivity="false">
+        <appender-ref ref="ASSET_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!-- ══════════════════════════════════════════
+         Loggers — 배치
+    ══════════════════════════════════════════ -->
+
+    <logger name="com.server.common.batch.SimulationRefreshTasklet" level="INFO" additivity="false">
+        <appender-ref ref="BATCH_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <logger name="com.server.asset.scheduler.SimulationRefreshScheduler" level="INFO" additivity="false">
+        <appender-ref ref="BATCH_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!-- Spring Batch 프레임워크 로그 (배치 파일에만) -->
+    <logger name="org.springframework.batch" level="INFO" additivity="false">
+        <appender-ref ref="BATCH_FILE"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
+    <!-- ══════════════════════════════════════════
+         Root — 나머지는 WARN 이상만 콘솔 출력
+    ══════════════════════════════════════════ -->
+
+    <root level="WARN">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>
