@@ -1,9 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { type FamilySummaryDto, myhanaApi } from '@/app/my/myApi';
+import { myhanaApi } from '@/app/my/api/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { GuardianData } from '../types';
+import type { FamilySummaryDto, GuardianData } from '../types';
 
 type Props = {
   data: GuardianData;

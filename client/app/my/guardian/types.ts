@@ -1,20 +1,34 @@
 export type GuardianData = {
-  // Step 2: 선택된 가족 정보 (FamilySummaryDto 기반)
+  // Step 2: 선택된 가족 정보
   selectedPerson: {
     name: string;
     phoneNumber: string;
     relationCd: string;
   } | null;
 
-  // Step 2-2: 관계 (기본값은 relationCd지만 직접 수정할 수도 있으니 유지)
+  // Step 2-2: 관계
   relationship: string;
 
-  // Step 3: 후견인 권한 (백엔드 boolean[5] 규격)
+  // Step 3: 후견인 권한
   // [재산관리, 의료결정, 요양시설, 계약체결, 법적대리] 순서
   permissions: boolean[];
 
-  // Step 4: 본인 인증 정보 (필요 시 추가)
+  // Step 4: 본인 인증 정보
   userName: string;
   userPhone: string;
   verificationMethod: string;
 };
+
+// 후견인 가족 요약 정보
+export interface FamilySummaryDto {
+  name: string;
+  phoneNumber: string;
+  relationCd: string;
+}
+
+// 계약서 생성을 위한 데이터
+export interface ContractDto {
+  guardianName: string;
+  guardianRelation: string;
+  permission: boolean[]; // [재산, 의료, 요양, 계약, 법적대리] (길이 5 고정)
+}

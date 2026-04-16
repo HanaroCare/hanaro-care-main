@@ -1,7 +1,12 @@
 import axios from 'axios';
+import type { ContractDto, FamilySummaryDto } from '../guardian/types';
+import type {
+  InsuranceDetailDto,
+  InsuranceListResponseDto,
+} from '../insurance/types';
 
 const apiClient = axios.create({
-  baseURL: 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
 apiClient.interceptors.request.use((config) => {
@@ -16,47 +21,6 @@ type ApiResponse<T> = {
   message?: string;
 };
 
-/**
- * 1. 타입 정의 (백엔드 DTO 매칭)
- */
-
-// 후견인 가족 요약 정보
-export interface FamilySummaryDto {
-  name: string;
-  phoneNumber: string;
-  relationCd: string;
-}
-
-// 계약서 생성을 위한 데이터
-export interface ContractDto {
-  guardianName: string;
-  guardianRelation: string;
-  permission: boolean[]; // [재산, 의료, 요양, 계약, 법적대리] (길이 5 고정)
-}
-
-// 보험 기본 정보
-export interface InsuranceDto {
-  accountId: number;
-  instNm: string;
-  accountNm: string;
-  monthlyPremAmt: number;
-  username: string;
-}
-
-export interface InsuranceListResponseDto {
-  insurances: InsuranceDto[];
-  isInsAgent: boolean;
-}
-
-// 보험 상세 정보
-export interface InsuranceDetailDto {
-  insuranceDto: InsuranceDto;
-  contrDt: string; // LocalDate -> string (ISO)
-  expireDt: string; // LocalDate -> string (ISO)
-}
-/**
- * 2. API 객체 선언
- */
 export const myhanaApi = {
   // 사용자 이름 조회
   getUser: async () => {

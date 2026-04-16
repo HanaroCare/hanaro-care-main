@@ -2,7 +2,7 @@
 
 import { FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { myhanaApi } from '@/app/my/myApi';
+import { myhanaApi } from '@/app/my/api/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import type { GuardianData } from '../types';

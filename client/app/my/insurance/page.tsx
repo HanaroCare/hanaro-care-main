@@ -4,9 +4,10 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { BannerCard } from '@/app/asset/components/notification/BannerCard';
-import { type InsuranceDto, myhanaApi } from '@/app/my/myApi'; // API와 타입 임포트
+import { myhanaApi } from '@/app/my/api/myApi'; // API와 타입 임포트
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import InsuranceCard from './components/InsuranceCard';
+import type { InsuranceDto } from './types';
 
 export default function MyFamilyInsurancePage() {
   const router = useRouter();

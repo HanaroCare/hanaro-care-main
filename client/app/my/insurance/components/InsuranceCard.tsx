@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react';
-import type { InsuranceDto } from '../../myApi';
+import type { InsuranceDto } from '../types';
 import InsuranceLogo from './InsuranceLogo';
 
 interface InsuranceCardProps {

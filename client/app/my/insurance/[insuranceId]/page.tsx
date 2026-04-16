@@ -2,8 +2,9 @@
 
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { type InsuranceDetailDto, myhanaApi } from '@/app/my/myApi';
+import { myhanaApi } from '@/app/my/api/myApi';
 import InsuranceLogo from '../components/InsuranceLogo';
+import type { InsuranceDetailDto } from '../types';
 
 const DETAIL_ROWS = [
   { label: '보험사', key: 'instNm', isNested: true },
