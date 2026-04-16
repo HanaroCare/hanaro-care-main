@@ -1,18 +1,25 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { Building2, Search, ShieldCheck, UserRound } from 'lucide-react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
+  type AdminRealAssetItem,
+  type AdminUserDetail,
+  type AdminUserSearchItem,
   enableAgentView,
+  getAdminUserAssets,
+  getAdminUserDetail,
+  searchAdminUsers,
   subscribePensionProduct,
   subscribeTrustProduct,
-} from '@/app/asset/actions/admin';
+} from './actions/admin';
 
 type ResultState = {
   status: 'idle' | 'success' | 'error';
   message: string;
 };
 
-function AdminSection({
+function SectionCard({
   title,
   description,
   children,
@@ -22,20 +29,26 @@ function AdminSection({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E5E7EB] bg-white p-5">
-      <p className="font-semibold text-[15px] text-[#1F2937]">{title}</p>
-      <p className="mt-1 text-[13px] text-[#6A7282]">{description}</p>
-      <div className="mt-4">{children}</div>
-    </div>
+    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
+      <div className="mb-4">
+        <p className="font-semibold text-[16px] text-[#111827]">{title}</p>
+        <p className="mt-1 text-[13px] leading-5 text-[#6A7282]">
+          {description}
+        </p>
+      </div>
+      {children}
+    </section>
   );
 }
 
-function ResultBadge({ result }: { result: ResultState }) {
+function ResultBanner({ result }: { result: ResultState }) {
   if (result.status === 'idle') return null;
+
   const isSuccess = result.status === 'success';
+
   return (
     <div
-      className={`mt-3 rounded-xl px-4 py-3 text-[13px] ${
+      className={`mt-4 rounded-xl px-4 py-3 text-[13px] leading-5 ${
         isSuccess
           ? 'bg-[#E9F8F9] text-hana-ez-600'
           : 'bg-[#FEE2E2] text-red-600'
@@ -46,48 +59,110 @@ function ResultBadge({ result }: { result: ResultState }) {
   );
 }
 
-export default function DevAdminPage() {
-  const [isPending, startTransition] = useTransition();
-  const isPositiveInt = (v: string) => {
-    const n = Number(v);
-    return Number.isInteger(n) && n > 0;
-  };
+function EmptyBox({ text }: { text: string }) {
+  return (
+    <div className="rounded-xl border border-dashed border-[#D1D5DB] bg-[#F9FAFB] px-4 py-6 text-center text-[13px] text-[#6A7282]">
+      {text}
+    </div>
+  );
+}
 
-  const [trustUserId, setTrustUserId] = useState('');
+function formatWon(value: number) {
+  return `${value.toLocaleString()}원`;
+}
+
+export default function DevAdminClient() {
+  const [isPending, startTransition] = useTransition();
+
+  const [keyword, setKeyword] = useState('');
+  const [searchResult, setSearchResult] = useState<AdminUserSearchItem[]>([]);
+  const [selectedUser, setSelectedUser] = useState<AdminUserDetail | null>(
+    null,
+  );
+  const [realAssets, setRealAssets] = useState<AdminRealAssetItem[]>([]);
+
+  const [isSearching, setIsSearching] = useState(false);
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
   const [trustResult, setTrustResult] = useState<ResultState>({
     status: 'idle',
     message: '',
   });
-
-  const [pensionUserId, setPensionUserId] = useState('');
-  const [pensionRealAssetId, setPensionRealAssetId] = useState('');
   const [pensionResult, setPensionResult] = useState<ResultState>({
     status: 'idle',
     message: '',
   });
-
-  const [agentUserId, setAgentUserId] = useState('');
   const [agentResult, setAgentResult] = useState<ResultState>({
     status: 'idle',
     message: '',
   });
 
-  const handleTrustSubscribe = () => {
-    const userId = Number(trustUserId);
-    if (!Number.isInteger(userId) || userId <= 0) {
-      setTrustResult({
-        status: 'error',
-        message: 'userId는 1 이상의 정수여야 합니다.',
-      });
+  const [selectedRealAssetId, setSelectedRealAssetId] = useState<number | null>(
+    null,
+  );
+
+  const handleSearch = () => {
+    const q = keyword.trim();
+
+    if (!q) {
+      setSearchResult([]);
       return;
     }
-    setTrustResult({ status: 'idle', message: '' });
+
+    setIsSearching(true);
+
     startTransition(async () => {
       try {
-        const { userProdId } = await subscribeTrustProduct(userId);
+        const result = await searchAdminUsers(q);
+        setSearchResult(result);
+      } catch (e) {
+        setSearchResult([]);
+      } finally {
+        setIsSearching(false);
+      }
+    });
+  };
+
+  const handleSelectUser = (userId: number) => {
+    setSelectedUser(null);
+    setRealAssets([]);
+    setSelectedRealAssetId(null);
+    setTrustResult({ status: 'idle', message: '' });
+    setPensionResult({ status: 'idle', message: '' });
+    setAgentResult({ status: 'idle', message: '' });
+    setIsLoadingDetail(true);
+
+    startTransition(async () => {
+      try {
+        const [user, assets] = await Promise.all([
+          getAdminUserDetail(userId),
+          getAdminUserAssets(userId),
+        ]);
+
+        setSelectedUser(user);
+        setRealAssets(assets);
+        setSelectedRealAssetId(assets[0]?.realAssetId ?? null);
+      } catch (e) {
+        setSelectedUser(null);
+        setRealAssets([]);
+        setSelectedRealAssetId(null);
+      } finally {
+        setIsLoadingDetail(false);
+      }
+    });
+  };
+
+  const handleTrustSubscribe = () => {
+    if (!selectedUser) return;
+
+    setTrustResult({ status: 'idle', message: '' });
+
+    startTransition(async () => {
+      try {
+        const { userProdId } = await subscribeTrustProduct(selectedUser.userId);
         setTrustResult({
           status: 'success',
-          message: `가입 완료 — userProdId: ${userProdId}`,
+          message: `신탁 상품 가입 완료 — userProdId: ${userProdId}`,
         });
       } catch (e) {
         setTrustResult({
@@ -99,30 +174,25 @@ export default function DevAdminPage() {
   };
 
   const handlePensionSubscribe = () => {
-    const userId = Number(pensionUserId);
-    const realAssetId = Number(pensionRealAssetId);
-    if (
-      !Number.isInteger(userId) ||
-      !Number.isInteger(realAssetId) ||
-      userId <= 0 ||
-      realAssetId <= 0
-    ) {
+    if (!selectedUser || !selectedRealAssetId) {
       setPensionResult({
         status: 'error',
-        message: 'userId/realAssetId는 1 이상의 정수여야 합니다.',
+        message: '가입할 부동산 자산을 먼저 선택해주세요.',
       });
       return;
     }
+
     setPensionResult({ status: 'idle', message: '' });
+
     startTransition(async () => {
       try {
         const { userProdId } = await subscribePensionProduct(
-          userId,
-          realAssetId,
+          selectedUser.userId,
+          selectedRealAssetId,
         );
         setPensionResult({
           status: 'success',
-          message: `가입 완료 — userProdId: ${userProdId}`,
+          message: `주택연금 상품 가입 완료 — userProdId: ${userProdId}`,
         });
       } catch (e) {
         setPensionResult({
@@ -134,18 +204,13 @@ export default function DevAdminPage() {
   };
 
   const handleEnableAgentView = () => {
-    const userId = Number(agentUserId);
-    if (!Number.isInteger(userId) || userId <= 0) {
-      setAgentResult({
-        status: 'error',
-        message: 'userId는 1 이상의 정수여야 합니다.',
-      });
-      return;
-    }
+    if (!selectedUser) return;
+
     setAgentResult({ status: 'idle', message: '' });
+
     startTransition(async () => {
       try {
-        await enableAgentView(userId);
+        await enableAgentView(selectedUser.userId);
         setAgentResult({
           status: 'success',
           message: '대리인 열람 권한 허용 완료',
@@ -159,100 +224,261 @@ export default function DevAdminPage() {
     });
   };
 
+  const selectedAsset = useMemo(
+    () =>
+      realAssets.find((asset) => asset.realAssetId === selectedRealAssetId) ??
+      null,
+    [realAssets, selectedRealAssetId],
+  );
+
   return (
-    <div className="min-h-screen bg-[#F9FAFB] px-4 py-8">
-      <div className="mx-auto max-w-md">
-        <div className="mb-6">
-          <p className="font-bold text-[20px] text-[#1F2937]">
-            관리자 테스트 패널
-          </p>
-          <p className="mt-1 text-[13px] text-[#6A7282]">
-            개발 환경 전용 · ADMIN 권한 필요
-          </p>
+    <div className="min-h-screen bg-[#F3F4F6] px-4 py-8">
+      <div className="mx-auto max-w-5xl">
+        <div className="mb-6 rounded-3xl bg-[#111827] px-6 py-6 text-white shadow-lg">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10">
+              <ShieldCheck size={22} />
+            </div>
+            <div>
+              <p className="font-bold text-[24px] leading-8">
+                관리자 테스트 패널
+              </p>
+              <p className="mt-1 text-[14px] text-white/70">
+                사용자 검색, 자산 조회, 신탁/주택연금 가입, 대리인 권한 부여
+              </p>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-col gap-4">
-          {/* 신탁 상품 가입 */}
-          <AdminSection
-            title="신탁 상품 가입"
-            description="저장된 신탁 설계 조건을 바탕으로 상품 가입 처리"
-          >
-            <input
-              type="number"
-              placeholder="userId"
-              value={trustUserId}
-              onChange={(e) => setTrustUserId(e.target.value)}
-              className="w-full rounded-xl border border-[#E5E7EB] px-4 py-3 text-[14px] outline-none focus:border-hana-ez-600"
-            />
-            <button
-              type="button"
-              disabled={!isPositiveInt(trustUserId) || isPending}
-              onClick={handleTrustSubscribe}
-              className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+        <div className="grid gap-4 lg:grid-cols-[1.1fr_1.4fr]">
+          <div className="space-y-4">
+            <SectionCard
+              title="사용자 검색"
+              description="이름, 로그인 아이디, 전화번호 등으로 사용자를 검색합니다."
             >
-              신탁 상품 가입
-            </button>
-            <ResultBadge result={trustResult} />
-          </AdminSection>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search
+                    size={16}
+                    className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-[#9CA3AF]"
+                  />
+                  <input
+                    type="text"
+                    value={keyword}
+                    onChange={(e) => setKeyword(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSearch();
+                    }}
+                    placeholder="이름 / 아이디 / 전화번호"
+                    className="w-full rounded-xl border border-[#E5E7EB] bg-white py-3 pr-4 pl-10 text-[14px] outline-none focus:border-hana-ez-600"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSearch}
+                  disabled={!keyword.trim() || isPending}
+                  className="rounded-xl bg-hana-ez-600 px-4 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                >
+                  검색
+                </button>
+              </div>
 
-          {/* 주택연금 가입 */}
-          <AdminSection
-            title="주택연금 상품 가입"
-            description="저장된 주택연금 시뮬레이션 결과를 바탕으로 상품 가입 처리"
-          >
-            <div className="flex gap-2">
-              <input
-                type="number"
-                placeholder="userId"
-                value={pensionUserId}
-                onChange={(e) => setPensionUserId(e.target.value)}
-                className="w-full rounded-xl border border-[#E5E7EB] px-4 py-3 text-[14px] outline-none focus:border-hana-ez-600"
-              />
-              <input
-                type="number"
-                placeholder="realAssetId"
-                value={pensionRealAssetId}
-                onChange={(e) => setPensionRealAssetId(e.target.value)}
-                className="w-full rounded-xl border border-[#E5E7EB] px-4 py-3 text-[14px] outline-none focus:border-hana-ez-600"
-              />
-            </div>
-            <button
-              type="button"
-              disabled={
-                !isPositiveInt(pensionUserId) ||
-                !isPositiveInt(pensionRealAssetId) ||
-                isPending
-              }
-              onClick={handlePensionSubscribe}
-              className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
-            >
-              주택연금 가입
-            </button>
-            <ResultBadge result={pensionResult} />
-          </AdminSection>
+              <div className="mt-4">
+                {isSearching ? (
+                  <EmptyBox text="검색 중입니다." />
+                ) : searchResult.length === 0 ? (
+                  <EmptyBox text="검색 결과가 없습니다." />
+                ) : (
+                  <div className="flex max-h-[360px] flex-col gap-2 overflow-y-auto">
+                    {searchResult.map((user) => (
+                      <button
+                        key={user.userId}
+                        type="button"
+                        onClick={() => handleSelectUser(user.userId)}
+                        className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-left transition hover:border-hana-ez-600 hover:bg-[#F9FFFE]"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[14px] text-[#111827]">
+                              {user.userName}
+                            </p>
+                            <p className="mt-1 text-[12px] text-[#6A7282]">
+                              userId: {user.userId} · loginId: {user.loginId}
+                            </p>
+                            <p className="mt-1 text-[12px] text-[#6A7282]">
+                              {user.phoneNumber ?? '-'}
+                            </p>
+                          </div>
+                          <span className="rounded-full bg-[#EEF2FF] px-2.5 py-1 text-[11px] font-semibold text-[#4F46E5]">
+                            {user.userRole}
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          </div>
 
-          {/* 대리인 열람 권한 허용 */}
-          <AdminSection
-            title="대리인 신탁 열람 권한 허용"
-            description="가입 중인 신탁 상품의 대리인 열람 권한(isAgentView)을 true로 설정"
-          >
-            <input
-              type="number"
-              placeholder="userId"
-              value={agentUserId}
-              onChange={(e) => setAgentUserId(e.target.value)}
-              className="w-full rounded-xl border border-[#E5E7EB] px-4 py-3 text-[14px] outline-none focus:border-hana-ez-600"
-            />
-            <button
-              type="button"
-              disabled={!isPositiveInt(agentUserId) || isPending}
-              onClick={handleEnableAgentView}
-              className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+          <div className="space-y-4">
+            <SectionCard
+              title="선택한 사용자"
+              description="현재 선택된 사용자 정보와 연동된 부동산 자산을 확인합니다."
             >
-              열람 권한 허용
-            </button>
-            <ResultBadge result={agentResult} />
-          </AdminSection>
+              {isLoadingDetail ? (
+                <EmptyBox text="사용자 정보를 불러오는 중입니다." />
+              ) : !selectedUser ? (
+                <EmptyBox text="왼쪽에서 사용자를 먼저 선택해주세요." />
+              ) : (
+                <>
+                  <div className="rounded-2xl bg-[#F9FAFB] p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E9F8F9] text-hana-ez-600">
+                        <UserRound size={20} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-[17px] text-[#111827]">
+                          {selectedUser.userName}
+                        </p>
+                        <p className="mt-1 text-[13px] text-[#6A7282]">
+                          userId: {selectedUser.userId} · loginId:{' '}
+                          {selectedUser.loginId}
+                        </p>
+                        <p className="mt-1 text-[13px] text-[#6A7282]">
+                          {selectedUser.phoneNumber ?? '-'} ·{' '}
+                          {selectedUser.userRole}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <p className="mb-2 font-semibold text-[14px] text-[#111827]">
+                      연동 부동산 자산
+                    </p>
+
+                    {realAssets.length === 0 ? (
+                      <EmptyBox text="연동된 부동산 자산이 없습니다." />
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {realAssets.map((asset) => {
+                          const selected =
+                            selectedRealAssetId === asset.realAssetId;
+
+                          return (
+                            <button
+                              key={asset.realAssetId}
+                              type="button"
+                              onClick={() =>
+                                setSelectedRealAssetId(asset.realAssetId)
+                              }
+                              className={`rounded-xl border px-4 py-3 text-left transition ${
+                                selected
+                                  ? 'border-hana-ez-600 bg-[#F9FFFE]'
+                                  : 'border-[#E5E7EB] bg-white'
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="mt-0.5 flex h-9 w-9 items-center justify-center rounded-xl bg-[#F3F4F6] text-[#4B5563]">
+                                  <Building2 size={18} />
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-[14px] text-[#111827]">
+                                    {asset.assetNm}
+                                  </p>
+                                  <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
+                                    realAssetId: {asset.realAssetId}
+                                  </p>
+                                  <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
+                                    {asset.addr}
+                                  </p>
+                                  <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
+                                    평가금액 {formatWon(asset.evalAmt)}
+                                  </p>
+                                </div>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
+            </SectionCard>
+
+            <SectionCard
+              title="관리 액션"
+              description="선택한 사용자 기준으로 테스트 액션을 실행합니다."
+            >
+              {!selectedUser ? (
+                <EmptyBox text="사용자를 선택한 뒤 액션을 실행할 수 있습니다." />
+              ) : (
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                    <p className="font-semibold text-[14px] text-[#111827]">
+                      신탁 상품 가입
+                    </p>
+                    <p className="mt-1 text-[12px] text-[#6A7282]">
+                      저장된 신탁 설계 조건을 바탕으로 상품 가입 처리
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleTrustSubscribe}
+                      disabled={isPending}
+                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                    >
+                      신탁 상품 가입
+                    </button>
+                    <ResultBanner result={trustResult} />
+                  </div>
+
+                  <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                    <p className="font-semibold text-[14px] text-[#111827]">
+                      주택연금 상품 가입
+                    </p>
+                    <p className="mt-1 text-[12px] text-[#6A7282]">
+                      선택한 부동산 자산 기준으로 주택연금 가입 처리
+                    </p>
+                    <div className="mt-3 rounded-xl bg-[#F9FAFB] px-4 py-3 text-[13px] text-[#4B5563]">
+                      선택 자산:{' '}
+                      {selectedAsset
+                        ? `${selectedAsset.assetNm} (${selectedAsset.realAssetId})`
+                        : '없음'}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handlePensionSubscribe}
+                      disabled={isPending || !selectedRealAssetId}
+                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                    >
+                      주택연금 상품 가입
+                    </button>
+                    <ResultBanner result={pensionResult} />
+                  </div>
+
+                  <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                    <p className="font-semibold text-[14px] text-[#111827]">
+                      대리인 신탁 열람 권한 허용
+                    </p>
+                    <p className="mt-1 text-[12px] text-[#6A7282]">
+                      가입 중인 신탁 상품의 대리인 열람 권한 허용
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleEnableAgentView}
+                      disabled={isPending}
+                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                    >
+                      열람 권한 허용
+                    </button>
+                    <ResultBanner result={agentResult} />
+                  </div>
+                </div>
+              )}
+            </SectionCard>
+          </div>
         </div>
       </div>
     </div>

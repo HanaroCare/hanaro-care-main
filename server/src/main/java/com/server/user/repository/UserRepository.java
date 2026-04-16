@@ -41,4 +41,14 @@ public interface UserRepository extends JpaRepository<TBUser, Long> {
 
   @Query("SELECT u.userNm FROM TBUser u WHERE u.userId = :userId")
   String findUserNmById(Long userId);
+
+  @Query("""
+      select u
+      from TBUser u
+      where lower(u.userNm) like lower(concat('%', :keyword, '%'))
+         or lower(u.loginId) like lower(concat('%', :keyword, '%'))
+         or u.userPhone like concat('%', :keyword, '%')
+      order by u.userId desc
+      """)
+  List<TBUser> searchAdminUsers(@Param("keyword") String keyword);
 }
