@@ -78,6 +78,9 @@ export default function SimulatorPage() {
   const [myPensionProductSummary, setMyPensionProductSummary] = useState<
     any | null
   >(null);
+  const [myPensionRealAssetId, setMyPensionRealAssetId] = useState<
+    number | null
+  >(null);
   const [parentTrustDetail, setParentTrustDetail] =
     useState<TrustProductDetail | null>(null);
 
@@ -116,11 +119,12 @@ export default function SimulatorPage() {
             getLinkedHouses(),
           ]);
 
+        const pensionRealAssetId = linkedHouses[0]?.realAssetId ?? null;
+        setMyPensionRealAssetId(pensionRealAssetId);
+
         let pensionSim = null;
-        if (linkedHouses && linkedHouses.length > 0) {
-          pensionSim = await getPensionSimulationSummary(
-            linkedHouses[0].realAssetId,
-          );
+        if (pensionRealAssetId) {
+          pensionSim = await getPensionSimulationSummary(pensionRealAssetId);
         }
 
         setMyTrustProductSummary(trustProd);
@@ -283,6 +287,7 @@ export default function SimulatorPage() {
                       status={myPensionStatus}
                       pensionSimulationSummary={myPensionSimulationSummary}
                       pensionProductSummary={myPensionProductSummary}
+                      realAssetId={myPensionRealAssetId}
                     />
                   </div>
                 </>
