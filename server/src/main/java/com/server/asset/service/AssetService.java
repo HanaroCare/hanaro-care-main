@@ -21,7 +21,9 @@ import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,24 +32,29 @@ public class AssetService {
 	private final AccountRepository accountRepository;
 	private final RealAssetRepository realAssetRepository;
 	private final AssetMapper assetMapper;
+	private final SimulationRefreshService simulationRefreshService;
 
 	@CheckUser(key = "#userId")
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
-		// 1. 금융 자산 총액 조회 (연동된 계좌만 합산하도록 수정)
+		// 1. 마이데이터 연결 여부 (IS_LINKED = true 인 계좌가 하나라도 있으면 연결됨)
+		boolean isMyDataLinked = accountRepository.existsByUser_UserIdAndIsLinkedTrue(userId);
+
+		// 2. 금융 자산 총액 조회 (연동된 계좌만 합산)
 		BigDecimal totalFinancialAmt = accountRepository.findTotalBalanceByUserIdAndIsLinkedTrue(userId);
 		totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
 
-		// 2. 금융 자산 카테고리별 합계 (연동된 계좌만 그룹화하도록 수정)
+		// 3. 금융 자산 카테고리별 합계 (연동된 계좌만 그룹화)
 		List<FinancialAssetSummary> financialAssets = assetMapper.toFinancialAssetSummaryList(
 			accountRepository.findBalanceSumGroupByCategoryByUserIdAndIsLinkedTrue(userId)
 		);
 
-		// 3. 실물 자산 상세 리스트 (실물 자산은 통상 연동 해제 개념이 없으므로 기존 유지)
+		// 4. 실물 자산 상세 리스트 (TB_REAL_ASSET에 해당 유저 데이터 없으면 빈 리스트)
 		List<RealAssetSummary> realAssets = assetMapper.toRealAssetSummaryListFromEntity(
 			realAssetRepository.findAllByUser_UserId(userId)
 		);
 
 		return AssetDashboardResponse.builder()
+			.isMyDataLinked(isMyDataLinked)
 			.totalFinancialAmt(totalFinancialAmt)
 			.financialAssets(financialAssets)
 			.realAssets(realAssets)
@@ -64,6 +71,8 @@ public class AssetService {
       boolean isLinked = accountIds.contains(account.getAccountId());
       account.setIsLinked(isLinked);
     });
+
+    simulationRefreshService.enqueue(userId);
   }
 
   @CheckUser(key = "#userId")

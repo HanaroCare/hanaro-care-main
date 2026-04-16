@@ -10,6 +10,7 @@ import lombok.Builder;
 
 @Builder
 public record AssetDashboardResponse(
+	boolean isMyDataLinked,
 	BigDecimal totalFinancialAmt,
 	List<FinancialAssetSummary> financialAssets,
 	List<RealAssetSummary> realAssets

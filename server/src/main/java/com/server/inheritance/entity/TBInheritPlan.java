@@ -1,10 +1,7 @@
 package com.server.inheritance.entity;
 
-import java.math.BigDecimal;
-
 import com.server.common.entity.BaseEntity;
 import com.server.user.entity.TBUser;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,7 +24,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "TB_INHERIT_PLAN", uniqueConstraints = {
     @UniqueConstraint(
-        name = "unique_TbInheritPlan_userId",
+        name = "unique_TBInheritPlan_userId",
         columnNames = {"USER_ID"}
     )
 })
@@ -47,7 +45,7 @@ public class TBInheritPlan extends BaseEntity {
   @JoinColumn(
       name = "USER_ID",
       nullable = false,
-      foreignKey = @ForeignKey(name = "fk_TbInheritPlan_userId_TbUser")
+      foreignKey = @ForeignKey(name = "fk_TBInheritPlan_userId_TbUser")
   )
   private TBUser user;
 

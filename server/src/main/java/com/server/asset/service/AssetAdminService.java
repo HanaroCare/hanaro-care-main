@@ -38,6 +38,7 @@ public class AssetAdminService {
 
   private final UserRepository userRepository;
   private final TrustRepository trustRepository;
+  private final SimulationRefreshService simulationRefreshService;
   private final UserProdRepository userProdRepository;
   private final ProductRepository productRepository;
   private final TrustMapper trustMapper;
@@ -91,7 +92,9 @@ public class AssetAdminService {
     }
 
     try {
-      return userProdRepository.save(userProd).getUserProdId();
+      Long userProdId = userProdRepository.save(userProd).getUserProdId();
+      simulationRefreshService.enqueue(userId);
+      return userProdId;
     } catch (DataIntegrityViolationException e) {
       log.warn("신탁 상품 중복 가입 시도 차단: userId={}", userId);
       throw new ApiException(ErrorStatus.TRUST_PRODUCT_ALREADY_EXISTS);
@@ -133,6 +136,7 @@ public class AssetAdminService {
               simulation)
       );
 
+      simulationRefreshService.enqueue(userId);
       return savedProd.getUserProdId();
     } catch (DataIntegrityViolationException e) {
       log.warn("주택연금 중복 가입 시도 차단: userId={}, assetId={}", userId, realAssetId);
