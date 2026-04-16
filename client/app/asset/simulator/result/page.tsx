@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
-import { HousingPensionImpactCard } from '../../components/simulator/HousingPensionImpactCard';
 import { SimulationDetailCard } from '../../components/simulator/SimulationDetailCard';
 import { SimulationResultChart } from '../../components/simulator/SimulationResultChart';
 import { getSimulationSummary } from '../../actions/simulation';
@@ -178,13 +177,6 @@ export default function SimulatorResultPage() {
                 variant="primary"
             />
           </div>
-
-          {(data.housing_pension_monthly_payout ?? 0) > 0 && (
-            <HousingPensionImpactCard
-              monthlyPayout={Number(data.housing_pension_monthly_payout)}
-              currentShortage={Number(data.shortageAmt ?? 0)}
-            />
-          )}
         </main>
       </div>
   );
