@@ -16,6 +16,7 @@ public record TrustSimulationResultResponse(
 ) {
 	@Schema(description = "시뮬레이션 상세 내역")
 	public record SimulationDetailDto(
+
 		@Schema(description = "원금", example = "50000000")
 		BigDecimal principalAmount,
 
@@ -30,10 +31,12 @@ public record TrustSimulationResultResponse(
 
 		@Schema(description = "세후 수익률 (%)", example = "20.0")
 		BigDecimal profitRate
+
 	) {}
 
 	@Schema(description = "예치 금액별 결과 (차트 막대 1개)")
 	public record AmountResultDto(
+
 		@Schema(description = "금액 레이블", example = "5천만")
 		String label,
 
@@ -54,5 +57,6 @@ public record TrustSimulationResultResponse(
 
 		@Schema(description = "현재 선택된 막대 여부", example = "true")
 		boolean isSelected
+
 	) {}
 }

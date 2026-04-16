@@ -12,9 +12,7 @@ import com.server.asset.entity.enums.ProdType;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBUser;
-
 import java.math.BigDecimal;
-
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -49,9 +47,9 @@ public abstract class TrustMapper {
   @Mapping(target = "principalAmount", source = "principal")
   @Mapping(target = "profitRate", source = "detail.profitRate")
   @Mapping(
-            target = "profit",
-            expression = "java((detail != null && detail.expectedNetAmount() != null && principal != null) ? detail.expectedNetAmount().subtract(principal) : null)"
-        )
+      target = "profit",
+      expression = "java((detail != null && detail.expectedNetAmount() != null && principal != null) ? detail.expectedNetAmount().subtract(principal) : null)"
+  )
   @Mapping(target = "startType", source = "simulation.startType")
   @Mapping(target = "startDate", source = "simulation.startDate")
   @Mapping(target = "claimAgent", source = "simulation.claimAgent")
@@ -88,9 +86,10 @@ public abstract class TrustMapper {
       Boolean agentViewEnabled
   );
 
-  // JSON 변환 헬퍼 메서드
   protected String toJson(Object obj) {
-    if (obj == null) return null;
+    if (obj == null) {
+      return null;
+    }
     try {
       return objectMapper.writeValueAsString(obj);
     } catch (Exception e) {
