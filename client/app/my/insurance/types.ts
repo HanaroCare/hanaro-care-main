@@ -1,21 +1,23 @@
-export type Screen = 'family' | 'main' | 'detail';
+export type Screen = 'family' | 'main' | 'detail'; // 보험 기본 정보
 
-export interface InsuranceItem {
-  id: number;
-  company: string;
-  name: string;
-  subLabel?: string;
-  monthlyPremium: string;
-  needsConfirm?: boolean;
+// 보험 정보
+export interface InsuranceDto {
+  accountId: number;
+  instNm: string;
+  accountNm: string;
+  monthlyPremAmt: number;
+  username: string;
 }
 
-export interface InsuranceDetail {
-  id: number;
-  company: string;
-  name: string;
-  type: string;
-  subLabel?: string;
-  monthlyPremium: string | null;
-  contractDate: string;
-  expiryDate: string;
+// 보험 조회 dto
+export interface InsuranceListResponseDto {
+  insurances: InsuranceDto[];
+  isInsAgent: boolean;
+}
+
+// 보험 상세 정보
+export interface InsuranceDetailDto {
+  insuranceDto: InsuranceDto;
+  contrDt: string;
+  expireDt: string;
 }

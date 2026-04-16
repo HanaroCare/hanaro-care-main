@@ -9,7 +9,7 @@ import Step4Verification from './components/Step4Verification';
 import Step5GenerateDocs from './components/Step5Generatedocs';
 import Step6FindNotary from './components/Step6Findnotary';
 import Step7Complete from './components/Step7Complete';
-import type { GuardianData } from './types/types';
+import type { GuardianData } from './types';
 
 const TOTAL_STEPS = 7;
 
@@ -25,10 +25,13 @@ const getStepFromUrl = () =>
 export default function GuardianPage() {
   const router = useRouter();
   const [step, setStep] = useState(0);
+
   const [data, setData] = useState<GuardianData>({
     selectedPerson: null,
-    relationship: '배우자',
-    permissions: [],
+    relationship: '',
+    permissions: [false, false, false, false, false],
+    userName: '', // 이후 인증 단계나 유저 정보 API로 채움
+    userPhone: '',
     verificationMethod: 'phone',
   });
 
@@ -83,7 +86,7 @@ export default function GuardianPage() {
   ];
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-white">
+    <div className="flex min-h-[calc(100vh-150px)] items-start justify-center bg-white">
       <div className="w-full">{steps[step]}</div>
     </div>
   );

@@ -1,8 +1,9 @@
 'use client';
 
 import { Shield, Smartphone } from 'lucide-react';
+import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { GuardianData } from '../types/types';
+import type { GuardianData } from '../types';
 
 type Props = {
   data: GuardianData;
@@ -28,6 +29,25 @@ const methods = [
 ];
 
 export default function Step4Verification({ data, onChange, onNext }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleVerify = async () => {
+    setIsLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setIsLoading(false);
+    onNext();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white">
+        <div className="mb-6 h-12 w-12 animate-spin rounded-full border-4 border-gray-200 border-t-hana-green-700" />
+        <p className="font-semibold text-[16px] text-gray-800">인증 중이에요</p>
+        <p className="mt-1 text-[13px] text-gray-400">잠시만 기다려 주세요</p>
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="pt-6 pb-4">
@@ -97,7 +117,7 @@ export default function Step4Verification({ data, onChange, onNext }: Props) {
         </div>
       </div>
 
-      <PrimaryButton onClick={onNext} label={'인증하고 등록 완료'} />
+      <PrimaryButton onClick={handleVerify} label={'인증하고 등록 완료'} />
     </div>
   );
 }

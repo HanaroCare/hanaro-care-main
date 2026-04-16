@@ -36,7 +36,13 @@ export function BannerCard({
     }
 
     if (href) {
-      router.push(href as Route);
+      const isExternal = href.startsWith('http');
+
+      if (isExternal) {
+        window.open(href, '_blank');
+      } else {
+        router.push(href as Route);
+      }
     }
   };
 
