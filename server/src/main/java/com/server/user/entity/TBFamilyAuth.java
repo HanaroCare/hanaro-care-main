@@ -1,6 +1,5 @@
 package com.server.user.entity;
 
-import com.server.card.entity.TBCard;
 import com.server.common.entity.BaseEntity;
 import com.server.user.enums.FamilyRelation;
 import io.hypersistence.utils.hibernate.id.Tsid;
@@ -77,4 +76,5 @@ public class TBFamilyAuth extends BaseEntity {
   @Builder.Default
   @Column(name = "IS_TRUST_VIEW", nullable = false)
   private Boolean isTrustView = false; // 신탁 조회 권한 여부
+
 }

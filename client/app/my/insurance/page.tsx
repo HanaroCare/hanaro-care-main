@@ -2,35 +2,56 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { BannerCard } from '@/app/asset/components/notification/BannerCard';
+import { myhanaApi } from '@/app/my/api/myApi'; // API와 타입 임포트
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import InsuranceCard from './components/InsuranceCard';
-import { insurances, isDesignated, viewMode } from './constants/data';
+import type { InsuranceDto } from './types';
 
-export default function ChildMainInsuranceScreen() {
+export default function MyFamilyInsurancePage() {
   const router = useRouter();
 
+  // 1. 보험 목록을 담을 상태 추가
+  const [insuranceList, setInsuranceList] = useState<InsuranceDto[]>([]);
+  const [isInsAgent, setInsAgent] = useState<boolean>();
+  const [loading, setLoading] = useState(true);
+
+  // 2. 마운트 시 데이터 호출
+  useEffect(() => {
+    const fetchInsurances = async () => {
+      try {
+        setLoading(true);
+        const data = await myhanaApi.getInsurances();
+
+        setInsuranceList(data.insurances);
+        setInsAgent(data.isInsAgent);
+      } catch (error) {
+        console.error('보험 목록 로드 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInsurances();
+  }, []);
+
+  console.log(insuranceList);
+
   return (
-    <div className="mb-10 flex flex-col">
+    <div className="mb-10 flex min-h-[calc(100vh-180px)] flex-col">
       <div className="flex-1 space-y-3 pb-4">
-        {!isDesignated ? (
+        {isInsAgent ? (
           <div className="mt-4">
             <BannerCard
               title={<>미청구 보험금이{'\n'}전국에 10조원 쌓여있어요</>}
               buttonText="부모님의 숨은 보험금 조회하기"
-              imageSrc={
-                viewMode === 'GRANTEE'
-                  ? '/images/my/insurance/childrenImage.svg'
-                  : '/images/my/insurance/parentImage.svg'
-              }
-              href="viewMode === 'GRANTEE'
-                  ? '/images/my/insurance/childrenImage.svg'
-                  : '/images/my/insurance/parentImage.svg'"
+              imageSrc="/images/my/insurance/childrenImage.svg"
+              href="https://cont.insure.or.kr/cont_web/intro.do"
             />
           </div>
         ) : (
-          <div className="mb-7">
-            {/* 배너 */}
+          <div className="mt-7 mb-7">
             <AlertBanner
               actionText="인증하기"
               onActionAction={() => {}}
@@ -52,25 +73,34 @@ export default function ChildMainInsuranceScreen() {
 
         {/* 섹션 라벨 */}
         <div className="flex items-center gap-2 pt-1">
-          <div
-            className={`${viewMode === 'GRANTEE' ? 'bg-teal-500' : ''} h-2.5 w-2.5 rounded-full`}
-          />
+          <div className={`h-2.5 w-2.5 rounded-full bg-teal-500`} />
           <span className="font-semibold text-gray-800 text-sm">가족 보험</span>
         </div>
 
-        {/* 보험 목록 */}
+        {/* 3. 보험 목록 렌더링 (로딩 처리 포함) */}
         <div className="space-y-2.5">
-          {insurances.map((item) => (
-            <InsuranceCard
-              key={item.id}
-              item={item}
-              onClick={() => {
-                router.push(`/my/insurance/${item.id}`);
-                window.scrollTo(0, 0);
-              }}
-            />
-          ))}
+          {loading ? (
+            <p className="py-10 text-center text-gray-400 text-sm">
+              보험 정보를 불러오는 중입니다...
+            </p>
+          ) : insuranceList.length > 0 ? (
+            insuranceList.map((item) => (
+              <InsuranceCard
+                key={item.accountId} // id 대신 accountId 사용
+                item={item}
+                onClick={() => {
+                  router.push(`/my/insurance/${item.accountId}`);
+                  window.scrollTo(0, 0);
+                }}
+              />
+            ))
+          ) : (
+            <p className="py-10 text-center text-gray-400 text-sm">
+              등록된 보험 정보가 없습니다.
+            </p>
+          )}
         </div>
+
         <div className="mt-5">
           <AlertBanner
             variant="success"

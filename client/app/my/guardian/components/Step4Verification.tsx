@@ -2,7 +2,7 @@
 
 import { Shield, Smartphone } from 'lucide-react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { GuardianData } from '../types/types';
+import type { GuardianData } from '../types';
 
 type Props = {
   data: GuardianData;
@@ -28,6 +28,10 @@ const methods = [
 ];
 
 export default function Step4Verification({ data, onChange, onNext }: Props) {
+  // TODO: 인증 버튼 클릭 시 수행할 로직
+  const handleVerify = () => {
+    onNext();
+  };
   return (
     <div>
       <div className="pt-6 pb-4">
@@ -97,7 +101,7 @@ export default function Step4Verification({ data, onChange, onNext }: Props) {
         </div>
       </div>
 
-      <PrimaryButton onClick={onNext} label={'인증하고 등록 완료'} />
+      <PrimaryButton onClick={handleVerify} label={'인증하고 등록 완료'} />
     </div>
   );
 }

@@ -1,27 +1,76 @@
 'use client';
 
-import { FileText, Upload } from 'lucide-react';
+import { FileText } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { myhanaApi } from '@/app/my/api/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
-import type { GuardianData } from '../types/types';
+import type { GuardianData } from '../types';
 
 type Props = {
   data: GuardianData;
+
   onNext: () => void;
   goTo: (step: number) => void;
 };
 
-const isUser = false; // TODO: 하나로 인증서 여부에 따라 true/false 변경
-const familyMap: Record<string, string> = {
-  '1': '김영웅',
-  '2': '김유연',
-};
+// 권한 인덱스별 이름 매핑 (요약 화면용)
+const PERMISSION_NAMES = [
+  '재산 관리',
+  '의료 결정',
+  '요양 시설',
+  '계약 체결',
+  '법적 대리',
+];
 
 export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
-  const guardianName = data.selectedPerson
-    ? familyMap[data.selectedPerson]
-    : '-';
-  const permissionLabel = data.permissions.join(', ');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [userName, setUserName] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const name = await myhanaApi.getUser();
+        setUserName(name);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  // 1. 데이터 요약 표시용 가공
+
+  const guardianName = data.selectedPerson?.name || '-';
+  // true인 권한들만 필터링해서 텍스트로 결합
+  const selectedPermissionLabels = data.permissions
+    .map((checked, i) => (checked ? PERMISSION_NAMES[i] : null))
+    .filter(Boolean)
+    .join(', ');
+
+  // 2. 계약서 생성 및 다운로드 함수
+  const handleGenerateContract = async () => {
+    try {
+      setIsDownloading(true);
+
+      // 백엔드 ContractDto 규격에 맞게 조립
+      await myhanaApi.downloadContract({
+        guardianName: guardianName,
+        guardianRelation: data.relationship,
+        permission: data.permissions, // [true, false, ...] boolean[5]
+      });
+
+      // 다운로드 완료 후 다음 단계로 이동
+      onNext();
+    } catch (error) {
+      console.error('계약서 생성 실패:', error);
+      alert('계약서 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div>
       <div className="pt-6 pb-4">
@@ -32,7 +81,7 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
             생성해드릴게요
           </h1>
           <p className="mt-2 text-[13px] text-gray-400">
-            입력하신 정보를 바탕으로 PDF를 자동으로 만들어드려요
+            입력하신 정보를 바탕으로 문서를 자동으로 만들어드려요
           </p>
         </div>
 
@@ -50,11 +99,15 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
               },
               {
                 label: '권한 범위',
-                value: permissionLabel || '-',
+                value: selectedPermissionLabels || '선택 없음',
                 accent: true,
               },
-              { label: '본인', value: '권하나', accent: false },
-              { label: '등록일', value: '2026.04.07', accent: false },
+              { label: '본인', value: userName, accent: false },
+              {
+                label: '등록일',
+                value: new Date().toLocaleDateString(),
+                accent: false,
+              },
             ].map(({ label, value, accent }) => (
               <div
                 key={label}
@@ -64,9 +117,7 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
                   {label}
                 </span>
                 <span
-                  className={`wrap-break-word text-right font-medium text-[13px] ${
-                    accent ? 'text-hana-ez-600' : 'text-gray-800'
-                  }`}
+                  className={`wrap-break-word text-right font-medium text-[13px] ${accent ? 'text-hana-ez-600' : 'text-gray-800'}`}
                 >
                   {value}
                 </span>
@@ -80,7 +131,6 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
           생성할 서류
         </p>
         <div className="mb-6 space-y-3">
-          {/* Doc 1 */}
           <div className="flex items-center gap-3 rounded-2xl bg-gray-50 p-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E0F7F4]">
               <FileText size={18} className="text-teal-600" />
@@ -90,51 +140,32 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
                 임의후견계약서 초안
               </p>
               <p className="mt-0.5 text-[11px] text-gray-400">
-                계약서_권하나_2060408.pdf
+                계약서_{data.userName}.docx
               </p>
             </div>
             <span className="rounded-full bg-gray-200 px-2.5 py-1 font-medium text-[11px] text-gray-600">
-              저장됨
+              준비됨
             </span>
-          </div>
-
-          {/* Doc 2 */}
-          <div className="flex items-center gap-3 rounded-2xl bg-gray-50 p-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100">
-              <Upload size={18} className="text-red-400" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="font-semibold text-[14px] text-gray-800">
-                하나인증서
-              </p>
-              <p className="mt-0.5 text-[11px] text-gray-400">
-                패턴·지문·Face ID로 간편 인증
-              </p>
-            </div>
-            <button
-              type="button"
-              className={`${isUser ? `bg-gray-200 text-gray-600` : `bg-hana-ez-600 text-white hover:bg-hana-green-700`} rounded-full border-0 px-2.5 py-1 font-medium text-[11px] transition-colors`}
-            >
-              {isUser ? '보유 중' : '생성하기'}
-            </button>
           </div>
         </div>
 
-        {/* Notice */}
         <AlertBanner
           variant="note"
           icon="💡"
           messageFont="!text-[12px]"
           message={
-            '생성된 PDF는 초안이에요. \n 공증인 사무소 방문 시 내용을 함께 검토해요.'
+            '생성된 문서는 초안이에요. \n 공증인 사무소 방문 시 내용을 함께 검토해요.'
           }
         />
       </div>
+
       <PrimaryButton
         className="mt-4 mb-3"
-        onClick={onNext}
-        label={'가까운 공증인 사무소 찾기'}
+        onClick={handleGenerateContract}
+        disabled={isDownloading}
+        label={isDownloading ? '생성 중...' : '계약서 생성 및 사무소 찾기'}
       />
+
       <PrimaryButton
         onClick={() => goTo(6)}
         variant="secondary"
