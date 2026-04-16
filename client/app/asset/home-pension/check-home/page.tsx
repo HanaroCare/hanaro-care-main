@@ -54,7 +54,7 @@ export default function CheckHomePage() {
   };
 
   const handleStartForecast = () => {
-    if (!selectedId) return;
+    if (!selectedId || isPending) return;
 
     startTransition(async () => {
       try {
@@ -75,9 +75,12 @@ export default function CheckHomePage() {
 
   const OVER_LIMIT_PRICE = 1_200_000_000;
 
-  const shouldShowPrivatePensionGuide = houses.some(
-    (house) => house.price > OVER_LIMIT_PRICE,
+  const selectedHouse = houses.find(
+    (house) => house.realAssetId === selectedId,
   );
+
+  const shouldShowPrivatePensionGuide =
+    selectedHouse?.price != null && selectedHouse.price > OVER_LIMIT_PRICE;
 
   return (
     <div className="app-shell bg-white">

@@ -28,13 +28,7 @@ public class PensionForecastService {
 	public PensionForecastResponse getForecast(Long userId, Long realAssetId, Integer periodYears) {
 		validatePeriodYears(periodYears);
 
-		TBRealAsset asset = realAssetRepository.findByRealAssetId(realAssetId)
-			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_ASSET_NOT_FOUND));
-
-		if (!asset.getUser().getUserId().equals(userId)) {
-			throw new ApiException(ErrorStatus._FORBIDDEN);
-		}
-
+		TBRealAsset asset = findOwnedAsset(userId, realAssetId);
 		validateForecastable(asset);
 
 		PensionForecastInternalDto.Command command = PensionForecastInternalDto.Command.builder()
@@ -46,6 +40,16 @@ public class PensionForecastService {
 
 		PensionForecastInternalDto.Result result = pensionPricePredictor.predict(command);
 		return pensionMapper.toForecastResponse(asset, result);
+	}
+
+	private TBRealAsset findOwnedAsset(Long userId, Long realAssetId) {
+		TBRealAsset asset = realAssetRepository.findByRealAssetId(realAssetId)
+			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_ASSET_NOT_FOUND));
+
+		if (!asset.getUser().getUserId().equals(userId)) {
+			throw new ApiException(ErrorStatus._FORBIDDEN);
+		}
+		return asset;
 	}
 
 	private void validateForecastable(TBRealAsset asset) {

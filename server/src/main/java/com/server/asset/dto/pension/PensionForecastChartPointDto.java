@@ -15,15 +15,15 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class PensionForecastChartPointDto {
 
-	@Schema(description = "실제 연도", example = "2027")
+	@Schema(description = "연도", example = "2027")
 	private Integer year;
 
-	@Schema(description = "비관 시나리오 집값 (연 0%) (원)", example = "800000000")
+	@Schema(description = "비관 시나리오 집값 (원)", example = "800000000")
 	private BigDecimal downPrice;
 
-	@Schema(description = "중립 시나리오 집값 (연 +2%) (원)", example = "816000000")
+	@Schema(description = "중립 시나리오 집값 (원)", example = "816000000")
 	private BigDecimal basePrice;
 
-	@Schema(description = "낙관 시나리오 집값 (연 +4%) (원)", example = "832000000")
+	@Schema(description = "낙관 시나리오 집값 (원)", example = "832000000")
 	private BigDecimal upPrice;
 }
