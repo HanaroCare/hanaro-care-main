@@ -1,11 +1,12 @@
 package com.server.common.response.code.status;
 
+import org.springframework.http.HttpStatus;
 
 import com.server.common.response.code.BaseErrorCode;
 import com.server.common.response.code.ErrorReasonDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -72,6 +73,7 @@ public enum ErrorStatus implements BaseErrorCode {
   // asset
   ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
   ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
+  REAL_ASSET_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "ASSET_400", "이미 연동된 자산입니다."),
 
   // user
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "사용자를 찾을 수 없습니다."),

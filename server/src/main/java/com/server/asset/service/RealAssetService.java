@@ -1,15 +1,16 @@
 package com.server.asset.service;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException; // 추가: 예외 임포트
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.dto.link.RealAssetRequest;
 import com.server.asset.entity.TBRealAsset;
-import com.server.asset.entity.enums.RealAssetCategory; // 이 엔티티에 VEHICLE이 있어야 함
+import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.repository.RealAssetRepository;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
@@ -31,18 +32,21 @@ public class RealAssetService {
 
 	/** 부동산 연동 */
 	public Long linkHousing(Long userId, RealAssetRequest.HousingLinkRequest request) {
-		BigDecimal evalAmt = new BigDecimal("920000000");
-
-		String desc = toJson(request);
+		// 1. 공통 컬럼에 들어갈 값은 뺀 나머지 '순수 상세 정보'만 Map으로 구성
+		Map<String, Object> extraInfo = Map.of(
+			"housing_type", request.getHousingType(),
+			"acquisition_year", request.getAcquisitionYear(),
+			"has_loan", request.getHasLoan()
+		);
 
 		TBRealAsset asset = TBRealAsset.builder()
 			.user(userRepository.getReferenceById(userId))
 			.assetNm("하나아파트")
-			.addr(request.getAddr())
-			.assetSize(BigDecimal.valueOf(request.getAssetSize()))
-			.evalAmt(evalAmt)
+			.addr(request.getAddr()) // 공통 컬럼 활용
+			.assetSize(BigDecimal.valueOf(request.getAssetSize())) // 공통 컬럼 활용
+			.evalAmt(new BigDecimal("920000000"))
 			.assetCateCd(RealAssetCategory.REAL_ESTATE)
-			.assetDesc(desc)
+			.assetDesc(toJson(extraInfo)) // 중복 제외한 나머지만 JSON 저장
 			.build();
 
 		return saveAndEnqueue(userId, asset);
@@ -50,14 +54,25 @@ public class RealAssetService {
 
 	/** 자동차 연동 */
 	public Long linkVehicle(Long userId, RealAssetRequest.VehicleLinkRequest request) {
-		String desc = "2022년식 · 32,000km | 번호: " + request.getCarNumber();
+		// [추가] 차량 번호 중복 체크
+		// 동일 유저가 같은 차량 번호를 가진 자산을 이미 가지고 있는지 확인
+		if (realAssetRepository.existsByUser_UserIdAndAssetDescContaining(userId, request.getCarNumber())) {
+			throw new ApiException(ErrorStatus.REAL_ASSET_ALREADY_EXISTS);
+		}
+
+		// 역직렬화하기 좋게 Map으로 구성하여 JSON 저장
+		Map<String, String> vehicleInfo = Map.of(
+			"car_number", request.getCarNumber(),
+			"model", "제네시스 G70",
+			"details", "2022년식 · 32,000km"
+		);
 
 		TBRealAsset asset = TBRealAsset.builder()
 			.user(userRepository.getReferenceById(userId))
 			.assetNm("제네시스 G70")
 			.evalAmt(new BigDecimal("46000000"))
-			.assetCateCd(RealAssetCategory.VEHICLE) // 수정: AssetCategory -> RealAssetCategory
-			.assetDesc(desc)
+			.assetCateCd(RealAssetCategory.VEHICLE)
+			.assetDesc(toJson(vehicleInfo)) // JSON 문자열로 저장
 			.build();
 
 		return saveAndEnqueue(userId, asset);

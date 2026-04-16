@@ -13,4 +13,5 @@ public interface RealAssetRepository extends JpaRepository<TBRealAsset, Long> {
 
 	Optional<TBRealAsset> findByRealAssetId(Long realAssetId);
 
+	boolean existsByUser_UserIdAndAssetDescContaining(Long userId, String carNumber);
 }
