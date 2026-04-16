@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimulationSummaryResponse {
+    private Integer targetAge;
     private Boolean isSufficient;
     private BigDecimal shortageAmt;
     private BigDecimal livingCost;

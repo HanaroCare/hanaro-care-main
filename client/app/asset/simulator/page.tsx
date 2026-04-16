@@ -155,7 +155,6 @@ export default function SimulatorPage() {
         localStorage.setItem(COMPLETION_KEY, 'true');
         setHasResult(true);
         setIsRecalculating(false);
-        // 결과 페이지로 이동하거나 현재 페이지에서 결과 렌더링
         router.push('/asset/simulator/result' as Route);
       }
     } catch (error) {

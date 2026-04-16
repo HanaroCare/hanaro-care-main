@@ -133,7 +133,7 @@ public class SimulationService {
 
   @Transactional
   @CheckUser(key = "#userId")
-  @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()")
+  @CacheEvict(value = "simulationDetail", key = "#userId")
   public SimulationResponse createSimulation(Long userId, SimulationRequest request) {
     AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
     SimulationDetailResponse aiResult = simulationEngine.run(input);
@@ -150,7 +150,7 @@ public class SimulationService {
    * SecurityContext 없이 동작하므로 외부 API 엔드포인트에 노출하지 마세요.
    */
   @Transactional
-  @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #targetAge + ':' + #careType.name()")
+  @CacheEvict(value = "simulationDetail", key = "#userId")
   public void rerunLatestSimulation(Long userId, Integer targetAge, CareType careType) {
     SimulationRequest request = SimulationRequest.builder()
         .targetAge(targetAge)
@@ -178,15 +178,10 @@ public class SimulationService {
   }
 
   @CheckUser(key = "#userId")
-  @Cacheable(
-      value = "simulationDetail",
-      key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()",
-      unless = "#result == null"
-  )
-  public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
+  @Cacheable(value = "simulationDetail", key = "#userId", unless = "#result == null")
+  public SimulationDetailResponse getSimulationDetail(Long userId) {
     TBAssetSimulation simulation = assetSimulationRepository
-        .findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(
-            userId, request.getTargetAge(), request.getCareType())
+        .findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
     return fromJson(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);

@@ -1,7 +1,15 @@
 /**
  * ─── 자산(Asset) 도메인 ───
  */
-export type AssetCategory = 'CASH' | 'PENSION' | 'CARD' | 'INSURANCE' | 'STOCK';
+export type AssetCategory =
+    | 'CASH'
+    | 'PENSION_NATIONAL'
+    | 'PENSION_RETIRE'
+    | 'PENSION_PERSONAL'
+    | 'PENSION'
+    | 'CARD'
+    | 'INSURANCE'
+    | 'STOCK';
 export type RealAssetCategory = 'REAL_ESTATE' | 'VEHICLE' | 'GOLD';
 
 export interface AssetDashboardResponse {
@@ -110,6 +118,7 @@ export interface AgeSegmentApiResponse {
 }
 
 export interface SimulationSummaryApiResponse {
+    targetAge: number;
     isSufficient: boolean;
     shortageAmt: number;
     livingCost: number;

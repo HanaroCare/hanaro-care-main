@@ -23,6 +23,7 @@ public interface SimulationMapper {
     @Mapping(target = "currentSpending.care", source = "careCost")
     SimulationResponse toSimulationResponse(TBAssetSimulation simulation);
 
+    @Mapping(target = "targetAge", source = "simulation.targetAge")
     @Mapping(target = "isSufficient", source = "simulation.isSufficient")
     @Mapping(target = "shortageAmt", source = "simulation.shortageAmt")
     @Mapping(target = "livingCost", source = "simulation.livingCost")

@@ -9,7 +9,7 @@ import { MedicalBillCard } from './asset/components/notification/MedicalBillCard
 import { PensionCard } from './asset/components/notification/PensionCard';
 import { RealAssetCard } from './asset/components/RealAssetListCard';
 
-// ─── 배너 우선순위 ───────────────────────────────────────────
+// 배너 우선순위
 // Group 1 (최우선): 시뮬레이션
 //   - simulation-cta    : 시뮬레이션 미완료
 //   - simulation-result : 시뮬레이션 완료 + 주택연금 상품 실제 가입

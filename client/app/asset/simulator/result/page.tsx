@@ -96,9 +96,7 @@ export default function SimulatorResultPage() {
     expense: Math.floor(Number(seg.expense) / 10000),
   }));
 
-  const targetAge = typeof window !== 'undefined'
-    ? parseInt(localStorage.getItem('simulation_target_age') || '85')
-    : 85;
+  const targetAge = data.targetAge;
 
   return (
       <div

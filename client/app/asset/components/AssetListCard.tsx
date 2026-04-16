@@ -14,10 +14,13 @@ const INSTITUTION_LOGO: Record<string, string> = {
 
 // 타입을 DB 카테고리에 맞춰 매핑
 const ICON_STYLES: Record<string, string> = {
-	CASH: "bg-hana-teal-100",
-	STOCK: "bg-hana-teal-100",
-	PENSION: "bg-hana-yellow-100",
-	CARD: "bg-hana-teal-100",
+	CASH:             "bg-hana-teal-100",
+	STOCK:            "bg-hana-teal-100",
+	PENSION:          "bg-hana-yellow-100",
+	PENSION_NATIONAL: "bg-hana-yellow-100",
+	PENSION_RETIRE:   "bg-hana-yellow-100",
+	PENSION_PERSONAL: "bg-hana-yellow-100",
+	CARD:             "bg-hana-teal-100",
 };
 
 export function AssetListCard({ data }: { data: FinancialAssetResponse[] }) {

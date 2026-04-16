@@ -1,6 +1,6 @@
 'use server';
 
-import { serverFetch } from '@/lib/serverFetch';
+import { serverFetch, ServerFetchError } from '@/lib/serverFetch';
 import {SimulationDetailApiResponse, SimulationResponse, SimulationSummaryApiResponse} from "@/app/asset/utils/types";
 
 export interface SimulationRequest {
@@ -20,9 +20,13 @@ export async function getSimulationSummary() {
 }
 
 
-export async function getSimulationDetail(request: SimulationRequest) {
-    return await serverFetch<SimulationDetailApiResponse>('/api/asset/simulation/detail', {
-        method: 'POST',
-        body: JSON.stringify(request),
-    });
+export async function getSimulationDetail(): Promise<SimulationDetailApiResponse | null> {
+    try {
+        return await serverFetch<SimulationDetailApiResponse>('/api/asset/simulation/detail');
+    } catch (error) {
+        if (error instanceof ServerFetchError && error.status === 404) {
+            return null;
+        }
+        throw error;
+    }
 }
