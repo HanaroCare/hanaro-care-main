@@ -130,8 +130,8 @@ public class TrustController {
 
 	@GetMapping("/family/grantors")
 	@Operation(
-		summary = "신탁 조회 가능한 가족(grantor) 목록 조회",
-		description = "로그인한 사용자(자녀/가족)가 신탁 조회 권한을 부여받은 부모 목록을 반환합니다. 이 목록에서 grantorId를 얻어 /family/{grantorId}/summary 또는 /detail을 호출합니다."
+		summary = "신탁 조회 가능한 부모 조회",
+		description = "로그인한 사용자(자녀/가족)가 신탁 조회 권한을 부여받은 부모를 반환합니다. 이 목록에서 grantorId를 얻어 /family/{grantorId}/summary 또는 /detail을 호출합니다."
 	)
 	public ResponseEntity<ApiResponse<TrustGrantorResponse>> getFamilyGrantors(
 		@AuthenticationPrincipal SubscriberDTO granteeUser

@@ -3,6 +3,7 @@
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import TrustChoiceStep from '../TrustChoiceStep';
 import TrustWizardStep from '../TrustWizardStep';
@@ -24,7 +25,14 @@ const options = [
 
 export default function PayoutTypeStep() {
   const router = useRouter();
-  const [selected, setSelected] = useState<string | null>('free');
+  const { form, setPayoutType } = useTrustForm();
+  const [selected, setSelected] = useState<string | null>(form.payoutType);
+
+  const handleNext = () => {
+    if (!selected) return;
+    setPayoutType(selected);
+    router.push('/asset/trust/payout-use' as Route);
+  };
 
   return (
     <TrustWizardStep
@@ -34,7 +42,7 @@ export default function PayoutTypeStep() {
           <PrimaryButton
             label="다음으로"
             disabled={!selected}
-            onClick={() => router.push('/asset/trust/payout-use' as Route)}
+            onClick={handleNext}
           />
         </footer>
       }
