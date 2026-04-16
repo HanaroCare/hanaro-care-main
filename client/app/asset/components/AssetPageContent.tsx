@@ -101,7 +101,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 type: 'gold',
                 amount: formatKoreanCurrency(getRealSum('GOLD')),
                 buttonLabel: '금 연동하기',
-                href: '/mydata/car' as Route,
+                href: '/mydata/gold' as Route,
             },
         };
     }, [dashboardData, financialAssets, realAssets]);
@@ -115,12 +115,16 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 const values = chartPoints.map(p => p.value);
                 const minVal = values.length > 0 ? Math.min(...values) : 0;
                 const maxVal = values.length > 0 ? Math.max(...values) : 1;
-                const domainMin = Math.floor((minVal - 0.5) * 2) / 2;
-                const domainMax = Math.ceil((maxVal + 0.5) * 2) / 2;
-                const ticks: number[] = [];
-                for (let t = domainMin; t <= domainMax; t = Math.round((t + 0.5) * 10) / 10) {
-                    ticks.push(t);
-                }
+                const domainMin = Math.max(0, Math.floor((minVal - 0.5) * 2) / 2);
+                                const domainMax = Math.max(
+                                        domainMin + 0.5,
+                                        Math.ceil((maxVal + 0.5) * 2) / 2
+                                    );
+                                const tickCount = 5;
+                                const step = (domainMax - domainMin) / (tickCount - 1);
+                               const ticks = Array.from({ length: tickCount }, (_, i) =>
+                                        Math.round((domainMin + step * i) * 10) / 10
+                                    );
                 return (
                     <>
                         <AssetListCard data={financialAssets.filter(a => a.assetCateCd !== 'INSURANCE')} />

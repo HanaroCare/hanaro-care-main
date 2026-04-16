@@ -125,6 +125,7 @@ export default async function Home() {
             <PensionCard
                 totalAmount={activeBanner.totalAmount}
                 items={activeBanner.items}
+                href="/asset"
             />
       )}
 
@@ -132,6 +133,7 @@ export default async function Home() {
             <MedicalBillCard
                 usedAmount={activeBanner.usedAmount}
                 totalLimit={activeBanner.totalLimit}
+                href="/card"
             />
       )}
 

@@ -1,5 +1,7 @@
 package com.server.asset.entity.enums;
 
+import java.util.EnumSet;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -17,4 +19,9 @@ public enum AssetCategory {
 
 	private final String code;
 	private final String description;
+
+	public boolean isPensionFamily() {
+		return EnumSet.of(PENSION, PENSION_NATIONAL, PENSION_RETIRE, PENSION_PERSONAL)
+			.contains(this);
+	}
 	}

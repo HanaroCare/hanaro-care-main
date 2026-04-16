@@ -1,5 +1,14 @@
 package com.server.asset.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBProduct;
@@ -11,10 +20,10 @@ import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.StartType;
 import com.server.asset.mapper.PensionMapper;
 import com.server.asset.mapper.TrustMapper;
-import com.server.asset.repository.AssetSimulationRepository;
-import com.server.asset.repository.ProductRepository;
 import com.server.asset.repository.AccountRepository;
+import com.server.asset.repository.AssetSimulationRepository;
 import com.server.asset.repository.PensionSimulationRepository;
+import com.server.asset.repository.ProductRepository;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
@@ -24,13 +33,9 @@ import com.server.user.entity.TBFamilyAuth;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
-import java.math.BigDecimal;
-import java.time.LocalDate;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -139,18 +144,21 @@ public class AssetAdminService {
               simulation)
       );
 
-      // 배치 큐에도 등록 (야간 배치 백업용)
       simulationRefreshService.enqueue(userId);
 
-      // 주택연금 가입 즉시 시뮬레이션 재실행 (주택연금 소득이 반영된 결과로 갱신)
       assetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
           .ifPresent(last -> {
-            try {
-              simulationService.rerunLatestSimulation(userId, last.getTargetAge(), last.getCareType());
-              log.info("[주택연금 가입] 시뮬레이션 즉시 재실행 완료: userId={}", userId);
-            } catch (Exception e) {
-              log.warn("[주택연금 가입] 즉시 재실행 실패, 야간 배치에서 처리 예정: userId={}, error={}", userId, e.getMessage());
-            }
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+              @Override
+              public void afterCommit() {
+                try {
+                  simulationService.rerunLatestSimulation(userId, last.getTargetAge(), last.getCareType());
+                  log.info("[주택연금 가입] 커밋 후 시뮬레이션 재실행 완료: userId={}", userId);
+                } catch (Exception e) {
+                  log.warn("[주택연금 가입] 재실행 실패, 야간 배치에서 처리 예정: userId={}, error={}", userId, e.getMessage());
+                }
+              }
+            });
           });
 
       return savedProd.getUserProdId();

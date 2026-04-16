@@ -119,8 +119,9 @@ public class AssetAdminController {
 			log.info("[Admin] 시뮬레이션 재실행 배치 수동 실행 완료");
 			return ApiResponse.onSuccess("배치 실행 완료");
 		} catch (Exception e) {
-			log.error("[Admin] 배치 실행 실패: {}", e.getMessage());
-			return ApiResponse.onSuccess("배치 실행 실패: " + e.getMessage());
+			log.error("[Admin] 배치 실행 실패", e);
+
+			return ApiResponse.onFailure("COMMON500", "배치 실행 실패: " + e.getMessage(), null);
 		}
 	}
 
