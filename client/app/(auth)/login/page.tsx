@@ -6,6 +6,7 @@ import Link from "next/link";
 import Header from "@/components/navigation/Header";
 import LoginForm from "./components/LoginForm";
 import DormantModal from "./components/DormantModal";
+import PasswordExpiryModal from "./components/PasswordExpiryModal";
 import { login } from "./actions/auth";
 
 type LoginSubmitData = {
@@ -19,6 +20,8 @@ export default function LoginPage() {
   const [loginError, setLoginError] = useState("");
   const [isDormantOpen, setIsDormantOpen] = useState(false);
   const [dormantLoginId, setDormantLoginId] = useState("");
+  const [isPwdExpiryOpen, setIsPwdExpiryOpen] = useState(false);
+  const [pwdExpiryLoginId, setPwdExpiryLoginId] = useState("");
 
   useEffect(() => {
     const authType = localStorage.getItem("AUTH_TYPE");
@@ -53,6 +56,12 @@ export default function LoginPage() {
         document.cookie = `HAS_SEEN_ONBOARDING=true; ${expireDate}`;
         document.cookie = `AUTH_TYPE=PASSWORD; ${expireDate}`;
 
+        if (result.isPasswordExpired) {
+          setPwdExpiryLoginId(data.id);
+          setIsPwdExpiryOpen(true);
+          return; // stop here — onConfirm/onClose handle navigation
+        }
+
         router.replace("/");
       } else if (!result.ok && result.isDormant) {
         setDormantLoginId(data.id);
@@ -69,6 +78,18 @@ export default function LoginPage() {
 
   return (
     <div className="app-shell bg-background">
+      <PasswordExpiryModal
+        isOpen={isPwdExpiryOpen}
+        onClose={() => {
+          setIsPwdExpiryOpen(false);
+          router.replace("/");
+        }}
+        onConfirm={() => {
+          sessionStorage.setItem("RESET_LOGIN_ID", pwdExpiryLoginId);
+          router.push("/login/reset-password");
+          setTimeout(() => setIsPwdExpiryOpen(false), 0);
+        }}
+      />
       <div className="app-layout relative overflow-hidden flex flex-col h-full">
         <Header title="로그인" showBackButton={false} showCloseButton={false} />
 

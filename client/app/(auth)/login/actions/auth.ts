@@ -9,7 +9,7 @@ type ActionResult = { ok: true } | { ok: false; error: string; detail?: unknown 
 export type LoginMeans = "PASSWORD" | "SIMPLE_PASSWORD" | "PATTERN" | "FACEID";
 
 export type LoginResult =
-  | { ok: true }
+  | { ok: true; isPasswordExpired: boolean }
   | { ok: false; error: string; isDormant?: false }
   | { ok: false; error: string; isDormant: true };
 
@@ -32,7 +32,7 @@ export async function login(loginId: string, userPwd: string): Promise<LoginResu
           path: "/",
         });
       }
-      return { ok: true };
+      return { ok: true, isPasswordExpired: body.isPasswordExpired === true };
     }
 
     const body = await res.json().catch(() => ({}));
@@ -68,7 +68,7 @@ export async function loginWithHanaCert(
           path: "/",
         });
       }
-      return { ok: true };
+      return { ok: true, isPasswordExpired: body.isPasswordExpired === true };
     }
 
     const body = await res.json().catch(() => ({}));
@@ -124,9 +124,9 @@ export async function resetPassword(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         loginId: loginId.trim(),
-        userNm: username.trim(),
-        userPhone: phoneNumber.replace(/[^0-9]/g, ""),
-        userPwd: newPassword,
+        username: username.trim(),
+        phoneNumber: phoneNumber.replace(/[^0-9]/g, ""),
+        newPassword,
       }),
     });
     if (res.ok) return { ok: true };

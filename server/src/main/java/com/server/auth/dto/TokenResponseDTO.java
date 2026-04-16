@@ -16,4 +16,5 @@ public class TokenResponseDTO {
   private String grantType;
   private String userRole;
   private String loginId;
+  private boolean isPasswordExpired;
 }

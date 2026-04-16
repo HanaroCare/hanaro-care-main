@@ -87,7 +87,7 @@ export default function FindIdPage() {
                 setPhone(v);
                 clearError();
               }}
-              loginId={loginId}
+              loginId=""
               onVerified={() => {
                 setIsVerified(true);
                 setIsFieldLocked(true);

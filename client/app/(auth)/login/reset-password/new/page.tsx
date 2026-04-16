@@ -62,7 +62,19 @@ function NewPasswordContent() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-[1.25rem]">
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleComplete(); }}
+            className="flex flex-col gap-[1.25rem]"
+          >
+            {/* 브라우저가 이 비밀번호가 누구의 것인지 인식하도록 hidden username 추가 */}
+            <input
+              type="text"
+              name="username"
+              value={loginId}
+              style={{ display: "none" }}
+              readOnly
+              autoComplete="username"
+            />
             <div className="flex flex-col gap-[0.5rem]">
               <label className="text-[0.875rem] font-semibold text-hana-black-900 ml-[0.2rem]">새 비밀번호</label>
               <AuthInput
@@ -70,6 +82,7 @@ function NewPasswordContent() {
                 type="password"
                 placeholder="새 비밀번호 입력"
                 value={password}
+                autoComplete="new-password"
                 onChange={(e) => {
                   setPassword(e.target.value);
                   if (apiError) setApiError("");
@@ -89,6 +102,7 @@ function NewPasswordContent() {
                 type="password"
                 placeholder="비밀번호 다시 입력"
                 value={confirmPassword}
+                autoComplete="new-password"
                 onChange={(e) => {
                   setConfirmPassword(e.target.value);
                   if (apiError) setApiError("");
@@ -105,15 +119,15 @@ function NewPasswordContent() {
                 </p>
               )}
             </div>
-          </div>
 
-          <div className="mt-auto pb-[3rem]">
-            <PrimaryButton
-              label={isPending ? "변경 중..." : "변경 완료"}
-              disabled={!isFormValid || isPending}
-              onClick={handleComplete}
-            />
-          </div>
+            <div className="mt-auto pb-[3rem]">
+              <PrimaryButton
+                label={isPending ? "변경 중..." : "변경 완료"}
+                disabled={!isFormValid || isPending}
+                type="submit"
+              />
+            </div>
+          </form>
         </main>
 
         <AnimatePresence>

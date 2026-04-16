@@ -13,6 +13,7 @@ const RESET_ERROR = "입력하신 정보와 일치하는 회원이 없습니다.
 export default function ResetPasswordPage() {
   const router = useRouter();
   const [userId, setUserId] = useState("");
+  const [isIdPrefilled, setIsIdPrefilled] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [isVerified, setIsVerified] = useState(false);
@@ -20,9 +21,12 @@ export default function ResetPasswordPage() {
   const [sendCodeError, setSendCodeError] = useState("");
 
   useEffect(() => {
-    setSendCodeError("");
-    setIsVerified(false);
-    setIsFieldLocked(false);
+    const storedId = sessionStorage.getItem("RESET_LOGIN_ID");
+    if (storedId) {
+      setUserId(storedId);
+      setIsIdPrefilled(true);
+      sessionStorage.removeItem("RESET_LOGIN_ID");
+    }
   }, []);
 
   const isIdValid = useMemo(() => userId.trim().length > 0, [userId]);
@@ -82,7 +86,10 @@ export default function ResetPasswordPage() {
             </h2>
           </div>
 
-          <div className="flex flex-col gap-[1.25rem] mb-[2rem]">
+          <form
+            onSubmit={(e) => { e.preventDefault(); handleNext(); }}
+            className="flex flex-col gap-[1.25rem] mb-[2rem]"
+          >
             <div className="flex flex-col gap-[0.5rem]">
               <label className="text-[0.875rem] font-semibold text-hana-black-900 ml-[0.2rem]">아이디</label>
               <AuthInput
@@ -90,7 +97,8 @@ export default function ResetPasswordPage() {
                 placeholder="아이디를 입력해 주세요"
                 value={userId}
                 onChange={(e) => { setUserId(e.target.value); clearError(); }}
-                disabled={isFieldLocked}
+                disabled={isFieldLocked || isIdPrefilled}
+                autoComplete="username"
               />
             </div>
 
@@ -102,6 +110,7 @@ export default function ResetPasswordPage() {
                 value={name}
                 onChange={(e) => { setName(e.target.value); clearError(); }}
                 disabled={isFieldLocked}
+                autoComplete="name"
               />
             </div>
 
@@ -116,15 +125,15 @@ export default function ResetPasswordPage() {
                 setIsFieldLocked(true);
               }}
             />
-          </div>
 
-          <div className="pb-[3rem]">
-            <PrimaryButton
-              label="다음"
-              disabled={!isFormValid}
-              onClick={handleNext}
-            />
-          </div>
+            <div className="pb-[3rem]">
+              <PrimaryButton
+                label="다음"
+                disabled={!isFormValid}
+                type="submit"
+              />
+            </div>
+          </form>
         </main>
       </div>
     </div>

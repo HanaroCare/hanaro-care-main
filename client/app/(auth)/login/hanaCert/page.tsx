@@ -7,6 +7,7 @@ import PatternAuth from "../components/PatternAuth";
 import SimplePasswordAuth from "../components/SimplePasswordAuth";
 import LoginMethodSheet from "../components/LoginMethodSheet";
 import Header from "@/components/navigation/Header";
+import PasswordExpiryModal from "../components/PasswordExpiryModal";
 import { loginWithHanaCert, type LoginMeans } from "../actions/auth";
 
 type AuthMode = "pattern" | "pin" | "faceid";
@@ -31,6 +32,8 @@ export default function HanaCertLoginPage() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState("");
 	const [errorKey, setErrorKey] = useState(0);
+	const [isPwdExpiryOpen, setIsPwdExpiryOpen] = useState(false);
+	const [pwdExpiryLoginId, setPwdExpiryLoginId] = useState("");
 
 	const isLoadingRef = useRef(false);
 
@@ -84,7 +87,12 @@ export default function HanaCertLoginPage() {
 					document.cookie = `HAS_SEEN_ONBOARDING=true; ${maxAge}`;
 					document.cookie = `AUTH_TYPE=HANA_CERT; ${maxAge}`;
 
-					router.replace("/");
+					if (result.isPasswordExpired) {
+						setPwdExpiryLoginId(MODE_TO_LOGIN_ID[mode]);
+						setIsPwdExpiryOpen(true);
+					} else {
+						router.replace("/");
+					}
 					return;
 				}
 
@@ -121,6 +129,15 @@ export default function HanaCertLoginPage() {
 
 	return (
 		<div className="app-shell bg-background">
+			<PasswordExpiryModal
+				isOpen={isPwdExpiryOpen}
+				onClose={() => { setIsPwdExpiryOpen(false); router.replace("/"); }}
+				onConfirm={() => {
+					sessionStorage.setItem("RESET_LOGIN_ID", pwdExpiryLoginId);
+					router.push("/login/reset-password");
+					setIsPwdExpiryOpen(false);
+				}}
+			/>
 			<div className="app-layout relative overflow-hidden flex flex-col h-full">
 				<Header
 					title="하나인증서 로그인"

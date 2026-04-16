@@ -3,6 +3,10 @@ import type { NextRequest } from 'next/server';
 
 const PUBLIC_PATHS = ['/login', '/signup', '/onboarding', '/font-config'];
 
+// These paths remain accessible even when the user is authenticated
+// (e.g. post-login password expiry flow redirects to reset-password)
+const ALWAYS_ACCESSIBLE = ['/login/reset-password', '/login/find-id'];
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -12,9 +16,10 @@ export function proxy(request: NextRequest) {
   const authType = request.cookies.get('AUTH_TYPE')?.value;
 
   const isPublic = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
+  const isAlwaysAccessible = ALWAYS_ACCESSIBLE.some((path) => pathname.startsWith(path));
 
   if (token) {
-    if (isPublic) return NextResponse.redirect(new URL('/', request.url));
+    if (isPublic && !isAlwaysAccessible) return NextResponse.redirect(new URL('/', request.url));
     return NextResponse.next();
   }
 
