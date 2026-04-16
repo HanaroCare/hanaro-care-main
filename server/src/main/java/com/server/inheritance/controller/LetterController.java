@@ -34,6 +34,7 @@ public class LetterController {
 
   private final LetterService service;
 
+
   // 상속비율 및 가족 조회
   @Operation(summary = "상속비율 및 가족 조회", description = "상속 편지에서 상속비율 및 상속 설계된 가족을 조회합니다.")
   @GetMapping

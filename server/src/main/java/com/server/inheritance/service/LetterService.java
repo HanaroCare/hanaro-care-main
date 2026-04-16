@@ -3,6 +3,7 @@ package com.server.inheritance.service;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
+import com.server.common.s3.StorageService;
 import com.server.inheritance.dto.InheritanceSummaryDto;
 import com.server.inheritance.dto.LetterRequestDto;
 import com.server.inheritance.dto.LetterResponseDto;
@@ -35,6 +36,7 @@ public class LetterService {
   private final InheritLetterRepository letterRepository;
   private final InheritDetailRepository inheritDetailRepository;
   private final InheritPlanRepository inheritPlanRepository;
+  private final StorageService storageService;
 
   @Value("${voice.upload-dir}")
   String uploadDir;
@@ -60,8 +62,7 @@ public class LetterService {
         .percent(i.getDistRatio())
         .amt(i.getInheritPlan().getTotalInheritAmt()
             .multiply(i.getDistRatio())
-            .longValue())
-        .build()).toList();
+            .longValue()).build()).toList();
   }
 
   // 편지 생성
@@ -82,28 +83,29 @@ public class LetterService {
       throw new ApiException(ErrorStatus.LETTER_ALREADY_EXISTS);
     }
 
-    String filename = "";
+    String key = "";
     if (dto.getLetterTypeCd() == LetterType.VOICE) {
       if (voice == null || voice.isEmpty()) {
         throw new ApiException(ErrorStatus.VOICE_FILE_REQUIRED);
       }
-      filename = save(voice);
+      key = storageService.save(voice);
       dto.setLetterCont(null);
     }
     try {
       TBInheritLetter letter = TBInheritLetter.builder()
           .inheritDetail(detail)
           .letterCont(dto.getLetterCont())
-          .voiceUrl(filename)
+          .voiceUrl(key)
           .letterTypeCd(dto.getLetterTypeCd())
           .build();
       letterRepository.save(letter);
-      return LetterResponseDto.builder()
-          .letterTypeCd(dto.getLetterTypeCd())
-          .letterCont(dto.getLetterCont()).voiceUrl(filename).build();
+      return LetterResponseDto.builder().
+          letterTypeCd(dto.getLetterTypeCd())
+          .letterCont(dto.getLetterCont())
+          .voiceUrl(key).build();
     } catch (RuntimeException e) {
-      if (!filename.isBlank()) {
-        Files.deleteIfExists(Paths.get(uploadDir).resolve(filename));
+      if (!key.isBlank()) {
+        storageService.delete(key);
       }
       throw e;
     }
@@ -123,16 +125,13 @@ public class LetterService {
     }
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
-
+    String voiceUrl = "";
     if (letter.getLetterTypeCd() == LetterType.VOICE) {
-      // TODO: s3 링크 가져오기
-      //  String voiceUrl = s3Service.getVoiceUrl(letter.getVoiceUrl());
-      //  letter.setVoiceUrl(voiceUrl);
+      voiceUrl = storageService.getUrl(letter.getVoiceUrl());
     }
-
     return LetterResponseDto.builder()
         .letterCont(letter.getLetterCont())
-        .voiceUrl(baseUrl + letter.getVoiceUrl())
+        .voiceUrl(voiceUrl)
         .letterTypeCd(letter.getLetterTypeCd())
         .build();
   }

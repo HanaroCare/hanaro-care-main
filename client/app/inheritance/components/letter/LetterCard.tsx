@@ -1,4 +1,4 @@
-import { LetterType } from '../../letter/types';
+import type { LetterType } from '../../letter/types';
 import AudioPlayer from './AudioPlayer';
 
 interface Props {

@@ -2,7 +2,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { inheritanceApi } from '../../api/inheritApi';
+import { getInheritanceInfo } from '../../actions/letterActions';
 import { RecipientCard } from '../../components/letter/RecipientCard';
 import { formatAmount } from '../../utils/format';
 import type { InheritanceSummaryDto } from '../types';
@@ -17,7 +17,7 @@ export default function InheritanceLetterPage() {
     error,
   } = useQuery({
     queryKey: ['inheritanceInfo'],
-    queryFn: () => inheritanceApi.getInheritanceInfo(),
+    queryFn: () => getInheritanceInfo(),
   });
 
   // 2. 총액 계산 (데이터가 있을 때 amt 필드 합산)
@@ -28,7 +28,11 @@ export default function InheritanceLetterPage() {
     ) || 0;
 
   if (isLoading)
-    return <div className="p-8 text-center">목록을 불러오는 중...</div>;
+    return (
+      <div className="min-h-[calc(100vh-155px)] p-8 text-center">
+        목록을 불러오는 중...
+      </div>
+    );
   if (error)
     return (
       <div className="p-8 text-center text-red-500">
@@ -55,11 +59,12 @@ export default function InheritanceLetterPage() {
                   percent: recipient.percent,
                   amt: recipient.amt,
                 }}
-                onClick={() =>
+                onClick={() => {
+                  console.log(recipient);
                   router.push(
                     `/inheritance/letter/recipients/${recipient.inheritDetailId}`,
-                  )
-                }
+                  );
+                }}
               />
             ))}
           </div>
