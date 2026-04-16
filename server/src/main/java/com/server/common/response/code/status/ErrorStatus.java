@@ -78,7 +78,6 @@ public enum ErrorStatus implements BaseErrorCode {
   INHERIT_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_002", "편지를 찾을 수 없습니다."),
   INHERIT_HEIR_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_003", "상속인 정보를 찾을 수 없습니다."),
   VOICE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "INHERIT_400", "음성 파일을 첨부해야 합니다."),
-  LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "편지 정보를 찾을 수 없습니다."),
   LETTER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "INHERIT_400", "이미 편지가 존재합니다."),
 
   // user

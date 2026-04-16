@@ -119,7 +119,7 @@ public class LetterService {
       throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
     }
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
-        .orElseThrow(() -> new ApiException(ErrorStatus.LETTER_NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
     if (letter.getLetterTypeCd() == LetterType.VOICE) {
       // TODO: s3 링크 가져오기
@@ -157,7 +157,7 @@ public class LetterService {
 
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(
             inheritDetailId)
-        .orElseThrow(() -> new ApiException(ErrorStatus.LETTER_NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
     detail.setInheritLetter(null);
     return letter.getLetterId();
