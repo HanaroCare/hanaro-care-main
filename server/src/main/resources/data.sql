@@ -61,11 +61,11 @@ VALUES
 
     -- 8. TsidZ: 패턴(Z모양: 0124678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
     (1008, 'TsidZ', '패턴Z테스터', '$2a$12$1Sk8P7kehKkY933ANOAj1.AC52WVGH2/SB54gyil1Go.SMIm7IJKm',
-     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
+     '01012345678', 40, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
 
     -- 9. TsidL: 패턴(ㄴ모양: 03678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
     (1009, 'TsidL', '패턴L테스터', '$2a$12$heAv.jDZ5PHLQ.fupN2e.uRIbjWd7o7PfYiTSkc5XFyDvXd7/jQ7q',
-     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
+     '01012345678', 60, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
 
     -- 10. 최장기: 비밀번호 변경한 지 1년 넘은 유저 (무조건 팝업 떠야 함)
     (1010, 'oldUser', '고하나', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',

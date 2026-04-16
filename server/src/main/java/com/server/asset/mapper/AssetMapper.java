@@ -10,6 +10,7 @@ import com.server.asset.dto.dashboard.AssetDashboardResponse.FinancialAssetSumma
 import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
+import com.server.asset.dto.link.AccountLinkResponse;
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.AssetCategory;
@@ -20,6 +21,12 @@ public interface AssetMapper {
     // 1. 금융 자산 목록 조회용
     FinancialAssetResponse toFinancialAssetResponse(TBAccount account);
     List<FinancialAssetResponse> toFinancialAssetResponseList(List<TBAccount> accounts);
+
+    // 1-1. 마이데이터 연동 계좌 목록 조회용 (isLinked 포함)
+    // accountId: JS 18자리 이상 Long 정밀도 손실 방지를 위해 String으로 직렬화
+    @Mapping(target = "accountId", expression = "java(String.valueOf(account.getAccountId()))")
+    AccountLinkResponse toAccountLinkResponse(TBAccount account);
+    List<AccountLinkResponse> toAccountLinkResponseList(List<TBAccount> accounts);
 
     // 2. 실물 자산(부동산, 자동차, 금) 단건 상세 조회
     // 리스트 변환용으로 썼던 명칭을 그대로 사용하거나, 명확하게 단건용으로 정의합니다.

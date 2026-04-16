@@ -10,27 +10,31 @@ import ConsentStep from '../components/ConsentStep';
 import IntroStep from '../components/IntroStep';
 import LoadingStep from '../components/LoadingStep';
 import SuccessModal from '../components/SuccessModal';
+import { getConnectableAssets, updateAssetLinkStatus } from './actions/mydata';
 
 type Step = 'consent' | 'intro' | 'select' | 'loading' | 'complete';
 
 export default function MyDataConnectPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('consent');
-  const [isCustomSelection, setIsCustomSelection] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleConsentNext = () => {
-    setIsCustomSelection(false);
-    setStep('intro');
+  const handleConsentNext = () => setStep('intro');
+
+  const handleCustomSelectMode = () => setStep('select');
+
+  // 전체 연결: 모든 계좌 ID를 가져와 isLinked=true 로 일괄 처리
+  const handleIntroConfirm = async () => {
+    const accounts = await getConnectableAssets();
+    await updateAssetLinkStatus(accounts.map((a) => a.accountId));
+    setStep('loading');
   };
 
-  const handleCustomSelectMode = () => {
-    setIsCustomSelection(true);
-    setStep('select');
+  // 선택 연결: AgencySelectStep 에서 선택된 ID만 연동 처리
+  const handleAgencySelectComplete = async (selectedIds: string[]) => {
+    await updateAssetLinkStatus(selectedIds);
+    setStep('loading');
   };
-
-  const handleIntroConfirm = () => setStep('loading');
-  const handleAgencySelectComplete = () => setStep('loading');
 
   const handleLoadingComplete = () => {
     setStep('complete');
@@ -42,9 +46,7 @@ export default function MyDataConnectPage() {
     router.push('/mydata/house');
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
+  const handleModalClose = () => setIsModalOpen(false);
 
   return (
     <div className="app-shell bg-background">
@@ -72,13 +74,12 @@ export default function MyDataConnectPage() {
               {step === 'loading' && (
                 <LoadingStep onComplete={handleLoadingComplete} />
               )}
-
               {step === 'complete' && (
                 <CompleteStep
                   footer={
                     <PrimaryButton
                       label="확인하기"
-                      onClick={() => router.push('/mydata/main')}
+                      onClick={() => router.push('/')}
                     />
                   }
                 >

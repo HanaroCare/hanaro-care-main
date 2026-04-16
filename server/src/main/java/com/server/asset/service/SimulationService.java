@@ -1,13 +1,5 @@
 package com.server.asset.service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.dto.external.AIAnalysisInput;
@@ -24,9 +16,17 @@ import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.repository.UserRepository;
-
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -40,11 +40,12 @@ public class SimulationService {
   private final ObjectMapper objectMapper;
 
   /**
-   * "70-75세", "80-83세" 같은 range 문자열에서 실제 구간 개월 수를 파싱합니다.
-   * 파싱 실패 시 기본값 60개월(5년)을 반환합니다.
+   * "70-75세", "80-83세" 같은 range 문자열에서 실제 구간 개월 수를 파싱합니다. 파싱 실패 시 기본값 60개월(5년)을 반환합니다.
    */
   private int extractMonthsFromRange(String range) {
-    if (range == null || range.isBlank()) return 60;
+    if (range == null || range.isBlank()) {
+      return 60;
+    }
     try {
       String cleaned = range.replace("세", "").trim();
       String[] parts = cleaned.split("-");
@@ -82,9 +83,12 @@ public class SimulationService {
         totalAccumulatedIncome = totalAccumulatedIncome.add(segment.getIncome().multiply(months));
 
         if (segment.getDetail() != null) {
-          totalAccumulatedLiving = totalAccumulatedLiving.add(segment.getDetail().getLiving().multiply(months));
-          totalAccumulatedMedical = totalAccumulatedMedical.add(segment.getDetail().getMedical().multiply(months));
-          totalAccumulatedCare = totalAccumulatedCare.add(segment.getDetail().getCare().multiply(months));
+          totalAccumulatedLiving = totalAccumulatedLiving.add(
+              segment.getDetail().getLiving().multiply(months));
+          totalAccumulatedMedical = totalAccumulatedMedical.add(
+              segment.getDetail().getMedical().multiply(months));
+          totalAccumulatedCare = totalAccumulatedCare.add(
+              segment.getDetail().getCare().multiply(months));
         }
       }
     }
@@ -123,8 +127,8 @@ public class SimulationService {
   }
 
   /**
-   * 스케줄러(배치)에서 내부적으로 호출합니다. @CheckUser 없이 동일 로직 재실행.
-   * SecurityContext 없이 동작하므로 외부 API 엔드포인트에 노출하지 마세요.
+   * 스케줄러(배치)에서 내부적으로 호출합니다. @CheckUser 없이 동일 로직 재실행. SecurityContext 없이 동작하므로 외부 API 엔드포인트에 노출하지
+   * 마세요.
    */
   @Transactional
   @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #targetAge + ':' + #careType.name()")
@@ -154,9 +158,12 @@ public class SimulationService {
         totalAccumulatedIncome = totalAccumulatedIncome.add(segment.getIncome().multiply(months));
 
         if (segment.getDetail() != null) {
-          totalAccumulatedLiving = totalAccumulatedLiving.add(segment.getDetail().getLiving().multiply(months));
-          totalAccumulatedMedical = totalAccumulatedMedical.add(segment.getDetail().getMedical().multiply(months));
-          totalAccumulatedCare = totalAccumulatedCare.add(segment.getDetail().getCare().multiply(months));
+          totalAccumulatedLiving = totalAccumulatedLiving.add(
+              segment.getDetail().getLiving().multiply(months));
+          totalAccumulatedMedical = totalAccumulatedMedical.add(
+              segment.getDetail().getMedical().multiply(months));
+          totalAccumulatedCare = totalAccumulatedCare.add(
+              segment.getDetail().getCare().multiply(months));
         }
       }
     }
@@ -186,6 +193,26 @@ public class SimulationService {
         .monthlyCost(totalAccumulatedCost)
         .ageRangeDetails(ageRangeDetails)
         .build());
+  }
+
+  /**
+   * 신규 사용자(시뮬레이션 이력 없음)를 위한 기본 시뮬레이션 즉시 생성.
+   *
+   * @CheckUser 없이 내시부/배치에서 호출 가능. 이미 시뮬레이션이 있으면 생략한다.
+   */
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
+  public void createDefaultSimulationForUser(Long userId) {
+    if (assetSimulationRepository.existsByUser_UserId(userId)) {
+      log.info("[Simulation] 기존 시뮬레이션 존재, 기본 생성 생략: userId={}", userId);
+      return;
+    }
+    int userAge = UserRepository.findById(userId)
+        .map(u -> u.getUserAge())
+        .orElse(30);
+    int targetAge = Math.max(85, userAge + 30);
+    log.info("[Simulation] 신규 사용자 기본 시뮬레이션 생성 시작: userId={}, targetAge={}", userId, targetAge);
+    rerunLatestSimulation(userId, targetAge, CareType.CENTER);
+    log.info("[Simulation] 신규 사용자 기본 시뮬레이션 생성 완료: userId={}", userId);
   }
 
   @CheckUser(key = "#userId")
