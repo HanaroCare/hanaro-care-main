@@ -21,7 +21,9 @@ import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -30,6 +32,7 @@ public class AssetService {
 	private final AccountRepository accountRepository;
 	private final RealAssetRepository realAssetRepository;
 	private final AssetMapper assetMapper;
+	private final SimulationRefreshService simulationRefreshService;
 
 	@CheckUser(key = "#userId")
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
@@ -68,6 +71,8 @@ public class AssetService {
       boolean isLinked = accountIds.contains(account.getAccountId());
       account.setIsLinked(isLinked);
     });
+
+    simulationRefreshService.enqueue(userId);
   }
 
   @CheckUser(key = "#userId")
