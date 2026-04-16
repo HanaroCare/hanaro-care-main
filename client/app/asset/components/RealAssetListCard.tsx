@@ -103,32 +103,6 @@ export function RealAssetCard({ data }: RealAssetCardProps) {
 						})}
 					</div>
 				</div>
-
-				{/* 블러 처리된 가라 그래프 */}
-				<div className="mt-6 blur-sm select-none pointer-events-none">
-					<p className="mb-3 font-bold text-[13px] text-hana-black-800">6개월 자산 변화</p>
-					<div className="h-40 w-full">
-						<ResponsiveContainer width="100%" height="100%">
-							<BarChart
-								data={FAKE_CHART_DATA}
-								margin={{ top: 5, right: 5, left: -25, bottom: 0 }}
-								barSize={28}
-							>
-								<CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E5E5" opacity={0.5} />
-								<XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#888988" }} dy={10} />
-								<YAxis axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#888988" }} domain={[3, 5.5]} ticks={[3, 3.5, 4, 4.5, 5]} />
-								<Bar dataKey="value" radius={[4, 4, 0, 0]}>
-									{FAKE_CHART_DATA.map((_, index) => (
-										<Cell
-											key={FAKE_CHART_DATA[index].name}
-											fill={index === FAKE_CHART_DATA.length - 1 ? "#008485" : "#E5E5E5"}
-										/>
-									))}
-								</Bar>
-							</BarChart>
-						</ResponsiveContainer>
-					</div>
-				</div>
 			</motion.div>
 		);
 	}
