@@ -130,4 +130,5 @@ export interface SimulationDetailApiResponse {
     income_details: IncomeDetailsApiResponse;
     age_segments: AgeSegmentApiResponse[];
     ai_opinion: string;
+    is_linked: boolean;
 }

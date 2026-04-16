@@ -7,6 +7,7 @@ import { SimulationTrendChart } from '@/app/asset/components/simulator/Simulatio
 import Header from '@/components/navigation/Header';
 import { getSimulationDetail } from '@/app/asset/actions/simulation';
 import { SimulationDetailApiResponse } from '@/app/asset/utils/types';
+import {AlertBanner} from "@/components/modules/AlertBanner";
 
 const ALLOWED_CARE_TYPES = ['CENTER', 'HOME', 'HOSPITAL']; // 실제 프로젝트에 맞게 조정하세요.
 const DEFAULT_AGE = 85;
@@ -56,7 +57,6 @@ export default function SimulationDetailPage() {
     return <div className="min-h-screen bg-white" />;
   }
 
-  // ... 이하 렌더링 로직 동일
   const ageSegments = data?.age_segments ?? [];
   const trendData = ageSegments.map(seg => ({
     age: seg.range,
@@ -77,6 +77,16 @@ export default function SimulationDetailPage() {
             className="border-none bg-transparent"
         />
         <main className="flex flex-col gap-10 px-6 pt-6 pb-20">
+          {data && !data.isLinked && (
+              <div className="flex justify-center">
+                <AlertBanner
+                    variant="note" // 노란색 계열로 '주의' 환기
+                    message="연동되지 않은 정보가 있어 부정확해요"
+                    actionText="연동"
+                    onActionAction={() => router.push('/asset/link')} // 연동 페이지 경로로 수정
+                />
+              </div>
+          )}
           <section className="flex flex-col gap-4">
             <h2 className="font-bold text-[17px] text-hana-black-900 tracking-tight">
               월 지출 추이 상세
