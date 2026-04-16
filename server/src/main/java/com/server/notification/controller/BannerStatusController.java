@@ -39,7 +39,9 @@ public class BannerStatusController {
         @AuthenticationPrincipal SubscriberDTO loginUser
     ) {
         return ResponseEntity.ok(
-            ApiResponse.onSuccess(bannerStatusService.getBannerStatus(loginUser.getUserId()))
+            ApiResponse.onSuccess(
+                bannerStatusService.getBannerStatus(loginUser.getUserId(), loginUser.getUserNm())
+            )
         );
     }
 }

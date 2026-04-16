@@ -1,6 +1,7 @@
 package com.server.notification.service;
 
 import com.server.asset.entity.TBAccount;
+import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
@@ -12,9 +13,11 @@ import com.server.card.entity.TBCard;
 import com.server.card.repository.CardRepository;
 import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.notification.dto.BannerStatusResponse;
+import com.server.notification.dto.BannerStatusResponse.HousingPensionProductInfo;
 import com.server.notification.dto.BannerStatusResponse.MedicalBillInfo;
 import com.server.notification.dto.BannerStatusResponse.PensionInfo;
 import com.server.notification.dto.BannerStatusResponse.PensionItem;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +36,18 @@ public class BannerStatusService {
     private final CardRepository cardRepository;
     private final AccountRepository accountRepository;
 
-    public BannerStatusResponse getBannerStatus(Long userId) {
+    /**
+     * @param userId   인증된 사용자 ID
+     * @param userName 인증된 사용자 이름 (SubscriberDTO.getUserNm())
+     */
+    public BannerStatusResponse getBannerStatus(Long userId, String userName) {
         return BannerStatusResponse.builder()
+            .userName(userName)
             .hasCompletedSimulation(resolveSimulation(userId))
             .hasInheritancePlan(resolveInheritancePlan(userId))
             .hasHousingPension(resolveHousingPension(userId))
             .hasTrustProduct(resolveTrustProduct(userId))
+            .housingPensionProduct(resolveHousingPensionProduct(userId))
             .medicalBill(resolveMedicalBill(userId))
             .pension(resolvePension(userId))
             .build();
@@ -55,52 +64,71 @@ public class BannerStatusService {
     }
 
     // ─── 주택연금 시뮬레이션 완료 여부 ───
-    // TBPensionSimulation 이 저장된 시점 = 설계 완료
     private boolean resolveHousingPension(Long userId) {
         return pensionSimulationRepository.existsByRealAsset_User_UserId(userId);
     }
 
-    // ─── 신탁 상품 가입 여부 ───
+    // ─── 신탁 상품 가입 여부 (InheritanceStepCard step 3 판별용) ───
     private boolean resolveTrustProduct(Long userId) {
         return userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
             userId, ProdType.TRUST, ProdStat.IN_PROGRESS);
     }
 
+    // ─── 주택연금 상품 실제 가입 정보 (simulation-result 배너용) ───
+    // 시뮬레이션만 했을 때는 null, 실제 상품 가입 후에만 반환
+    private HousingPensionProductInfo resolveHousingPensionProduct(Long userId) {
+        return userProdRepository
+            .findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
+                userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS)
+            .map(prod -> {
+                BigDecimal payout = prod.getMonthlyPayout();
+                if (payout == null) return null;
+                return HousingPensionProductInfo.builder()
+                    .monthlyPayout(payout.longValue())
+                    .build();
+            })
+            .orElse(null);
+    }
+
     // ─── 요양보호사 카드 이번달 지출 ───
-    // TBCard.autoTransAmt = 월 자동이체(청구) 금액, limitAmt = 월 한도
-    // 카드가 없으면 null 반환 → MedicalBillCard 미표시
+    // usedAmount = limitAmt - balanceAmt
+    // totalLimit = limitAmt
     private MedicalBillInfo resolveMedicalBill(Long userId) {
         List<TBCard> cards = cardRepository.findByAccount_User_UserIdAndIsUseTrue(userId);
         if (cards.isEmpty()) return null;
 
         TBCard card = cards.get(0);
+        long limitAmt = card.getLimitAmt().longValue();
+        long balanceAmt = card.getBalanceAmt() != null
+            ? card.getBalanceAmt().longValue()
+            : limitAmt; // null이면 아직 사용 안 함
+
         return MedicalBillInfo.builder()
-            .usedAmount(card.getAutoTransAmt().longValue())
-            .totalLimit(card.getLimitAmt().longValue())
+            .usedAmount(limitAmt - balanceAmt)
+            .totalLimit(limitAmt)
             .build();
     }
 
     // ─── 이번달 연금 수령 정보 ───
-    // TBAccount(PENSION)의 payDay 가 오늘이면 표시
+    // TBAccount(PENSION).payDay == 오늘 날짜인 계좌만
+    // name = instNm, amount = payAmt
     private PensionInfo resolvePension(Long userId) {
         int today = LocalDate.now().getDayOfMonth();
 
-        List<TBAccount> pensionAccounts =
-            accountRepository.findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION);
-
-        List<TBAccount> todayPayAccounts = pensionAccounts.stream()
-            .filter(a -> a.getPayDay() != null && a.getPayDay() == today)
-            .toList();
+        List<TBAccount> todayPayAccounts =
+            accountRepository.findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION)
+                .stream()
+                .filter(a -> a.getPayDay() != null && a.getPayDay() == today)
+                .filter(a -> a.getPayAmt() != null)
+                .toList();
 
         if (todayPayAccounts.isEmpty()) return null;
 
         long totalAmount = todayPayAccounts.stream()
-            .filter(a -> a.getPayAmt() != null)
             .mapToLong(a -> a.getPayAmt().longValue())
             .sum();
 
         List<PensionItem> items = todayPayAccounts.stream()
-            .filter(a -> a.getPayAmt() != null)
             .map(a -> PensionItem.builder()
                 .name(a.getInstNm())
                 .amount(a.getPayAmt().longValue())
