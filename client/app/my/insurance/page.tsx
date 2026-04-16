@@ -2,13 +2,36 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { BannerCard } from '@/app/asset/components/notification/BannerCard';
+import { type InsuranceDto, myhanaApi } from '@/app/my/myApi'; // API와 타입 임포트
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import InsuranceCard from './components/InsuranceCard';
-import { insurances, isDesignated, viewMode } from './constants/data';
+import { isDesignated, viewMode } from './constants/data';
 
-export default function ChildMainInsuranceScreen() {
+export default function MyFamilyInsurancePage() {
   const router = useRouter();
+
+  // 1. 보험 목록을 담을 상태 추가
+  const [insuranceList, setInsuranceList] = useState<InsuranceDto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // 2. 마운트 시 데이터 호출
+  useEffect(() => {
+    const fetchInsurances = async () => {
+      try {
+        setLoading(true);
+        const data = await myhanaApi.getInsurances(); // GET /api/insurance 호출
+        setInsuranceList(data);
+      } catch (error) {
+        console.error('보험 목록 로드 실패:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInsurances();
+  }, []);
 
   return (
     <div className="mb-10 flex flex-col">
@@ -23,14 +46,12 @@ export default function ChildMainInsuranceScreen() {
                   ? '/images/my/insurance/childrenImage.svg'
                   : '/images/my/insurance/parentImage.svg'
               }
-              href="viewMode === 'GRANTEE'
-                  ? '/images/my/insurance/childrenImage.svg'
-                  : '/images/my/insurance/parentImage.svg'"
+              // href 오타 수정
+              href="/my/insurance/find"
             />
           </div>
         ) : (
           <div className="mb-7">
-            {/* 배너 */}
             <AlertBanner
               actionText="인증하기"
               onActionAction={() => {}}
@@ -58,19 +79,30 @@ export default function ChildMainInsuranceScreen() {
           <span className="font-semibold text-gray-800 text-sm">가족 보험</span>
         </div>
 
-        {/* 보험 목록 */}
+        {/* 3. 보험 목록 렌더링 (로딩 처리 포함) */}
         <div className="space-y-2.5">
-          {insurances.map((item) => (
-            <InsuranceCard
-              key={item.id}
-              item={item}
-              onClick={() => {
-                router.push(`/my/insurance/${item.id}`);
-                window.scrollTo(0, 0);
-              }}
-            />
-          ))}
+          {loading ? (
+            <p className="py-10 text-center text-gray-400 text-sm">
+              보험 정보를 불러오는 중입니다...
+            </p>
+          ) : insuranceList.length > 0 ? (
+            insuranceList.map((item) => (
+              <InsuranceCard
+                key={item.accountId} // id 대신 accountId 사용
+                item={item}
+                onClick={() => {
+                  router.push(`/my/insurance/${item.accountId}`);
+                  window.scrollTo(0, 0);
+                }}
+              />
+            ))
+          ) : (
+            <p className="py-10 text-center text-gray-400 text-sm">
+              등록된 보험 정보가 없습니다.
+            </p>
+          )}
         </div>
+
         <div className="mt-5">
           <AlertBanner
             variant="success"

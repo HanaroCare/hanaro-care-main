@@ -25,4 +25,7 @@ public interface UserRepository extends JpaRepository<TBUser, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query("select u from TBUser u where u.userId = :userId")
   Optional<TBUser> findByIdWithLock(@Param("userId") Long userId);
+
+  @Query("SELECT u.userPhone FROM TBUser u WHERE u.userId = :userId")
+  String findUserPhoneByUserId(Long userId);
 }

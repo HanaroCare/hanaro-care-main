@@ -30,7 +30,7 @@ public class InsuranceService {
     List<TBAccount> account = accountRepository.findAllByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
 
-    List<TBFamilyAuth> family = familyAuthRepository.findAllByGranteeUserIdAndIsInsView(userId,
+    List<TBFamilyAuth> family = familyAuthRepository.findAllByGrantee_UserIdAndIsInsView(userId,
         true);
 
     List<TBAccount> accounts = new ArrayList<>();
@@ -65,7 +65,7 @@ public class InsuranceService {
 
     if (!accountOwnerId.equals(userId)) {
       boolean hasAuth = familyAuthRepository
-          .findByGrantorUserIdAndGranteeUserIdAndIsInsView(
+          .findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(
               accountOwnerId, userId, true)
           .isPresent();
 
