@@ -35,12 +35,14 @@ public class PensionPayoutService {
 
 	private static final int COMPARISON_YEARS = 30;
 	private static final BigDecimal BASE_MONTHLY_RATE   = new BigDecimal("0.0038");
-	private static final BigDecimal FRONT_EARLY_RATIO   = new BigDecimal("1.20");
-	private static final BigDecimal FRONT_LATE_RATIO    = new BigDecimal("0.73");
-	private static final int        FRONT_BREAK_YEAR    = 10;
-	private static final BigDecimal GROWING_START_RATIO = new BigDecimal("0.70");
-	private static final BigDecimal GROWING_ANNUAL_RATE = new BigDecimal("0.035");
 
+	private static final BigDecimal FRONT_EARLY_RATIO   = new BigDecimal("1.28");
+	private static final BigDecimal FRONT_LATE_RATIO    = new BigDecimal("0.70");
+	private static final int FRONT_BREAK_YEAR           = 5;
+
+	private static final BigDecimal GROWING_START_RATIO = new BigDecimal("0.828");
+	private static final BigDecimal GROWING_STEP_RATE   = new BigDecimal("0.045");
+	private static final int GROWING_STEP_YEARS         = 3;
 	private static final List<Integer> CHART_YEARS = List.of(1, 5, 10, 15, 20, 25, 30);
 
 	private static final Map<String, String> TYPE_LABELS = Map.of(
@@ -158,15 +160,22 @@ public class PensionPayoutService {
 
 	private PensionPayoutPlanDto buildFrontLoaded(BigDecimal baseMonthly) {
 		BigDecimal early = baseMonthly.multiply(FRONT_EARLY_RATIO).setScale(0, RoundingMode.HALF_UP);
-		BigDecimal late = baseMonthly.multiply(FRONT_LATE_RATIO).setScale(0, RoundingMode.HALF_UP);
-		return toPlan("FRONT_LOADED", buildYearlyData(year -> year <= FRONT_BREAK_YEAR ? early : late));
+		BigDecimal late = early.multiply(FRONT_LATE_RATIO).setScale(0, RoundingMode.HALF_UP);
+
+		return toPlan(
+			"FRONT_LOADED",
+			buildYearlyData(year -> year <= FRONT_BREAK_YEAR ? early : late)
+		);
 	}
 
 	private PensionPayoutPlanDto buildGrowing(BigDecimal baseMonthly) {
 		BigDecimal start = baseMonthly.multiply(GROWING_START_RATIO).setScale(0, RoundingMode.HALF_UP);
+
 		return toPlan("GROWING", buildYearlyData(year -> {
-			BigDecimal factor = BigDecimal.ONE.add(GROWING_ANNUAL_RATE)
-				.pow(year - 1, new MathContext(10, RoundingMode.HALF_UP));
+			int step = (year - 1) / GROWING_STEP_YEARS;
+			BigDecimal factor = BigDecimal.ONE.add(GROWING_STEP_RATE)
+				.pow(step, new MathContext(10, RoundingMode.HALF_UP));
+
 			return start.multiply(factor).setScale(0, RoundingMode.HALF_UP);
 		}));
 	}
