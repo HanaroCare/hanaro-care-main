@@ -56,7 +56,7 @@ public class AssetController {
 			)
 		)
 	)
-	@PatchMapping("/financial/link")
+	@PatchMapping("/link")
 	public ApiResponse<String> updateAssetLinkStatus(
 		@AuthenticationPrincipal SubscriberDTO subscriberDTO,
 		@RequestBody List<Long> accountIds
