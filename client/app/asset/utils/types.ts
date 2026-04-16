@@ -76,6 +76,11 @@ export interface AssetDetailResponse {
     updatedAt: string;
 }
 
+export interface AssetChartPoint {
+    month: string;
+    value: number; // 억 단위
+}
+
 /**
  * ─── 시뮬레이션(Simulation) 도메인 ───
  */

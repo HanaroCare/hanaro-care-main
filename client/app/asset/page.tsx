@@ -1,13 +1,14 @@
 import { Suspense } from 'react';
 import AssetPageContent from './components/AssetPageContent';
-import {getAssetDashboard, getFinancialAssets, getInsuranceAssets} from './actions/asset';
+import {getAssetChart, getAssetDashboard, getFinancialAssets, getInsuranceAssets} from './actions/asset';
 
 export default async function AssetPage() {
     // 병렬 데이터 호출
-    const [dashboardData, financialAssets, insuranceAssets] = await Promise.all([
+    const [dashboardData, financialAssets, insuranceAssets, chartData] = await Promise.all([
         getAssetDashboard().catch(() => null),
         getFinancialAssets().catch(() => []),
         getInsuranceAssets().catch(() => []),
+        getAssetChart().catch(() => []),
     ]);
 
     return (
@@ -16,6 +17,7 @@ export default async function AssetPage() {
                 dashboardData={dashboardData}
                 financialAssets={financialAssets}
                 insuranceAssets={insuranceAssets}
+                chartData={chartData}
             />
         </Suspense>
     );

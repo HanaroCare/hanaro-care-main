@@ -12,7 +12,7 @@ import { AssetDetailCard } from './AssetDetailCard';
 import { AssetListCard } from './AssetListCard';
 import { AssetSummaryHeader } from './AssetSummaryHeader';
 import { formatKoreanCurrency } from '../utils/formatCurrency';
-import type { AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse } from '../utils/types';
+import type { AssetChartPoint, AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse } from '../utils/types';
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
@@ -35,12 +35,13 @@ interface Props {
     dashboardData: AssetDashboardResponse | null;
     financialAssets: FinancialAssetResponse[];
     insuranceAssets: InsuranceAssetResponse[];
+    chartData: AssetChartPoint[];
 }
 
 const isValidTab = (tab: string | null): tab is TabId =>
     tab !== null && ['asset', 'realestate', 'insurance', 'car', 'gold'].includes(tab);
 
-export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets }: Props) {
+export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets, chartData }: Props) {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -109,21 +110,30 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
 
     const renderTabContent = () => {
         switch (activeTab) {
-            case 'asset':
+            case 'asset': {
+                const chartPoints = chartData.map(p => ({ name: p.month, value: p.value }));
+                const values = chartPoints.map(p => p.value);
+                const minVal = values.length > 0 ? Math.min(...values) : 0;
+                const maxVal = values.length > 0 ? Math.max(...values) : 1;
+                const domainMin = Math.floor((minVal - 0.5) * 2) / 2;
+                const domainMax = Math.ceil((maxVal + 0.5) * 2) / 2;
+                const ticks: number[] = [];
+                for (let t = domainMin; t <= domainMax; t = Math.round((t + 0.5) * 10) / 10) {
+                    ticks.push(t);
+                }
                 return (
                     <>
                         <AssetListCard data={financialAssets.filter(a => a.assetCateCd !== 'INSURANCE')} />
-                        <AssetChart
-                            title="6개월 자산 변화"
-                            data={[
-                                { name: '7월', value: 11.8 }, { name: '8월', value: 12.1 },
-                                { name: '9월', value: 11.5 }, { name: '10월', value: 12.3 },
-                                { name: '11월', value: 12.6 }, { name: '12월', value: 12.8 },
-                            ]}
-                            config={{ type: 'bar', domain: [11, 13.5], ticks: [11, 11.5, 12, 12.5, 13] }}
-                        />
+                        {chartPoints.length > 0 && (
+                            <AssetChart
+                                title="6개월 자산 변화"
+                                data={chartPoints}
+                                config={{ type: 'bar', domain: [domainMin, domainMax], ticks }}
+                            />
+                        )}
                     </>
                 );
+            }
             case 'realestate':
                 return realAssets.filter(a => a.assetCateCd === 'REAL_ESTATE').map(asset => (
                     <AssetDetailCard

@@ -2,6 +2,7 @@
 
 import { serverFetch } from '@/lib/serverFetch';
 import type {
+  AssetChartPoint,
   AssetDashboardResponse,
   AssetDetailResponse,
   FinancialAssetResponse,
@@ -32,6 +33,10 @@ export async function getRealAssetDetail(
   assetId: string,
 ): Promise<AssetDetailResponse> {
   return serverFetch<AssetDetailResponse>(`/api/asset/real-asset/${assetId}`);
+}
+
+export async function getAssetChart(): Promise<AssetChartPoint[]> {
+  return serverFetch<AssetChartPoint[]>('/api/asset/chart');
 }
 
 export async function getSimulationSummary(): Promise<
