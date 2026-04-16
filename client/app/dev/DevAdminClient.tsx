@@ -1,7 +1,7 @@
 'use client';
 
 import { Building2, Search, ShieldCheck, UserRound } from 'lucide-react';
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { useMemo, useState, useTransition } from 'react';
 import {
   type AdminRealAssetItem,
   type AdminUserDetail,
@@ -31,7 +31,7 @@ function SectionCard({
   return (
     <section className="rounded-2xl border border-[#E5E7EB] bg-white p-5 shadow-sm">
       <div className="mb-4">
-        <p className="font-semibold text-[16px] text-[#111827]">{title}</p>
+        <p className="text-[16px] font-semibold text-[#111827]">{title}</p>
         <p className="mt-1 text-[13px] leading-5 text-[#6A7282]">
           {description}
         </p>
@@ -67,7 +67,8 @@ function EmptyBox({ text }: { text: string }) {
   );
 }
 
-function formatWon(value: number) {
+function formatWon(value: number | null | undefined) {
+  if (typeof value !== 'number') return '-';
   return `${value.toLocaleString()}원`;
 }
 
@@ -110,6 +111,12 @@ export default function DevAdminClient() {
     }
 
     setIsSearching(true);
+    setSelectedUser(null);
+    setRealAssets([]);
+    setSelectedRealAssetId(null);
+    setTrustResult({ status: 'idle', message: '' });
+    setPensionResult({ status: 'idle', message: '' });
+    setAgentResult({ status: 'idle', message: '' });
 
     startTransition(async () => {
       try {
@@ -153,13 +160,19 @@ export default function DevAdminClient() {
   };
 
   const handleTrustSubscribe = () => {
-    if (!selectedUser) return;
+    if (!selectedUser) {
+      setTrustResult({
+        status: 'error',
+        message: '사용자를 먼저 선택해주세요.',
+      });
+      return;
+    }
 
     setTrustResult({ status: 'idle', message: '' });
 
     startTransition(async () => {
       try {
-        const { userProdId } = await subscribeTrustProduct(selectedUser.userId);
+        const userProdId = await subscribeTrustProduct(selectedUser.userId);
         setTrustResult({
           status: 'success',
           message: `신탁 상품 가입 완료 — userProdId: ${userProdId}`,
@@ -186,7 +199,7 @@ export default function DevAdminClient() {
 
     startTransition(async () => {
       try {
-        const { userProdId } = await subscribePensionProduct(
+        const userProdId = await subscribePensionProduct(
           selectedUser.userId,
           selectedRealAssetId,
         );
@@ -204,16 +217,22 @@ export default function DevAdminClient() {
   };
 
   const handleEnableAgentView = () => {
-    if (!selectedUser) return;
+    if (!selectedUser) {
+      setAgentResult({
+        status: 'error',
+        message: '사용자를 먼저 선택해주세요.',
+      });
+      return;
+    }
 
     setAgentResult({ status: 'idle', message: '' });
 
     startTransition(async () => {
       try {
-        await enableAgentView(selectedUser.userId);
+        const message = await enableAgentView(selectedUser.userId);
         setAgentResult({
           status: 'success',
-          message: '대리인 열람 권한 허용 완료',
+          message: message || '대리인 열람 권한 허용 완료',
         });
       } catch (e) {
         setAgentResult({
@@ -240,7 +259,7 @@ export default function DevAdminClient() {
               <ShieldCheck size={22} />
             </div>
             <div>
-              <p className="font-bold text-[24px] leading-8">
+              <p className="text-[24px] font-bold leading-8">
                 관리자 테스트 패널
               </p>
               <p className="mt-1 text-[14px] text-white/70">
@@ -277,7 +296,7 @@ export default function DevAdminClient() {
                   type="button"
                   onClick={handleSearch}
                   disabled={!keyword.trim() || isPending}
-                  className="rounded-xl bg-hana-ez-600 px-4 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                  className="rounded-xl bg-hana-ez-600 px-4 py-3 text-[14px] font-semibold text-white disabled:opacity-40"
                 >
                   검색
                 </button>
@@ -299,7 +318,7 @@ export default function DevAdminClient() {
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="font-semibold text-[14px] text-[#111827]">
+                            <p className="text-[14px] font-semibold text-[#111827]">
                               {user.userName}
                             </p>
                             <p className="mt-1 text-[12px] text-[#6A7282]">
@@ -338,7 +357,7 @@ export default function DevAdminClient() {
                         <UserRound size={20} />
                       </div>
                       <div className="min-w-0">
-                        <p className="font-bold text-[17px] text-[#111827]">
+                        <p className="text-[17px] font-bold text-[#111827]">
                           {selectedUser.userName}
                         </p>
                         <p className="mt-1 text-[13px] text-[#6A7282]">
@@ -354,7 +373,7 @@ export default function DevAdminClient() {
                   </div>
 
                   <div className="mt-4">
-                    <p className="mb-2 font-semibold text-[14px] text-[#111827]">
+                    <p className="mb-2 text-[14px] font-semibold text-[#111827]">
                       연동 부동산 자산
                     </p>
 
@@ -384,14 +403,14 @@ export default function DevAdminClient() {
                                   <Building2 size={18} />
                                 </div>
                                 <div className="min-w-0">
-                                  <p className="font-semibold text-[14px] text-[#111827]">
+                                  <p className="text-[14px] font-semibold text-[#111827]">
                                     {asset.assetNm}
                                   </p>
                                   <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
                                     realAssetId: {asset.realAssetId}
                                   </p>
                                   <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
-                                    {asset.addr}
+                                    {asset.addr ?? '-'}
                                   </p>
                                   <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
                                     평가금액 {formatWon(asset.evalAmt)}
@@ -417,7 +436,7 @@ export default function DevAdminClient() {
               ) : (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-[#E5E7EB] p-4">
-                    <p className="font-semibold text-[14px] text-[#111827]">
+                    <p className="text-[14px] font-semibold text-[#111827]">
                       신탁 상품 가입
                     </p>
                     <p className="mt-1 text-[12px] text-[#6A7282]">
@@ -427,7 +446,7 @@ export default function DevAdminClient() {
                       type="button"
                       onClick={handleTrustSubscribe}
                       disabled={isPending}
-                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white disabled:opacity-40"
                     >
                       신탁 상품 가입
                     </button>
@@ -435,7 +454,7 @@ export default function DevAdminClient() {
                   </div>
 
                   <div className="rounded-2xl border border-[#E5E7EB] p-4">
-                    <p className="font-semibold text-[14px] text-[#111827]">
+                    <p className="text-[14px] font-semibold text-[#111827]">
                       주택연금 상품 가입
                     </p>
                     <p className="mt-1 text-[12px] text-[#6A7282]">
@@ -451,7 +470,7 @@ export default function DevAdminClient() {
                       type="button"
                       onClick={handlePensionSubscribe}
                       disabled={isPending || !selectedRealAssetId}
-                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white disabled:opacity-40"
                     >
                       주택연금 상품 가입
                     </button>
@@ -459,7 +478,7 @@ export default function DevAdminClient() {
                   </div>
 
                   <div className="rounded-2xl border border-[#E5E7EB] p-4">
-                    <p className="font-semibold text-[14px] text-[#111827]">
+                    <p className="text-[14px] font-semibold text-[#111827]">
                       대리인 신탁 열람 권한 허용
                     </p>
                     <p className="mt-1 text-[12px] text-[#6A7282]">
@@ -469,7 +488,7 @@ export default function DevAdminClient() {
                       type="button"
                       onClick={handleEnableAgentView}
                       disabled={isPending}
-                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
+                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white disabled:opacity-40"
                     >
                       열람 권한 허용
                     </button>
