@@ -229,6 +229,16 @@
   color: var(--color-hana-black-900);
 }
 
+.legalValue {
+  color: #3B82F6; /* Blue-500 */
+  font-weight: 700;
+}
+
+.forcedValue {
+  color: #EF4444; /* Red-500 */
+  font-weight: 700;
+}
+
 .highlightValue {
   color: var(--color-hana-ez-600);
   font-weight: 700;
