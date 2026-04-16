@@ -55,6 +55,7 @@ export default function SelectAgentStep() {
     startTransition(async () => {
       try {
         await saveTrustSimulation({ ...form, selectedAgent: validAgentId });
+        localStorage.setItem('has_completed_trust', 'true');
         router.push('/asset/trust/result');
       } catch (error) {
         console.error('시뮬레이션 저장 실패', error);
