@@ -1,5 +1,5 @@
 import { NavigationBar } from '@/components/navigation/NavigationBar';
-import { getAssetDashboard } from './asset/actions/asset';
+import { getAssetDashboard, getSimulationSummary } from './asset/actions/asset';
 import { AssetDashboard } from './asset/components/AssetDashboard';
 import { MedicalBudgetCard } from './asset/components/MedicalBudgetCard';
 import { BannerCard } from './asset/components/notification/BannerCard';
@@ -10,7 +10,12 @@ import { PensionCard } from './asset/components/notification/PensionCard';
 import { RealAssetCard } from './asset/components/RealAssetListCard';
 
 export default async function Home() {
-  const assetData = await getAssetDashboard().catch(() => null);
+  const [assetData, simulationResult] = await Promise.all([
+    getAssetDashboard().catch(() => null),
+    getSimulationSummary(),
+  ]);
+
+  const simulationData = simulationResult.ok ? simulationResult.data : null;
 
   return (
     <main className="flex flex-col items-center gap-6 px-6 pt-6 pb-25">
@@ -21,12 +26,7 @@ export default async function Home() {
         </div>
       </div>
       <AssetDashboard data={assetData} />
-      <MedicalBudgetCard
-        usedAmount={0.8}
-        totalAmount={2.0}
-        usagePercent={40}
-        yearsLeft={12}
-      />
+      <MedicalBudgetCard data={simulationData} totalFinancialAmt={assetData?.totalFinancialAmt ?? 0} />
       <RealAssetCard data={assetData?.realAssets} />
 
       <BannerCard
