@@ -18,9 +18,13 @@ import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.dto.simulation.SimulationResponse;
 import com.server.asset.dto.simulation.SimulationSummaryResponse;
 import com.server.asset.entity.TBAssetSimulation;
+import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.CareType;
+import com.server.asset.entity.enums.ProdStat;
+import com.server.asset.entity.enums.ProdType;
 import com.server.asset.mapper.SimulationMapper;
 import com.server.asset.repository.AssetSimulationRepository;
+import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.UserContextUtil;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
@@ -36,6 +40,7 @@ public class SimulationService {
 
   private final AssetSimulationRepository assetSimulationRepository;
   private final UserRepository userRepository;
+  private final UserProdRepository userProdRepository;
   private final SimulationMapper simulationMapper;
   private final UserContextUtil userContextUtil;
   private final SimulationEngine simulationEngine;
@@ -173,8 +178,15 @@ public class SimulationService {
 
     SimulationDetailResponse detailData = fromJson(simulation.getAgeRangeDetails(),
         SimulationDetailResponse.class);
+
+    BigDecimal housingPensionPayout = userProdRepository
+        .findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
+            userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS)
+        .map(TBUserProd::getMonthlyPayout)
+        .orElse(BigDecimal.ZERO);
+
     return simulationMapper.toSimulationSummaryResponse(simulation, detailData.getAgeSegments(),
-        detailData.getAiOpinion());
+        detailData.getAiOpinion(), housingPensionPayout);
   }
 
   @CheckUser(key = "#userId")

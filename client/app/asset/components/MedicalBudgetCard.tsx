@@ -58,9 +58,6 @@ export function MedicalBudgetCard({ data, totalFinancialAmt }: Props) {
       </div>
 
       <div className="mt-4 flex flex-col gap-1">
-        <p className="font-medium text-[15px] text-hana-black-600">
-          현재 금융 자산의 {usagePercent}% 사용
-        </p>
         {yearsUntilDepletion !== null ? (
             <p className="font-medium text-[15px] text-hana-black-600">
                         {hasFinancialAssets

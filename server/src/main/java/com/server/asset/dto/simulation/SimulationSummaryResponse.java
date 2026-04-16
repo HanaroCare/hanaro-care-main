@@ -26,4 +26,7 @@ public class SimulationSummaryResponse {
 
     @JsonProperty("ai_opinion")
     private String aiOpinion;
+
+    @JsonProperty("housing_pension_monthly_payout")
+    private BigDecimal housingPensionMonthlyPayout;
 }

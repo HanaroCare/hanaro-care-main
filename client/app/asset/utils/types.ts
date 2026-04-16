@@ -131,6 +131,7 @@ export interface SimulationSummaryApiResponse {
     careCost: number;
     age_segments: AgeSegmentApiResponse[];
     ai_opinion: string;
+    housing_pension_monthly_payout?: number;
 }
 
 export interface IncomeDetailsApiResponse {
