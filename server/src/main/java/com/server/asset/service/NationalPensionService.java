@@ -1,11 +1,11 @@
 package com.server.asset.service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.server.asset.dto.simulation.PensionEstimationResult;
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.repository.AccountRepository;
@@ -19,56 +19,42 @@ import lombok.extern.slf4j.Slf4j;
 public class NationalPensionService {
 
     private final AccountRepository accountRepository;
+    private static final BigDecimal MIN_PENSION = new BigDecimal("650000");
 
-    /**
-     * 월 연금 수령액 추정
-     * 1순위: TB_ACCOUNT에서 PENSION 카테고리 PAY_AMT 합산
-     * 2순위: 통계 기반 추정
-     */
-    public BigDecimal estimateMonthlyPension(Long userId, int currentAge, BigDecimal monthlyIncome, int totalYears) {
-        // 1. DB에서 실제 연금 데이터 조회
-        try {
-            List<TBAccount> pensionAccounts = accountRepository
-                .findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION);
+    public PensionEstimationResult estimateMonthlyPension(Long userId, int currentAge, BigDecimal monthlyIncome, int contributionYears, boolean isExpense) {
 
-            BigDecimal totalPension = pensionAccounts.stream()
-                .filter(account -> account.getPayAmt() != null
-                    && account.getPayAmt().compareTo(BigDecimal.ZERO) > 0)
-                .map(TBAccount::getPayAmt)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        // 1. DB에서 사용자의 연금 계좌 조회
+        List<TBAccount> pensionAccounts = accountRepository
+            .findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION);
 
-            if (totalPension.compareTo(BigDecimal.ZERO) > 0) {
-                log.info("[연금 조회] DB 실제 연금 데이터 - 월 수령액: {}원", totalPension);
-                return totalPension;
-            }
-        } catch (Exception e) {
-            log.warn("[연금 조회] DB 조회 실패, 통계 추정으로 전환: {}", e.getMessage());
+        // 2. 하나라도 연동(IS_LINKED=1)된 계좌가 있는지 확인
+        boolean isLinked = pensionAccounts.stream().anyMatch(TBAccount::getIsLinked);
+
+        // 3. 연동된 계좌의 수령액(PAY_AMT) 합산
+        BigDecimal linkedTotal = pensionAccounts.stream()
+            .filter(acc -> acc.getIsLinked() && acc.getPayAmt() != null)
+            .map(TBAccount::getPayAmt)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // 4. 결과 도출
+        BigDecimal finalAmount;
+        if (isLinked && linkedTotal.compareTo(BigDecimal.ZERO) > 0) {
+            log.info("[연금] 사용자 {} : 연동 데이터 기반 계산", userId);
+            finalAmount = linkedTotal.compareTo(MIN_PENSION) < 0 ? MIN_PENSION : linkedTotal;
+        } else {
+            log.warn("[연금] 사용자 {} : 연동 데이터 없음, 통계치 적용 (연동 유도 타겟)", userId);
+            finalAmount = computeUnlinkedEstimation(monthlyIncome, isExpense);
         }
 
-        // 2. 통계 기반 추정 (DB 데이터 없을 때)
-        log.info("[연금 조회] DB 데이터 없음 - 통계 기반 추정값 사용");
-        return estimateByStatistics(currentAge, monthlyIncome, totalYears);
+        return new PensionEstimationResult(finalAmount, isLinked);
     }
 
-    private BigDecimal estimateByStatistics(int currentAge, BigDecimal monthlyIncome, int totalYears) {
-        if (monthlyIncome == null || monthlyIncome.compareTo(BigDecimal.ZERO) == 0) {
-            return new BigDecimal("350000");
+    private BigDecimal computeUnlinkedEstimation(BigDecimal monthlyIncome, boolean isExpense) {
+        // 지출 데이터를 소득으로 오해하지 않도록 차단
+        if (isExpense || monthlyIncome == null || monthlyIncome.compareTo(BigDecimal.ZERO) <= 0) {
+            return BigDecimal.ZERO;
         }
-
-        BigDecimal replacementRate = new BigDecimal("0.4");
-        BigDecimal durationWeight = new BigDecimal(totalYears)
-            .divide(new BigDecimal("20"), 2, RoundingMode.HALF_UP);
-
-        BigDecimal estimatedAmt = monthlyIncome
-            .multiply(replacementRate)
-            .multiply(durationWeight);
-
-        int yearsToRetire = 65 - currentAge;
-        if (yearsToRetire > 0) {
-            double inflation = Math.pow(1.02, yearsToRetire);
-            estimatedAmt = estimatedAmt.multiply(BigDecimal.valueOf(inflation));
-        }
-
-        return estimatedAmt.setScale(0, RoundingMode.HALF_UP);
+        // 연동 안 한 사용자에게 보여줄 '위기감 조성용' 낮은 추정치
+        return new BigDecimal("450000");
     }
 }
