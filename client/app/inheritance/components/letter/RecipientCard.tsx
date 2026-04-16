@@ -1,6 +1,6 @@
-import { User } from "lucide-react";
-import type { Recipient } from "../../types";
-import { formatAmount } from "../../utils/format";
+import { User } from 'lucide-react';
+import type { Recipient } from '../../types';
+import { formatAmount } from '../../utils/format';
 
 export function RecipientCard({
   recipient,
@@ -13,24 +13,24 @@ export function RecipientCard({
     <button
       type="button"
       onClick={onClick}
-      className="bg-white border border-gray-200 rounded-2xl px-5 py-4 flex items-center justify-between shadow-sm"
+      className="flex items-center justify-between rounded-2xl border border-gray-200 bg-white px-5 py-4 shadow-sm"
     >
       {/* Left: icon + name */}
       <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-full bg-teal-50 flex items-center justify-center">
-          <User className="w-5 h-5 text-teal-500" strokeWidth={1.5} />
+        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-teal-50">
+          <User className="h-5 w-5 text-teal-500" strokeWidth={1.5} />
         </div>
-        <span className="text-sm font-medium text-gray-800">
-          {recipient.code}
+        <span className="font-medium text-gray-800 text-sm">
+          {recipient.name}
         </span>
       </div>
 
       {/* Right: percentage + amount */}
       <div className="flex flex-col items-end gap-0.5">
-        <span className="text-sm font-bold text-teal-500">
+        <span className="font-bold text-sm text-teal-500">
           {recipient.percentage}%
         </span>
-        <span className="text-xs text-gray-400">
+        <span className="text-gray-400 text-xs">
           {formatAmount(recipient.amount)}
         </span>
       </div>

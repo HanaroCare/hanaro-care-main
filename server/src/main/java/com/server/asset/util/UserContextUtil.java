@@ -4,8 +4,8 @@ import com.server.asset.dto.external.AIAnalysisInput;
 import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.entity.TBAssetTrans;
 import com.server.asset.entity.enums.TransType;
-import com.server.asset.repository.TBAccountRepository;
-import com.server.asset.repository.TBAssetTransRepository;
+import com.server.asset.repository.AccountRepository;
+import com.server.asset.repository.AssetTransRepository;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.UserRepository;
 import java.math.BigDecimal;
@@ -24,15 +24,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserContextUtil {
 
   private final UserRepository tbUserRepository;
-  private final TBAssetTransRepository tbAssetTransRepository;
-  private final TBAccountRepository tbAccountRepository;
+  private final AssetTransRepository assetTransRepository;
+  private final AccountRepository accountRepository;
 
   public AIAnalysisInput collectUserContext(Long userId, SimulationRequest request) {
     TBUser user = tbUserRepository.findById(userId)
         .orElseThrow(() -> new RuntimeException("User not found"));
 
     LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
-    List<TBAssetTrans> paymentHistory = tbAssetTransRepository.findAllByUser_UserIdAndTransTypeAndTransDtAfter(
+    List<TBAssetTrans> paymentHistory = assetTransRepository.findAllByUser_UserIdAndTransTypeAndTransDtAfter(
         userId, TransType.PAYMENT, oneYearAgo);
 
     Map<String, BigDecimal> spendingByCategory = aggregateSpending(paymentHistory);
@@ -42,7 +42,7 @@ public class UserContextUtil {
     BigDecimal averageMonthlySpending = totalSpending.divide(new BigDecimal("12"), 2,
         RoundingMode.HALF_UP);
 
-    BigDecimal totalAssetAmt = tbAccountRepository.findTotalBalanceByUserId(userId);
+    BigDecimal totalAssetAmt = accountRepository.findTotalBalanceByUserId(userId);
     totalAssetAmt = (totalAssetAmt != null) ? totalAssetAmt : BigDecimal.ZERO;
 
     return AIAnalysisInput.builder()

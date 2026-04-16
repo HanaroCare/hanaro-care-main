@@ -9,7 +9,7 @@ import com.server.asset.dto.simulation.SimulationResponse;
 import com.server.asset.dto.simulation.SimulationSummaryResponse;
 import com.server.asset.entity.TBAssetSimulation;
 import com.server.asset.mapper.SimulationMapper;
-import com.server.asset.repository.TBAssetSimulationRepository;
+import com.server.asset.repository.AssetSimulationRepository;
 import com.server.asset.util.UserContextUtil;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
@@ -27,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class SimulationService {
 
-  private final TBAssetSimulationRepository tbAssetSimulationRepository;
+  private final AssetSimulationRepository assetSimulationRepository;
   private final UserRepository UserRepository;
   private final SimulationMapper simulationMapper;
   private final UserContextUtil userContextUtil;
@@ -92,14 +92,14 @@ public class SimulationService {
         .ageRangeDetails(ageRangeDetails)
         .build();
 
-    TBAssetSimulation savedSimulation = tbAssetSimulationRepository.save(simulation);
+    TBAssetSimulation savedSimulation = assetSimulationRepository.save(simulation);
 
     return simulationMapper.toSimulationResponse(savedSimulation);
   }
 
   @CheckUser(key = "#userId")
   public SimulationSummaryResponse getSimulationSummary(Long userId) {
-    TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(
+    TBAssetSimulation simulation = assetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(
             userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
@@ -120,7 +120,7 @@ public class SimulationService {
       unless = "#result == null"
   )
   public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
-    TBAssetSimulation simulation = tbAssetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(
+    TBAssetSimulation simulation = assetSimulationRepository.findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(
             userId, request.getTargetAge(), request.getCareType())
         .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
