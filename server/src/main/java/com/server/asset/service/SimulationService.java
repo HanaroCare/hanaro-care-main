@@ -108,7 +108,7 @@ public class SimulationService {
         .targetAge(request.getTargetAge())
         .careType(request.getCareType())
         .totalIncomeAmt(totalAccumulatedIncome)
-        .shortageAmt(monthlyShortageAmt) // 👈 이제 '월평균' 부족액이 DB에 들어감
+        .shortageAmt(monthlyShortageAmt)
         .isSufficient(isSufficient)
         .livingCost(totalAccumulatedLiving)
         .medicalCost(totalAccumulatedMedical)

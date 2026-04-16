@@ -25,13 +25,13 @@ export function SimulatorSummaryCard({ data }: { data: SimulationSummaryApiRespo
   let displayTargetAge = 85;
 
   if (segments.length > 0) {
-    const startAge = parseInt(segments[0].range.split('-')[0]);
+    const startAge = parseInt(segments[0].range.split('-')[0]) || 65;
     const lastRange = segments[segments.length - 1].range;
-    displayTargetAge = parseInt(lastRange.split('-')[1].replace(/[^0-9]/g, ''));
+    displayTargetAge = parseInt(lastRange.split('-')[1].replace(/[^0-9]/g, '')) || 85;
     totalMonths = Math.max(1, (displayTargetAge - startAge) * 12);
   }
 
-  const isShortage = data.shortageAmt > 0;
+  const isShortage = !data.isSufficient;
   const absGapAmt = Math.abs(data.shortageAmt);
 
   const avgMonthlyLiving = Math.floor((data.livingCost / totalMonths) / 10000);

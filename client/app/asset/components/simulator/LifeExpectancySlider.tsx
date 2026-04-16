@@ -14,9 +14,10 @@ export function LifeExpectancySlider({
                                        onChange,
                                      }: LifeExpectancySliderProps) {
   const clamp = (val: number) => Math.min(Math.max(val, min), max);
+  const clampedValue = clamp(value);
 
   const range = max - min;
-  const percentage = range === 0 ? 0 : ((value - min) / range) * 100;
+  const percentage = range <= 0 ? 0 : ((clampedValue - min) / range) * 100;
 
   return (
       <div className="flex h-42.25 w-81.25 flex-col justify-between rounded-[14px] border-2 border-hana-silver-100 bg-white/80 p-6">
@@ -25,7 +26,7 @@ export function LifeExpectancySlider({
           수명 나이
         </span>
           <span className="font-bold text-[18px] text-hana-green-600">
-          {value}세
+          {clampedValue}세
         </span>
         </div>
 
@@ -35,16 +36,18 @@ export function LifeExpectancySlider({
                 className="absolute h-full rounded-[10px] bg-hana-green-600"
                 style={{ width: `${percentage}%` }}
             />
-            <input
-                type="range"
-                aria-label="수명 나이 선택"
-                min={min}
-                max={max}
-                value={value}
-                // 값이 바뀌면 부모의 onChange를 호출합니다.
-                onChange={(e) => onChange(clamp(Number.parseInt(e.target.value)))}
-                className="absolute inset-0 z-20 h-full w-full cursor-pointer opacity-0"
-            />
+              <input
+                  type="range"
+                  aria-label="수명 나이 선택"
+                  min={min}
+                  max={max}
+                  value={clampedValue}
+                  onChange={(e) => {
+                      const newValue = Number.parseInt(e.target.value, 10);
+                      onChange(clamp(newValue));
+                  }}
+                  className="absolute inset-0 z-20 h-full w-full cursor-pointer opacity-0"
+              />
             <div
                 className="-translate-y-1/2 pointer-events-none absolute top-1/2 z-10"
                 style={{ left: `calc(${percentage}% - 22.5px)` }}
@@ -68,7 +71,7 @@ export function LifeExpectancySlider({
         <div className="mt-2 text-center">
           <p className="font-medium text-[13px] text-hana-black-800">
           <span className="font-bold text-[17px] text-hana-green-700">
-            {value}세
+            {clampedValue}세
           </span>
             까지 노후 비용을 계산합니다
           </p>

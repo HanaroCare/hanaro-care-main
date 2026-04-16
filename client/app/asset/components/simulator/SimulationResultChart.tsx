@@ -37,7 +37,7 @@ export function SimulationResultChart({ data }: SimulationResultChartProps) {
         animate={{ opacity: 1, scale: 1 }}
         className="flex h-[180px] w-full items-center justify-center rounded-[24px] border border-hana-silver-100 bg-white shadow-sm"
       >
-        <p className="text-[14px] text-hana-black-500">데이터를 불러오는 중...</p>
+        <p className="text-[14px] text-hana-black-500">표시할 데이터가 없습니다.</p>
       </motion.div>
     );
   }

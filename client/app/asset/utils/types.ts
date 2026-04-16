@@ -1,3 +1,6 @@
+/**
+ * ─── 자산(Asset) 도메인 ───
+ */
 export type AssetCategory = 'CASH' | 'PENSION' | 'CARD' | 'INSURANCE' | 'STOCK';
 export type RealAssetCategory = 'REAL_ESTATE' | 'VEHICLE' | 'GOLD';
 
@@ -34,21 +37,6 @@ export interface FinancialAssetResponse {
     updatedAt: string;
 }
 
-export interface AssetDetailResponse {
-    assetId: number;
-    assetCateCd: AssetCategory | RealAssetCategory; // 둘 다 올 수 있음
-    assetNm: string;
-    amount: number;         // 실물(evalAmt), 금융(balanceAmt) 통합
-    instNm?: string;        // 보험/계좌 전용
-    addr?: string;          // 부동산 전용
-    assetSize?: number;      // 부동산/금 전용
-    assetDesc?: string;      // 실물자산 상세설명
-    monthlyPremAmt?: number; // 보험 전용
-    expireDt?: string;
-    createdAt: string;
-    updatedAt: string;
-}
-
 export interface InsuranceAssetResponse {
     assetId: number;
     assetCateCd: 'INSURANCE';
@@ -64,16 +52,31 @@ export interface InsuranceAssetResponse {
     updatedAt: string;
 }
 
+export interface AssetDetailResponse {
+    assetId: number;
+    assetCateCd: AssetCategory | RealAssetCategory;
+    assetNm: string;
+    amount: number;
+    instNm?: string;
+    addr?: string;
+    assetSize?: number;
+    assetDesc?: string;
+    monthlyPremAmt?: number;
+    expireDt?: string;
+    createdAt: string;
+    updatedAt: string;
+}
+
 /**
  * ─── 시뮬레이션(Simulation) 도메인 ───
  */
 export type CareType = 'CENTER' | 'HOME' | 'HOSPITAL';
 
 export interface SimulationSummary {
-    is_sufficient: boolean;
-    monthly_shortage_amt: number;
-    total_income_amt: number;
-    total_monthly_cost: number;
+    isSufficient: boolean;
+    shortageMonthlyAmt: number;
+    totalIncomeAmt: number;
+    totalCost: number;
 }
 
 export interface CurrentSpending {
@@ -82,32 +85,20 @@ export interface CurrentSpending {
     care: number;
 }
 
-/** POST /api/asset/simulation 응답 */
+// ◀ 추가: actions/simulation.ts에서 참조하는 POST 응답 타입
 export interface SimulationResponse {
-    simulation_id: number;
+    simulationId: number;
     summary: SimulationSummary;
-    current_spending: CurrentSpending;
+    currentSpending: CurrentSpending;
 }
 
-export interface AgeSegment {
-    age: string;
-    income: number;
-    expense: number;
-}
-
-export interface SimulationDetailResponse extends SimulationResponse {
-    chart_data: AgeSegment[];
-    ai_opinion: string;
-}
-
-/** 백엔드 AgeSegment (range, income, income_detail, expense, detail) */
 export interface AgeSegmentApiResponse {
     range: string;
     income: number;
     income_detail?: {
-        national: number;    // 국민연금
-        retirement: number;  // 퇴직연금 (구간별 점진 감소)
-        subsidy: number;     // 지자체 지원금
+        national: number;
+        retirement: number;
+        subsidy: number;
     };
     expense: number;
     detail: {
@@ -117,23 +108,16 @@ export interface AgeSegmentApiResponse {
     };
 }
 
-/** GET /api/asset/simulation/summary 응답 (SimulationSummaryResponse) */
 export interface SimulationSummaryApiResponse {
-    /** Java Boolean isSufficient → Jackson strips "is" prefix → "sufficient" */
-    sufficient: boolean;
-    /** 월 부족액 (원 단위). shortageAmt = 월지출 - 월수입. 화면 표시 시 / 10000 하여 만원으로 변환 */
+    isSufficient: boolean;
     shortageAmt: number;
-    /** 현재 연령대 기준 월 생활비 (원 단위) */
     livingCost: number;
-    /** 현재 연령대 기준 월 병원비 (원 단위) */
     medicalCost: number;
-    /** 현재 연령대 기준 월 요양비 (원 단위) */
     careCost: number;
     age_segments: AgeSegmentApiResponse[];
     ai_opinion: string;
 }
 
-/** POST /api/asset/simulation/detail 응답 (SimulationDetailResponse) */
 export interface IncomeDetailsApiResponse {
     national_pension: number;
     retirement_pension: number;

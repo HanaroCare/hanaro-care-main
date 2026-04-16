@@ -41,6 +41,7 @@ export default function SimulatorPage() {
   const [careMethod, setCareMethod] = useState('nursing-home');
   const [targetAge, setTargetAge] = useState(85);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   // 시뮬레이션 요약 데이터 상태
   const [summaryData, setSummaryData] = useState<SimulationSummaryApiResponse | null>(null);
@@ -48,12 +49,14 @@ export default function SimulatorPage() {
   // 데이터 로드 함수
   const loadSummary = async () => {
     try {
+      setLoadError(false);
       const data = await getSimulationSummary();
       if (data) {
         setSummaryData(data);
       }
     } catch (error) {
       console.error("데이터 로드 실패:", error);
+      setLoadError(true);
     }
   };
 

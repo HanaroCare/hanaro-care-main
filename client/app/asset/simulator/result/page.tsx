@@ -46,12 +46,12 @@ export default function SimulatorResultPage() {
     );
   }
 
-  const isLeeway = data.sufficient ?? false;
+  const isLeeway = data.isSufficient ?? false;
 
-  // shortageAmt = 월지출 - 월수입 (원 단위). age_segments[0]에서 맥락 표시용 수입/지출 추출
+  // shortageAmt = 월 부족/여유 금액 (원 단위). age_segments[0]에서 맥락 표시용 수입/지출 추출
   const firstSeg = data.age_segments?.[0];
-  const monthlyIncomeManwon = firstSeg ? Math.floor(Number(firstSeg.income) / 10000) : null;
-  const monthlyExpenseManwon = firstSeg ? Math.floor(Number(firstSeg.expense) / 10000) : null;
+  // const monthlyIncomeManwon = firstSeg ? Math.floor(Number(firstSeg.income) / 10000) : null;
+  // const monthlyExpenseManwon = firstSeg ? Math.floor(Number(firstSeg.expense) / 10000) : null;
   const shortageManwon = Math.floor(Math.abs(Number(data.shortageAmt) || 0) / 10000);
 
   const living = Number(data.livingCost) || 0;
