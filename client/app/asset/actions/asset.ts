@@ -5,7 +5,7 @@ import type {
   AssetDashboardResponse,
   AssetDetailResponse,
   FinancialAssetResponse,
-  InsuranceAssetResponse
+  InsuranceAssetResponse,
 } from '../utils/types';
 
 export type SimulationSummaryResponse = {
@@ -28,14 +28,22 @@ export async function getInsuranceAssets(): Promise<InsuranceAssetResponse[]> {
   return serverFetch<InsuranceAssetResponse[]>('/api/asset/insurance');
 }
 
-export async function getRealAssetDetail(assetId: string): Promise<AssetDetailResponse> {
+export async function getRealAssetDetail(
+  assetId: string,
+): Promise<AssetDetailResponse> {
   return serverFetch<AssetDetailResponse>(`/api/asset/real-asset/${assetId}`);
 }
 
-export async function getSimulationSummary(): Promise<SimulationSummaryResponse | null> {
+export async function getSimulationSummary(): Promise<
+  | { ok: true; data: SimulationSummaryResponse }
+  | { ok: false; reason: 'fetch_failed' }
+> {
   try {
-    return await serverFetch<SimulationSummaryResponse>('/api/asset/simulation/summary');
+    const data = await serverFetch<SimulationSummaryResponse>(
+      '/api/asset/simulation/summary',
+    );
+    return { ok: true, data };
   } catch {
-    return null;
+    return { ok: false, reason: 'fetch_failed' };
   }
 }

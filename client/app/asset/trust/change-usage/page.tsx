@@ -1,30 +1,85 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useMemo, useState, useTransition } from 'react';
-import { updateTrustPayoutSettings } from '@/app/asset/actions/trust';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import {
+  getTrustProductSummary,
+  updateTrustPayoutSettings,
+  type TrustProductDetail,
+} from '@/app/asset/actions/trust';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import StackedActionFooter from '@/components/modules/StackedActionFooter';
 import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
-import {
-  formatKoreanAmount,
-  parseKoreanAmount,
-} from '../../constants/trustUtils';
+import { formatKoreanAmount } from '../../constants/trustUtils';
 
-const items = [
-  { id: 'hospital', title: '병원비 자동 집행', amount: '월 43만원' },
-  { id: 'living', title: '생활비', amount: '월 100만원' },
-] as const;
+type UsageItem = {
+  id: 'hospital' | 'living';
+  title: string;
+  amount: number;
+};
 
 export default function ChangeUsagePage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [selected, setSelected] = useState<Set<string>>(
-    new Set(['hospital', 'living']),
+  const [productDetail, setProductDetail] = useState<TrustProductDetail | null>(
+    null,
   );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [items, setItems] = useState<UsageItem[]>([]);
+
+  useEffect(() => {
+    const fetchProductSummary = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const data = await getTrustProductSummary();
+        setProductDetail(data);
+
+        if (!data?.executionSetting) {
+          setItems([]);
+          setSelected(new Set());
+          return;
+        }
+
+        const nextItems: UsageItem[] = [
+          {
+            id: 'hospital',
+            title: '병원비 자동 집행',
+            amount: data.executionSetting.hospitalAmount ?? 0,
+          },
+          {
+            id: 'living',
+            title: '생활비',
+            amount: data.executionSetting.livingAmount ?? 0,
+          },
+        ];
+
+        setItems(nextItems);
+
+        const nextSelected = new Set<string>();
+        if (data.executionSetting.hospitalEnabled) nextSelected.add('hospital');
+        if (data.executionSetting.livingEnabled) nextSelected.add('living');
+        setSelected(nextSelected);
+      } catch (err) {
+        console.error('신탁 운용 현황 조회 실패', err);
+        setError('현재 신탁 설정 정보를 불러오지 못했어요.');
+        setProductDetail(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProductSummary();
+  }, []);
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -37,16 +92,18 @@ export default function ChangeUsagePage() {
   const total = useMemo(() => {
     return items
       .filter((item) => selected.has(item.id))
-      .reduce((sum, item) => sum + parseKoreanAmount(item.amount), 0);
-  }, [selected]);
+      .reduce((sum, item) => sum + item.amount, 0);
+  }, [items, selected]);
 
   const handleNext = () => {
+    setSubmitError(null);
+
     startTransition(async () => {
       const requestItems = items
         .filter((item) => selected.has(item.id))
         .map((item) => ({
           type: item.id === 'hospital' ? 'HOSPITAL' : 'LIVING',
-          amount: parseKoreanAmount(item.amount),
+          amount: item.amount,
         })) as { type: 'HOSPITAL' | 'LIVING'; amount: number }[];
 
       try {
@@ -55,11 +112,93 @@ export default function ChangeUsagePage() {
         });
 
         router.push('/asset/trust/change-agent');
-      } catch (error) {
-        console.error('신탁 자금 사용처 수정 실패', error);
+      } catch (err) {
+        console.error('신탁 자금 사용처 수정 실패', err);
+        setSubmitError(
+          '신탁 자금 사용처 저장에 실패했어요. 다시 시도해주세요.',
+        );
       }
     });
   };
+
+  if (error) {
+    return (
+      <TrustStepLayout
+        footer={
+          <footer className="shrink-0 bg-white px-6 py-4">
+            <PrimaryButton
+              label="다시 시도"
+              className="h-14 rounded-2xl text-[16px] leading-6"
+              onClick={() => window.location.reload()}
+            />
+          </footer>
+        }
+      >
+        <Header title="신탁 설정 변경" showBackButton />
+
+        <section className="px-6 pt-8">
+          <ProgressBar step={3} />
+
+          <div className="mt-12">
+            <h2 className="text-[22px] leading-[1.45] font-bold tracking-tight text-black">
+              불러오기에 실패했어요
+            </h2>
+            <p className="mt-4 text-[14px] leading-5 text-[#6A7282]">
+              네트워크 상태를 확인한 뒤 다시 시도해주세요.
+            </p>
+          </div>
+        </section>
+      </TrustStepLayout>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <TrustStepLayout
+        footer={
+          <footer className="shrink-0 bg-white px-6 py-4">
+            <PrimaryButton
+              label="다음"
+              className="h-14 rounded-2xl text-[16px] leading-6"
+              disabled
+            />
+          </footer>
+        }
+      >
+        <Header title="신탁 설정 변경" showBackButton />
+
+        <section className="px-6 pt-8">
+          <ProgressBar step={3} />
+          <div className="mt-12 text-[14px] text-[#9CA3AF]">불러오는 중...</div>
+        </section>
+      </TrustStepLayout>
+    );
+  }
+
+  if (!productDetail) {
+    return (
+      <TrustStepLayout
+        footer={
+          <footer className="shrink-0 bg-white px-6 py-4">
+            <PrimaryButton
+              label="돌아가기"
+              className="h-14 rounded-2xl text-[16px] leading-6"
+              onClick={() => router.back()}
+            />
+          </footer>
+        }
+      >
+        <Header title="신탁 설정 변경" showBackButton />
+
+        <section className="px-6 pt-8">
+          <ProgressBar step={3} />
+          <div className="mt-12 text-[14px] text-[#9CA3AF]">
+            현재 신탁 정보를 찾을 수 없어요.
+          </div>
+        </section>
+      </TrustStepLayout>
+    );
+  }
 
   return (
     <TrustStepLayout
@@ -88,7 +227,7 @@ export default function ChangeUsagePage() {
           <div className="mt-4 flex justify-center">
             <AlertBanner
               variant="info"
-              message="선택지에 병원비 계산 결과가 반영되었어요"
+              message="현재 설정된 사용처 기준으로 불러왔어요"
             />
           </div>
         </div>
@@ -112,12 +251,13 @@ export default function ChangeUsagePage() {
                 <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
                   {item.title}
                 </p>
+
                 <p
                   className={`text-[16px] leading-6 font-medium tracking-tight ${
                     isSelected ? 'text-hana-ez-600' : 'text-[#1F2937]'
                   }`}
                 >
-                  {item.amount}
+                  월 {formatKoreanAmount(item.amount)}
                 </p>
               </button>
             );
@@ -135,6 +275,12 @@ export default function ChangeUsagePage() {
               </span>
             </div>
           </div>
+        )}
+
+        {submitError && (
+          <p className="mt-4 text-[14px] leading-5 text-[#EF4444]">
+            {submitError}
+          </p>
         )}
       </section>
     </TrustStepLayout>

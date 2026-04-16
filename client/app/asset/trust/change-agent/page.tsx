@@ -23,16 +23,21 @@ export default function ChangeAgentPage() {
   const [openPermission, setOpenPermission] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchProductSummary = async () => {
       try {
         setIsLoading(true);
+        setError(null);
+
         const data = await getTrustProductSummary();
         setProductDetail(data);
         setOpenPermission(data?.agentViewEnabled ?? true);
       } catch (error) {
         console.error('신탁 운용 현황 조회 실패', error);
+        setError('신탁 정보를 불러오지 못했어요.');
         setProductDetail(null);
       } finally {
         setIsLoading(false);
@@ -43,6 +48,8 @@ export default function ChangeAgentPage() {
   }, []);
 
   const handleSubmit = () => {
+    setSubmitError(null);
+
     startTransition(async () => {
       try {
         await updateTrustAgentView({
@@ -52,9 +59,40 @@ export default function ChangeAgentPage() {
         router.push('/asset/trust/dashboard');
       } catch (error) {
         console.error('신탁 현황 열람 권한 수정 실패', error);
+        setSubmitError('저장에 실패했어요. 다시 시도해주세요.');
       }
     });
   };
+
+  if (error) {
+    return (
+      <TrustStepLayout
+        footer={
+          <footer className="shrink-0 bg-white px-6 py-4">
+            <PrimaryButton
+              label="다시 시도"
+              className="h-14 rounded-2xl text-[16px]"
+              onClick={() => window.location.reload()}
+            />
+          </footer>
+        }
+      >
+        <Header title="신탁 설정 변경" showBackButton />
+        <section className="px-6 pt-8">
+          <ProgressBar step={6} />
+
+          <div className="mt-14">
+            <h2 className="text-[22px] font-bold text-black">
+              불러오기에 실패했어요
+            </h2>
+            <p className="mt-4 text-[14px] text-[#6A7282]">
+              네트워크 상태를 확인하고 다시 시도해주세요.
+            </p>
+          </div>
+        </section>
+      </TrustStepLayout>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -191,6 +229,9 @@ export default function ChangeAgentPage() {
             </div>
           </div>
         </div>
+        {submitError && (
+          <p className="mt-4 text-[14px] text-red-500">{submitError}</p>
+        )}
       </section>
     </TrustStepLayout>
   );

@@ -27,16 +27,39 @@ export default function SelectAgentStep() {
       .then((list) => {
         const filtered = list.filter((item) => !item.isMe);
         setFamilyList(filtered);
+
+        setSelected((prevSelected) => {
+          if (!prevSelected) return null;
+
+          const isValidSelected = filtered.some(
+            (item) => String(item.userId) === prevSelected,
+          );
+
+          return isValidSelected ? prevSelected : null;
+        });
       })
       .finally(() => setIsLoading(false));
   }, []);
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const handleSubmit = (agentId: string | null) => {
-    setSelectedAgent(agentId);
+    const validAgentId =
+      agentId && familyList.some((item) => String(item.userId) === agentId)
+        ? agentId
+        : null;
+
+    setSelectedAgent(validAgentId);
+    setErrorMessage(null);
 
     startTransition(async () => {
-      await saveTrustSimulation({ ...form, selectedAgent: agentId });
-      router.push('/asset/trust/result');
+      try {
+        await saveTrustSimulation({ ...form, selectedAgent: validAgentId });
+        router.push('/asset/trust/result');
+      } catch (error) {
+        console.error('시뮬레이션 저장 실패', error);
+        setErrorMessage('설계 결과를 저장하지 못했어요. 다시 시도해주세요.');
+      }
     });
   };
 
@@ -53,9 +76,8 @@ export default function SelectAgentStep() {
         />
       }
     >
-      {/* 제목 */}
       <div className="mt-12">
-        <h2 className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
+        <h2 className="font-bold text-[22px] leading-[1.45] tracking-tight text-black">
           지급청구대리인을
           <br />
           지정해주세요
@@ -66,7 +88,6 @@ export default function SelectAgentStep() {
         </p>
       </div>
 
-      {/* 리스트 */}
       <div
         className="mt-10 flex flex-col gap-5"
         role="radiogroup"
@@ -93,12 +114,10 @@ export default function SelectAgentStep() {
                   : 'border border-[#F2F3F5] bg-white'
               }`}
             >
-              {/* 이니셜 */}
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E9F8F9] text-[20px] font-semibold text-hana-ez-600">
                 {member.name?.charAt(0)}
               </div>
 
-              {/* 이름 + 관계 */}
               <div className="ml-5 flex items-center gap-3">
                 <p className="text-[16px] font-semibold text-black">
                   {member.name}
@@ -113,7 +132,12 @@ export default function SelectAgentStep() {
         })}
       </div>
 
-      {/* 설명 */}
+      {errorMessage && (
+        <p className="mt-4 text-[14px] leading-5 text-[#EF4444]">
+          {errorMessage}
+        </p>
+      )}
+
       <InfoBox
         title="지급청구대리인이란?"
         desc={`본인이 자산 관리를 하지 못할 때,\n사전 지정한 대리인이 관리할 수 있어요.`}

@@ -47,10 +47,16 @@ function ProfitBarChart({
   selectedLabel: string;
   onSelect: (label: string) => void;
 }) {
-  const maxTotal = Math.max(
-    ...amountResults.map((e) => e.principalAmount + e.expectedProfit),
-  );
-  const yMax = Math.ceil(maxTotal / 100_000_000) * 100_000_000;
+  const maxTotal =
+    amountResults.length > 0
+      ? Math.max(
+          ...amountResults.map((e) => e.principalAmount + e.expectedProfit),
+        )
+      : 0;
+  const yMax =
+    maxTotal > 0
+      ? Math.ceil(maxTotal / 100_000_000) * 100_000_000
+      : 100_000_000;
 
   return (
     <ResponsiveContainer width="100%" height={180}>

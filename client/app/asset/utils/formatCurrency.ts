@@ -20,7 +20,7 @@ export function formatKoreanCurrency(amount: number): string {
   }
 
   // 만원 미만 처리
-  if (remaining > 0 && result === '') {
+  if (remaining > 0) {
     result += remaining.toLocaleString();
   }
 

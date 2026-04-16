@@ -37,19 +37,12 @@ export function ProductStatusCard({
 }: Props) {
   const router = useRouter();
   const isTrust = type === 'trust';
+  const isPension = type === 'pension';
   const title = isTrust ? '내맘대로신탁' : '주택연금';
   const Icon = isTrust ? CircleDollarSign : Home;
   const isActive = status === 'active';
   const isRecommend = status === 'recommend';
   const isDesigned = status === 'designed';
-
-  console.log('ProductStatusCard', {
-    type,
-    status,
-    isLoading,
-    productSummary,
-    simulationSummary,
-  });
 
   const handleNavigation = () => {
     if (onAction) {
@@ -206,6 +199,98 @@ export function ProductStatusCard({
             <span className="font-semibold text-red-500">
               {formatKoreanCurrency(simulationSummary.expectedProfit ?? 0)}
             </span>
+          </p>
+        </div>
+
+        <button
+          onClick={handleNavigation}
+          className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700"
+        >
+          상담 예약하기
+        </button>
+      </div>
+    );
+  }
+
+  if (isPension && isActive) {
+    return (
+      <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F9F9]">
+              <Icon size={20} className="text-hana-ez-600" />
+            </div>
+            <span className="text-[17px] font-bold text-[#1F2937]">
+              {title}
+            </span>
+          </div>
+
+          <span className="rounded-full bg-[#E9F0FF] px-5 py-1.5 text-[14px] font-bold text-[#4F80FF]">
+            운용중
+          </span>
+        </div>
+
+        <p className="mb-1 text-[15px] font-semibold text-hana-ez-600">
+          이번달 수령액
+        </p>
+
+        <div className="flex items-baseline gap-2">
+          <span className="text-[28px] font-extrabold text-black">300만원</span>
+        </div>
+
+        <div className="mt-2 flex gap-4 text-[15px] text-hana-black-800">
+          <p>
+            수령 방식 · <span className="font-semibold text-black">정액형</span>
+          </p>
+          <p>
+            누적 수령 ·{' '}
+            <span className="font-semibold text-red-500">3,600만원</span>
+          </p>
+        </div>
+
+        <button
+          onClick={handleNavigation}
+          className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700"
+        >
+          상세 보기
+        </button>
+      </div>
+    );
+  }
+
+  if (isPension && isDesigned) {
+    return (
+      <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F9F9]">
+              <Icon size={20} className="text-hana-ez-600" />
+            </div>
+            <span className="text-[17px] font-bold text-[#1F2937]">
+              {title}
+            </span>
+          </div>
+
+          <span className="rounded-full bg-[#FFF9E9] px-5 py-1.5 text-[14px] font-bold text-[#FFA800]">
+            설계완료
+          </span>
+        </div>
+
+        <p className="mb-1 text-[15px] font-semibold text-hana-ez-600">
+          20년 후 누적 수령액
+        </p>
+
+        <div className="flex items-baseline gap-2">
+          <span className="text-[28px] font-extrabold text-black">4.9억</span>
+        </div>
+
+        <div className="mt-2 flex gap-4 text-[15px] text-hana-black-800">
+          <p>
+            수령 방식 · <span className="font-semibold text-black">정액형</span>
+          </p>
+          <p>
+            월 수령 ·{' '}
+            <span className="font-semibold text-red-500">300만원</span>
           </p>
         </div>
 

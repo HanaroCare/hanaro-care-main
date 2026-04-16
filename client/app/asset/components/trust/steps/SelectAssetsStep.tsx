@@ -3,14 +3,29 @@ import {
   getFinancialAssets,
   getInsuranceAssets,
 } from '@/app/asset/actions/asset';
-import SelectAssetsStepClient, { type AssetItem } from './SelectAssetsStepClient';
+import SelectAssetsStepClient, {
+  type AssetItem,
+} from './SelectAssetsStepClient';
 
 export default async function SelectAssetsStep() {
-  const [financialAssets, insuranceAssets, dashboard] = await Promise.all([
-    getFinancialAssets().catch(() => []),
-    getInsuranceAssets().catch(() => []),
-    getAssetDashboard().catch(() => null),
-  ]);
+  const [financialAssetsResult, insuranceAssetsResult, dashboardResult] =
+    await Promise.allSettled([
+      getFinancialAssets(),
+      getInsuranceAssets(),
+      getAssetDashboard(),
+    ]);
+
+  if (
+    financialAssetsResult.status === 'rejected' ||
+    insuranceAssetsResult.status === 'rejected' ||
+    dashboardResult.status === 'rejected'
+  ) {
+    return <SelectAssetsStepClient items={[]} /* hasLoadError */ />;
+  }
+
+  const financialAssets = financialAssetsResult.value;
+  const insuranceAssets = insuranceAssetsResult.value;
+  const dashboard = dashboardResult.value;
 
   const cashAmount = financialAssets
     .filter((a) => a.assetCateCd === 'CASH')
