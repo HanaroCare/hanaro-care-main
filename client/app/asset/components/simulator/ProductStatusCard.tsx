@@ -18,10 +18,10 @@ interface Props {
   onAction?: () => void;
   isLoading?: boolean;
   ownerLabel?: string;
-  simulationSummary?: TrustSimulationSummary | null; // 신탁용
-  productSummary?: TrustProductDetail | null; // 신탁용
-  pensionSimulationSummary?: any | null; // 주택연금 설계용
-  pensionProductSummary?: any | null; // 주택연금 운용용
+  simulationSummary?: TrustSimulationSummary | null;
+  productSummary?: TrustProductDetail | null;
+  pensionSimulationSummary?: any | null;
+  pensionProductSummary?: any | null;
 }
 
 function formatRate(value?: number) {
@@ -67,7 +67,6 @@ export function ProductStatusCard({
     }
   };
 
-  // 1. 로딩 상태
   if (isLoading) {
     return (
       <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
@@ -78,7 +77,6 @@ export function ProductStatusCard({
     );
   }
 
-  // 2. 운용중 상태 (Active)
   if (isActive) {
     const displayData = isTrust ? productSummary : pensionProductSummary;
     if (!displayData) return null;
@@ -168,7 +166,6 @@ export function ProductStatusCard({
     );
   }
 
-  // 3. 설계완료 상태 (Designed)
   if (isDesigned) {
     const simData = isTrust ? simulationSummary : pensionSimulationSummary;
     if (!simData) return null;
@@ -259,7 +256,6 @@ export function ProductStatusCard({
     );
   }
 
-  // 4. 추천 상태 (Recommend)
   return (
     <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-center justify-between">

@@ -16,7 +16,7 @@ export default function SelectAgentStep() {
   const router = useRouter();
   const { form, setSelectedAgent } = useTrustForm();
 
-  const [selected, setSelected] = useState<string | null>(form.selectedAgent);
+  const [selected, setSelected] = useState<number | null>(form.selectedAgent);
   const [isPending, startTransition] = useTransition();
 
   const [familyList, setFamilyList] = useState<FamilyMember[]>([]);
@@ -29,10 +29,10 @@ export default function SelectAgentStep() {
         setFamilyList(filtered);
 
         setSelected((prevSelected) => {
-          if (!prevSelected) return null;
+          if (prevSelected == null) return null;
 
           const isValidSelected = filtered.some(
-            (item) => String(item.userId) === prevSelected,
+            (item) => item.userId === prevSelected,
           );
 
           return isValidSelected ? prevSelected : null;
@@ -43,9 +43,9 @@ export default function SelectAgentStep() {
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleSubmit = (agentId: string | null) => {
+  const handleSubmit = (agentId: number | null) => {
     const validAgentId =
-      agentId && familyList.some((item) => String(item.userId) === agentId)
+      agentId != null && familyList.some((item) => item.userId === agentId)
         ? agentId
         : null;
 
@@ -101,14 +101,14 @@ export default function SelectAgentStep() {
         )}
 
         {familyList.map((member) => {
-          const isSelected = selected === String(member.userId);
+          const isSelected = selected === member.userId;
 
           return (
             <button
               key={member.userId}
               type="button"
               aria-pressed={isSelected}
-              onClick={() => setSelected(String(member.userId))}
+              onClick={() => setSelected(member.userId)}
               className={`flex items-center rounded-[28px] px-6 py-5 text-left shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition ${
                 isSelected
                   ? 'border border-hana-ez-600 bg-[#F5FFFE]'
