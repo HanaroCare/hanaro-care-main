@@ -1,6 +1,6 @@
 'use client';
 
-import { Building2, Home, Hospital } from 'lucide-react';
+import { Building2, Home, Hospital, Star } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { CareMethodCard } from './CareMethodCard';
 
@@ -12,6 +12,12 @@ type CareMethod = {
 };
 
 const CARE_METHODS: CareMethod[] = [
+  {
+    id: 'home-care',
+    title: '재가요양',
+    subtitle: '살던 집에서 받는 돌봄',
+    Icon: Home,
+  },
   {
     id: 'nursing-home',
     title: '요양원',
@@ -25,10 +31,10 @@ const CARE_METHODS: CareMethod[] = [
     Icon: Hospital,
   },
   {
-    id: 'home-care',
-    title: '재가요양',
-    subtitle: '살던 집에서 받는 돌봄',
-    Icon: Home,
+    id: 'premium',
+    title: '프리미엄 요양시설',
+    subtitle: '하나은행 운영 프리미엄 시설',
+    Icon: Star,
   },
 ];
 
@@ -38,7 +44,7 @@ type CareMethodSelectorProps = {
 };
 
 export function CareMethodSelector({ value, onChange }: CareMethodSelectorProps) {
-  const [selectedId, setSelectedId] = useState<string>(value || 'nursing-home');
+  const [selectedId, setSelectedId] = useState<string>(value || 'home-care');
 
   useEffect(() => {
     if (value !== undefined) {
