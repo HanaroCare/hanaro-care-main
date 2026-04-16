@@ -92,7 +92,7 @@ export default function Step3SelectPermissions({
         {/* Permission list */}
         <div className="mt-6 space-y-3">
           {permissions.map(
-            ({ id, icon: Icon, title, desc, color, iconColor }, index) => {
+            ({ icon: Icon, title, desc, color, iconColor }, index) => {
               // data.permissions[0], [1]... 의 true/false 여부 확인
               const selected = data.permissions[index];
 

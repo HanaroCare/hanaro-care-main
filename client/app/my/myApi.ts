@@ -10,6 +10,12 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
+type ApiResponse<T> = {
+  isSuccess: boolean;
+  result: T;
+  message?: string;
+};
+
 /**
  * 1. 타입 정의 (백엔드 DTO 매칭)
  */
@@ -37,6 +43,11 @@ export interface InsuranceDto {
   username: string;
 }
 
+export interface InsuranceListResponseDto {
+  insurances: InsuranceDto[];
+  isInsAgent: boolean;
+}
+
 // 보험 상세 정보
 export interface InsuranceDetailDto {
   insuranceDto: InsuranceDto;
@@ -47,40 +58,55 @@ export interface InsuranceDetailDto {
  * 2. API 객체 선언
  */
 export const myhanaApi = {
+  // 사용자 이름 조회
+  getUser: async () => {
+    const response = await apiClient.get<ApiResponse<string>>(
+      '/api/myhana/family/me',
+    );
+    return response.data.result;
+  },
+
   // 후견인 가족 조회
   getFamily: async () => {
-    const response = await apiClient.get<FamilySummaryDto[]>(
-      '/myhana/inheritance/family',
+    const response = await apiClient.get<ApiResponse<FamilySummaryDto[]>>(
+      '/api/myhana/guardian/family',
     );
-    return response.data;
+    console.log(response.data);
+    return response.data.result;
   },
 
   // 보험 목록 조회 (나 + 공유 허락한 유저)
   getInsurances: async () => {
-    const response = await apiClient.get<InsuranceDto[]>('/myhana/insurance');
-    return response.data;
+    const response = await apiClient.get<ApiResponse<InsuranceListResponseDto>>(
+      '/api/myhana/insurances',
+    );
+    return response.data.result;
   },
 
   // 보험 상세 조회
   getInsuranceDetail: async (insuranceId: number | string) => {
-    const response = await apiClient.get<InsuranceDetailDto>(
-      `/myhana/insurance/${insuranceId}`,
+    const response = await apiClient.get<ApiResponse<InsuranceDetailDto>>(
+      `/api/myhana/insurances/${insuranceId}`,
     );
-    return response.data;
+    return response.data.result;
   },
 
   // 임의후견인 계약서 생성 및 다운로드
   downloadContract: async (dto: ContractDto) => {
     console.log(dto);
-    const response = await apiClient.post('/myhana/inheritance/contract', dto, {
-      responseType: 'blob', // 파일 다운로드를 위해 blob 설정 필수
-    });
+    const response = await apiClient.post(
+      '/api/myhana/guardian/contract',
+      dto,
+      {
+        responseType: 'blob', // 파일 다운로드를 위해 blob 설정 필수
+      },
+    );
 
     // 파일 다운로드 처리 로직
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `contract_${dto.userName}.docx`);
+    link.setAttribute('download', `contract.docx`);
     document.body.appendChild(link);
     link.click();
     link.remove();

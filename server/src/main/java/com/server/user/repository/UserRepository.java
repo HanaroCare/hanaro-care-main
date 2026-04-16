@@ -28,4 +28,7 @@ public interface UserRepository extends JpaRepository<TBUser, Long> {
 
   @Query("SELECT u.userPhone FROM TBUser u WHERE u.userId = :userId")
   String findUserPhoneByUserId(Long userId);
+
+  @Query("SELECT u.userNm FROM TBUser u WHERE u.userId = :userId")
+  String findUserNmById(Long userId);
 }

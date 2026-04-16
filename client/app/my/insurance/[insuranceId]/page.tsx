@@ -3,7 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { type InsuranceDetailDto, myhanaApi } from '@/app/my/myApi';
-import InsuranceLogo from '../constants/InsuranceLogo';
+import InsuranceLogo from '../components/InsuranceLogo';
 
 const DETAIL_ROWS = [
   { label: '보험사', key: 'instNm', isNested: true },

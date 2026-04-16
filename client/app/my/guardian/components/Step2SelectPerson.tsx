@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { myhanaApi } from '@/app/my/myApi';
+import { type FamilySummaryDto, myhanaApi } from '@/app/my/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import type { GuardianData } from '../types';
 
@@ -31,10 +31,10 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
   });
 
   // 2. 가족 선택 시 실행될 함수 (컴포넌트 내부에 위치)
-  const handleSelect = (person: any) => {
+  const handleSelect = (person: FamilySummaryDto) => {
     onChange({
-      selectedPerson: person, // 이제 id가 아니라 객체 전체 {name, phoneNumber, relationCd}를 저장
-      relationship: person.relationCd, // 백엔드 Enum에서 온 값(예: "자녀")으로 자동 세팅
+      selectedPerson: person,
+      relationship: person.relationCd,
     });
   };
 

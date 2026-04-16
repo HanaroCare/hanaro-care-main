@@ -91,4 +91,8 @@ public class MyHanaFamilyService {
 
     familyAuth.setIsInsView(request.getIsInsView());
   }
+
+  public String getUser(Long userId) {
+    return userRepository.findUserNmById(userId);
+  }
 }

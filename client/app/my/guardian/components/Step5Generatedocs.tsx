@@ -1,7 +1,7 @@
 'use client';
 
 import { FileText } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { myhanaApi } from '@/app/my/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
@@ -9,6 +9,7 @@ import type { GuardianData } from '../types';
 
 type Props = {
   data: GuardianData;
+
   onNext: () => void;
   goTo: (step: number) => void;
 };
@@ -24,10 +25,24 @@ const PERMISSION_NAMES = [
 
 export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [userName, setUserName] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const name = await myhanaApi.getUser();
+        setUserName(name);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    fetchUser();
+  }, []);
 
   // 1. 데이터 요약 표시용 가공
-  const guardianName = data.selectedPerson?.name || '-';
 
+  const guardianName = data.selectedPerson?.name || '-';
   // true인 권한들만 필터링해서 텍스트로 결합
   const selectedPermissionLabels = data.permissions
     .map((checked, i) => (checked ? PERMISSION_NAMES[i] : null))
@@ -41,8 +56,6 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
 
       // 백엔드 ContractDto 규격에 맞게 조립
       await myhanaApi.downloadContract({
-        userName: data.userName,
-        userPhone: data.userPhone,
         guardianName: guardianName,
         guardianRelation: data.relationship,
         permission: data.permissions, // [true, false, ...] boolean[5]
@@ -89,7 +102,7 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
                 value: selectedPermissionLabels || '선택 없음',
                 accent: true,
               },
-              { label: '본인', value: data.userName, accent: false },
+              { label: '본인', value: userName, accent: false },
               {
                 label: '등록일',
                 value: new Date().toLocaleDateString(),

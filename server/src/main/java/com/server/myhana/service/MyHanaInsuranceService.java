@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class InsuranceService {
+public class MyHanaInsuranceService {
 
   private final FamilyAuthRepository familyAuthRepository;
   private final AccountRepository accountRepository;
@@ -82,5 +82,10 @@ public class InsuranceService {
         .contrDt(account.getContrDt())
         .expireDt(account.getExpireDt())
         .build();
+  }
+
+  @CheckUser(key = "#userId")
+  public Boolean isInsAgent(Long userId) {
+    return familyAuthRepository.existsIsProxyClaimsByGrantee_UserId(userId);
   }
 }

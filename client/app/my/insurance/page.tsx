@@ -7,13 +7,13 @@ import { BannerCard } from '@/app/asset/components/notification/BannerCard';
 import { type InsuranceDto, myhanaApi } from '@/app/my/myApi'; // API와 타입 임포트
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import InsuranceCard from './components/InsuranceCard';
-import { isDesignated, viewMode } from './constants/data';
 
 export default function MyFamilyInsurancePage() {
   const router = useRouter();
 
   // 1. 보험 목록을 담을 상태 추가
   const [insuranceList, setInsuranceList] = useState<InsuranceDto[]>([]);
+  const [isInsAgent, setInsAgent] = useState<boolean>();
   const [loading, setLoading] = useState(true);
 
   // 2. 마운트 시 데이터 호출
@@ -21,8 +21,10 @@ export default function MyFamilyInsurancePage() {
     const fetchInsurances = async () => {
       try {
         setLoading(true);
-        const data = await myhanaApi.getInsurances(); // GET /api/insurance 호출
-        setInsuranceList(data);
+        const data = await myhanaApi.getInsurances();
+
+        setInsuranceList(data.insurances);
+        setInsAgent(data.isInsAgent);
       } catch (error) {
         console.error('보험 목록 로드 실패:', error);
       } finally {
@@ -33,25 +35,22 @@ export default function MyFamilyInsurancePage() {
     fetchInsurances();
   }, []);
 
+  console.log(insuranceList);
+
   return (
-    <div className="mb-10 flex flex-col">
+    <div className="mb-10 flex min-h-[calc(100vh-180px)] flex-col">
       <div className="flex-1 space-y-3 pb-4">
-        {!isDesignated ? (
+        {isInsAgent ? (
           <div className="mt-4">
             <BannerCard
               title={<>미청구 보험금이{'\n'}전국에 10조원 쌓여있어요</>}
               buttonText="부모님의 숨은 보험금 조회하기"
-              imageSrc={
-                viewMode === 'GRANTEE'
-                  ? '/images/my/insurance/childrenImage.svg'
-                  : '/images/my/insurance/parentImage.svg'
-              }
-              // href 오타 수정
-              href="/my/insurance/find"
+              imageSrc="/images/my/insurance/childrenImage.svg"
+              href="https://cont.insure.or.kr/cont_web/intro.do"
             />
           </div>
         ) : (
-          <div className="mb-7">
+          <div className="mt-7 mb-7">
             <AlertBanner
               actionText="인증하기"
               onActionAction={() => {}}
@@ -73,9 +72,7 @@ export default function MyFamilyInsurancePage() {
 
         {/* 섹션 라벨 */}
         <div className="flex items-center gap-2 pt-1">
-          <div
-            className={`${viewMode === 'GRANTEE' ? 'bg-teal-500' : ''} h-2.5 w-2.5 rounded-full`}
-          />
+          <div className={`h-2.5 w-2.5 rounded-full bg-teal-500`} />
           <span className="font-semibold text-gray-800 text-sm">가족 보험</span>
         </div>
 

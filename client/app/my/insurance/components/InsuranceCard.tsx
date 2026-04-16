@@ -1,7 +1,6 @@
 import { ChevronRight } from 'lucide-react';
 import type { InsuranceDto } from '../../myApi';
-import { viewMode } from '../constants/data';
-import InsuranceLogo from '../constants/InsuranceLogo';
+import InsuranceLogo from './InsuranceLogo';
 
 interface InsuranceCardProps {
   item: InsuranceDto;
@@ -25,12 +24,9 @@ export default function InsuranceCard({ item, onClick }: InsuranceCardProps) {
           {item.accountNm}
         </p>
 
-        {/* 후견인 모드일 때 해당 유저의 이름 표시 */}
-        {viewMode === 'GRANTEE' && (
-          <p className="mt-0.5 font-medium text-hana-ez-600 text-xs">
-            {item.username}님의 보험
-          </p>
-        )}
+        <p className="mt-0.5 font-medium text-hana-ez-600 text-xs">
+          {item.username}님의 보험
+        </p>
 
         {/* item.monthlyPremium -> item.monthlyPremAmt (월 보험료) */}
         <p className="mt-0.5 text-gray-500 text-xs">
