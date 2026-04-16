@@ -24,7 +24,7 @@ export function PensionCard({
 		{ name: "퇴직연금", amount: 800000 },
 		{ name: "개인연금", amount: 200000 },
 	],
-								href = "/card"
+								href = "/asset"
 }: PensionCardProps) {
 	const router = useRouter();
 

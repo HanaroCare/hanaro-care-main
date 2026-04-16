@@ -120,7 +120,6 @@ export default async function Home() {
           />
       )}
 
-      {/* PensionCard와 MedicalBillCard를 Link로 감쌉니다. */}
       {activeBanner?.type === 'pension' && (
             <PensionCard
                 totalAmount={activeBanner.totalAmount}

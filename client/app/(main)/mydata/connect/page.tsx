@@ -78,7 +78,7 @@ export default function MyDataConnectPage() {
                   footer={
                     <PrimaryButton
                       label="확인하기"
-                      onClick={() => router.push('/mydata/main')}
+                      onClick={() => router.push('/asset')}
                     />
                   }
                 >
