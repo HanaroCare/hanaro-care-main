@@ -30,50 +30,16 @@ INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE,
                      IS_HANA_CERT, USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT,
                      PWD_CHANGED_AT, USER_ADDR)
 VALUES
-    -- 1. 홍길동: 일반 비밀번호 유저 (자산가, 시뮬레이션 주 대상)
-    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(),
-     '서울특별시 강남구 역삼동 123-45'),
-
-    -- 2. 김철수: 간편 비밀번호 유저
-    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2',
-     '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL),
-
-    -- 3. 이영희: 휴면 계정 (연금 미연동 시나리오)
-    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER',
-     DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH), NULL),
-
-    -- 4. 박관리: 관리자 계정
-    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW(), NULL),
-
-    -- 5. 정순자: 시뮬레이션 테스트용 부모 유저
-    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(),
-     '서울특별시 마포구 공덕동 456-78'),
-
-    -- 6. 정민준: 시뮬레이션 테스트용 자녀 유저
-    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL);
-     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
-
-    -- 7. Tsid: 간편비밀번호(654321) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
-    (1007, 'Tsid', '하나테스터', '$2a$12$BYTWmmP4M2n/t2Fb/L.QnOejBuoHqILdK1syQ1rk62sfWBKtam9Ji',
-     '01012345678', 30, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW()),
-
-    -- 8. TsidZ: 패턴(Z모양: 0124678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
-    (1008, 'TsidZ', '패턴Z테스터', '$2a$12$1Sk8P7kehKkY933ANOAj1.AC52WVGH2/SB54gyil1Go.SMIm7IJKm',
-     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
-
-    -- 9. TsidL: 패턴(ㄴ모양: 03678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
-    (1009, 'TsidL', '패턴L테스터', '$2a$12$heAv.jDZ5PHLQ.fupN2e.uRIbjWd7o7PfYiTSkc5XFyDvXd7/jQ7q',
-     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
-
-    -- 10. 최장기: 비밀번호 변경한 지 1년 넘은 유저 (무조건 팝업 떠야 함)
-    (1010, 'oldUser', '고하나', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01099998888', 50, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(),
-     DATE_SUB(NOW(), INTERVAL 12 MONTH));
+    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(), '서울특별시 강남구 역삼동 123-45'),
+    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2', '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL),
+    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER', DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH), NULL),
+    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW(), NULL),
+    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(), '서울특별시 마포구 공덕동 456-78'),
+    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL),
+    (1007, 'Tsid', '하나테스터', '$2a$12$BYTWmmP4M2n/t2Fb/L.QnOejBuoHqILdK1syQ1rk62sfWBKtam9Ji', '01012345678', 30, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL),
+    (1008, 'TsidZ', '패턴Z테스터', '$2a$12$1Sk8P7kehKkY933ANOAj1.AC52WVGH2/SB54gyil1Go.SMIm7IJKm', '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW(), NULL),
+    (1009, 'TsidL', '패턴L테스터', '$2a$12$heAv.jDZ5PHLQ.fupN2e.uRIbjWd7o7PfYiTSkc5XFyDvXd7/jQ7q', '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW(), NULL),
+    (1010, 'oldUser', '고하나', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01099998888', 50, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), DATE_SUB(NOW(), INTERVAL 12 MONTH), NULL);
 -- ========================
 -- TB_PRODUCT
 -- ========================

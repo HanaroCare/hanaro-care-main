@@ -1,3 +1,5 @@
+'use client'
+
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { getAssetDashboard, getSimulationSummary } from './asset/actions/asset';
 import { getBannerStatus } from './asset/actions/notificationStatus';
@@ -8,6 +10,7 @@ import { InheritanceStepCard } from './asset/components/notification/Inheritance
 import { MedicalBillCard } from './asset/components/notification/MedicalBillCard';
 import { PensionCard } from './asset/components/notification/PensionCard';
 import { RealAssetCard } from './asset/components/RealAssetListCard';
+import {useRouter} from "next/navigation";
 
 // 배너 우선순위
 // Group 1 (최우선): 시뮬레이션
@@ -52,6 +55,7 @@ export default async function Home() {
   const hasLinkedMyData = assetData?.isMyDataLinked ?? false;
   const hasRegisteredRealAssets = (assetData?.realAssets?.length ?? 0) > 0;
   const hasLinkedAssets = hasLinkedMyData && hasRegisteredRealAssets;
+  const router = useRouter();
 
   const inheritanceStep = !hasLinkedAssets
     ? (1 as const)
@@ -102,7 +106,7 @@ export default async function Home() {
           title={<>내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?</>}
           buttonText="병원비 계산하기"
           imageSrc="/images/asset/medical.svg"
-          href="/simulator"
+          href="asset/simulator"
         />
       )}
 
@@ -128,6 +132,7 @@ export default async function Home() {
         <PensionCard
           totalAmount={activeBanner.totalAmount}
           items={activeBanner.items}
+          onClick={() => router.push('/asset')}
         />
       )}
 
@@ -135,6 +140,7 @@ export default async function Home() {
         <MedicalBillCard
           usedAmount={activeBanner.usedAmount}
           totalLimit={activeBanner.totalLimit}
+          onClick={() => router.push('/card')}
         />
       )}
 
@@ -156,7 +162,7 @@ export default async function Home() {
           title={<>내 집에 살면서{'\n'}매달 안정적인 생활비를 받아보세요</>}
           buttonText="주택연금 설계하기"
           imageSrc="/images/asset/housing-pension.svg"
-          // href="/asset/home-pension"
+          href="/asset/home-pension"
         />
       )}
       <AssetDashboard data={assetData} />

@@ -79,7 +79,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 type: 'property',
                 amount: formatKoreanCurrency(getRealSum('REAL_ESTATE')),
                 buttonLabel: '부동산 연동하기',
-                href: '/asset/housing' as Route,
+                href: '/mydata/house' as Route,
             },
             insurance: {
                 type: 'insurance',
@@ -89,19 +89,19 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         .reduce((sum, a) => sum + (a.balanceAmt ?? 0), 0)
                 ),
                 buttonLabel: '보험 연동하기',
-                href: '/asset/insurance' as Route,
+                href: '/mydata/connect' as Route,
             },
             car: {
                 type: 'car',
                 amount: formatKoreanCurrency(getRealSum('VEHICLE')),
                 buttonLabel: '자동차 연동하기',
-                href: '/asset/car' as Route,
+                href: '/mydata/car' as Route,
             },
             gold: {
                 type: 'gold',
                 amount: formatKoreanCurrency(getRealSum('GOLD')),
                 buttonLabel: '금 연동하기',
-                href: '/asset/gold' as Route,
+                href: '/mydata/car' as Route,
             },
         };
     }, [dashboardData, financialAssets, realAssets]);
