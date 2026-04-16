@@ -255,7 +255,8 @@ public class InheritanceService {
         switch (fa.assetCateCd()) {
           case CASH -> savings = savings.add(fa.totalBalance());
           case STOCK -> stocks = stocks.add(fa.totalBalance());
-          case PENSION -> pensions = pensions.add(fa.totalBalance());
+          case PENSION, PENSION_NATIONAL, PENSION_RETIRE, PENSION_PERSONAL ->
+              pensions = pensions.add(fa.totalBalance());
           default -> others = others.add(fa.totalBalance());
         }
       }

@@ -94,6 +94,14 @@ public class SimulationEngine {
         int targetAge = Math.max(currentAge + 1, input.getTargetAge());
         int startAge = Math.max(65, (currentAge / 5) * 5);
 
+        // 퇴직연금 + 개인연금 잔액을 시뮬레이션 기간 전체에 걸쳐 월할 분배
+        BigDecimal totalPrivatePensionBalance = input.getRetirementPensionBalance()
+            .add(input.getPersonalPensionBalance());
+        int remainingMonths = Math.max(1, (targetAge - currentAge) * 12);
+        BigDecimal baseMonthlyPrivatePension = totalPrivatePensionBalance.compareTo(BigDecimal.ZERO) > 0
+            ? totalPrivatePensionBalance.divide(new BigDecimal(remainingMonths), 0, RoundingMode.HALF_UP)
+            : BigDecimal.ZERO;
+
         List<SimulationDetailResponse.AgeSegment> segments = new ArrayList<>();
 
         // 복리 계산을 위한 성장률 정의 (1 + r)
@@ -106,8 +114,19 @@ public class SimulationEngine {
 
             int yearsFromNow = Math.max(0, segStart - currentAge);
 
-            BigDecimal segRetirement = (segStart < 75) ? new BigDecimal("1200000") :
-                (segStart < 80) ? new BigDecimal("600000") : BigDecimal.ZERO;
+            // 연동 데이터 있으면 실제 잔액 기반, 없으면 통계 추정치
+            BigDecimal segRetirement;
+            if (baseMonthlyPrivatePension.compareTo(BigDecimal.ZERO) > 0) {
+                // 퇴직연금은 시간이 지날수록 소진: 75세 이후 50%, 80세 이후 0
+                double drawdownFactor = segStart < 75 ? 1.0 : segStart < 80 ? 0.5 : 0.0;
+                segRetirement = baseMonthlyPrivatePension
+                    .multiply(BigDecimal.valueOf(drawdownFactor))
+                    .setScale(0, RoundingMode.HALF_UP);
+            } else {
+                // 연동 없음: 통계 기반 추정치
+                segRetirement = (segStart < 75) ? new BigDecimal("1200000") :
+                    (segStart < 80) ? new BigDecimal("600000") : BigDecimal.ZERO;
+            }
             BigDecimal segIncome = pension.add(segRetirement).add(localSubsidy);
 
             BigDecimal livingFactor = BigDecimal.valueOf(Math.pow(wageGrowthRate, yearsFromNow));
