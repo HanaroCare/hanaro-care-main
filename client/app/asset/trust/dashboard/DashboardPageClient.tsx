@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import {
   getFamilyTrustDetail,
-  getTrustProductSummary,
+  getTrustProduct,
   type TrustProductDetail,
 } from '@/app/asset/actions/trust';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -38,7 +38,7 @@ export default function DashboardPageClient({
           const data = await getFamilyTrustDetail(Number(grantorId));
           setDetail(data);
         } else {
-          const data = await getTrustProductSummary();
+          const data = await getTrustProduct();
           setDetail(data);
         }
       } catch (error) {

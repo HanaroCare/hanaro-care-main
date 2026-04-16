@@ -23,7 +23,6 @@ public final class TrustCalculator {
     return resolved == InvestType.LUMP_SUM ? MANAGED_ANNUAL_RATE : SELF_ANNUAL_RATE;
   }
 
-  // 신탁 설계(시뮬레이션) 상세 계산
   public static SimulationDetailDto calculateDetail(BigDecimal principal, BigDecimal annualRate) {
     BigDecimal profit    = calculateProfit(principal, annualRate, DEFAULT_PERIOD_YEARS);
     BigDecimal tax       = profit.multiply(TAX_RATE).setScale(0, RoundingMode.DOWN);
@@ -46,12 +45,10 @@ public final class TrustCalculator {
         .setScale(0, RoundingMode.DOWN);
   }
 
-  //월별 집행 예정 금액 합계 (병원비 + 생활비)
   public static BigDecimal calculateMonthlyTotal(BigDecimal hospitalAmount, BigDecimal livingAmount) {
     return defaultIfNull(hospitalAmount).add(defaultIfNull(livingAmount));
   }
 
-  //가입일로부터 현재까지 경과 월수 (시작월 포함)
   public static long calculateMonthsPassed(LocalDate startDate) {
     if (startDate == null) return 0;
     LocalDate today = LocalDate.now();
@@ -63,12 +60,10 @@ public final class TrustCalculator {
     return Math.max(months, 0);
   }
 
-  //총 누적 집행 금액 계산
   public static BigDecimal calculateTotalExecution(BigDecimal monthlyTotal, long monthsPassed) {
     return monthlyTotal.multiply(BigDecimal.valueOf(monthsPassed));
   }
 
-  //현재 총 자산
   public static BigDecimal calculateCurrentAmount(BigDecimal principal, BigDecimal profit) {
     return defaultIfNull(principal).add(defaultIfNull(profit));
   }

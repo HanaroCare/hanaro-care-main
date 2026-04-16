@@ -1,9 +1,12 @@
 'use client';
 
-import { Route } from 'next';
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
+import {
+  type OperationTypeValue,
+  useTrustForm,
+} from '@/app/asset/trust/TrustFormContext';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import TrustChoiceStep from '../TrustChoiceStep';
 import TrustWizardStep from '../TrustWizardStep';
@@ -42,8 +45,8 @@ const infoBoxByType: Record<OperationType, { title: string; desc: string }> = {
 export default function OperationTypeStep() {
   const router = useRouter();
   const { form, setOperationType } = useTrustForm();
-  const [selected, setSelected] = useState<OperationType>(
-    (form.operationType as OperationType) ?? 'managed',
+  const [selected, setSelected] = useState<OperationTypeValue>(
+    form.operationType,
   );
 
   const handleNext = () => {

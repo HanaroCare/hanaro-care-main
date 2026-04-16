@@ -35,11 +35,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class PensionStatusService {
 
+	private static final int PENSION_PAYOUT_DAY = 25;
+
 	private final UserProdRepository userProdRepository;
 	private final PensionSimulationRepository pensionSimulationRepository;
 	private final ObjectMapper objectMapper;
-
-	private static final int PENSION_PAYOUT_DAY = 25;
 
 	@CheckUser(key = "#userId")
 	public PensionStatusResponse getStatus(Long userId) {
@@ -53,16 +53,11 @@ public class PensionStatusService {
 		PensionPayoutYearlyDto floorEntry = floorEntry(ctx.yearlyData(), elapsedYear);
 		BigDecimal currentMonthlyPayout = floorEntry.getMonthlyAmount();
 
-		long extraMonths = Math.max(
-			0,
-			paidMonths - (long) (floorEntry.getYear() - 1) * 12
-		);
-
+		long extraMonths = Math.max(0, paidMonths - (long) (floorEntry.getYear() - 1) * 12);
 		BigDecimal currentCumulativeAmount =
 			calculateCumulativeAtMonth(ctx.yearlyData(), elapsedYear, extraMonths);
 
 		List<ChartPoint> chartPoints = new ArrayList<>();
-
 		chartPoints.add(ChartPoint.builder()
 			.year(elapsedYear)
 			.monthlyAmount(currentMonthlyPayout)
@@ -120,9 +115,7 @@ public class PensionStatusService {
 				.build());
 
 			cursor = cursor.plusMonths(1);
-			cursor = cursor.withDayOfMonth(
-				Math.min(PENSION_PAYOUT_DAY, cursor.lengthOfMonth())
-			);
+			cursor = cursor.withDayOfMonth(Math.min(PENSION_PAYOUT_DAY, cursor.lengthOfMonth()));
 		}
 
 		return PensionPayoutHistoryResponse.builder()
@@ -133,33 +126,42 @@ public class PensionStatusService {
 			.build();
 	}
 
-	// ── 공통 컨텍스트 로드 ───────────────────────────────────────────────────────
-
 	private record PensionContext(TBUserProd userProd, List<PensionPayoutYearlyDto> yearlyData) {}
 
 	private PensionContext loadContext(Long userId) {
-		TBUserProd userProd = userProdRepository
+		TBUserProd userProd = findSubscribedProduct(userId);
+		TBPensionSimulation simulation = findSimulation(userProd);
+		List<PensionPayoutYearlyDto> yearlyData = resolveYearlyData(simulation, userProd);
+
+		return new PensionContext(userProd, yearlyData);
+	}
+
+	private TBUserProd findSubscribedProduct(Long userId) {
+		return userProdRepository
 			.findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
 				userId,
 				ProdType.HOUSING_PENSION,
 				ProdStat.IN_PROGRESS
 			)
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_NOT_SUBSCRIBED));
+	}
 
-		TBPensionSimulation simulation = pensionSimulationRepository
+	private TBPensionSimulation findSimulation(TBUserProd userProd) {
+		return pensionSimulationRepository
 			.findByRealAsset_RealAssetId(userProd.getTargetAsset().getRealAssetId())
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND));
+	}
 
-		List<PensionPayoutYearlyDto> yearlyData = deserializePlans(simulation.getPlansJson()).stream()
+	private List<PensionPayoutYearlyDto> resolveYearlyData(
+		TBPensionSimulation simulation,
+		TBUserProd userProd
+	) {
+		return deserializePlans(simulation.getPlansJson()).stream()
 			.filter(p -> p.getType().equals(userProd.getPensionPayoutType().name()))
 			.findFirst()
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND))
 			.getYearlyData();
-
-		return new PensionContext(userProd, yearlyData);
 	}
-
-	// ── 유틸 ────────────────────────────────────────────────────────────────────
 
 	private LocalDate resolveBaseDate(TBUserProd userProd) {
 		if (userProd.getCreatedAt() != null) {
@@ -168,11 +170,11 @@ public class PensionStatusService {
 		return userProd.getStartDate();
 	}
 
-	private long calcPaidMonths(LocalDate baseDate) {
-		if (baseDate == null || baseDate.isAfter(LocalDate.now())) {
+	private long calcPaidMonths(LocalDate firstPayoutDate) {
+		if (firstPayoutDate == null || firstPayoutDate.isAfter(LocalDate.now())) {
 			return 0;
 		}
-		return ChronoUnit.MONTHS.between(baseDate, LocalDate.now()) + 1;
+		return ChronoUnit.MONTHS.between(firstPayoutDate, LocalDate.now()) + 1;
 	}
 
 	private int calcElapsedYear(long totalMonths) {
@@ -225,7 +227,6 @@ public class PensionStatusService {
 			Math.min(PENSION_PAYOUT_DAY, baseDate.lengthOfMonth())
 		);
 
-		// 가입일이 25일 이후면 다음 달 25일부터 지급
 		if (baseDate.isAfter(payoutDate)) {
 			LocalDate nextMonth = baseDate.plusMonths(1);
 			return nextMonth.withDayOfMonth(
