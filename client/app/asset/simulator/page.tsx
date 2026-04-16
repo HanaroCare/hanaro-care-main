@@ -90,9 +90,14 @@ export default function SimulatorPage() {
     setShowOnboarding(hasSeen !== 'true');
     setHasResult(completed === 'true');
 
-    getTrustFamilyGrantors().then((list) => {
-      setGrantors(list);
-    });
+    getTrustFamilyGrantors()
+      .then((list) => {
+        setGrantors(list);
+      })
+      .catch((error) => {
+        console.error('가족 신탁 권한 조회 실패:', error);
+        setGrantors([]);
+      });
   }, []);
 
   useEffect(() => {
@@ -108,6 +113,7 @@ export default function SimulatorPage() {
 
       try {
         setIsLoading(true);
+
         const summary = await getSimulationSummary();
         setSummaryData(summary);
 
@@ -133,6 +139,11 @@ export default function SimulatorPage() {
         setMyPensionSimulationSummary(pensionSim);
       } catch (err) {
         console.error('데이터 로드 실패:', err);
+        setMyTrustProductSummary(null);
+        setMyTrustSimulationSummary(null);
+        setMyPensionProductSummary(null);
+        setMyPensionSimulationSummary(null);
+        setMyPensionRealAssetId(null);
       } finally {
         setIsLoading(false);
       }
@@ -143,7 +154,12 @@ export default function SimulatorPage() {
 
   useEffect(() => {
     if (isParentMode && grantorId) {
-      getFamilyTrustDetail(grantorId).then(setParentTrustDetail);
+      getFamilyTrustDetail(grantorId)
+        .then(setParentTrustDetail)
+        .catch((error) => {
+          console.error('부모 신탁 상세 조회 실패:', error);
+          setParentTrustDetail(null);
+        });
     } else {
       setParentTrustDetail(null);
     }

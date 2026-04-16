@@ -1,5 +1,6 @@
 package com.server.asset.repository;
 
+import java.util.List;
 import java.util.Optional;
 import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.ProdCate;
@@ -18,4 +19,6 @@ public interface UserProdRepository extends JpaRepository<TBUserProd, Long> {
       ProdCate prodCate,
       ProdStat prodStat
   );
+
+  List<TBUserProd> findAllByProdTypeAndProdStat(ProdType prodType, ProdStat prodStat);
 }
