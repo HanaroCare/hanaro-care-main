@@ -160,10 +160,12 @@ export default async function Home() {
         />
       )}
       <AssetDashboard data={assetData} />
-      <MedicalBudgetCard
-        data={simulationData}
-        totalFinancialAmt={assetData?.totalFinancialAmt ?? 0}
-      />
+      {hasLinkedMyData && (
+        <MedicalBudgetCard
+          data={simulationData}
+          totalFinancialAmt={assetData?.totalFinancialAmt ?? 0}
+        />
+      )}
       <RealAssetCard data={assetData?.realAssets} />
 
 
