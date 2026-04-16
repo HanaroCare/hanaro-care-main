@@ -28,7 +28,7 @@ public interface FamilyAuthRepository extends JpaRepository<TBFamilyAuth, Long> 
   List<TBFamilyAuth> findAllByGrantee_UserId(Long granteeId);
 
   Boolean existsByGrantor_UserIdAndGrantee_UserId(Long grantorId, @NotNull Long granteeId);
-  
+
   List<TBFamilyAuth> findAllByGrantorUserId(Long userId);
 
   List<TBFamilyAuth> findAllByGrantee_UserIdAndIsInsView(Long userId, boolean isInsView);
@@ -36,7 +36,7 @@ public interface FamilyAuthRepository extends JpaRepository<TBFamilyAuth, Long> 
   Optional<TBFamilyAuth> findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(Long grantorId,
       Long granteeId, boolean isInsView);
 
-  Boolean existsByGrantee_UserIdAndIsProxyClaimsTrue(Long userId);
+  Boolean existsByGrantee_UserIdAndIsProxyClaimTrue(Long userId);
 
   List<TBFamilyAuth> findAllByGrantor_UserId(Long grantorId);
 
