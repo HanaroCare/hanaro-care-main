@@ -1,7 +1,7 @@
 'use server';
 
 import type { TrustFormState } from '@/app/asset/trust/TrustFormContext';
-import { serverFetch } from '@/lib/serverFetch';
+import { ServerFetchError, serverFetch } from '@/lib/serverFetch';
 
 type StartType = 'NOW' | 'SCHEDULED' | 'CUSTOM';
 type InvestType = 'LUMP_SUM' | 'DIRECT';
@@ -137,25 +137,35 @@ export type FamilyMember = {
 };
 
 export async function getTrustFamilyAccess(): Promise<TrustAccessItem[]> {
-  try {
-    const res = await serverFetch<{ accessList: TrustAccessItem[] }>(
-      '/api/asset/trust/family/access',
-    );
-    return res.accessList ?? [];
-  } catch {
-    return [];
-  }
+  const res = await serverFetch<{ accessList: TrustAccessItem[] }>(
+    '/api/asset/trust/family/access',
+  );
+  return res.accessList ?? [];
 }
 
 export async function getTrustSimulationResult(): Promise<TrustSimulationResultResponse | null> {
   try {
     return await serverFetch<TrustSimulationResultResponse>('/api/asset/trust');
-  } catch {
-    return null;
+  } catch (error) {
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['TRUST_001'],
+      })
+    ) {
+      return null;
+    }
+
+    throw error;
   }
 }
-
 export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
+  const startType = START_TYPE_MAP[form.startTiming ?? 'now'] ?? 'NOW';
+  const startDate = startType === 'CUSTOM' ? form.startDate : null;
+
+  if (startType === 'CUSTOM' && !startDate) {
+    throw new Error('Custom start date is required.');
+  }
   const payoutItems = form.payoutItems
     .filter((id) => PAYOUT_ITEM_TYPE[id])
     .map((id) => ({
@@ -168,8 +178,8 @@ export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
 
   const body: TrustSimulationRequest = {
     principalAmount: form.principalAmount,
-    startType: START_TYPE_MAP[form.startTiming ?? 'now'] ?? 'NOW',
-    startDate: form.startDate,
+    startType,
+    startDate,
     investType: INVEST_TYPE_MAP[form.operationType] ?? 'LUMP_SUM',
     payoutType: PAYOUT_TYPE_MAP[form.payoutType ?? 'free'] ?? 'FLEXIBLE',
     payoutSettings: payoutItems.length > 0 ? { items: payoutItems } : null,
@@ -183,14 +193,10 @@ export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
 }
 
 export async function getTrustFamilyGrantors(): Promise<TrustGrantorItem[]> {
-  try {
-    const res = await serverFetch<TrustGrantorResponse>(
-      '/api/asset/trust/family/grantors',
-    );
-    return res.grantors ?? [];
-  } catch {
-    return [];
-  }
+  const res = await serverFetch<TrustGrantorResponse>(
+    '/api/asset/trust/family/grantors',
+  );
+  return res.grantors ?? [];
 }
 
 export async function getFamilyTrustSummary(
@@ -200,8 +206,17 @@ export async function getFamilyTrustSummary(
     return await serverFetch<TrustSimulationSummary>(
       `/api/asset/trust/family/${grantorId}/summary`,
     );
-  } catch {
-    return null;
+  } catch (error) {
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['TRUST_001'],
+      })
+    ) {
+      return null;
+    }
+
+    throw error;
   }
 }
 
@@ -212,17 +227,22 @@ export async function getFamilyTrustDetail(
     return await serverFetch<TrustProductDetail>(
       `/api/asset/trust/family/${grantorId}/detail`,
     );
-  } catch {
-    return null;
+  } catch (error) {
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['ASSET_001'],
+      })
+    ) {
+      return null;
+    }
+
+    throw error;
   }
 }
 
 export async function getFamilyMembers(): Promise<FamilyMember[]> {
-  try {
-    return await serverFetch<FamilyMember[]>('/api/myhana/family');
-  } catch {
-    return [];
-  }
+  return serverFetch<FamilyMember[]>('/api/myhana/family');
 }
 
 export async function getTrustSimulationSummary(): Promise<TrustSimulationSummary | null> {
@@ -230,13 +250,31 @@ export async function getTrustSimulationSummary(): Promise<TrustSimulationSummar
     return await serverFetch<TrustSimulationSummary>(
       '/api/asset/trust/summary',
     );
-  } catch {
-    return null;
+  } catch (error) {
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['TRUST_001'],
+      })
+    ) {
+      return null;
+    }
+
+    throw error;
   }
 }
 
-export async function getTrustProductSummary(): Promise<TrustProductDetail> {
-  return serverFetch<TrustProductDetail>('/api/asset/trust/product/summary');
+export async function getTrustProductSummary(): Promise<TrustProductDetail | null> {
+  try {
+    return await serverFetch<TrustProductDetail>(
+      '/api/asset/trust/product/summary',
+    );
+  } catch (error) {
+    if (error instanceof ServerFetchError && error.status === 404) {
+      return null;
+    }
+    throw error;
+  }
 }
 
 export async function updateTrustPayoutSettings(
@@ -255,4 +293,27 @@ export async function updateTrustAgentView(
     method: 'PATCH',
     body: JSON.stringify(body),
   });
+}
+
+function isNoDataError(
+  error: unknown,
+  options?: {
+    statuses?: number[];
+    codes?: string[];
+  },
+): boolean {
+  if (!(error instanceof ServerFetchError)) return false;
+
+  const statuses = options?.statuses ?? [];
+  const codes = options?.codes ?? [];
+
+  if (typeof error.status === 'number' && statuses.includes(error.status)) {
+    return true;
+  }
+
+  if (error.code && codes.includes(error.code)) {
+    return true;
+  }
+
+  return false;
 }

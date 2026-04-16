@@ -15,14 +15,27 @@ type Props = {
   livingAmount: number;
 };
 
-export default function PayoutUseStepClient({ hospitalAmount, livingAmount }: Props) {
+export default function PayoutUseStepClient({
+  hospitalAmount,
+  livingAmount,
+}: Props) {
   const router = useRouter();
   const { form, setPayoutItems } = useTrustForm();
-  const [selected, setSelected] = useState<Set<string>>(new Set(form.payoutItems));
+  const [selected, setSelected] = useState<Set<string>>(
+    new Set(form.payoutItems),
+  );
 
   const items = [
-    { id: 'hospital', title: '병원비 자동 집행', amount: `월 ${formatKoreanAmount(hospitalAmount)}` },
-    { id: 'living', title: '생활비', amount: `월 ${formatKoreanAmount(livingAmount)}` },
+    {
+      id: 'hospital',
+      title: '병원비 자동 집행',
+      amount: `월 ${formatKoreanAmount(hospitalAmount)}`,
+    },
+    {
+      id: 'living',
+      title: '생활비',
+      amount: `월 ${formatKoreanAmount(livingAmount)}`,
+    },
   ];
 
   const toggle = (id: string) => {
@@ -42,7 +55,10 @@ export default function PayoutUseStepClient({ hospitalAmount, livingAmount }: Pr
 
   const handleNext = (withItems: boolean) => {
     const selectedItems = withItems ? Array.from(selected) : [];
-    const amounts: PayoutAmounts = { hospital: hospitalAmount, living: livingAmount };
+    const amounts: PayoutAmounts = {
+      hospital: hospitalAmount,
+      living: livingAmount,
+    };
     setPayoutItems(selectedItems, amounts);
     router.push('/asset/trust/select-agent');
   };

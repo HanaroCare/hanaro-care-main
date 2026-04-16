@@ -42,6 +42,14 @@ export default function ChangeUsagePage() {
         setError(null);
 
         const data = await getTrustProductSummary();
+
+        if (!data) {
+          setProductDetail(null);
+          setItems([]);
+          setSelected(new Set());
+          return;
+        }
+
         setProductDetail(data);
 
         if (!data.executionSetting) {

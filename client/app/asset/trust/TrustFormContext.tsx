@@ -2,6 +2,11 @@
 
 import { createContext, useContext, useMemo, useState } from 'react';
 
+export type PayoutAmounts = {
+  hospital: number;
+  living: number;
+};
+
 export type TrustFormState = {
   selectedAssets: string[];
   principalAmount: number;
@@ -10,10 +15,7 @@ export type TrustFormState = {
   operationType: string;
   payoutType: string | null;
   payoutItems: string[];
-  payoutAmounts: {
-    hospital: number;
-    living: number;
-  };
+  payoutAmounts: PayoutAmounts;
   selectedAgent: string | null;
 };
 
@@ -28,7 +30,7 @@ type TrustFormContextValue = {
   setPayoutType: (payoutType: string | null) => void;
   setPayoutItems: (
     payoutItems: string[],
-    payoutAmounts?: Partial<TrustFormState['payoutAmounts']>,
+    payoutAmounts?: Partial<PayoutAmounts>,
   ) => void;
   setSelectedAgent: (selectedAgent: string | null) => void;
   resetForm: () => void;
@@ -58,7 +60,6 @@ export function TrustFormProvider({ children }: { children: React.ReactNode }) {
     () => ({
       form,
 
-      // ✅ 방법 1 핵심: selectedAssets 저장할 때 principalAmount도 같이 저장
       setSelectedAssets: (ids, total) => {
         setForm((prev) => ({
           ...prev,
