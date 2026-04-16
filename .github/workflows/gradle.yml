@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
 
       - name: set props
-        working-directory: java/demo
+        working-directory: server
         run: |
           echo "${{secrets.SECURITY_YAML}}" > ./src/main/resources/security.yml
       #          echo "${{secrets.DB_PROPERTY}}" > ./src/main/resources/db.properties
