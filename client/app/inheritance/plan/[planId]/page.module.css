@@ -126,11 +126,13 @@
 
 .heirActions {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 4px;
-  padding: 0 16px;
+  padding: 10px 12px;
   border-left: 1px solid var(--color-hana-silver-100);
   align-self: stretch;
-  align-items: center;
+  justify-content: center;
   background-color: var(--background);
 }
 
@@ -138,24 +140,31 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  color: var(--color-hana-black-500);
+  width: 28px;
+  height: 28px;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: opacity 0.2s;
 }
 
-.actionBtn:hover {
-  background-color: var(--color-hana-silver-50);
+.actionBtn:active {
+  opacity: 0.5;
+}
+
+.editBtn {
   color: var(--color-hana-ez-600);
 }
 
-.deleteBtn:hover {
-  background-color: var(--color-hana-red-50);
+.deleteBtn {
   color: var(--color-hana-red-500);
+}
+
+.separator {
+  width: 16px;
+  height: 1px;
+  background-color: var(--color-hana-silver-100);
+  margin: 2px 0;
 }
 
 .heirIcon {
@@ -369,21 +378,29 @@
 
 .footer {
   flex-shrink: 0;
-  padding: 20px 24px 40px;
+  padding: 16px 24px 24px;
   background: var(--background);
   border-top: 1px solid var(--color-hana-silver-100);
 }
 
 .nextBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 18px;
-  border-radius: var(--radius-lg);
-  font-size: 18px;
-  font-weight: var(--font-weight-bold);
+  height: 53px;
   background-color: var(--color-hana-ez-600);
   color: white;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   border: none;
-  transition: all 0.3s;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.nextBtn:active:not(:disabled) {
+  opacity: 0.8;
 }
 
 .nextBtn:disabled {
