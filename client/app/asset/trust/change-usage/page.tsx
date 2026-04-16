@@ -13,7 +13,10 @@ import { AlertBanner } from '@/components/modules/AlertBanner';
 import StackedActionFooter from '@/components/modules/StackedActionFooter';
 import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
-import { formatKoreanAmount } from '../../constants/trustUtils';
+import {
+  formatKoreanAmount,
+  handleReservation,
+} from '../../constants/trustUtils';
 
 type UsageItem = {
   id: 'hospital' | 'living';
@@ -212,9 +215,7 @@ export default function ChangeUsagePage() {
     <TrustStepLayout
       footer={
         <StackedActionFooter
-          onConsultClick={() => {
-            // 상담 예약 로직
-          }}
+          onConsultClick={handleReservation}
           onNextClick={handleNext}
           nextDisabled={selected.size === 0 || isPending}
         />

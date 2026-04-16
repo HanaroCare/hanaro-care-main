@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
+import { handleReservation } from '../constants/trustUtils';
 
 const benefits = [
   {
@@ -77,7 +78,7 @@ export default function TrustPage() {
         <DualActionFooter
           leftLabel="상담 신청"
           rightLabel="설계해보기"
-          onLeftClick={() => {}}
+          onLeftClick={handleReservation}
           onRightClick={() => {
             router.push('/asset/trust/select-assets' as Route);
           }}

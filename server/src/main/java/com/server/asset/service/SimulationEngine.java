@@ -28,8 +28,8 @@ public class SimulationEngine {
     private final BokjiroClient bokjiroClient;
 
     private static final BigDecimal AVG_WAGE_GROWTH = new BigDecimal("2.9"); // 2.9%
-    private static final BigDecimal SENIOR_MEDICAL_COST_YEAR = new BigDecimal("6000000");
-    private static final BigDecimal MEDICAL_INFLATION = new BigDecimal("4.5"); // 4.5%
+    private static final BigDecimal SENIOR_MEDICAL_COST_YEAR = new BigDecimal("1200000"); // 개인부담 기준 월 10만원 × 12
+    private static final BigDecimal MEDICAL_INFLATION = new BigDecimal("3.0"); // 3.0%
 
     public SimulationDetailResponse run(AIAnalysisInput input) {
         // 1. 연금 추정 결과(금액 + 연동여부) 가져오기
@@ -74,10 +74,11 @@ public class SimulationEngine {
         AIAnalysisInput input, BigDecimal pension, boolean isLinked) {
 
         BigDecimal careCostBase = switch (input.getCareType()) {
-            case HOME -> new BigDecimal("600000");
-            case CENTER -> new BigDecimal("1800000");
-            case HOSPITAL -> new BigDecimal("2500000");
-            default -> new BigDecimal("1000000");
+            case HOME -> new BigDecimal("350000");
+            case CENTER -> new BigDecimal("900000");
+            case HOSPITAL -> new BigDecimal("1800000");
+            case PREMIUM -> new BigDecimal("5000000");
+            default -> new BigDecimal("900000");
         };
 
         BigDecimal monthlyMedicalBase = SENIOR_MEDICAL_COST_YEAR.divide(
@@ -114,11 +115,14 @@ public class SimulationEngine {
             if (segStart >= 80) segLiving = segLiving.multiply(new BigDecimal("0.8")).setScale(0, RoundingMode.HALF_UP);
 
             BigDecimal medicalFactor = BigDecimal.valueOf(Math.pow(medicalGrowthRate, yearsFromNow));
-            if (segStart >= 75) medicalFactor = medicalFactor.multiply(new BigDecimal("1.5"));
+            if (segStart >= 90) medicalFactor = medicalFactor.multiply(new BigDecimal("5.0"));
+            else if (segStart >= 85) medicalFactor = medicalFactor.multiply(new BigDecimal("3.5"));
+            else if (segStart >= 80) medicalFactor = medicalFactor.multiply(new BigDecimal("2.0"));
+            else if (segStart >= 75) medicalFactor = medicalFactor.multiply(new BigDecimal("1.3"));
             BigDecimal segMedical = monthlyMedicalBase.multiply(medicalFactor).setScale(0, RoundingMode.HALF_UP);
 
             BigDecimal segCare = (segStart < 75) ? BigDecimal.ZERO :
-                (segStart < 82) ? careCostBase.multiply(new BigDecimal("0.5")).setScale(0, RoundingMode.HALF_UP) :
+                (segStart < 85) ? careCostBase.multiply(new BigDecimal("0.5")).setScale(0, RoundingMode.HALF_UP) :
                     careCostBase;
 
             BigDecimal segExpense = segLiving.add(segMedical).add(segCare);

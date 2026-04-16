@@ -9,9 +9,9 @@ import { getSimulationDetail } from '@/app/asset/actions/simulation';
 import { SimulationDetailApiResponse } from '@/app/asset/utils/types';
 import {AlertBanner} from "@/components/modules/AlertBanner";
 
-const ALLOWED_CARE_TYPES = ['CENTER', 'HOME', 'HOSPITAL']; // 실제 프로젝트에 맞게 조정하세요.
+const ALLOWED_CARE_TYPES = ['CENTER', 'HOME', 'HOSPITAL', 'PREMIUM'];
 const DEFAULT_AGE = 85;
-const DEFAULT_CARE_TYPE = 'CENTER';
+const DEFAULT_CARE_TYPE = 'HOME';
 
 export default function SimulationDetailPage() {
   const router = useRouter();

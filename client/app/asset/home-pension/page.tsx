@@ -5,9 +5,11 @@ import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { getLinkedHouses } from '@/app/asset/actions/pension';
 import ConfirmModal from '@/components/modules/ConfirmModal';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
+import { handleReservation } from '../constants/trustUtils';
 
 interface BenefitItem {
   title: string;
@@ -31,7 +33,35 @@ const mainBenefits: BenefitItem[] = [
 
 export default function HomePensionPage() {
   const [showEmptyModal, setShowEmptyModal] = useState(false);
+  const [isChecking, setIsChecking] = useState(false); // 조회 중 로딩 상태
   const router = useRouter();
+
+  /**
+   * [핵심 로직]
+   * 설계해보기 클릭 시 주택을 먼저 조회하고 분기 처리합니다.
+   */
+  const handleDesignClick = async () => {
+    try {
+      setIsChecking(true);
+
+      // 1. 서버 액션을 통해 연동된 주택 리스트 조회
+      const houses = await getLinkedHouses();
+
+      if (houses && houses.length > 0) {
+        // 2. 주택이 하나라도 있으면 선택 페이지로 이동
+        router.push('/asset/home-pension/check-home' as Route);
+      } else {
+        // 3. 주택이 하나도 없으면 현재 페이지에서 모달 노출
+        setShowEmptyModal(true);
+      }
+    } catch (error) {
+      console.error('주택 조회 중 오류 발생:', error);
+      // 에러 발생 시에도 사용자 흐름을 위해 모달을 띄우거나 안내 처리
+      setShowEmptyModal(true);
+    } finally {
+      setIsChecking(false);
+    }
+  };
 
   return (
     <div className="app-shell">
@@ -56,7 +86,7 @@ export default function HomePensionPage() {
             {/* 중앙 일러스트 영역 */}
             <div className="mt-10 flex justify-center">
               <Image
-                src="/images/asset/housing.svg" // 사진 속 3D 건물 이미지와 유사한 경로
+                src="/images/asset/housing.svg"
                 alt="주택연금 건물 일러스트"
                 width={240}
                 height={200}
@@ -95,6 +125,9 @@ export default function HomePensionPage() {
                         <p className="m-0 font-medium text-[16px] text-hana-black-800 leading-5.5 tracking-[-0.04em]">
                           {benefit.title}
                         </p>
+                        <p className="m-0 text-[14px] text-[#6A7282] leading-5 tracking-[-0.04em]">
+                          {benefit.description}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -107,14 +140,12 @@ export default function HomePensionPage() {
         {/* 하단 버튼 영역 */}
         <DualActionFooter
           leftLabel="상담 신청"
-          rightLabel="설계해보기"
-          onLeftClick={() => setShowEmptyModal(true)}
-          onRightClick={() => {
-            router.push('/asset/home-pension/check-home' as Route);
-          }}
+          rightLabel={isChecking ? '조회 중...' : '설계해보기'}
+          onLeftClick={handleReservation}
+          onRightClick={handleDesignClick} // 조회 로직 함수 연결
         />
 
-        {/* 모달 */}
+        {/* 주택 조회 결과가 없을 때 노출되는 모달 */}
         <ConfirmModal
           isOpen={showEmptyModal}
           title={
@@ -129,7 +160,7 @@ export default function HomePensionPage() {
           onCancel={() => setShowEmptyModal(false)}
           onConfirm={() => {
             setShowEmptyModal(false);
-            // router.push('/asset/housing/register' as Route);
+            router.push('/mydata/house' as Route);
           }}
         />
       </div>
