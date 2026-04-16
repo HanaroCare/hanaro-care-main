@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -93,4 +95,23 @@ public class AssetController {
 	) {
 		return ApiResponse.onSuccess(assetService.getInsuranceAssets(subscriberDTO.getUserId()));
 	}
+
+	@Operation(
+		summary = "금융 자산 연동 상태 변경",
+		description = "선택한 금융 계좌들의 연동 여부를 업데이트합니다.",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				examples = @ExampleObject(value = "[2011, 2014]")
+			)
+		)
+	)
+	@PatchMapping("/link")
+	public ApiResponse<String> updateAssetLinkStatus(
+		@AuthenticationPrincipal SubscriberDTO subscriberDTO,
+		@RequestBody List<Long> accountIds
+	) {
+		assetService.updateAssetLinkStatus(subscriberDTO.getUserId(), accountIds);
+		return ApiResponse.onSuccess("자산 연동 설정이 변경되었습니다.");
+	}
+
 }
