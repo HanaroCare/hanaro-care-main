@@ -67,13 +67,16 @@ export async function getAdminUserAssets(
   );
 }
 
-export async function subscribeTrustProduct(userId: number): Promise<number> {
-  return serverFetch<number>(
+export async function subscribeTrustProduct(
+  userId: number,
+): Promise<{ userProdId: number }> {
+  const userProdId = await serverFetch<number>(
     `/api/admin/asset/trust/subscribe?userId=${userId}`,
     {
       method: 'POST',
     },
   );
+  return { userProdId };
 }
 
 export async function subscribePensionProduct(

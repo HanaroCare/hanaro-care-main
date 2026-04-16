@@ -172,7 +172,7 @@ export default function DevAdminClient() {
 
     startTransition(async () => {
       try {
-        const userProdId = await subscribeTrustProduct(selectedUser.userId);
+        const { userProdId } = await subscribeTrustProduct(selectedUser.userId);
         setTrustResult({
           status: 'success',
           message: `신탁 상품 가입 완료 — userProdId: ${userProdId}`,
