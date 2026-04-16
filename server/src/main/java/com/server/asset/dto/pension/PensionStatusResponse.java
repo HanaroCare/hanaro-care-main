@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
 @Schema(description = "주택연금 운용 현황")
 @Getter
 @Builder
@@ -23,8 +22,8 @@ public class PensionStatusResponse {
 	@Schema(description = "수령 방식 이름", example = "정액형")
 	private String pensionPayoutLabel;
 
-	@Schema(description = "연금 가입 시작일", example = "2026-05-01")
-	private LocalDate startDate;
+	@Schema(description = "가입 생성일", example = "2026-05-01")
+	private LocalDate createdAt;
 
 	@Schema(description = "현재 가입 연차 (1-based)", example = "3")
 	private int elapsedYear;
@@ -44,7 +43,6 @@ public class PensionStatusResponse {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class ChartPoint {
-
 		@Schema(description = "가입 연차", example = "4")
 		private int year;
 

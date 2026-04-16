@@ -9,7 +9,7 @@ export function AssetSummaryCard({ currentAmount, profitRate }: Props) {
   return (
     <div className="rounded-[24px] bg-linear-to-br from-hana-teal-600 to-hana-teal-300 px-6 py-7">
       <p className="mt-1 text-[28px] font-bold leading-[1.3] tracking-tight text-white">
-        현 자산
+        현 자산{' '}
         {currentAmount != null ? formatKoreanCurrency(currentAmount) : '-'}
       </p>
 
