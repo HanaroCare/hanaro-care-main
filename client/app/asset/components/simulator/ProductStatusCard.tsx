@@ -7,6 +7,7 @@ import type {
   TrustProductDetail,
   TrustSimulationSummary,
 } from '@/app/asset/actions/trust';
+import { handleReservation } from '../../constants/trustUtils';
 import { formatKoreanCurrency } from '../../utils/formatCurrency';
 
 type ProductStatus = 'recommend' | 'designed' | 'active';
@@ -203,7 +204,7 @@ export function ProductStatusCard({
         </div>
 
         <button
-          onClick={handleNavigation}
+          onClick={handleReservation}
           className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700"
         >
           상담 예약하기
@@ -295,7 +296,7 @@ export function ProductStatusCard({
         </div>
 
         <button
-          onClick={handleNavigation}
+          onClick={handleReservation}
           className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700"
         >
           상담 예약하기

@@ -1,9 +1,10 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import { toPng } from 'html-to-image';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Area,
   AreaChart,
@@ -23,6 +24,7 @@ import {
   pensionOptions,
   pensionPeriodAmounts,
 } from '../../constants/constants';
+import { handleReservation } from '../../constants/trustUtils';
 
 function LegendDot({ color }: { color: string }) {
   return (
@@ -44,6 +46,43 @@ export default function PensionTypeComparePage() {
 
   const periodAmount = pensionPeriodAmounts[selectedType];
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveImage = async () => {
+    if (!captureRef.current) return;
+
+    try {
+      setIsSaving(true);
+
+      const node = captureRef.current;
+      const width = node.scrollWidth;
+      const height = node.scrollHeight;
+
+      const dataUrl = await toPng(node, {
+        cacheBust: true,
+        pixelRatio: 2,
+        canvasWidth: width,
+        canvasHeight: height,
+        width,
+        height,
+        style: {
+          width: `${width}px`,
+          height: `${height}px`,
+        },
+      });
+
+      const link = document.createElement('a');
+      link.download = `pension-result-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('이미지 저장 실패', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
@@ -52,7 +91,10 @@ export default function PensionTypeComparePage() {
           showCloseButton
           onClose={() => router.push('/asset/simulator' as Route)}
         />
-        <main className="app-main no-scrollbar px-5 pt-10 pb-6">
+        <main
+          ref={captureRef}
+          className="app-main no-scrollbar px-5 pt-10 pb-6 bg-white"
+        >
           <section>
             {/* 상단 추천 섹션 */}
             <div>
@@ -259,10 +301,10 @@ export default function PensionTypeComparePage() {
         </main>
 
         <DualActionFooter
-          leftLabel="결과 저장하기"
+          leftLabel={isSaving ? '저장 중...' : '결과 저장하기'}
           rightLabel="상담 예약하기"
-          onLeftClick={() => {}}
-          onRightClick={() => {}}
+          onLeftClick={handleSaveImage}
+          onRightClick={handleReservation}
         />
       </div>
     </div>
