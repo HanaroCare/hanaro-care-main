@@ -7,6 +7,7 @@ import PhoneVerificationField from "../components/PhoneVerificationField";
 import Header from "@/components/navigation/Header";
 import PrimaryButton from "@/components/baseelements/PrimaryButton";
 import { findId } from "../actions/user";
+import { sendFindIdSms } from "../actions/auth";
 
 const FIND_ID_ERROR = "입력하신 정보와 일치하는 회원이 없습니다.";
 
@@ -30,7 +31,18 @@ export default function FindIdPage() {
   };
 
   const isNameValid = useMemo(() => name.trim().length > 0, [name]);
+  const isPhoneReady = useMemo(() => phone.replace(/[^0-9]/g, "").length === 11, [phone]);
   const isFormValid = useMemo(() => isNameValid && isVerified, [isNameValid, isVerified]);
+
+  const handleRequestCode = async () => {
+    if (!isNameValid) {
+      setError("이름을 먼저 입력해 주세요.");
+      return { ok: false as const, error: "이름을 먼저 입력해 주세요." };
+    }
+    const result = await sendFindIdSms(phone);
+    if (!result.ok) setError(result.error);
+    return result;
+  };
 
   const handleFindId = async () => {
     if (!isFormValid || isPending) return;
@@ -87,7 +99,7 @@ export default function FindIdPage() {
                 setPhone(v);
                 clearError();
               }}
-              loginId=""
+              onRequestCode={isNameValid && isPhoneReady ? handleRequestCode : undefined}
               onVerified={() => {
                 setIsVerified(true);
                 setIsFieldLocked(true);

@@ -137,6 +137,22 @@ export async function resetPassword(
   }
 }
 
+export async function sendFindIdSms(phone: string): Promise<ActionResult> {
+  const normalizedPhone = phone.replace(/[^0-9]/g, "");
+  try {
+    const res = await fetch(`${BASE}/api/auth/sms/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: normalizedPhone }),
+    });
+    if (res.ok) return { ok: true };
+    const body = await res.json().catch(() => ({}));
+    return { ok: false, error: body.message ?? "인증번호 발송에 실패했습니다." };
+  } catch {
+    return { ok: false, error: "서버 연결에 실패했습니다." };
+  }
+}
+
 export async function sendPasswordFindCode(
   loginId: string,
   username: string,
