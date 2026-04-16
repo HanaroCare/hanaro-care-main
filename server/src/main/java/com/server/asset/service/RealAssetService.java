@@ -51,10 +51,6 @@ public class RealAssetService {
 	}
 
 	public Long linkVehicle(Long userId, RealAssetRequest.VehicleLinkRequest request) {
-		if (realAssetRepository.existsByCarNumber(userId, request.getCarNumber())) {
-			throw new ApiException(ErrorStatus.REAL_ASSET_ALREADY_EXISTS);
-		}
-
 		Map<String, String> vehicleInfo = new HashMap<>();
 		vehicleInfo.put("car_number", request.getCarNumber());
 		vehicleInfo.put("model", "제네시스 G70");
