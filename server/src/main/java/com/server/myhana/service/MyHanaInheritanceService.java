@@ -1,10 +1,12 @@
 package com.server.myhana.service;
 
 import com.server.common.annotation.CheckUser;
+import com.server.common.security.dto.SubscriberDTO;
 import com.server.myhana.dto.ContractDto;
 import com.server.myhana.dto.FamilySummaryDto;
 import com.server.user.entity.TBFamilyAuth;
 import com.server.user.repository.FamilyAuthRepository;
+import com.server.user.repository.UserRepository;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.time.LocalDate;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class MyHanaInheritanceService {
 
   private final FamilyAuthRepository familyAuthRepository;
+  private final UserRepository userRepository;
 
   // 가족 조회
   @CheckUser(key = "#userId")
@@ -34,8 +37,9 @@ public class MyHanaInheritanceService {
   }
 
   // 계약서 생성하기
-  @CheckUser(key = "#userId")
-  public byte[] generateContract(Long userId, ContractDto dto) throws Exception {
+  @CheckUser(key = "#user.userId")
+  public byte[] generateContract(SubscriberDTO user, ContractDto dto) throws Exception {
+    String phone = userRepository.findUserPhoneByUserId(user.getUserId());
     try (InputStream template = getClass().getResourceAsStream("/templates/contract.docx")) {
       if (template == null) {
         throw new IllegalStateException("contract.docx template not found");
@@ -49,8 +53,8 @@ public class MyHanaInheritanceService {
             if (text != null) {
               text = text.replace("{{date}}",
                   LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
-              text = text.replace("{{user_name}}", dto.getUserName());
-              text = text.replace("{{user_phone}}", dto.getUserPhone());
+              text = text.replace("{{user_name}}", user.getUserNm());
+              text = text.replace("{{user_phone}}", phone);
               text = text.replace("{{guardian_name}}", dto.getGuardianName());
               text = text.replace("{{guardian_relation}}", dto.getGuardianRelation());
               text = text.replace("{{permission1}}", dto.getPermission()[0] ? "○" : "");
