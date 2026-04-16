@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import TrustWizardStep from '../TrustWizardStep';
 
@@ -28,7 +29,14 @@ const options = [
 
 export default function StartTimingStep() {
   const router = useRouter();
-  const [selected, setSelected] = useState<string | null>(null);
+  const { form, setStartTiming } = useTrustForm();
+  const [selected, setSelected] = useState<string | null>(form.startTiming);
+
+  const handleNext = () => {
+    if (!selected) return;
+    setStartTiming(selected);
+    router.push('/asset/trust/operation-type');
+  };
 
   return (
     <TrustWizardStep
@@ -38,18 +46,18 @@ export default function StartTimingStep() {
           <PrimaryButton
             label="다음으로"
             disabled={!selected}
-            onClick={() => router.push('/asset/trust/operation-type')}
+            onClick={handleNext}
           />
         </footer>
       }
     >
-      <div className="mt-14">
+      <div className="mt-12">
         <p className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
           언제부터
           <br />
           <span className="text-hana-ez-600">시작</span>할까요?
         </p>
-        <p className="mt-3 font-normal text-[#6A7282] text-sm leading-5 tracking-snug">
+        <p className="mt-3 font-normal text-[#6A7282] text-[15px] leading-5 tracking-snug">
           지점에서 바꿀 수 있어요
         </p>
       </div>

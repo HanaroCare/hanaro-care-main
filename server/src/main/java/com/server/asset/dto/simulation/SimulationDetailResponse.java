@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.AllArgsConstructor;
@@ -15,6 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SimulationDetailResponse implements Serializable {
 
     @JsonProperty("income_details")
@@ -25,6 +28,10 @@ public class SimulationDetailResponse implements Serializable {
 
     @JsonProperty("ai_opinion")
     private String aiOpinion;
+
+    @JsonProperty("is_linked")
+    @JsonAlias("linked")
+    private boolean isLinked;
 
     @Getter
     @Builder
@@ -54,8 +61,22 @@ public class SimulationDetailResponse implements Serializable {
     public static class AgeSegment implements Serializable {
         private String range;
         private BigDecimal income;
+
+        @JsonProperty("income_detail")
+        private IncomeDetail incomeDetail;
+
         private BigDecimal expense;
         private AgeDetail detail;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IncomeDetail implements Serializable {
+        private BigDecimal national;    // 국민연금
+        private BigDecimal retirement;  // 퇴직연금 (구간별 점진 감소)
+        private BigDecimal subsidy;     // 지자체 지원금
     }
 
     @Getter

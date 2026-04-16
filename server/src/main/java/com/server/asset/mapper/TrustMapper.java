@@ -74,6 +74,8 @@ public abstract class TrustMapper {
   @Mapping(target = "executionAmount", source = "executionAmount")
   @Mapping(target = "profit", source = "profit")
   @Mapping(target = "executionSetting", source = "executionSetting")
+  @Mapping(target = "claimAgent", source = "claimAgent")
+  @Mapping(target = "agentViewEnabled", source = "agentViewEnabled")
   public abstract TrustProductResponse toProductResponse(
       TBUserProd userProd,
       BigDecimal currentAmount,
@@ -81,7 +83,9 @@ public abstract class TrustMapper {
       BigDecimal principalAmount,
       BigDecimal executionAmount,
       BigDecimal profit,
-      TrustProductResponse.ExecutionSetting executionSetting
+      TrustProductResponse.ExecutionSetting executionSetting,
+      TrustProductResponse.ClaimAgent claimAgent,
+      Boolean agentViewEnabled
   );
 
   // JSON 변환 헬퍼 메서드

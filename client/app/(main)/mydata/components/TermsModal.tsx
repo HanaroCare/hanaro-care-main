@@ -1,0 +1,71 @@
+'use client';
+
+import { AnimatePresence, motion } from 'framer-motion';
+import { X } from 'lucide-react';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+
+type TermsModalProps = {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  content: string;
+};
+
+/**
+ * 약관 상세 내용을 보여주는 바텀시트 형식의 모달
+ */
+export default function TermsModal({
+  isOpen,
+  onClose,
+  title,
+  content,
+}: TermsModalProps) {
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-[2px]"
+          />
+
+          <motion.div
+            initial={{ y: '100%', x: '-50%' }}
+            animate={{ y: 0, x: '-50%' }}
+            exit={{ y: '100%', x: '-50%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="terms-modal-title"
+            className="fixed bottom-0 left-1/2 z-[120] flex h-[45dvh] w-full max-w-[375px] flex-col rounded-t-[1.5rem] bg-white shadow-2xl"
+          >
+
+            <div className="flex w-full items-center justify-center pt-[0.75rem] pb-[0.25rem]">
+              <div className="h-[0.25rem] w-[2.5rem] rounded-full bg-gray-200" />
+            </div>
+
+            <div className="flex h-[3.5rem] shrink-0 items-center border-border border-b px-[1.25rem]">
+              <h3
+                id="terms-modal-title"
+                className="flex-1 text-center font-bold text-[1.0625rem] text-foreground"
+              >
+                {title}
+              </h3>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-[1.5rem] text-[0.9375rem] text-hana-black-700 leading-[1.6]">
+              <div className="whitespace-pre-line">{content}</div>
+            </div>
+
+            <div className="border-border border-t p-[1.5rem] pb-[2.5rem]">
+              <PrimaryButton label="확인" onClick={onClose} />
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}

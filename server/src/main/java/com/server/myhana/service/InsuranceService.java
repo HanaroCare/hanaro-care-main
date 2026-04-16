@@ -2,14 +2,14 @@ package com.server.myhana.service;
 
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.enums.AssetCategory;
-import com.server.asset.repository.TBAccountRepository;
+import com.server.asset.repository.AccountRepository;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.myhana.dto.InsuranceDetailDto;
 import com.server.myhana.dto.InsuranceDto;
 import com.server.user.entity.TBFamilyAuth;
-import com.server.user.repository.TBFamilyAuthRepository;
+import com.server.user.repository.FamilyAuthRepository;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class InsuranceService {
 
-  private final TBFamilyAuthRepository familyAuthRepository;
-  private final TBAccountRepository accountRepository;
+  private final FamilyAuthRepository familyAuthRepository;
+  private final AccountRepository accountRepository;
 
   // 보험(자신+grantor) 조회
   @CheckUser(key = "#userId")

@@ -1,6 +1,7 @@
 'use client';
 
 import { CircleCheck } from 'lucide-react';
+import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import DualActionFooter from '@/components/modules/DualActionFooter';
@@ -66,9 +67,6 @@ export default function TrustPage() {
                     <p className="m-0 font-medium text-[16px] text-hana-black-800 leading-5.5 tracking-[-0.04em]">
                       {benefit.title}
                     </p>
-                    <p className="m-0 font-normal text-[12px] text-hana-black-800 leading-4.5 tracking-[-0.04em]">
-                      {benefit.desc}
-                    </p>
                   </div>
                 </div>
               ))}
@@ -78,8 +76,11 @@ export default function TrustPage() {
 
         <DualActionFooter
           leftLabel="상담 신청"
-          rightLabel="상품 비교"
-          onRightClick={() => router.push('/asset/trust/select-assets')}
+          rightLabel="설계해보기"
+          onLeftClick={() => {}}
+          onRightClick={() => {
+            router.push('/asset/trust/select-assets' as Route);
+          }}
         />
       </div>
     </div>

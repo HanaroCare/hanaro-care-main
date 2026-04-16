@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -50,6 +50,7 @@ cache:
   gemini-ttl: 86400
   welfare-ttl: 3600
   simulation-ttl: 86000
+  pension-forecast-ttl: 604800
 
 springdoc:
   swagger-ui:
@@ -58,7 +59,8 @@ springdoc:
     path: /v3/api-docs
 
 cors:
-  allowed-origins: http://localhost:3000,http://localhost:8080
+  # 환경변수로 주입 가능. Docker 배포 시 CORS_ALLOWED_ORIGINS=https://도메인 으로 설정
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080}
 
 logging:
   level:

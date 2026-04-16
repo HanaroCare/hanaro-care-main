@@ -23,7 +23,7 @@ export default function TrustAmountList({
   onToggle,
   totalLabel,
   formattedTotal,
-  className = "",
+  className = '',
 }: TrustAmountListProps) {
   return (
     <div className={className}>
@@ -36,10 +36,10 @@ export default function TrustAmountList({
               type="button"
               onClick={() => onToggle(item.id)}
               aria-pressed={isSelected}
-              className={`flex min-h-25 w-full items-center justify-between rounded-[24px] px-6 py-7 text-left shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition ${
+              className={`flex min-h-20 w-full items-center justify-between rounded-[24px] px-6 py-7 text-left shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition ${
                 isSelected
-                  ? "border border-hana-ez-600 bg-[#EFFFFD]"
-                  : "border border-[#F2F3F5] bg-white"
+                  ? 'border border-hana-ez-600 bg-[#EFFFFD]'
+                  : 'border border-[#F2F3F5] bg-white'
               }`}
             >
               <p className="font-semibold text-[16px] text-[#1F2937] leading-6 tracking-tight">
@@ -47,7 +47,7 @@ export default function TrustAmountList({
               </p>
               <p
                 className={`font-medium text-[16px] leading-6 tracking-tight ${
-                  isSelected ? "text-hana-ez-600" : "text-[#1F2937]"
+                  isSelected ? 'text-hana-ez-600' : 'text-[#1F2937]'
                 }`}
               >
                 {item.amount}

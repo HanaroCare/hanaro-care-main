@@ -3,12 +3,11 @@
 import { motion } from 'framer-motion';
 import {
   CartesianGrid,
+  LabelList,
   Line,
   LineChart,
-  ReferenceArea,
   ResponsiveContainer,
   XAxis,
-  YAxis,
 } from 'recharts';
 
 type TrendData = {
@@ -16,30 +15,42 @@ type TrendData = {
   expense: number;
 };
 
-const MOCK_TREND_DATA: TrendData[] = [
-  { age: '65세', expense: 98 },
-  { age: '67.5세', expense: 102 },
-  { age: '70세', expense: 110 },
-  { age: '72.5세', expense: 130 },
-  { age: '75세', expense: 155 },
-  { age: '77.5세', expense: 170 },
-  { age: '80세', expense: 185 },
-  { age: '82.5세', expense: 195 },
-  { age: '85세', expense: 205 },
-];
+type SimulationTrendChartProps = {
+  data: TrendData[];
+};
 
-export function SimulationTrendChart() {
+export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
+  const isLarge = data.length >= 6;
+  const bottomMargin = isLarge ? 30 : 0;
+
+  const renderExpenseLabel = (props: any) => {
+    const { x, y, value, index } = props;
+    if (isLarge && index % 2 !== 0) return null;
+    return (
+      <text
+        x={x}
+        y={y - 12}
+        textAnchor="middle"
+        fontSize={12}
+        fontWeight={500}
+        fill="var(--color-hana-red-500)"
+      >
+        {`${value}만원`}
+      </text>
+    );
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       className="w-full rounded-[24px] border border-hana-silver-100 bg-white px-5 py-7 shadow-sm"
     >
-      <div className="h-[220px] w-full">
+      <div className="h-55 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
-            data={MOCK_TREND_DATA}
-            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+            data={data}
+            margin={{ top: 40, right: 20, left: 20, bottom: bottomMargin }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -50,24 +61,14 @@ export function SimulationTrendChart() {
               dataKey="age"
               axisLine={false}
               tickLine={false}
-              tick={{ fontSize: 12, fill: 'var(--color-hana-black-500)' }}
-              interval={1}
-              padding={{ left: 10, right: 10 }}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 12, fill: 'var(--color-hana-black-500)' }}
-              domain={[0, 250]}
-              ticks={[0, 50, 100, 150, 200, 250]}
-            />
-
-            <ReferenceArea
-              x1="70세"
-              x2="75세"
-              fill="var(--color-hana-red-50)"
-              fillOpacity={0.6}
-              stroke="none"
+              tick={
+                isLarge
+                  ? { fontSize: 11, fill: 'var(--color-hana-black-500)', textAnchor: 'end' }
+                  : { fontSize: 12, fill: 'var(--color-hana-black-500)' }
+              }
+              angle={isLarge ? -35 : 0}
+              interval={0}
+              padding={{ left: 20, right: 20 }}
             />
 
             <Line
@@ -75,9 +76,11 @@ export function SimulationTrendChart() {
               dataKey="expense"
               stroke="var(--color-hana-red-500)"
               strokeWidth={3}
-              dot={{ r: 4, fill: 'var(--color-hana-red-500)', strokeWidth: 0 }}
-              activeDot={{ r: 6, fill: 'var(--color-hana-red-500)' }}
-            />
+              dot={{ r: 5, fill: 'var(--color-hana-red-500)', strokeWidth: 0 }}
+              activeDot={{ r: 7, fill: 'var(--color-hana-red-500)' }}
+            >
+              <LabelList dataKey="expense" content={renderExpenseLabel} />
+            </Line>
           </LineChart>
         </ResponsiveContainer>
       </div>

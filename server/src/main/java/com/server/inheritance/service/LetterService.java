@@ -10,10 +10,10 @@ import com.server.inheritance.entity.TBInheritDetail;
 import com.server.inheritance.entity.TBInheritLetter;
 import com.server.inheritance.entity.TBInheritPlan;
 import com.server.inheritance.enums.LetterType;
-import com.server.inheritance.repository.TBInheritDetailRepository;
-import com.server.inheritance.repository.TBInheritPlanRepository;
-import com.server.inheritance.repository.TBLetterRepository;
-import com.server.user.repository.TBFamilyAuthRepository;
+import com.server.inheritance.repository.InheritDetailRepository;
+import com.server.inheritance.repository.InheritPlanRepository;
+import com.server.inheritance.repository.InheritLetterRepository;
+import com.server.user.repository.FamilyAuthRepository;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,10 +31,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class LetterService {
 
-  private final TBFamilyAuthRepository familyAuthRepository;
-  private final TBLetterRepository letterRepository;
-  private final TBInheritDetailRepository inheritDetailRepository;
-  private final TBInheritPlanRepository inheritPlanRepository;
+  private final FamilyAuthRepository familyAuthRepository;
+  private final InheritLetterRepository letterRepository;
+  private final InheritDetailRepository inheritDetailRepository;
+  private final InheritPlanRepository inheritPlanRepository;
 
   @Value("${voice.upload-dir}")
   String uploadDir;
@@ -119,7 +119,7 @@ public class LetterService {
       throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
     }
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
-        .orElseThrow(() -> new ApiException(ErrorStatus.LETTER_NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
     if (letter.getLetterTypeCd() == LetterType.VOICE) {
       // TODO: s3 링크 가져오기
@@ -157,7 +157,7 @@ public class LetterService {
 
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(
             inheritDetailId)
-        .orElseThrow(() -> new ApiException(ErrorStatus.LETTER_NOT_FOUND));
+        .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
     detail.setInheritLetter(null);
     return letter.getLetterId();

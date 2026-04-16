@@ -34,6 +34,8 @@ public class JwtUtil {
 
   private SecretKey key;
 
+  private static final long INVITE_EXPIRATION = 24 * 60 * 60 * 1000L; // 24시간
+
   @PostConstruct
   public void init() {
     this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
@@ -106,6 +108,35 @@ public class JwtUtil {
     } catch (SignatureException | MalformedJwtException | UnsupportedJwtException |
              IllegalArgumentException e) {
       throw new CustomJwtException("INVALID", "Token is invalid");
+    }
+  }
+
+  /**
+   * 가족 초대용 토큰 생성 (grantorId 포함)
+   */
+  public String createInviteToken(Long grantorId) {
+    Date now = new Date();
+    Date expiryDate = new Date(now.getTime() + INVITE_EXPIRATION);
+
+    return Jwts.builder()
+        .claim("grantorId", grantorId)
+        .issuedAt(now)
+        .expiration(expiryDate)
+        .signWith(key)
+        .compact();
+  }
+
+  /**
+   * 초대 토큰에서 모든 정보 추출
+   */
+  public Map<String, Object> getInfoFromInviteToken(String token) {
+    try {
+      Claims claims = parseClaims(token);
+      Map<String, Object> info = new HashMap<>();
+      info.put("grantorId", claims.get("grantorId", Long.class));
+      return info;
+    } catch (Exception e) {
+      throw new CustomJwtException("INVALID_INVITE_TOKEN", "유효하지 않은 초대 토큰입니다.");
     }
   }
 
