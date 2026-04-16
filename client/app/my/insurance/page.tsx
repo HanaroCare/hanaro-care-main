@@ -12,12 +12,10 @@ import type { InsuranceDto } from './types';
 export default function MyFamilyInsurancePage() {
   const router = useRouter();
 
-  // 1. 보험 목록을 담을 상태 추가
   const [insuranceList, setInsuranceList] = useState<InsuranceDto[]>([]);
   const [isInsAgent, setInsAgent] = useState<boolean>();
   const [loading, setLoading] = useState(true);
 
-  // 2. 마운트 시 데이터 호출
   useEffect(() => {
     const fetchInsurances = async () => {
       try {
@@ -36,7 +34,14 @@ export default function MyFamilyInsurancePage() {
     fetchInsurances();
   }, []);
 
-  console.log(insuranceList);
+  const [isAgentLoading, setAgentLoading] = useState(false);
+
+  const handleInsAgentVerify = async () => {
+    setAgentLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setAgentLoading(false);
+    setInsAgent(true);
+  };
 
   return (
     <div className="mb-10 flex min-h-[calc(100vh-180px)] flex-col">
@@ -54,7 +59,7 @@ export default function MyFamilyInsurancePage() {
           <div className="mt-7 mb-7">
             <AlertBanner
               actionText="인증하기"
-              onActionAction={() => {}}
+              onActionAction={handleInsAgentVerify}
               variant="warning"
               icon={
                 <Image

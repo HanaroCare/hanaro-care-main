@@ -86,7 +86,7 @@ export default function GuardianPage() {
   ];
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-white">
+    <div className="flex min-h-[calc(100vh-150px)] items-start justify-center bg-white">
       <div className="w-full">{steps[step]}</div>
     </div>
   );
