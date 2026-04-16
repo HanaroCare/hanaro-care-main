@@ -50,6 +50,7 @@ cache:
   gemini-ttl: 86400
   welfare-ttl: 3600
   simulation-ttl: 86000
+  pension-forecast-ttl: 604800
 
 springdoc:
   swagger-ui:

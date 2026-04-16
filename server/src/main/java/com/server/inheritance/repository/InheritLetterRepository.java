@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TBLetterRepository extends JpaRepository<TBInheritLetter, Long> {
+public interface InheritLetterRepository extends JpaRepository<TBInheritLetter, Long> {
 
   Optional<TBInheritLetter> findByInheritDetail_InheritDetailId(Long inheritDetailId);
 }
