@@ -302,7 +302,7 @@ export default function SimulatorPage() {
                       />
                     </div>
                   )}
-                  {parentAccessLevel === 'READ_WRITE' && (
+                  {parentAccessLevel === 'READ_WRITE' && parentTrustDetail && (
                     <ProductStatusCard
                       type="trust"
                       status="active"

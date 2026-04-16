@@ -18,6 +18,7 @@ import com.server.asset.entity.enums.StartType;
 import com.server.asset.entity.enums.TrustAccessLevel;
 import com.server.asset.entity.enums.TrustType;
 import com.server.asset.mapper.TrustMapper;
+import com.server.asset.mapper.TrustMapperHelper;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
@@ -62,6 +63,7 @@ public class TrustService {
   private final FamilyAuthRepository familyAuthRepository;
   private final TrustMapper trustMapper;
   private final ObjectMapper objectMapper;
+  private final TrustMapperHelper trustMapperHelper;
 
   // 신탁 설계 조건을 저장하거나 기존 데이터를 수정
   @CheckUser(key = "#userId")
@@ -75,8 +77,7 @@ public class TrustService {
     TBTrustSimulation simulation = trustRepository.findByUser_UserId(userId)
         .orElse(TBTrustSimulation.builder().user(user).build());
 
-    trustMapper.updateSimulation(request, claimAgent, simulation);
-    trustRepository.save(simulation);
+    trustMapper.updateSimulation(request, claimAgent, simulation, trustMapperHelper);    trustRepository.save(simulation);
   }
 
   //로그인 사용자의 신탁 설계 요약 결과를 반환

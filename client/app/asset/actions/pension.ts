@@ -1,6 +1,6 @@
 'use server';
 
-import { serverFetch } from '@/lib/serverFetch';
+import { ServerFetchError, serverFetch } from '@/lib/serverFetch';
 
 export type AssetDashboardResponse = {
   totalFinancialAmt: number;
@@ -26,26 +26,30 @@ export type LinkedHouse = {
   price: number;
 };
 
+export type PensionForecastScenario = {
+  scenarioType: 'UP' | 'BASE' | 'DOWN';
+  scenarioLabel: string;
+  annualRate: number;
+  totalGrowthRate: number;
+  predictedPrice: number;
+  probability: number;
+};
+
+export type PensionForecastChartPoint = {
+  year: number;
+  upPrice: number;
+  basePrice: number;
+  downPrice: number;
+};
+
 export type PensionForecastResponse = {
   realAssetId: number;
   assetNm: string;
   currentPrice: number;
   periodYears: number;
   expectedPrice: number;
-  scenarios: {
-    scenarioType: 'UP' | 'BASE' | 'DOWN';
-    scenarioLabel: string;
-    annualRate: number;
-    totalGrowthRate: number;
-    predictedPrice: number;
-    probability: number;
-  }[];
-  chartPoints: {
-    year: number;
-    upPrice: number;
-    basePrice: number;
-    downPrice: number;
-  }[];
+  scenarios: PensionForecastScenario[];
+  chartPoints: PensionForecastChartPoint[];
   recommendedScenario: 'UP' | 'BASE' | 'DOWN';
   marketSummary: string;
   locationSummary: string;
@@ -73,20 +77,20 @@ export type PensionPayoutComparisonResponse = {
   plans: PensionPayoutPlan[];
 };
 
-export type ChartPoint = {
+export type PensionStatusChartPoint = {
   year: number;
   monthlyAmount: number;
   cumulativeAmount: number;
 };
 
 export type PensionStatusResponse = {
-  pensionPayoutType: string;
+  pensionPayoutType: 'FIXED' | 'FRONT_LOADED' | 'GROWING';
   pensionPayoutLabel: string;
   createdAt: string;
   elapsedYear: number;
   currentMonthlyPayout: number;
   currentCumulativeAmount: number;
-  chartPoints: ChartPoint[];
+  chartPoints: PensionStatusChartPoint[];
 };
 
 export type PensionSimulationSummaryResponse = {
@@ -129,7 +133,7 @@ export async function getLinkedHouses(): Promise<LinkedHouse[]> {
 
 export async function getPensionForecast(
   realAssetId: number,
-  periodYears: number = 5,
+  periodYears = 5,
 ): Promise<PensionForecastResponse> {
   return serverFetch<PensionForecastResponse>(
     `/api/asset/pension/${realAssetId}/forecast?periodYears=${periodYears}`,
@@ -142,8 +146,15 @@ export async function getPensionStatus(): Promise<PensionStatusResponse | null> 
       '/api/asset/pension/status',
     );
   } catch (error) {
-    console.warn('주택연금 가입 현황이 없습니다.');
-    return null;
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['PENSION_NOT_SUBSCRIBED', 'PENSION_SIMULATION_NOT_FOUND'],
+      })
+    ) {
+      return null;
+    }
+    throw error;
   }
 }
 
@@ -155,8 +166,15 @@ export async function getPensionSimulationSummary(
       `/api/asset/pension/${realAssetId}/payout-summary`,
     );
   } catch (error) {
-    console.warn('저장된 주택연금 설계 내역이 없습니다.');
-    return null;
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['PENSION_SIMULATION_NOT_FOUND'],
+      })
+    ) {
+      return null;
+    }
+    throw error;
   }
 }
 
@@ -166,7 +184,37 @@ export async function getPayoutHistory(): Promise<PensionPayoutHistoryResponse |
       '/api/asset/pension/payout-history',
     );
   } catch (error) {
-    console.warn('주택연금 수령 내역이 없습니다.');
-    return null;
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['PENSION_NOT_SUBSCRIBED', 'PENSION_SIMULATION_NOT_FOUND'],
+      })
+    ) {
+      return null;
+    }
+    throw error;
   }
+}
+
+function isNoDataError(
+  error: unknown,
+  options?: {
+    statuses?: number[];
+    codes?: string[];
+  },
+): boolean {
+  if (!(error instanceof ServerFetchError)) return false;
+
+  const statuses = options?.statuses ?? [];
+  const codes = options?.codes ?? [];
+
+  if (typeof error.status === 'number' && statuses.includes(error.status)) {
+    return true;
+  }
+
+  if (error.code && codes.includes(error.code)) {
+    return true;
+  }
+
+  return false;
 }
