@@ -21,7 +21,6 @@ export default function InsuranceList({
   const [isInsAgent, setInsAgent] = useState(initialIsInsAgent);
 
   const handleInsAgentVerify = async () => {
-    // 실제로는 여기서 서버 액션을 호출하여 상태를 업데이트해야 합니다.
     await new Promise((resolve) => setTimeout(resolve, 800));
     setInsAgent(true);
   };

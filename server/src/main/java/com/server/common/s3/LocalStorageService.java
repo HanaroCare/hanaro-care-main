@@ -39,5 +39,11 @@ public class LocalStorageService implements StorageService {
   @Override
   public void delete(String key) throws IOException {
     Files.deleteIfExists(Paths.get(uploadDir).resolve(key));
+    Path base = Paths.get(uploadDir).toAbsolutePath().normalize();
+    Path target = base.resolve(key).normalize();
+    if (!target.startsWith(base)) {
+      throw new SecurityException("Invalid storage key");
+    }
+    Files.deleteIfExists(target);
   }
 }

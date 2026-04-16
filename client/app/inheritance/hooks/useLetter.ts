@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sendLetter } from '@/app/inheritance/actions/letterActions';
 import type { InheritanceMethod } from '@/app/inheritance/types';
 import { createLetterFormData } from '@/app/inheritance/utils/createLetterFormData';
@@ -29,9 +29,15 @@ export function useLetter(inheritDetailId: string) {
   };
 
   const resetAudio = () => {
+    if (audioUrl) URL.revokeObjectURL(audioUrl);
     setAudioBlob(null);
     setAudioUrl(null);
   };
+  useEffect(() => {
+    return () => {
+      if (audioUrl) URL.revokeObjectURL(audioUrl);
+    };
+  }, [audioUrl]);
 
   const handleSubmit = async () => {
     if (isSubmitting) return;

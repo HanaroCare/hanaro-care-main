@@ -34,7 +34,6 @@ export async function getFamily() {
 
   if (!response.ok) throw new Error('가족 정보를 가져오지 못했습니다.');
   const data: ApiResponse<FamilySummaryDto[]> = await response.json();
-  console.log(data);
   return data.result;
 }
 

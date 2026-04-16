@@ -1,6 +1,7 @@
 package com.server.common.s3;
 
 import java.io.IOException;
+import java.time.Duration;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,8 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.GetUrlRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
 @Service
 //@Profile("prod")
@@ -20,6 +24,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 public class S3StorageService implements StorageService {
 
   private final S3Client s3Client;
+  private final S3Presigner s3Presigner;
 
   @Value("${cloud.aws.s3.bucket.private}")
   private String bucket;
@@ -45,9 +50,13 @@ public class S3StorageService implements StorageService {
 
   @Override
   public String getUrl(String key) {
-    return s3Client.utilities()
-        .getUrl(GetUrlRequest.builder().bucket(bucket).key(key).build())
-        .toString();
+    PresignedGetObjectRequest presigned = s3Presigner.presignGetObject(
+        GetObjectPresignRequest.builder()
+            .signatureDuration(Duration.ofMinutes(10))
+            .getObjectRequest(GetObjectRequest.builder().bucket(bucket).key(key).build())
+            .build()
+    );
+    return presigned.url().toString();
   }
 
   @Override

@@ -11,6 +11,8 @@ export async function getInheritanceInfo() {
   const response = await fetch(`${process.env.API_URL}/api/inheritance`, {
     headers: await getAuthHeader(),
   });
+
+  if (!response.ok) throw new Error('상속 정보를 불러오지 못했습니다.');
   const data = await response.json();
 
   return data;
