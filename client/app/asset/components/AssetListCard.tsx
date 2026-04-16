@@ -5,11 +5,16 @@ import Image from "next/image";
 import type { FinancialAssetResponse } from "../utils/types";
 import { formatKoreanCurrency } from "../utils/formatCurrency";
 
-const INSTITUTION_LOGO: Record<string, string> = {
-	하나은행: "/images/asset/hana-bank.svg",
-	하나증권: "/images/asset/hana-bank.svg",
-	하나카드: "/images/asset/hana-bank.svg",
-	국민연금: "/images/asset/nation-pension.svg",
+const GET_LOGO_BY_NAME = (instNm: string): string => {
+	if (instNm.includes("하나")) return "/images/asset/hana-bank.svg";
+	if (instNm.includes("현대")) return "/images/asset/hd-card.svg";
+	if (instNm.includes("기업")) return "/images/asset/ibk-bank.svg";
+	if (instNm.includes("국민은행")) return "/images/asset/kb-bank.svg"; // 국민연금과 구분
+	if (instNm.includes("국민연금")) return "/images/asset/nation-pension.svg";
+	if (instNm.includes("삼성")) return "/images/asset/samsung.svg";
+	if (instNm.includes("신한")) return "/images/asset/shinhan-bank.svg";
+
+	return "/images/asset/hana-bank.svg"; // 기본 로고
 };
 
 // 타입을 DB 카테고리에 맞춰 매핑
@@ -32,8 +37,11 @@ export function AssetListCard({ data }: { data: FinancialAssetResponse[] }) {
 						<div className="flex items-center gap-3">
 							<div className={`flex size-8 shrink-0 items-center justify-center rounded-[10px] ${ICON_STYLES[item.assetCateCd] || "bg-hana-teal-100"}`}>
 								<Image
-									src={INSTITUTION_LOGO[item.instNm] || "/images/asset/hana-bank.svg"}
-									alt="" width={20} height={20} className="object-contain"
+									src={GET_LOGO_BY_NAME(item.instNm)}
+									alt=""
+									width={20}
+									height={20}
+									className="object-contain"
 								/>
 							</div>
 							<div className="flex flex-col">

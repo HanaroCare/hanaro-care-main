@@ -1,5 +1,3 @@
-'use client'
-
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { getAssetDashboard, getSimulationSummary } from './asset/actions/asset';
 import { getBannerStatus } from './asset/actions/notificationStatus';
@@ -10,7 +8,6 @@ import { InheritanceStepCard } from './asset/components/notification/Inheritance
 import { MedicalBillCard } from './asset/components/notification/MedicalBillCard';
 import { PensionCard } from './asset/components/notification/PensionCard';
 import { RealAssetCard } from './asset/components/RealAssetListCard';
-import {useRouter} from "next/navigation";
 
 // 배너 우선순위
 // Group 1 (최우선): 시뮬레이션
@@ -55,7 +52,6 @@ export default async function Home() {
   const hasLinkedMyData = assetData?.isMyDataLinked ?? false;
   const hasRegisteredRealAssets = (assetData?.realAssets?.length ?? 0) > 0;
   const hasLinkedAssets = hasLinkedMyData && hasRegisteredRealAssets;
-  const router = useRouter();
 
   const inheritanceStep = !hasLinkedAssets
     ? (1 as const)
@@ -102,79 +98,73 @@ export default async function Home() {
       </div>
 
       {activeBanner?.type === 'simulation-cta' && (
-        <BannerCard
-          title={<>내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?</>}
-          buttonText="병원비 계산하기"
-          imageSrc="/images/asset/medical.svg"
-          href="asset/simulator"
-        />
+          <BannerCard
+              title={<>내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?</>}
+              buttonText="병원비 계산하기"
+              imageSrc="/images/asset/medical.svg"
+              href="asset/simulator"
+          />
       )}
 
       {activeBanner?.type === 'simulation-result' && (
-        <BannerCard
-          title={
-            <>
-              {activeBanner.userName} 손님,{'\n'}
-              매달{' '}
-              <span className="text-hana-red-500">
-                {(activeBanner.monthlyPayout / 10000).toLocaleString()}만원
-              </span>{' '}
-              수령으로{'\n'} 병원비 부담이 줄었네요
-            </>
-          }
-          buttonText="확인하러 가기"
-          imageSrc="/images/asset/asset-big-change.svg"
-          href="asset/simulator/result"
-        />
+          <BannerCard
+              title={
+                <>
+                  {activeBanner.userName} 손님,{'\n'}
+                  매달 <span className="text-hana-red-500">{(activeBanner.monthlyPayout / 10000).toLocaleString()}만원</span> 수령으로{'\n'} 병원비 부담이 줄었네요
+                </>
+              }
+              buttonText="확인하러 가기"
+              imageSrc="/images/asset/asset-big-change.svg"
+              href="asset/simulator/result"
+          />
       )}
 
+      {/* PensionCard와 MedicalBillCard를 Link로 감쌉니다. */}
       {activeBanner?.type === 'pension' && (
-        <PensionCard
-          totalAmount={activeBanner.totalAmount}
-          items={activeBanner.items}
-          onClick={() => router.push('/asset')}
-        />
+            <PensionCard
+                totalAmount={activeBanner.totalAmount}
+                items={activeBanner.items}
+            />
       )}
 
       {activeBanner?.type === 'medical-bill' && (
-        <MedicalBillCard
-          usedAmount={activeBanner.usedAmount}
-          totalLimit={activeBanner.totalLimit}
-          onClick={() => router.push('/card')}
-        />
+            <MedicalBillCard
+                usedAmount={activeBanner.usedAmount}
+                totalLimit={activeBanner.totalLimit}
+            />
       )}
 
       {activeBanner?.type === 'inheritance-cta' && (
-        <BannerCard
-          title={<>미리 준비하는 상속{'\n'}가족 모두가 든든해져요</>}
-          buttonText="상속 계산하기"
-          imageSrc="/images/asset/inheritance-recom.svg"
-          href="/inheritance/plan"
-        />
+          <BannerCard
+              title={<>미리 준비하는 상속{'\n'}가족 모두가 든든해져요</>}
+              buttonText="상속 계산하기"
+              imageSrc="/images/asset/inheritance-recom.svg"
+              href="/inheritance/plan"
+          />
       )}
 
       {activeBanner?.type === 'inheritance-step' && (
-        <InheritanceStepCard currentStep={activeBanner.step} />
+          <InheritanceStepCard currentStep={activeBanner.step} />
       )}
 
       {activeBanner?.type === 'housing-pension' && (
-        <BannerCard
-          title={<>내 집에 살면서{'\n'}매달 안정적인 생활비를 받아보세요</>}
-          buttonText="주택연금 설계하기"
-          imageSrc="/images/asset/housing-pension.svg"
-          href="/asset/home-pension"
-        />
+          <BannerCard
+              title={<>내 집에 살면서{'\n'}매달 안정적인 생활비를 받아보세요</>}
+              buttonText="주택연금 설계하기"
+              imageSrc="/images/asset/housing-pension.svg"
+              href="/asset/home-pension"
+          />
       )}
+
       <AssetDashboard data={assetData} />
       {hasLinkedMyData && (
-        <MedicalBudgetCard
-          data={simulationData}
-          totalFinancialAmt={assetData?.totalFinancialAmt ?? 0}
-        />
+          <MedicalBudgetCard
+              data={simulationData}
+              totalFinancialAmt={assetData?.totalFinancialAmt ?? 0}
+          />
       )}
       <RealAssetCard data={assetData?.realAssets} />
-
-
       <NavigationBar />
     </main>
   );

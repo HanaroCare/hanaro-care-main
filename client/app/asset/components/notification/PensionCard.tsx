@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { NotificationButton } from "./NotificationButton";
 import { NotificationCardWrapper } from "./NotificationCardWrapper";
+import Link from "next/link";
 
 type PensionItem = {
 	name: string;
@@ -63,10 +64,11 @@ export function PensionCard({
 					</div>
 				))}
 			</div>
-
-			<NotificationButton variant="yellow" onClick={onClick}>
+			<Link href="/asset" className="w-full">
+			<NotificationButton variant="yellow">
 				자산 현황 보러가기
 			</NotificationButton>
+			</Link>
 		</NotificationCardWrapper>
 	);
 }
