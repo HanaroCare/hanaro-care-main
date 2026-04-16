@@ -74,15 +74,18 @@ public enum ErrorStatus implements BaseErrorCode {
   ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
 
   // user
-  USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_404", "유저를 찾을 수 없습니다."),
-  USER_ALREADY_WITHDRAWN(HttpStatus.CONFLICT, "USER_409", "이미 탈퇴한 계정입니다."),
+  USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "사용자를 찾을 수 없습니다."),
+  USER_ALREADY_WITHDRAWN(HttpStatus.BAD_REQUEST, "USER_002", "이미 탈퇴한 사용자입니다."),
 
   // inheritance
   INHERIT_PLAN_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "상속 계획 정보를 찾을 수 없습니다."),
   INHERIT_DETAIL_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "상속 상세 정보를 찾을 수 없습니다."),
+  INHERIT_INVALID_RATIO(HttpStatus.BAD_REQUEST, "INHERIT_001", "상속 비율의 합은 100%여야 합니다."),
+  INHERIT_LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_002", "편지를 찾을 수 없습니다."),
+  INHERIT_HEIR_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_003", "상속인 정보를 찾을 수 없습니다."),
   VOICE_FILE_REQUIRED(HttpStatus.BAD_REQUEST, "INHERIT_400", "음성 파일을 첨부해야 합니다."),
-  LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "INHERIT_404", "편지 정보를 찾을 수 없습니다."),
   LETTER_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "INHERIT_400", "이미 편지가 존재합니다."),
+
 
   // card
   CARD_NOT_FOUND(HttpStatus.NOT_FOUND, "CARD_404", "카드를 찾을 수 없습니다."),
@@ -96,7 +99,10 @@ public enum ErrorStatus implements BaseErrorCode {
   ACCOUNT_INSUFFICIENT(HttpStatus.BAD_REQUEST, "ACCOUNT_402", "계좌 잔액이 부족합니다."),
   // myhana
   INSURANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "INS_404", "보험 정보를 찾을 수 없습니다."),
-  INSURANCE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INS_403", "보험 접근 권한이 없습니다.");
+  INSURANCE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "INS_403", "보험 접근 권한이 없습니다."),
+  MYHANA_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "MYHANA_4041", "마이페이지 사용자 정보를 찾을 수 없습니다."),
+  MYHANA_FAMILY_NOT_FOUND(HttpStatus.NOT_FOUND, "MYHANA_4042", "연동된 가족 정보를 찾을 수 없습니다."),
+  MYHANA_INSURANCE_NOT_FOUND(HttpStatus.NOT_FOUND, "MYHANA_4043", "보험 가입 정보를 찾을 수 없습니다.");
 
 
   private final HttpStatus httpStatus;        // HTTP 상태 코드
