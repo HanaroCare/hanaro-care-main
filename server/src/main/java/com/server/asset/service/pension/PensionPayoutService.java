@@ -34,7 +34,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class PensionPayoutService {
 
-	private static final int COMPARISON_YEARS = 20;
+	private static final int COMPARISON_YEARS = 30;
 	private static final BigDecimal BASE_MONTHLY_RATE   = new BigDecimal("0.0038");
 	private static final BigDecimal FRONT_EARLY_RATIO   = new BigDecimal("1.20");
 	private static final BigDecimal FRONT_LATE_RATIO    = new BigDecimal("0.73");
@@ -45,8 +45,7 @@ public class PensionPayoutService {
 	private static final List<Integer> CHART_YEARS = buildChartYears();
 
 	private static List<Integer> buildChartYears() {
-		List<Integer> years = new ArrayList<>(List.of(1, 10, 11, 20));
-		return years.stream().distinct().sorted().toList();
+		return List.of(1, 5, 10, 15, 20, 25, 30);
 	}
 
 	private static final Map<String, String> TYPE_LABELS = Map.of(
@@ -77,7 +76,8 @@ public class PensionPayoutService {
 			return deserializePlans(simulation);
 		}
 
-		PensionPayoutComparisonResponse response = calculate(asset);
+		Integer userAge = asset.getUser().getUserAge();
+		PensionPayoutComparisonResponse response = calculate(asset, userAge);
 		updateSimulation(simulation, response, currentEvalAmt);
 
 		try {
@@ -103,9 +103,11 @@ public class PensionPayoutService {
 		return pensionMapper.toSummaryResponse(simulation);
 	}
 
-	private PensionPayoutComparisonResponse calculate(TBRealAsset asset) {
+	private PensionPayoutComparisonResponse calculate(TBRealAsset asset, Integer userAge) {
+		BigDecimal ageAdjustedRate = getAgeAdjustedMonthlyRate(userAge);
+
 		BigDecimal baseMonthly = asset.getEvalAmt()
-			.multiply(BASE_MONTHLY_RATE)
+			.multiply(ageAdjustedRate)
 			.setScale(0, RoundingMode.HALF_UP);
 
 		PensionPayoutPlanDto fixed       = buildFixed(baseMonthly);
@@ -158,6 +160,26 @@ public class PensionPayoutService {
 				.pow(year - 1, new MathContext(10, RoundingMode.HALF_UP));
 			return start.multiply(factor).setScale(0, RoundingMode.HALF_UP);
 		}));
+	}
+
+	private BigDecimal getAgeAdjustedMonthlyRate(Integer userAge) {
+		if (userAge == null) {
+			return BASE_MONTHLY_RATE;
+		}
+		// 주택금융공사 : 나이에 따른 연령별 월 지급률 반영
+		if (userAge <= 59) {
+			return new BigDecimal("0.0032");
+		}
+		if (userAge <= 64) {
+			return new BigDecimal("0.0035");
+		}
+		if (userAge <= 69) {
+			return new BigDecimal("0.0038");
+		}
+		if (userAge <= 74) {
+			return new BigDecimal("0.0042");
+		}
+		return new BigDecimal("0.0046");
 	}
 
 	private List<PensionPayoutYearlyDto> buildYearlyData(java.util.function.IntFunction<BigDecimal> monthlyByYear) {
@@ -226,7 +248,9 @@ public class PensionPayoutService {
 				.build();
 		} catch (Exception e) {
 			log.warn("JSON 역직렬화 실패, 재계산 수행. id={}", simulation.getPensionSimulationId());
-			return calculate(simulation.getRealAsset());
+			return calculate(simulation.getRealAsset(),
+				simulation.getRealAsset().getUser().getUserAge()
+			);
 		}
 	}
 }

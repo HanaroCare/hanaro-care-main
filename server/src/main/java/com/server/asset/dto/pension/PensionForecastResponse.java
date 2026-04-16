@@ -42,6 +42,12 @@ public class PensionForecastResponse {
 	@Schema(description = "AI 추천 시나리오 타입", example = "BASE", allowableValues = {"UP", "BASE", "DOWN"})
 	private String recommendedScenario;
 
+	@Schema(description = "시장 흐름 요약")
+	private String marketSummary;
+
+	@Schema(description = "입지 및 수요 특성 요약")
+	private String locationSummary;
+
 	@Schema(description = "AI 추천 이유 — 지역 특성(학군·위치·교통 등) 및 국내 부동산 시장 상황 반영 (1~2문장)", example = "대치동은 학군 수요 기반의 안정적인 시세를 유지해왔으나 금리 부담으로 단기 상승은 제한적입니다.")
 	private String recommendedReason;
 

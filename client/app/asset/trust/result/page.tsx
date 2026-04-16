@@ -8,7 +8,9 @@ export default async function TrustResultPage() {
     return (
       <div className="app-shell bg-white">
         <div className="app-layout bg-white flex items-center justify-center">
-          <p className="text-[#6A7282] text-[15px]">설계 결과를 불러올 수 없습니다.</p>
+          <p className="text-[#6A7282] text-[15px]">
+            설계 결과를 불러올 수 없습니다.
+          </p>
         </div>
       </div>
     );
