@@ -1,19 +1,67 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
+import {
+  type FamilyMember,
+  getFamilyMembers,
+  saveTrustSimulation,
+} from '@/app/asset/actions/trust';
+import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import InfoBox from '@/components/modules/InfoBox';
 import TrustWizardStep from '../TrustWizardStep';
 
-const agents = [
-  { id: 'spouse', initial: '권', name: '권하나', role: '배우자' },
-  { id: 'child', initial: '김', name: '김유연', role: '자녀' },
-];
-
 export default function SelectAgentStep() {
   const router = useRouter();
-  const [selected, setSelected] = useState<string | null>(null);
+  const { form, setSelectedAgent } = useTrustForm();
+
+  const [selected, setSelected] = useState<string | null>(form.selectedAgent);
+  const [isPending, startTransition] = useTransition();
+
+  const [familyList, setFamilyList] = useState<FamilyMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    getFamilyMembers()
+      .then((list) => {
+        const filtered = list.filter((item) => !item.isMe);
+        setFamilyList(filtered);
+
+        setSelected((prevSelected) => {
+          if (!prevSelected) return null;
+
+          const isValidSelected = filtered.some(
+            (item) => String(item.userId) === prevSelected,
+          );
+
+          return isValidSelected ? prevSelected : null;
+        });
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleSubmit = (agentId: string | null) => {
+    const validAgentId =
+      agentId && familyList.some((item) => String(item.userId) === agentId)
+        ? agentId
+        : null;
+
+    setSelectedAgent(validAgentId);
+    setErrorMessage(null);
+
+    startTransition(async () => {
+      try {
+        await saveTrustSimulation({ ...form, selectedAgent: validAgentId });
+        router.push('/asset/trust/result');
+      } catch (error) {
+        console.error('시뮬레이션 저장 실패', error);
+        setErrorMessage('설계 결과를 저장하지 못했어요. 다시 시도해주세요.');
+      }
+    });
+  };
 
   return (
     <TrustWizardStep
@@ -22,19 +70,20 @@ export default function SelectAgentStep() {
         <DualActionFooter
           leftLabel="지금 안할래요"
           rightLabel="설계결과 보기"
-          rightDisabled={!selected}
-          onLeftClick={() => router.push('/asset/trust/result')}
-          onRightClick={() => router.push('/asset/trust/result')}
+          rightDisabled={!selected || isPending}
+          onLeftClick={() => handleSubmit(null)}
+          onRightClick={() => handleSubmit(selected)}
         />
       }
     >
       <div className="mt-12">
-        <h2 className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
+        <h2 className="font-bold text-[22px] leading-[1.45] tracking-tight text-black">
           지급청구대리인을
           <br />
           지정해주세요
         </h2>
-        <p className="mt-4 font-normal text-[#6A7282] text-[15px] leading-5 tracking-snug">
+
+        <p className="mt-4 text-[15px] leading-5 text-[#6A7282]">
           신탁 가입 시 영업점에 같이 가야해요
         </p>
       </div>
@@ -44,35 +93,50 @@ export default function SelectAgentStep() {
         role="radiogroup"
         aria-label="지급청구대리인 선택"
       >
-        {agents.map((agent) => {
-          const isSelected = selected === agent.id;
+        {isLoading && <p className="text-sm text-gray-400">불러오는 중...</p>}
+
+        {!isLoading && familyList.length === 0 && (
+          <p className="text-sm text-gray-400">등록된 가족이 없습니다.</p>
+        )}
+
+        {familyList.map((member) => {
+          const isSelected = selected === String(member.userId);
+
           return (
             <button
-              key={agent.id}
+              key={member.userId}
               type="button"
               aria-pressed={isSelected}
-              onClick={() => setSelected(agent.id)}
+              onClick={() => setSelected(String(member.userId))}
               className={`flex items-center rounded-[28px] px-6 py-5 text-left shadow-[0_4px_16px_rgba(0,0,0,0.04)] transition ${
                 isSelected
                   ? 'border border-hana-ez-600 bg-[#F5FFFE]'
                   : 'border border-[#F2F3F5] bg-white'
               }`}
             >
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#E9F8F9] font-semibold text-[20px] text-hana-ez-600 leading-none tracking-tight">
-                {agent.initial}
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#E9F8F9] text-[20px] font-semibold text-hana-ez-600">
+                {member.name?.charAt(0)}
               </div>
+
               <div className="ml-5 flex items-center gap-3">
-                <p className="font-semibold text-[16px] text-black leading-6 tracking-tight">
-                  {agent.name}
+                <p className="text-[16px] font-semibold text-black">
+                  {member.name}
                 </p>
-                <span className="rounded-full bg-[#E9F8F9] px-3 py-1 font-medium text-[12px] text-hana-ez-600 leading-4.5 tracking-snug">
-                  {agent.role}
+
+                <span className="rounded-full bg-[#E9F8F9] px-3 py-1 text-[12px] text-hana-ez-600">
+                  {member.relation}
                 </span>
               </div>
             </button>
           );
         })}
       </div>
+
+      {errorMessage && (
+        <p className="mt-4 text-[14px] leading-5 text-[#EF4444]">
+          {errorMessage}
+        </p>
+      )}
 
       <InfoBox
         title="지급청구대리인이란?"

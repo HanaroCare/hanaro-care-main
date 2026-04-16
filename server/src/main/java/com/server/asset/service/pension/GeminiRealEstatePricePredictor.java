@@ -12,9 +12,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+
+import javax.crypto.KeyGenerator;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -48,6 +54,11 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 	private final ObjectMapper objectMapper;
 
 	@Override
+	@Cacheable(
+		cacheNames = "pensionForecast",
+		keyGenerator = "pensionForecastKeyGenerator",
+		unless = "#result == null || #result.recommendedReason == '현재 평가금액 기준으로 중립 시나리오가 가장 안정적으로 참고할 수 있는 예측입니다.'"
+	)
 	public PensionForecastInternalDto.Result predict(PensionForecastInternalDto.Command command) {
 		GeminiScenarioResult geminiResult = callGemini(command);
 		return buildResult(command, geminiResult);
