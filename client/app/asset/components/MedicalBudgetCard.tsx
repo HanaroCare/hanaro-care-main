@@ -18,15 +18,16 @@ export function MedicalBudgetCard({ data, totalFinancialAmt }: Props) {
   const medicalEok = toEok(data.medicalCost);
   const financialEok = toEok(totalFinancialAmt);
 
-  // 프로그레스: 총 예측 의료비가 현재 금융 자산의 몇 %인지
+  const hasFinancialAssets = totalFinancialAmt > 0;
+
   const usagePercent =
-    totalFinancialAmt > 0
+      hasFinancialAssets
       ? Math.min(100, Math.round((data.medicalCost / totalFinancialAmt) * 100))
-      : 100;
+      : 0;
 
   // 자산 고갈까지 몇 년: 현재 금융 자산 / (월 부족액 × 12)
   const yearsUntilDepletion =
-    !data.isSufficient && data.shortageAmt > 0
+      hasFinancialAssets && !data.isSufficient && data.shortageAmt > 0
       ? Math.floor(totalFinancialAmt / (data.shortageAmt * 12))
       : null;
 
@@ -61,9 +62,11 @@ export function MedicalBudgetCard({ data, totalFinancialAmt }: Props) {
           현재 금융 자산의 {usagePercent}% 사용
         </p>
         {yearsUntilDepletion !== null ? (
-          <p className="font-medium text-[12px] text-hana-red-500">
-            {yearsUntilDepletion}년 뒤 자산이 고갈돼요
-          </p>
+            <p className="font-medium text-[15px] text-hana-black-600">
+                        {hasFinancialAssets
+                       ? `현재 금융 자산의 ${usagePercent}% 사용`
+                           : '현재 연결된 금융 자산이 없어요'}
+                      </p>
         ) : (
           <p className="font-medium text-[12px] text-hana-green-700">
             수입으로 모두 충당 가능해요

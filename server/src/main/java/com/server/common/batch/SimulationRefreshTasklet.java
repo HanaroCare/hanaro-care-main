@@ -1,10 +1,5 @@
 package com.server.common.batch;
 
-import com.server.asset.repository.AssetSimulationRepository;
-import com.server.asset.service.SimulationRefreshService;
-import com.server.asset.service.SimulationService;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
@@ -12,6 +7,13 @@ import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
+
+import com.server.asset.repository.AssetSimulationRepository;
+import com.server.asset.service.SimulationRefreshService;
+import com.server.asset.service.SimulationService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 자산 변동 이벤트로 Redis 큐에 쌓인 userId에 대해 병원비 시뮬레이션을 재실행하는 Tasklet.
@@ -36,45 +38,41 @@ public class SimulationRefreshTasklet implements Tasklet {
 
     @Override
     public RepeatStatus execute(@NonNull StepContribution contribution, @NonNull ChunkContext chunkContext) {
-        int processed = 0;
-        int skipped = 0;
-        int failed = 0;
-
         String userIdStr;
-        while ((userIdStr = popFromQueue()) != null) {
-            Long userId = Long.parseLong(userIdStr);
-
+        while ((userIdStr = (String) redisTemplate.opsForList().rightPop(SimulationRefreshService.REFRESH_LIST_QUEUE)) != null) {
             try {
+                // 파싱과 모든 비즈니스 로직을 try 내부로 이동
+                Long userId = Long.parseLong(userIdStr);
+
                 boolean ran = simulationRepository
-                        .findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
-                        .map(last -> {
-                            simulationService.rerunLatestSimulation(
-                                    userId, last.getTargetAge(), last.getCareType());
-                            return true;
-                        })
-                        .orElse(false);
+                    .findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
+                    .map(last -> {
+                        simulationService.rerunLatestSimulation(userId, last.getTargetAge(), last.getCareType());
+                        return true;
+                    })
+                    .orElse(false);
 
                 if (ran) {
-                    processed++;
-                    contribution.incrementWriteCount();
+                    // [성공] 처리가 완료된 후에만 Dedupe Set에서 제거
+                    redisTemplate.opsForSet().remove(SimulationRefreshService.REFRESH_DEDUPE_SET, userIdStr);
+                    contribution.incrementWriteCount(1L);
                     log.info("[Batch] 재실행 완료: userId={}", userId);
                 } else {
-                    skipped++;
-                    log.warn("[Batch] 시뮬레이션 이력 없음, 건너뜀: userId={}", userId);
+                    // 이력이 없는 경우도 Set에서 지워야 나중에 다시 시뮬레이션 시 진입 가능
+                    redisTemplate.opsForSet().remove(SimulationRefreshService.REFRESH_DEDUPE_SET, userIdStr);
+                    log.warn("[Batch] 시뮬레이션 이력 없음: userId={}", userId);
                 }
+            } catch (NumberFormatException nfe) {
+                // 잘못된 형식의 데이터는 복구 불가능하므로 Set에서도 삭제
+                redisTemplate.opsForSet().remove(SimulationRefreshService.REFRESH_DEDUPE_SET, userIdStr);
+                log.error("[Batch] 잘못된 userId 형식: {}", userIdStr);
             } catch (Exception e) {
-                failed++;
+                // [실패] 일시적인 장애(AI API, DB 등) 시 큐에 다시 넣어 다음 주기에 재시도
+                redisTemplate.opsForList().leftPush(SimulationRefreshService.REFRESH_LIST_QUEUE, userIdStr);
                 contribution.incrementWriteSkipCount();
-                log.error("[Batch] 재실행 실패: userId={}, error={}", userId, e.getMessage(), e);
+                log.error("[Batch] 처리 실패로 큐 복구: userId={}, error={}", userIdStr, e.getMessage());
             }
         }
-
-        log.info("[Batch] 처리 결과 — 성공: {}, 건너뜀: {}, 실패: {}", processed, skipped, failed);
         return RepeatStatus.FINISHED;
-    }
-
-    private String popFromQueue() {
-        Object value = redisTemplate.opsForSet().pop(SimulationRefreshService.REFRESH_QUEUE_KEY);
-        return value != null ? value.toString() : null;
     }
 }

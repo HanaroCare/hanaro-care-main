@@ -1,9 +1,10 @@
 package com.server.asset.service;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 자산 변동 이벤트 발생 시 시뮬레이션 재실행이 필요한 userId를 Redis 큐에 등록합니다.
@@ -26,15 +27,21 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class SimulationRefreshService {
 
-    public static final String REFRESH_QUEUE_KEY = "simulation:refresh:queue";
+    public static final String REFRESH_DEDUPE_SET = "simulation:refresh:dedupe";
+    public static final String REFRESH_LIST_QUEUE = "simulation:refresh:queue";
 
     private final RedisTemplate<String, Object> redisTemplate;
 
-    /**
-     * 재시뮬레이션이 필요한 userId를 큐에 등록합니다.
-     */
     public void enqueue(Long userId) {
-        redisTemplate.opsForSet().add(REFRESH_QUEUE_KEY, userId.toString());
-        log.info("[SimulationRefresh] 큐 등록: userId={}", userId);
+        String userIdStr = userId.toString();
+
+        Long addedCount = redisTemplate.opsForSet().add(REFRESH_DEDUPE_SET, userIdStr);
+
+        if (addedCount != null && addedCount > 0) {
+            redisTemplate.opsForList().leftPush(REFRESH_LIST_QUEUE, userIdStr);
+            log.info("[SimulationRefresh] 신규 큐 등록: userId={}", userId);
+        } else {
+            log.info("[SimulationRefresh] 등록 생략 (중복 또는 오류): userId={}", userId);
+        }
     }
 }

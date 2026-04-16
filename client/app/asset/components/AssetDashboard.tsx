@@ -53,11 +53,12 @@ export function AssetDashboard({ data }: Props) {
   const finalChartData = isLinked ? chartData : DUMMY_CHART_DATA;
 
   return (
-      <motion.div
+      <motion.button
+          type={"button"}
           whileTap={{ scale: 0.98 }}
           onClick={() => router.push(isLinked ? '/asset' : '/mydata/connect')}
           layout
-          className="flex w-81.25 cursor-pointer flex-col overflow-hidden rounded-4xl shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
+          className="flex w-81.25 cursor-pointer flex-col overflow-hidden rounded-4xl text-left shadow-[0_10px_30px_rgba(0,0,0,0.15)]"
           style={{ background: 'linear-gradient(135deg, #075558 0%, #0A9293 100%)' }}
       >
         <div className="p-6">
@@ -133,6 +134,6 @@ export function AssetDashboard({ data }: Props) {
               </div>
           )}
         </div>
-      </motion.div>
+      </motion.button>
   );
 }

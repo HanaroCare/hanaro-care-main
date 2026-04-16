@@ -26,7 +26,7 @@ const STEP_BUTTON: Record<
 > = {
   1: { label: '자산 등록하러 가기', href: '/asset' },
   2: { label: '상속 설계하러 가기', href: '/inheritance/plan' },
-  3: { label: '신탁 연결하러가기', href: '/asset/trust' },
+  3: { label: '신탁 연결 하러가기', href: '/asset/trust' },
 };
 
 type InheritanceStepCardProps = {

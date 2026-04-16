@@ -1,7 +1,14 @@
 package com.server.notification.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.server.asset.entity.TBAccount;
-import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.AssetCategory;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
@@ -17,12 +24,8 @@ import com.server.notification.dto.BannerStatusResponse.HousingPensionProductInf
 import com.server.notification.dto.BannerStatusResponse.MedicalBillInfo;
 import com.server.notification.dto.BannerStatusResponse.PensionInfo;
 import com.server.notification.dto.BannerStatusResponse.PensionItem;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -97,15 +100,21 @@ public class BannerStatusService {
         List<TBCard> cards = cardRepository.findByAccount_User_UserIdAndIsUseTrue(userId);
         if (cards.isEmpty()) return null;
 
-        TBCard card = cards.get(0);
-        long limitAmt = card.getLimitAmt().longValue();
-        long balanceAmt = card.getBalanceAmt() != null
-            ? card.getBalanceAmt().longValue()
-            : limitAmt; // null이면 아직 사용 안 함
+        long totalLimit = cards.stream()
+                        .map(TBCard::getLimitAmt)
+                        .filter(Objects::nonNull)
+                        .mapToLong(BigDecimal::longValue)
+                        .sum();
+
+                    long totalBalance = cards.stream()
+                        .map(TBCard::getBalanceAmt)
+                        .filter(Objects::nonNull)
+                        .mapToLong(BigDecimal::longValue)
+                        .sum();
 
         return MedicalBillInfo.builder()
-            .usedAmount(limitAmt - balanceAmt)
-            .totalLimit(limitAmt)
+            .usedAmount(Math.max(0, totalLimit - totalBalance))
+                        .totalLimit(totalLimit)
             .build();
     }
 

@@ -127,6 +127,7 @@ public class SimulationService {
    * SecurityContext 없이 동작하므로 외부 API 엔드포인트에 노출하지 마세요.
    */
   @Transactional
+  @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #targetAge + ':' + #careType.name()")
   public void rerunLatestSimulation(Long userId, Integer targetAge, CareType careType) {
     SimulationRequest request = SimulationRequest.builder()
         .targetAge(targetAge)

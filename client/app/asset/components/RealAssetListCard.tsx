@@ -55,10 +55,11 @@ export function RealAssetCard({ data }: RealAssetCardProps) {
 				</div>
 
 				{/* 연동 필요 안내 배너 */}
-				<div
-					className="mb-5 flex items-center justify-between rounded-2xl bg-hana-teal-50 px-4 py-3 cursor-pointer"
-					onClick={() => router.push("/mydata/house")}
-				>
+				<button
+									type="button"
+									className="mb-5 flex w-full items-center justify-between rounded-2xl bg-hana-teal-50 px-4 py-3 text-left"
+									onClick={() => router.push("/mydata/house")}
+								>
 					<div className="flex items-center gap-2">
 						<Link2 size={16} className="text-hana-green-700" />
 						<span className="font-bold text-[13px] text-hana-green-700">
@@ -66,7 +67,7 @@ export function RealAssetCard({ data }: RealAssetCardProps) {
 						</span>
 					</div>
 					<ChevronRight size={16} className="text-hana-green-700" />
-				</div>
+				</button>
 
 				{/* 블러 처리된 가라 리스트 */}
 				<div className="relative">
