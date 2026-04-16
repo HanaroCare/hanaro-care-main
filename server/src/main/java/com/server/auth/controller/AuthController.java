@@ -1,5 +1,6 @@
 package com.server.auth.controller;
 
+import com.server.auth.dto.DormantSmsRequestDTO;
 import com.server.auth.dto.FindIdRequestDTO;
 import com.server.auth.dto.FindIdResponseDTO;
 import com.server.auth.dto.LoginRequestDTO;
@@ -94,6 +95,13 @@ public class AuthController {
   public ApiResponse<String> sendPasswordFindCode(
       @Valid @RequestBody PasswordFindRequestDTO request) {
     smsAuthService.sendPasswordFindCode(request);
+    return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
+  }
+
+  @Operation(summary = "휴면 계정 해제용 인증번호 발송", description = "아이디와 전화번호가 DB 정보와 일치할 때만 인증번호를 발송합니다.")
+  @PostMapping("/sms/send/dormant")
+  public ApiResponse<String> sendDormantSms(@Valid @RequestBody DormantSmsRequestDTO request) {
+    smsAuthService.sendDormantSms(request);
     return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
   }
 

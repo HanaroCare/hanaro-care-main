@@ -1,8 +1,10 @@
 package com.server.auth.service;
 
+import com.server.auth.dto.DormantSmsRequestDTO;
 import com.server.auth.dto.PasswordFindRequestDTO;
 import com.server.auth.dto.SmsRequestDTO;
 import com.server.auth.dto.SmsVerifyRequestDTO;
+import com.server.user.entity.TBUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.repository.UserRepository;
@@ -60,6 +62,28 @@ public class SmsAuthService {
     store.put(phone, new PhoneAuthRecord(code));
     smsService.send(phone, code);
     log.info("[비밀번호 찾기 인증번호 발송] loginId={}, phone={}", request.getLoginId(), maskPhone(phone));
+  }
+
+  public void sendDormantSms(DormantSmsRequestDTO request) {
+    TBUser user = userRepository.findByLoginId(request.getLoginId())
+        .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND));
+
+    String normalizedInput = normalize(request.getUserPhone());
+    String normalizedDb = normalize(user.getUserPhone());
+
+    log.info("[휴면 SMS 검증] loginId={} inputPhone={} dbPhone={}",
+        request.getLoginId(), maskPhone(normalizedInput), maskPhone(normalizedDb));
+
+    if (!normalizedDb.equals(normalizedInput)) {
+      log.warn("[휴면 SMS 실패] 번호 불일치 loginId={} inputPhone={} dbPhone={}",
+          request.getLoginId(), maskPhone(normalizedInput), maskPhone(normalizedDb));
+      throw new ApiException(ErrorStatus.DORMANT_PHONE_MISMATCH);
+    }
+
+    String code = String.format("%06d", RANDOM.nextInt(1_000_000));
+    store.put(normalizedDb, new PhoneAuthRecord(code));
+    smsService.send(normalizedDb, code);
+    log.info("[휴면 계정 SMS 발송] loginId={} phone={}", request.getLoginId(), maskPhone(normalizedDb));
   }
 
   public void verifySms(SmsVerifyRequestDTO request) {

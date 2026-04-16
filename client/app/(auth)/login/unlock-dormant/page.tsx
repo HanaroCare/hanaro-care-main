@@ -1,18 +1,17 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import Header from "@/components/navigation/Header";
-import { sendSms, verifySms } from "@/app/(auth)/signup/actions/auth";
-import { unlockDormant } from "../actions/auth";
+import { verifySms } from "@/app/(auth)/signup/actions/auth";
+import { sendSms, unlockDormant } from "../actions/auth";
 
 type Step = "phone" | "otp" | "password" | "done";
 
 function UnlockDormantContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const loginId = searchParams.get("loginId") ?? "";
 
+  const [loginId, setLoginId] = useState<string>("");
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
@@ -21,26 +20,40 @@ function UnlockDormantContent() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 휴대폰 번호 제출 → SMS 발송
+  useEffect(() => {
+    const savedId = sessionStorage.getItem("DORMANT_LOGIN_ID");
+
+    if (!savedId) {
+      router.replace("/login");
+      return;
+    }
+
+    setLoginId(savedId);
+  }, [router]);
+
+  if (!loginId) return null;
+
   const handlePhoneSubmit = async () => {
     if (isLoading) return;
     setError("");
+
     const normalized = phone.replace(/[^0-9]/g, "");
     if (normalized.length !== 11) {
       setError("휴대폰 번호 11자리를 입력해주세요.");
       return;
     }
+
     setIsLoading(true);
-    const result = await sendSms(normalized);
+    const result = await sendSms(normalized, loginId);
     setIsLoading(false);
+
     if (result.ok) {
       setStep("otp");
     } else {
-      setError(result.error);
+      setError(result.error || "등록된 휴대폰 번호와 일치하지 않습니다.");
     }
   };
 
-  // OTP 인증
   const handleOtpSubmit = async () => {
     if (isLoading) return;
     setError("");
@@ -55,7 +68,6 @@ function UnlockDormantContent() {
     }
   };
 
-  // 새 비밀번호 제출 → 휴면 해제
   const handlePasswordSubmit = async () => {
     if (isLoading) return;
     setError("");
@@ -71,6 +83,7 @@ function UnlockDormantContent() {
     const result = await unlockDormant(loginId, newPwd);
     setIsLoading(false);
     if (result.ok) {
+      sessionStorage.removeItem("DORMANT_LOGIN_ID");
       setStep("done");
     } else {
       setError(result.error);
@@ -110,27 +123,9 @@ function UnlockDormantContent() {
         <main className="app-main flex flex-1 flex-col px-[1.5rem]">
           <div className="pt-[2.5rem] pb-[2rem]">
             <h2 className="text-[1.5rem] font-bold leading-tight text-foreground">
-              {step === "phone" && (
-                <>
-                  휴면 계정을
-                  <br />
-                  해제할게요
-                </>
-              )}
-              {step === "otp" && (
-                <>
-                  인증번호를
-                  <br />
-                  입력해주세요
-                </>
-              )}
-              {step === "password" && (
-                <>
-                  새 비밀번호를
-                  <br />
-                  설정해주세요
-                </>
-              )}
+              {step === "phone" && <>휴면 계정을<br />해제할게요</>}
+              {step === "otp" && <>인증번호를<br />입력해주세요</>}
+              {step === "password" && <>새 비밀번호를<br />설정해주세요</>}
             </h2>
             <p className="mt-[0.5rem] text-[0.9375rem] text-muted-foreground">
               {step === "phone" && "본인 인증을 위해 휴대폰 번호를 입력해주세요"}
@@ -152,7 +147,10 @@ function UnlockDormantContent() {
                   inputMode="numeric"
                   placeholder="휴대폰 번호 입력 (- 없이)"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    setError("");
+                  }}
                   className="w-full rounded-[0.75rem] border border-border bg-background px-[1rem] py-[0.875rem] text-[1rem] outline-none focus:border-hana-ez-600"
                 />
                 <button
@@ -161,7 +159,7 @@ function UnlockDormantContent() {
                   disabled={isLoading || phone.replace(/[^0-9]/g, "").length !== 11}
                   className="w-full rounded-[0.75rem] bg-hana-ez-600 py-[0.875rem] text-[1rem] font-semibold text-white disabled:opacity-50"
                 >
-                  {isLoading ? "발송 중..." : "인증번호 받기"}
+                  {isLoading ? "확인 중..." : "인증번호 받기"}
                 </button>
               </>
             )}
@@ -174,7 +172,10 @@ function UnlockDormantContent() {
                   placeholder="인증번호 6자리"
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
+                  onChange={(e) => {
+                    setOtp(e.target.value.replace(/[^0-9]/g, ""));
+                    setError("");
+                  }}
                   className="w-full rounded-[0.75rem] border border-border bg-background px-[1rem] py-[0.875rem] text-[1rem] outline-none focus:border-hana-ez-600"
                 />
                 <button
@@ -201,14 +202,14 @@ function UnlockDormantContent() {
                   type="password"
                   placeholder="새 비밀번호 (8자 이상)"
                   value={newPwd}
-                  onChange={(e) => setNewPwd(e.target.value)}
+                  onChange={(e) => { setNewPwd(e.target.value); setError(""); }}
                   className="w-full rounded-[0.75rem] border border-border bg-background px-[1rem] py-[0.875rem] text-[1rem] outline-none focus:border-hana-ez-600"
                 />
                 <input
                   type="password"
                   placeholder="비밀번호 확인"
                   value={confirmPwd}
-                  onChange={(e) => setConfirmPwd(e.target.value)}
+                  onChange={(e) => { setConfirmPwd(e.target.value); setError(""); }}
                   className="w-full rounded-[0.75rem] border border-border bg-background px-[1rem] py-[0.875rem] text-[1rem] outline-none focus:border-hana-ez-600"
                 />
                 <button
@@ -236,7 +237,7 @@ function UnlockDormantContent() {
 
 export default function UnlockDormantPage() {
   return (
-    <Suspense>
+    <Suspense fallback={null}>
       <UnlockDormantContent />
     </Suspense>
   );

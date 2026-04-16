@@ -2,10 +2,12 @@
 
 import { useState, useEffect, useRef } from "react";
 import AuthInput from "./AuthInput";
-import { sendSms, verifySms } from "@/app/(auth)/signup/actions/auth";
+import { verifySms } from "@/app/(auth)/signup/actions/auth";
 import { validatePhone } from "../utils/validators";
+import { sendSms } from "../actions/auth";
 
 interface PhoneVerificationFieldProps {
+  loginId?: string;
   phone: string;
   onPhoneChange: (value: string) => void;
   onVerified: () => void;
@@ -17,6 +19,7 @@ interface PhoneVerificationFieldProps {
 
 export default function PhoneVerificationField({
   phone,
+  loginId = "",
   onPhoneChange,
   onVerified,
   onRequestCode,
@@ -68,11 +71,15 @@ export default function PhoneVerificationField({
 
   const handleRequestCode = async () => {
     if (isSending || (!onRequestCode && !isPhoneValid) || isVerified || disabled) return;
+    if (!onRequestCode && !loginId) {
+      setSendError("아이디 정보가 필요합니다.");
+      return;
+    }
     setIsSending(true);
     setSendError("");
     setVerifyError("");
     setOtp("");
-    const result = onRequestCode ? await onRequestCode() : await sendSms(phone);
+    const result = onRequestCode ? await onRequestCode() : await sendSms(phone, loginId);
     setIsSending(false);
     if (result.ok) {
       setCodeSent(true);
@@ -159,9 +166,8 @@ export default function PhoneVerificationField({
               className="h-[3.5rem] w-full rounded-[0.75rem] border border-gray-200 bg-white px-[1rem] pr-[5.5rem] text-[1rem] text-foreground outline-none transition-all placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary/20 disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed"
             />
             <span
-              className={`absolute right-[1rem] top-1/2 -translate-y-1/2 text-[0.875rem] font-semibold tabular-nums ${
-                isVerified ? "text-hana-ez-600" : isExpired ? "text-hana-red-500" : "text-hana-ez-600"
-              }`}
+              className={`absolute right-[1rem] top-1/2 -translate-y-1/2 text-[0.875rem] font-semibold tabular-nums ${isVerified ? "text-hana-ez-600" : isExpired ? "text-hana-red-500" : "text-hana-ez-600"
+                }`}
             >
               {isVerified ? "인증완료" : isExpired ? "만료" : formatTime(timeLeft)}
             </span>
@@ -177,11 +183,10 @@ export default function PhoneVerificationField({
             type="button"
             onClick={handleVerifyCode}
             disabled={isVerified || otp.length !== 6 || isVerifying || isExpired || disabled}
-            className={`h-[3.5rem] w-full rounded-[0.75rem] border text-[1rem] font-semibold transition-opacity ${
-              isVerified
-                ? "cursor-default border-hana-ez-600 bg-hana-ez-600/10 text-hana-ez-600"
-                : "border-hana-ez-600 text-hana-ez-600 disabled:opacity-40"
-            }`}
+            className={`h-[3.5rem] w-full rounded-[0.75rem] border text-[1rem] font-semibold transition-opacity ${isVerified
+              ? "cursor-default border-hana-ez-600 bg-hana-ez-600/10 text-hana-ez-600"
+              : "border-hana-ez-600 text-hana-ez-600 disabled:opacity-40"
+              }`}
           >
             {isVerified ? "인증 완료" : isVerifying ? "확인 중..." : "인증 확인"}
           </button>

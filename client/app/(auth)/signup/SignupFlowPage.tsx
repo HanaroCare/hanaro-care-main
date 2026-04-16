@@ -8,7 +8,7 @@ import PasswordStep from "./components/PasswordStep";
 import CompleteStep from "@/components/CompleteStep";
 import { useRouter } from "next/navigation";
 import Header from "@/components/navigation/Header";
-import { signup, sendSms, verifySms, checkUsernameAvailability } from "./actions/auth";
+import { signup, checkUsernameAvailability, sendSignupSms, verifySms } from "./actions/auth";
 
 const STEPS = [
   {
@@ -44,14 +44,13 @@ const STEPS = [
 ];
 
 export default function SignupFlowPage() {
+  const router = useRouter();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [maxIdx, setMaxIdx] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [stepErrors, setStepErrors] = useState<Record<string, string>>({});
-
-  const router = useRouter();
 
   const setStepError = (key: string, msg: string) =>
     setStepErrors((prev) => ({ ...prev, [key]: msg }));
@@ -92,7 +91,7 @@ export default function SignupFlowPage() {
   const handlePhoneSubmit = async () => {
     if (isLoading) return;
     setIsLoading(true);
-    const result = await sendSms(formData.phone ?? "");
+    const result = await sendSignupSms(formData.phone ?? "");
     setIsLoading(false);
     if (result.ok) {
       clearStepError("phone");
@@ -154,7 +153,6 @@ export default function SignupFlowPage() {
   return (
     <div className="flex h-screen w-full flex-col bg-white max-w-[23.4375rem] mx-auto overflow-hidden shadow-sm">
       <Header title="회원가입" />
-
       <main className="flex-1 flex flex-col gap-[2.5rem] px-[1.25rem] pt-[1.5rem] pb-[5rem] overflow-y-auto no-scrollbar scroll-smooth">
         <AnimatePresence initial={false}>
           {STEPS.slice(0, maxIdx + 1)

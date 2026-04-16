@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Header from "@/components/navigation/Header";
 import LoginForm from "./components/LoginForm";
+import DormantModal from "./components/DormantModal";
 import { login } from "./actions/auth";
 
 type LoginSubmitData = {
@@ -16,6 +17,8 @@ export default function LoginPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [isDormantOpen, setIsDormantOpen] = useState(false);
+  const [dormantLoginId, setDormantLoginId] = useState("");
 
   useEffect(() => {
     const authType = localStorage.getItem("AUTH_TYPE");
@@ -23,6 +26,13 @@ export default function LoginPage() {
       router.replace("/login/hanaCert");
     }
   }, [router]);
+
+  const handleDormantConfirm = () => {
+    setIsDormantOpen(false);
+    sessionStorage.setItem("DORMANT_LOGIN_ID", dormantLoginId);
+
+    router.push("/login/unlock-dormant");
+  };
 
   const handleLoginSubmit = async (data: LoginSubmitData) => {
     if (isSubmitting) return;
@@ -34,20 +44,19 @@ export default function LoginPage() {
       const result = await login(data.id, data.pw);
 
       if (result.ok) {
+        const expireDate = "max-age=31536000; path=/";
         localStorage.setItem("HAS_SEEN_FONT_CONFIG", "true");
         localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
         localStorage.setItem("AUTH_TYPE", "PASSWORD");
-        document.cookie = "HAS_SEEN_FONT_CONFIG=true; path=/; max-age=31536000";
-        document.cookie = "HAS_SEEN_ONBOARDING=true; path=/; max-age=31536000";
-        document.cookie = "AUTH_TYPE=PASSWORD; path=/; max-age=31536000";
+
+        document.cookie = `HAS_SEEN_FONT_CONFIG=true; ${expireDate}`;
+        document.cookie = `HAS_SEEN_ONBOARDING=true; ${expireDate}`;
+        document.cookie = `AUTH_TYPE=PASSWORD; ${expireDate}`;
+
         router.replace("/");
       } else if (!result.ok && result.isDormant) {
-        const confirmed = window.confirm(
-          "6개월 이상 접속하지 않아 휴면 계정으로 전환되었습니다.\n\n서비스 이용을 위해 본인인증 후 휴면을 해제하시겠습니까?"
-        );
-        if (confirmed) {
-          router.push(`/login/unlock-dormant?loginId=${encodeURIComponent(data.id)}`);
-        }
+        setDormantLoginId(data.id);
+        setIsDormantOpen(true);
       } else {
         setLoginError(result.error || "아이디 또는 비밀번호가 일치하지 않습니다.");
       }
@@ -87,9 +96,7 @@ export default function LoginPage() {
             >
               아이디 찾기
             </Link>
-
             <div className="h-[0.75rem] w-[1px] bg-border/50" />
-
             <Link
               href="/login/reset-password"
               className="px-[0.75rem] text-muted-foreground transition-colors hover:text-foreground"
@@ -98,6 +105,12 @@ export default function LoginPage() {
             </Link>
           </div>
         </main>
+        <DormantModal
+          isOpen={isDormantOpen}
+          onClose={() => setIsDormantOpen(false)}
+          onConfirm={handleDormantConfirm}
+          loginId={dormantLoginId}
+        />
       </div>
     </div>
   );

@@ -36,11 +36,9 @@ export async function login(loginId: string, userPwd: string): Promise<LoginResu
     }
 
     const body = await res.json().catch(() => ({}));
-
     if (res.status === 403 && body.code === "AUTH_009") {
       return { ok: false, error: body.message ?? "휴면 계정입니다.", isDormant: true };
     }
-
     return { ok: false, error: body.message ?? "로그인에 실패했습니다." };
   } catch {
     return { ok: false, error: "서버 연결에 실패했습니다." };
@@ -51,7 +49,7 @@ export async function loginWithHanaCert(
   loginId: string,
   means: LoginMeans,
   userPwd: string
-): Promise<ActionResult> {
+): Promise<LoginResult> {
   try {
     const res = await fetch(`${BASE}/api/auth/login`, {
       method: "POST",
@@ -74,25 +72,39 @@ export async function loginWithHanaCert(
     }
 
     const body = await res.json().catch(() => ({}));
+    if (res.status === 403 && body.code === "AUTH_009") {
+      return { ok: false, error: body.message ?? "휴면 계정입니다.", isDormant: true };
+    }
     return { ok: false, error: body.message ?? "로그인에 실패했습니다." };
   } catch {
     return { ok: false, error: "서버 연결에 실패했습니다." };
   }
 }
 
-export async function unlockDormant(
-  loginId: string,
-  newUserPwd: string
-): Promise<ActionResult> {
+export async function sendSms(phone: string, loginId: string): Promise<ActionResult> {
+  const userPhone = phone.replace(/[^0-9]/g, "");
+  try {
+    const res = await fetch(`${BASE}/api/auth/sms/send/dormant`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ loginId, userPhone }),
+    });
+    if (res.ok) return { ok: true };
+    const body = await res.json().catch(() => ({}));
+    return { ok: false, error: body.message ?? "등록된 휴대폰 번호와 일치하지 않습니다." };
+  } catch {
+    return { ok: false, error: "서버 연결에 실패했습니다." };
+  }
+}
+
+export async function unlockDormant(loginId: string, newUserPwd: string): Promise<ActionResult> {
   try {
     const res = await fetch(`${BASE}/api/auth/unlock-dormant`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ loginId, newUserPwd }),
     });
-
     if (res.ok) return { ok: true };
-
     const body = await res.json().catch(() => ({}));
     return { ok: false, error: body.message ?? "휴면 해제에 실패했습니다." };
   } catch {
@@ -112,9 +124,9 @@ export async function resetPassword(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         loginId: loginId.trim(),
-        username: username.trim(),
-        phoneNumber: phoneNumber.replace(/[^0-9]/g, ""),
-        newPassword,
+        userNm: username.trim(),
+        userPhone: phoneNumber.replace(/[^0-9]/g, ""),
+        userPwd: newPassword,
       }),
     });
     if (res.ok) return { ok: true };
@@ -130,27 +142,21 @@ export async function sendPasswordFindCode(
   username: string,
   phoneNumber: string
 ): Promise<ActionResult> {
-  const normalizedPhone = phoneNumber.trim().replace(/[^0-9]/g, "");
+  const normalizedPhone = phoneNumber.replace(/[^0-9]/g, "");
   try {
     const res = await fetch(`${BASE}/api/auth/sms/send/password-find`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         loginId: loginId.trim(),
+        userNm: username.trim(),
         userPhone: normalizedPhone,
       }),
     });
-
     if (res.ok) return { ok: true };
-
     const body = await res.json().catch(() => ({}));
-    const errorDetail = { status: res.status, body };
-    return {
-      ok: false,
-      error: body.message ?? "입력하신 정보와 일치하는 회원이 없습니다.",
-      detail: errorDetail,
-    };
-  } catch (e) {
-    return { ok: false, error: "서버 연결에 실패했습니다.", detail: e };
+    return { ok: false, error: body.message ?? "입력하신 정보와 일치하는 회원이 없습니다." };
+  } catch {
+    return { ok: false, error: "서버 연결에 실패했습니다." };
   }
 }
