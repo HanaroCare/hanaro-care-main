@@ -57,19 +57,6 @@ public class AssetService {
 		);
 	}
 
-  @Transactional
-  @CheckUser(key = "#userId")
-  public void updateAssetLinkStatus(Long userId, List<Long> accountIds) {
-    List<TBAccount> userAccounts = accountRepository.findAllByUser_UserId(
-        userId);
-
-    userAccounts.forEach(account -> {
-      boolean isLinked = accountIds.contains(account.getAccountId());
-      account.setIsLinked(isLinked);
-    });
-
-    simulationRefreshService.enqueue(userId);
-  }
 
   @CheckUser(key = "#userId")
   public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
@@ -88,9 +75,22 @@ public class AssetService {
 
 	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
-		// 기존 findByUser_UserIdAndAssetCateCd 대신 연동 여부(IsLinkedTrue)를 체크하는 메서드 호출
 		return assetMapper.toAssetDetailListFromAccount(
 			accountRepository.findByUser_UserIdAndAssetCateCdAndIsLinkedTrue(userId, AssetCategory.INSURANCE)
 		);
 	}
+
+  @Transactional
+  @CheckUser(key = "#userId")
+  public void updateAssetLinkStatus(Long userId, List<Long> accountIds) {
+    List<TBAccount> userAccounts = accountRepository.findAllByUser_UserId(
+        userId);
+
+    userAccounts.forEach(account -> {
+      boolean isLinked = accountIds.contains(account.getAccountId());
+      account.setIsLinked(isLinked);
+    });
+
+    simulationRefreshService.enqueue(userId);
+  }
 }
