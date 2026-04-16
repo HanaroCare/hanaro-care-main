@@ -7,7 +7,6 @@ import type {
   TrustProductDetail,
   TrustSimulationSummary,
 } from '@/app/asset/actions/trust';
-import { handleReservation } from '../../constants/trustUtils';
 import { formatKoreanCurrency } from '../../utils/formatCurrency';
 
 type ProductStatus = 'recommend' | 'designed' | 'active';
@@ -18,10 +17,11 @@ interface Props {
   onAction?: () => void;
   isLoading?: boolean;
   ownerLabel?: string;
-  simulationSummary?: TrustSimulationSummary | null; // 신탁용
-  productSummary?: TrustProductDetail | null; // 신탁용
-  pensionSimulationSummary?: any | null; // 주택연금 설계용
-  pensionProductSummary?: any | null; // 주택연금 운용용
+  simulationSummary?: TrustSimulationSummary | null;
+  productSummary?: TrustProductDetail | null;
+  pensionSimulationSummary?: any | null;
+  pensionProductSummary?: any | null;
+  realAssetId?: number | null;
 }
 
 function formatRate(value?: number) {
@@ -39,6 +39,7 @@ export function ProductStatusCard({
   productSummary,
   pensionSimulationSummary,
   pensionProductSummary,
+  realAssetId,
 }: Props) {
   const router = useRouter();
   const isTrust = type === 'trust';
@@ -49,7 +50,10 @@ export function ProductStatusCard({
   const isDesigned = status === 'designed';
 
   const handleNavigation = () => {
-    if (onAction) return onAction();
+    if (onAction) {
+      onAction();
+      return;
+    }
 
     if (isActive) {
       router.push(
@@ -59,15 +63,28 @@ export function ProductStatusCard({
       );
       return;
     }
+
+    if (isDesigned) {
+      if (isTrust) {
+        router.push('/asset/trust/result' as Route);
+        return;
+      }
+
+      if (realAssetId) {
+        router.push(`/asset/home-pension/result?id=${realAssetId}` as Route);
+        return;
+      }
+
+      return;
+    }
+
     if (isRecommend) {
       router.push(
         isTrust ? ('/asset/trust' as Route) : ('/asset/home-pension' as Route),
       );
-      return;
     }
   };
 
-  // 1. 로딩 상태
   if (isLoading) {
     return (
       <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
@@ -78,7 +95,6 @@ export function ProductStatusCard({
     );
   }
 
-  // 2. 운용중 상태 (Active)
   if (isActive) {
     const displayData = isTrust ? productSummary : pensionProductSummary;
     if (!displayData) return null;
@@ -168,16 +184,12 @@ export function ProductStatusCard({
     );
   }
 
-  // 3. 설계완료 상태 (Designed)
   if (isDesigned) {
     const simData = isTrust ? simulationSummary : pensionSimulationSummary;
     if (!simData) return null;
 
     return (
-      <button
-        onClick={handleNavigation}
-        className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm"
-      >
+      <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F9F9]">
@@ -193,7 +205,7 @@ export function ProductStatusCard({
         </div>
 
         <p className="mb-1 text-[15px] font-semibold text-hana-ez-600">
-          {isTrust ? '5년 후 예상 자산' : '20년 후 누적 수령액'}
+          {isTrust ? '5년 후 예상 자산' : '30년 후 누적 수령액'}
         </p>
 
         <div className="flex items-baseline gap-2">
@@ -244,22 +256,16 @@ export function ProductStatusCard({
             </>
           )}
         </div>
-        <div
-          role="button"
-          tabIndex={-1}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleReservation();
-          }}
+        <button
+          onClick={handleNavigation}
           className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700"
         >
-          상담 예약하기
-        </div>
-      </button>
+          설계 결과 보기
+        </button>
+      </div>
     );
   }
 
-  // 4. 추천 상태 (Recommend)
   return (
     <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
       <div className="mb-5 flex items-center justify-between">

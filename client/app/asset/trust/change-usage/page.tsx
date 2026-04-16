@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
-  getTrustProductSummary,
+  getTrustProduct,
   type TrustProductDetail,
   updateTrustPayoutSettings,
 } from '@/app/asset/actions/trust';
@@ -44,7 +44,7 @@ export default function ChangeUsagePage() {
         setIsLoading(true);
         setError(null);
 
-        const data = await getTrustProductSummary();
+        const data = await getTrustProduct();
 
         if (!data) {
           setProductDetail(null);

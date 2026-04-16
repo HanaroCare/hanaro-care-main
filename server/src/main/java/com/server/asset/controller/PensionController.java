@@ -35,7 +35,8 @@ public class PensionController {
 	public ResponseEntity<ApiResponse<PensionStatusResponse>> getStatus(
 		@AuthenticationPrincipal SubscriberDTO loginUser
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getStatus(loginUser.getUserId())));
+		PensionStatusResponse result = pensionStatusService.getStatus(loginUser.getUserId());
+		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 
 	@GetMapping("/payout-history")
@@ -46,7 +47,8 @@ public class PensionController {
 	public ResponseEntity<ApiResponse<PensionPayoutHistoryResponse>> getPayoutHistory(
 		@AuthenticationPrincipal SubscriberDTO loginUser
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionStatusService.getPayoutHistory(loginUser.getUserId())));
+		PensionPayoutHistoryResponse result = pensionStatusService.getPayoutHistory(loginUser.getUserId());
+		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 
 	@GetMapping("/{realAssetId}/forecast")
@@ -92,7 +94,9 @@ public class PensionController {
 		@Parameter(description = "예측할 부동산 자산 ID") @PathVariable Long realAssetId,
 		@Parameter(description = "예측 기간 (5, 10, 20년)") @RequestParam(defaultValue = "5") Integer periodYears
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionForecastService.getForecast(loginUser.getUserId(), realAssetId, periodYears)));
+		PensionForecastResponse result =
+			pensionForecastService.getForecast(loginUser.getUserId(), realAssetId, periodYears);
+		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 
 	@GetMapping("/{realAssetId}/payout-comparison")
@@ -100,14 +104,15 @@ public class PensionController {
 		summary = "수령 방식별 시뮬레이션 상세 비교",
 		description = """
           부동산 평가액을 기준으로 정액형, 초기증액형, 정기증가형 연금 수령액을 비교 분석합니다.
-          동시성 방어를 위해 비관적 락(Pessimistic Lock)이 적용되어 있습니다.
           """
 	)
 	public ResponseEntity<ApiResponse<PensionPayoutComparisonResponse>> getPayoutComparison(
 		@AuthenticationPrincipal SubscriberDTO loginUser,
 		@PathVariable Long realAssetId
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.compare(loginUser.getUserId(), realAssetId)));
+		PensionPayoutComparisonResponse result =
+			pensionPayoutService.compare(loginUser.getUserId(), realAssetId);
+		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 
 	@GetMapping("/{realAssetId}/payout-summary")
@@ -119,6 +124,8 @@ public class PensionController {
 		@AuthenticationPrincipal SubscriberDTO loginUser,
 		@PathVariable Long realAssetId
 	) {
-		return ResponseEntity.ok(ApiResponse.onSuccess(pensionPayoutService.getSummary(loginUser.getUserId(), realAssetId)));
+		PensionSimulationSummaryResponse result =
+			pensionPayoutService.getSummary(loginUser.getUserId(), realAssetId);
+		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 }

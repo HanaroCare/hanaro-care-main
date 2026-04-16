@@ -33,30 +33,24 @@ const mainBenefits: BenefitItem[] = [
 
 export default function HomePensionPage() {
   const [showEmptyModal, setShowEmptyModal] = useState(false);
-  const [isChecking, setIsChecking] = useState(false); // 조회 중 로딩 상태
+  const [isChecking, setIsChecking] = useState(false);
   const router = useRouter();
 
-  /**
-   * [핵심 로직]
-   * 설계해보기 클릭 시 주택을 먼저 조회하고 분기 처리합니다.
-   */
   const handleDesignClick = async () => {
+    if (isChecking) return;
+
     try {
       setIsChecking(true);
 
-      // 1. 서버 액션을 통해 연동된 주택 리스트 조회
       const houses = await getLinkedHouses();
 
       if (houses && houses.length > 0) {
-        // 2. 주택이 하나라도 있으면 선택 페이지로 이동
         router.push('/asset/home-pension/check-home' as Route);
       } else {
-        // 3. 주택이 하나도 없으면 현재 페이지에서 모달 노출
         setShowEmptyModal(true);
       }
     } catch (error) {
       console.error('주택 조회 중 오류 발생:', error);
-      // 에러 발생 시에도 사용자 흐름을 위해 모달을 띄우거나 안내 처리
       setShowEmptyModal(true);
     } finally {
       setIsChecking(false);
@@ -70,7 +64,6 @@ export default function HomePensionPage() {
 
         <main className="app-main no-scrollbar">
           <section className="px-6.25 pt-6">
-            {/* 상단 텍스트 영역 */}
             <div className="flex flex-col">
               <p className="mb-1 font-normal text-[#6A7282] text-[12px] leading-4.5">
                 하나은행 주택연금
@@ -83,7 +76,6 @@ export default function HomePensionPage() {
               </h1>
             </div>
 
-            {/* 중앙 일러스트 영역 */}
             <div className="mt-10 flex justify-center">
               <Image
                 src="/images/asset/housing.svg"
@@ -95,7 +87,6 @@ export default function HomePensionPage() {
               />
             </div>
 
-            {/* 수령액 안내 */}
             <div className="mt-5">
               <p className="text-[15px] leading-6 font-medium text-[#4B5563]">
                 지금 가입하면 평생 동안 최대
@@ -105,7 +96,6 @@ export default function HomePensionPage() {
               </p>
             </div>
 
-            {/* 장점 리스트 섹션 */}
             <div className="mt-5">
               <h2 className="mb-3 ml-1.5 font-medium text-[16px] text-black leading-6 tracking-[-0.64px]">
                 이런 점이 좋아요
@@ -137,15 +127,13 @@ export default function HomePensionPage() {
           </section>
         </main>
 
-        {/* 하단 버튼 영역 */}
         <DualActionFooter
           leftLabel="상담 신청"
           rightLabel={isChecking ? '조회 중...' : '설계해보기'}
           onLeftClick={handleReservation}
-          onRightClick={handleDesignClick} // 조회 로직 함수 연결
+          onRightClick={handleDesignClick}
         />
 
-        {/* 주택 조회 결과가 없을 때 노출되는 모달 */}
         <ConfirmModal
           isOpen={showEmptyModal}
           title={

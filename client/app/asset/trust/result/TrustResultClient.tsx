@@ -136,8 +136,6 @@ export default function TrustResultClient({
   amountResults,
 }: Props) {
   const router = useRouter();
-
-  // 기본값은 차트 막대 선택 없음 = 내 설계 기준
   const [selectedLabel, setSelectedLabel] = useState('');
   const [isCustomView, setIsCustomView] = useState(false);
 
