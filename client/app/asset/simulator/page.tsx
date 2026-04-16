@@ -36,7 +36,8 @@ const DASHBOARD_TABS = [{ id: 'asset', label: '자산' }, { id: 'inheritance', l
 const CARE_METHOD_MAP: Record<string, string> = {
     'nursing-home': 'CENTER',
     'home-care': 'HOME',
-    'hospital': 'HOSPITAL',
+    'nursing-hospital': 'HOSPITAL',
+    'premium': 'PREMIUM',
 };
 
 export default function SimulatorPage() {
@@ -50,7 +51,7 @@ export default function SimulatorPage() {
     const [isLoading, setIsLoading] = useState(false);
 
     // 2. 본인 파트 상태 (시뮬레이션 데이터)
-    const [careMethod, setCareMethod] = useState('nursing-home');
+    const [careMethod, setCareMethod] = useState('home-care');
     const [targetAge, setTargetAge] = useState(85);
     const [summaryData, setSummaryData] = useState<SimulationSummaryApiResponse | null>(null);
 

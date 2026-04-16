@@ -124,7 +124,14 @@
 }
 
 .heirIcon {
-  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--hana-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .heirName {
@@ -147,6 +154,147 @@
   font-size: 13px;
   color: var(--hana-gray);
   margin-top: 2px;
+}
+
+.addHeirBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  border: 1px dashed #CBD5E1;
+  border-radius: 20px;
+  background-color: transparent;
+  color: #64748B;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 12px;
+}
+
+.addHeirBtn:active {
+  background-color: #F8FAFC;
+  transform: scale(0.98);
+}
+
+/* ✅ BottomSheet 스타일링 */
+.bottomSheetContent {
+  padding-bottom: 20px;
+}
+
+.bottomSheetTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--hana-dark);
+  margin-bottom: 32px;
+}
+
+.inputGroup {
+  margin-bottom: 24px;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--hana-dark);
+  margin-bottom: 12px;
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  border: none;
+  border-bottom: 1px solid #E2E8F0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.textInput:focus {
+  border-bottom-color: var(--hana-green);
+}
+
+.relationshipGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.relBtn {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  background-color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--hana-gray);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activeRel {
+  border-color: var(--hana-green);
+  background-color: var(--hana-bg);
+  color: var(--hana-green);
+  font-weight: 600;
+}
+
+/* ✅ 숫자 입력 방식 스타일링 */
+.modalInputContainer {
+  padding: 20px 0;
+}
+
+.inputHeader {
+  margin-bottom: 20px;
+}
+
+.percentageInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid #E2E8F0;
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.percentageInputWrapper:focus-within {
+  border-bottom-color: var(--hana-green);
+}
+
+.percentageInput {
+  width: 80px;
+  border: none;
+  background: transparent;
+  font-size: 48px;
+  font-weight: 800;
+  color: var(--hana-dark);
+  text-align: right;
+  outline: none;
+  padding: 10px 0;
+}
+
+/* Chrome, Safari, Edge, Opera */
+.percentageInput::-webkit-outer-spin-button,
+.percentageInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.percentageInput[type=number] {
+  -moz-appearance: textfield;
+}
+
+.percentSymbol {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--hana-dark);
+  margin-left: 4px;
 }
 
 /* ✅ 중앙 팝업 스타일링 */
