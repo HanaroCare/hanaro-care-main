@@ -6,12 +6,14 @@ import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
 import styles from './page.module.css';
+import { getInheritanceContext, submitInheritancePlan, type InheritanceContext } from '../../actions/plan';
 
 interface Heir {
   id: number;
   name: string;
   percentage: number;
   icon: string;
+  relation: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
 }
 
 const COLORS = [
@@ -22,17 +24,49 @@ const COLORS = [
   'var(--color-chart-4)',
 ];
 
+const RELATION_ICONS: Record<string, string> = {
+  SPOUSE: '👵',
+  CHILD: '👨',
+  PARENT: '🧓',
+  FAMILY: '🧑',
+};
+
 export default function InheritancePlanDetailPage() {
   const router = useRouter();
-  const [heirs, setHeirs] = useState<Heir[]>([
-    { id: 1, name: '배우자', percentage: 40, icon: '👵' },
-    { id: 2, name: '자녀1', percentage: 20, icon: '👨' },
-    { id: 3, name: '자녀2', percentage: 20, icon: '👩' },
-    { id: 4, name: '자녀3', percentage: 20, icon: '🧑' },
-  ]);
+  const [context, setContext] = useState<InheritanceContext | null>(null);
+  const [heirs, setHeirs] = useState<Heir[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [editingHeir, setEditingHeir] = useState<Heir | null>(null);
   const [tempPercentage, setTempPercentage] = useState<number>(0);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const data = await getInheritanceContext(); // 인자 제거
+        setContext(data);
+        
+        // 가족 구성원을 Heir 형식으로 매핑
+        const initialHeirs: Heir[] = data.familyMembers.map((member, index) => ({
+          id: member.userId,
+          name: member.userNm,
+          relation: member.relationCd,
+          icon: RELATION_ICONS[member.relationCd] || '👤',
+          // 초기 비율은 N분의 1로 설정 (합계 100을 위해 마지막 요소 처리)
+          percentage: index === data.familyMembers.length - 1 
+            ? 100 - (Math.floor(100 / data.familyMembers.length) * (data.familyMembers.length - 1))
+            : Math.floor(100 / data.familyMembers.length)
+        }));
+        
+        setHeirs(initialHeirs);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const chartData = useMemo(
     () => heirs.map((h) => ({ name: h.name, value: h.percentage })),
@@ -55,7 +89,10 @@ export default function InheritancePlanDetailPage() {
     [heirs],
   );
 
-  const totalAsset = 13.4;
+  const totalAsset = useMemo(() => {
+    if (!context) return 0;
+    return context.assetSummary.totalAsset / 100000000;
+  }, [context]);
 
   const handleCardClick = (heir: Heir) => {
     setEditingHeir(heir);
@@ -76,12 +113,32 @@ export default function InheritancePlanDetailPage() {
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (totalPercentage === 100) {
-      localStorage.setItem('inheritance_completed', 'true');
-      router.push('/inheritance/result');
+      try {
+        await submitInheritancePlan({
+          distributions: heirs.map(h => ({
+            heirUserId: h.id,
+            heirName: h.name,
+            relation: h.relation,
+            distRatio: h.percentage
+          }))
+        });
+        localStorage.setItem('inheritance_completed', 'true');
+        router.push('/inheritance/result');
+      } catch (error) {
+        alert('저장에 실패했습니다. 다시 시도해주세요.');
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="app-shell bg-white flex items-center justify-center">
+        <div className="animate-pulse text-[var(--color-hana-ez-600)]">가족 정보를 불러오는 중입니다...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell bg-white">
@@ -154,7 +211,7 @@ export default function InheritancePlanDetailPage() {
             <div className={styles.summaryCard}>
               <div className={styles.summaryRow}>
                 <span>전체 상속 자산</span>
-                <span className="font-bold">{totalAsset}억원</span>
+                <span className="font-bold">{totalAsset.toFixed(1)}억원</span>
               </div>
               <div className={`${styles.summaryRow} ${styles.ratioHighlight}`}>
                 <span>설정된 비율 합계</span>

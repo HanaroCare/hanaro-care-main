@@ -37,14 +37,4 @@ public class InheritanceController {
     public ApiResponse<InheritanceResponseDTO> getPlanSummary(@PathVariable Long userId) {
         return ApiResponse.onSuccess(inheritanceService.getPlanSummary(userId));
     }
-
-    @GetMapping("/letter/{letterId}")
-    public ApiResponse<LetterDTO> getLetter(@PathVariable Long letterId) {
-        return ApiResponse.onSuccess(inheritanceService.getLetter(letterId));
-    }
-
-    @PostMapping("/letter")
-    public ApiResponse<LetterDTO> createOrUpdateLetter(@RequestBody LetterDTO letterDTO) {
-        return ApiResponse.onSuccess(inheritanceService.createOrUpdateLetter(letterDTO));
-    }
 }

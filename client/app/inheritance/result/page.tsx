@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertCircle, User } from 'lucide-react';
+import { AlertCircle, User, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -8,6 +8,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
 import styles from './page.module.css';
+import { getPlanSummary, type InheritancePlanResponse } from '../actions/plan';
 
 const COLORS = [
   'var(--color-chart-1)',
@@ -19,8 +20,25 @@ const COLORS = [
 
 export default function InheritanceResultPage() {
   const router = useRouter();
+  const [summary, setSummary] = useState<InheritancePlanResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [activeTab, setActiveTab] = useState('inheritance');
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const data = await getPlanSummary(); // 인자 제거
+        setSummary(data);
+      } catch (error) {
+        console.error('Failed to fetch plan summary:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+    localStorage.setItem('inheritance_completed', 'true');
+  }, []);
 
   const handleTabChange = (tabId: string) => {
     if (tabId === 'asset') {
@@ -34,19 +52,13 @@ export default function InheritanceResultPage() {
     }
   };
 
-  const resultData = useMemo(
-    () => [
-      { name: '배우자', value: 30 },
-      { name: '자녀1', value: 30 },
-      { name: '자녀2', value: 20 },
-      { name: '자녀3', value: 20 },
-    ],
-    [],
-  );
-
-  useEffect(() => {
-    localStorage.setItem('inheritance_completed', 'true');
-  }, []);
+  const chartData = useMemo(() => {
+    if (!summary) return [];
+    return summary.heirs.map(h => ({
+      name: h.heirName,
+      value: h.distRatio
+    }));
+  }, [summary]);
 
   const openResetModal = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -57,6 +69,27 @@ export default function InheritanceResultPage() {
     localStorage.removeItem('inheritance_completed');
     router.push('/inheritance/plan');
   };
+
+  if (loading) {
+    return (
+      <div className="app-shell bg-white flex items-center justify-center">
+        <div className="animate-pulse text-[var(--color-hana-ez-600)]">설계 결과를 분석 중입니다...</div>
+      </div>
+    );
+  }
+
+  if (!summary) {
+    return (
+      <div className="app-shell bg-white flex items-center justify-center text-center p-6">
+        <div>
+          <p className="mb-4">상속 설계 내역을 찾을 수 없습니다.</p>
+          <Link href="/inheritance/plan" className="text-[var(--color-hana-ez-600)] font-bold">
+            설계 시작하기
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell bg-white">
@@ -82,7 +115,7 @@ export default function InheritanceResultPage() {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={resultData}
+                      data={chartData}
                       cx="50%"
                       cy="50%"
                       innerRadius={65}
@@ -91,12 +124,10 @@ export default function InheritanceResultPage() {
                       dataKey="value"
                       animationDuration={1000}
                     >
-                      {resultData.map((entry) => (
+                      {chartData.map((entry, index) => (
                         <Cell
                           key={`cell-${entry.name}`}
-                          fill={
-                            COLORS[resultData.indexOf(entry) % COLORS.length]
-                          }
+                          fill={COLORS[index % COLORS.length]}
                           stroke="none"
                         />
                       ))}
@@ -135,136 +166,60 @@ export default function InheritanceResultPage() {
               </div>
 
               <div className={styles.legendGrid}>
-                <div className={styles.legendItem}>
-                  <span
-                    className={styles.legendColor}
-                    style={{ backgroundColor: 'var(--color-chart-1)' }}
-                  />
-                  <span>배우자 ( 30% )</span>
-                </div>
-                <div className={styles.legendItem}>
-                  <span
-                    className={styles.legendColor}
-                    style={{ backgroundColor: 'var(--color-chart-2)' }}
-                  />
-                  <span>자녀1 ( 30% )</span>
-                </div>
-                <div className={styles.legendItem}>
-                  <span
-                    className={styles.legendColor}
-                    style={{ backgroundColor: 'var(--color-hana-green-300)' }}
-                  />
-                  <span>자녀2 ( 20% )</span>
-                </div>
-                <div className={styles.legendItem}>
-                  <span
-                    className={styles.legendColor}
-                    style={{ backgroundColor: 'var(--color-chart-3)' }}
-                  />
-                  <span>자녀3 ( 20% )</span>
-                </div>
+                {chartData.map((item, index) => (
+                  <div key={item.name} className={styles.legendItem}>
+                    <span
+                      className={styles.legendColor}
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    />
+                    <span>{item.name} ( {item.value}% )</span>
+                  </div>
+                ))}
               </div>
             </section>
 
             <div className={styles.memberList}>
-              <div className={styles.memberCard}>
-                <div className={styles.memberHeader}>
-                  <div className={styles.memberInfo}>
-                    <div className={styles.avatar}>
-                      <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />
-                    </div>
-                    <span className={styles.memberName}>배우자</span>
-                  </div>
-                  <div
-                    className={`${styles.statusBadge} ${styles.statusPositive}`}
-                  >
-                    유류분보다 +7,000만원
-                  </div>
-                </div>
-                <div className={styles.memberDetails}>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>내가 정한 금액</span>
-                    <span className={styles.highlightValue}>3.35억원</span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>법정상속분</span>
-                    <span className={styles.detailValue}>6.0억원</span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>유류분</span>
-                    <span className={styles.detailValue}>3.0억원</span>
-                  </div>
-                </div>
-                <Link href="#" className={styles.letterLink}>
-                  상속편지 남기기 &gt;
-                </Link>
-              </div>
+              {summary.heirs.map((heir) => {
+                // 유류분 로직은 백엔드에서 계산된 값을 가져오거나 부족 여부를 판단합니다.
+                const isPositive = heir.distributedAmt >= 300000000; // 임시 기준: 3억 이상
 
-              <div className={styles.memberCard}>
-                <div className={styles.memberHeader}>
-                  <div className={styles.memberInfo}>
-                    <div className={styles.avatar}>
-                      <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />
+                return (
+                  <div key={heir.inheritDetailId} className={styles.memberCard}>
+                    <div className={styles.memberHeader}>
+                      <div className={styles.memberInfo}>
+                        <div className={styles.avatar}>
+                          <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />
+                        </div>
+                        <span className={styles.memberName}>{heir.heirName}</span>
+                      </div>
+                      <div
+                        className={`${styles.statusBadge} ${isPositive ? styles.statusPositive : styles.statusNegative}`}
+                      >
+                        {isPositive ? '유류분 충족' : '유류분 부족'}
+                      </div>
                     </div>
-                    <span className={styles.memberName}>자녀1</span>
-                  </div>
-                  <div
-                    className={`${styles.statusBadge} ${styles.statusPositive}`}
-                  >
-                    유류분보다 +7,000만원
-                  </div>
-                </div>
-                <div className={styles.memberDetails}>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>내가 정한 금액</span>
-                    <span className={styles.highlightValue}>3.35억원</span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>법정상속분</span>
-                    <span className={styles.detailValue}>6.0억원</span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>유류분</span>
-                    <span className={styles.detailValue}>3.0억원</span>
-                  </div>
-                </div>
-                <Link href="#" className={styles.letterLink}>
-                  상속편지 남기기 &gt;
-                </Link>
-              </div>
-
-              <div className={styles.memberCard}>
-                <div className={styles.memberHeader}>
-                  <div className={styles.memberInfo}>
-                    <div className={styles.avatar}>
-                      <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />
+                    <div className={styles.memberDetails}>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>내가 정한 금액</span>
+                        <span className={styles.highlightValue}>
+                          {(heir.distributedAmt / 100000000).toFixed(2)}억원
+                        </span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span className={styles.detailLabel}>설정 비율</span>
+                        <span className={styles.detailValue}>{heir.distRatio}%</span>
+                      </div>
                     </div>
-                    <span className={styles.memberName}>자녀2</span>
+                    <Link 
+                      href={`/inheritance/letter/recipients/${heir.inheritDetailId}`} 
+                      className={styles.letterLink}
+                    >
+                      <MessageCircle className="h-4 w-4 inline mr-1" />
+                      {heir.hasLetter ? '남긴 편지 확인하기' : '상속편지 남기기'} &gt;
+                    </Link>
                   </div>
-                  <div
-                    className={`${styles.statusBadge} ${styles.statusNegative}`}
-                  >
-                    유류분보다 -500만원
-                  </div>
-                </div>
-                <div className={styles.memberDetails}>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>내가 정한 금액</span>
-                    <span className={styles.highlightValue}>3.35억원</span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>법정상속분</span>
-                    <span className={styles.detailValue}>6.0억원</span>
-                  </div>
-                  <div className={styles.detailRow}>
-                    <span className={styles.detailLabel}>유류분</span>
-                    <span className={styles.detailValue}>3.0억원</span>
-                  </div>
-                </div>
-                <Link href="#" className={styles.letterLink}>
-                  상속편지 남기기 &gt;
-                </Link>
-              </div>
+                );
+              })}
             </div>
 
             <button className={styles.actionButton} onClick={openResetModal}>
