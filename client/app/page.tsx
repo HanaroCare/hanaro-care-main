@@ -63,8 +63,11 @@ export default async function Home() {
 
   // ─── 표시할 배너 1개 결정 ───
   const activeBanner: ActiveBanner = (() => {
-    // Group 1: 시뮬레이션 (최우선) — 마이데이터 미연결 시 미표시
-    if (hasLinkedMyData && !hasCompletedSimulation) return { type: 'simulation-cta' };
+    // 마이데이터 미연결 시 배너 전체 미표시
+    if (!hasLinkedMyData) return null;
+
+    // Group 1: 시뮬레이션 (최우선)
+    if (!hasCompletedSimulation) return { type: 'simulation-cta' };
     // 시뮬레이션만으로는 미표시 — 주택연금 상품 실제 가입 시에만 표시
     if (housingPensionProduct) {
       return {
