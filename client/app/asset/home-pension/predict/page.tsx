@@ -1,59 +1,215 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import {
+  getPensionForecast,
+  type PensionForecastResponse,
+} from '@/app/asset/actions/pension';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
 import { ForecastChart } from '../../components/home-pension/ForecastChart';
 import { ForecastLegend } from '../../components/home-pension/ForecastLegend';
 import { ScenarioValueCard } from '../../components/home-pension/ScenarioValueCard';
 import {
-  aiDescriptionMap,
-  aiPredictionLabel,
-  fullForecastChartData,
   type PeriodKey,
   periodOptions,
-  periodYearMap,
   type ScenarioKey,
   scenarioDescriptionMap,
   scenarioMeta,
 } from '../../constants/constants';
 
-function formatEok(value?: number) {
+const PENSION_FORECAST_RESULT_KEY = 'pensionForecastResult';
+
+const periodYearMap: Record<PeriodKey, number> = {
+  '5': 5,
+  '10': 10,
+  '20': 20,
+};
+
+function formatEokFromWon(value?: number) {
   if (typeof value !== 'number') return '-';
-  return Number.isInteger(value) ? `${value}억` : `${value.toFixed(1)}억`;
+  const eok = value / 100_000_000;
+  return `${eok.toFixed(1)}억`;
+}
+
+function mapScenarioTypeToKey(type: string): ScenarioKey {
+  if (type === 'UP') return 'bull';
+  if (type === 'DOWN') return 'bear';
+  return 'base';
 }
 
 export default function HomeValueForecastPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [period, setPeriod] = useState<PeriodKey>('5');
   const [selectedScenario, setSelectedScenario] = useState<ScenarioKey>('bull');
+  const [forecast, setForecast] = useState<PensionForecastResponse | null>(
+    null,
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const chartData = fullForecastChartData;
+  const realAssetId = Number(searchParams.get('id'));
 
-  const selectedPoint = useMemo(() => {
-    const targetYear = periodYearMap[period];
-    return chartData.find((item) => item.year === targetYear);
-  }, [period, chartData]);
+  useEffect(() => {
+    const saved = sessionStorage.getItem(PENSION_FORECAST_RESULT_KEY);
+
+    if (!saved) {
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved) as PensionForecastResponse;
+      setForecast(parsed);
+      setSelectedScenario(mapScenarioTypeToKey(parsed.recommendedScenario));
+    } catch (error) {
+      console.error('예측 결과 파싱 실패', error);
+      setErrorMessage('예측 결과를 불러오지 못했어요.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!realAssetId) return;
+
+    startTransition(async () => {
+      try {
+        setIsLoading(true);
+        setErrorMessage(null);
+
+        const data = await getPensionForecast(
+          realAssetId,
+          periodYearMap[period],
+        );
+        setForecast(data);
+        setSelectedScenario(mapScenarioTypeToKey(data.recommendedScenario));
+        sessionStorage.setItem(
+          PENSION_FORECAST_RESULT_KEY,
+          JSON.stringify(data),
+        );
+      } catch (error) {
+        console.error('집값 예측 조회 실패', error);
+        setErrorMessage('집값 예측 정보를 불러오지 못했어요.');
+      } finally {
+        setIsLoading(false);
+      }
+    });
+  }, [realAssetId, period]);
+
+  const chartData = useMemo(() => {
+    if (!forecast?.chartPoints) return [];
+
+    return forecast.chartPoints.map((point) => ({
+      year: point.year,
+      bull: Number((point.upPrice / 100_000_000).toFixed(1)),
+      base: Number((point.basePrice / 100_000_000).toFixed(1)),
+      bear: Number((point.downPrice / 100_000_000).toFixed(1)),
+    }));
+  }, [forecast]);
+
+  const scenarioMap = useMemo(() => {
+    if (!forecast?.scenarios) {
+      return {
+        bull: null,
+        base: null,
+        bear: null,
+      };
+    }
+
+    const result = {
+      bull: null as null | PensionForecastResponse['scenarios'][number],
+      base: null as null | PensionForecastResponse['scenarios'][number],
+      bear: null as null | PensionForecastResponse['scenarios'][number],
+    };
+
+    forecast.scenarios.forEach((scenario) => {
+      const key = mapScenarioTypeToKey(scenario.scenarioType);
+      result[key] = scenario;
+    });
+
+    return result;
+  }, [forecast]);
 
   const currentValues = useMemo(() => {
     return {
-      bull: formatEok(selectedPoint?.bull),
-      base: formatEok(selectedPoint?.base),
-      bear: formatEok(selectedPoint?.bear),
+      bull: formatEokFromWon(scenarioMap.bull?.predictedPrice),
+      base: formatEokFromWon(scenarioMap.base?.predictedPrice),
+      bear: formatEokFromWon(scenarioMap.bear?.predictedPrice),
     };
-  }, [selectedPoint]);
+  }, [scenarioMap]);
 
-  // ─── AI 기준 데이터 추출 ───
-  const fixedAiScenario = aiPredictionLabel[period]; // 'bull' | 'base' | 'bear'
-  const fixedAiSummary = aiDescriptionMap[period][fixedAiScenario];
-  const aiMainValue = currentValues[fixedAiScenario];
+  const fixedAiScenario = useMemo<ScenarioKey>(() => {
+    if (!forecast) return 'base';
+    return mapScenarioTypeToKey(forecast.recommendedScenario);
+  }, [forecast]);
 
-  // ─── 추천 문구는 AI가 예측한 시나리오(fixedAiScenario)를 따라가야 함 ───
+  const aiMainValue = useMemo(() => {
+    if (!forecast) return '-';
+
+    const key = mapScenarioTypeToKey(forecast.recommendedScenario);
+
+    const scenario = forecast.scenarios.find(
+      (s) => mapScenarioTypeToKey(s.scenarioType) === key,
+    );
+
+    return formatEokFromWon(scenario?.predictedPrice);
+  }, [forecast]);
+
   const aiScenarioGuide = scenarioDescriptionMap[fixedAiScenario];
 
-  // 사용자가 클릭해서 보고 있는 시나리오 설명 (중간 박스용)
-  const selectedGuide = scenarioDescriptionMap[selectedScenario];
+  const selectedGuide = useMemo(() => {
+    if (selectedScenario === 'bull') {
+      return {
+        title: '낙관 시나리오',
+        desc: '입지와 수요, 시장 분위기가 긍정적으로 작용해 상대적으로 높은 상승 흐름을 보이는 경우예요.',
+      };
+    }
+
+    if (selectedScenario === 'bear') {
+      return {
+        title: '비관 시나리오',
+        desc: '시장 둔화나 거래 위축이 반영되어 상승폭이 제한되거나 현재 수준에 가깝게 유지되는 경우예요.',
+      };
+    }
+
+    return {
+      title: '중립 시나리오',
+      desc: '현재 시장 흐름과 지역 특성을 반영했을 때 가장 안정적으로 참고할 수 있는 기준 시나리오예요.',
+    };
+  }, [selectedScenario]);
+
+  if (isLoading && !forecast) {
+    return (
+      <div className="app-shell bg-white">
+        <div className="app-layout bg-white">
+          <Header title="집값 예측" showBackButton />
+          <main className="app-main px-5 pt-6">
+            <p className="text-[14px] text-[#9CA3AF]">불러오는 중...</p>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  if (!forecast) {
+    return (
+      <div className="app-shell bg-white">
+        <div className="app-layout bg-white">
+          <Header title="집값 예측" showBackButton />
+          <main className="app-main px-5 pt-6">
+            <p className="text-[14px] text-[#EF4444]">
+              {errorMessage ?? '예측 결과가 없어요.'}
+            </p>
+          </main>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell bg-white">
@@ -62,11 +218,11 @@ export default function HomeValueForecastPage() {
 
         <main className="app-main no-scrollbar px-5 pt-1 pb-6">
           <section>
-            {/* 기간 선택 탭 */}
             <div className="mt-4 rounded-[14px] border border-[#D8DCE3] p-1">
               <div className="grid grid-cols-3 gap-0">
                 {periodOptions.map((item) => {
                   const active = period === item.key;
+
                   return (
                     <button
                       key={item.key}
@@ -85,9 +241,8 @@ export default function HomeValueForecastPage() {
               </div>
             </div>
 
-            {/* AI 예측 핵심 대시보드 */}
             <div className="mt-5 overflow-hidden rounded-[28px] border border-[#E5E7EB] bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-              <div className="px-6 py-5.5 text-center border-b border-[#F3F4F6]">
+              <div className="border-b border-[#F3F4F6] px-6 py-5.5 text-center">
                 <p className="text-[17px] font-semibold text-[#6B7280]">
                   AI가 예측하는 우리집 미래 가치는?
                 </p>
@@ -104,7 +259,6 @@ export default function HomeValueForecastPage() {
               </div>
             </div>
 
-            {/* 차트 영역 */}
             <div className="mt-4">
               <ForecastChart data={chartData} />
               <div className="mt-2 border-t border-[#F3F4F6] pt-2">
@@ -112,7 +266,6 @@ export default function HomeValueForecastPage() {
               </div>
             </div>
 
-            {/* 시나리오 선택 섹션 */}
             <div className="mt-8">
               <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
                 {period}년 후 예상 시세
@@ -133,7 +286,6 @@ export default function HomeValueForecastPage() {
               </div>
             </div>
 
-            {/* 시나리오 상세 설명 박스 (사용자가 클릭한 것 보여주기) */}
             <div
               className="mt-4 rounded-[18px] px-5 py-5 transition-all duration-300"
               style={{
@@ -147,44 +299,53 @@ export default function HomeValueForecastPage() {
                 {selectedGuide.title}
               </p>
               <p
-                className="mt-2 text-[13px] leading-5 font-medium whitespace-pre-wrap opacity-90"
+                className="mt-2 whitespace-pre-wrap text-[13px] leading-5 font-medium opacity-90"
                 style={{ color: scenarioMeta[selectedScenario].color }}
               >
                 {selectedGuide.desc}
               </p>
             </div>
 
-            {/* AI 예측 근거 (고정 시나리오 기준) */}
             <div className="mt-8">
               <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
                 AI 예측 근거
               </p>
-              <div className="mt-4 rounded-[20px] px-6 py-6 bg-[#F3F4F6] border border-[#E5E7EB]">
+              <div className="mt-4 rounded-[20px] border border-[#E5E7EB] bg-[#F3F4F6] px-6 py-6">
                 <p className="text-[17px] leading-7 font-bold text-[#111827]">
-                  {fixedAiSummary.title}
+                  {forecast.assetNm} · {forecast.periodYears}년 기준 분석
                 </p>
                 <p className="mt-3 text-[14px] leading-6 font-medium text-[#4B5563] opacity-90">
-                  {fixedAiSummary.desc1}
+                  {forecast.marketSummary}
                   <br />
-                  {fixedAiSummary.desc2}
+                  {forecast.locationSummary}
                 </p>
               </div>
             </div>
 
-            {/* ─── 하단 추천 박스: AI 예측 결과(fixedAiScenario)에 따라 고정 ─── */}
-            <div className="mt-6 rounded-[20px] bg-[#FFF1F2] px-6 py-4 text-center border border-[#FECDD3]">
-              <p className="text-[15px] leading-6 font-bold text-hana-red-500 whitespace-pre-wrap">
+            <div className="mt-6 rounded-[20px] border border-[#FECDD3] bg-[#FFF1F2] px-6 py-4 text-center">
+              <p className="whitespace-pre-wrap text-[15px] leading-6 font-bold text-hana-red-500">
                 {aiScenarioGuide.recommendation}
               </p>
             </div>
+
+            {errorMessage && (
+              <p className="mt-4 text-center text-[13px] text-[#EF4444]">
+                {errorMessage}
+              </p>
+            )}
           </section>
         </main>
 
-        <footer className="sticky bottom-0 shrink-0 bg-white/95 backdrop-blur-sm px-5 pb-8 pt-4 border-t border-[#F3F4F6]">
+        <footer className="sticky bottom-0 shrink-0 border-t border-[#F3F4F6] bg-white/95 px-5 pt-4 pb-8 backdrop-blur-sm">
           <PrimaryButton
-            label="최적화된 주택 연금 수령방식 보기"
+            label={
+              isPending ? '불러오는 중...' : '최적화된 주택 연금 수령방식 보기'
+            }
             className="h-14 rounded-2xl text-[16px] leading-6 font-bold"
-            onClick={() => router.push('/asset/home-pension/result')}
+            onClick={() =>
+              router.push(`/asset/home-pension/result?id=${realAssetId}`)
+            }
+            disabled={isPending}
           />
         </footer>
       </div>

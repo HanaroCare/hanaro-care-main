@@ -18,10 +18,7 @@ import type {
 } from '@/app/asset/actions/trust';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
-import {
-  handleReservation,
-  handleTrustReservation,
-} from '../../constants/trustUtils';
+import { handleReservation } from '../../constants/trustUtils';
 
 function formatWon(amount: number): string {
   const eok = Math.floor(amount / 100_000_000);
