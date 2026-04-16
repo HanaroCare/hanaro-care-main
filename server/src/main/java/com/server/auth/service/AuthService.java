@@ -2,8 +2,8 @@ package com.server.auth.service;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Optional;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-
+import com.server.auth.dto.FindIdRequestDTO;
+import com.server.auth.dto.FindIdResponseDTO;
 import com.server.auth.dto.LoginRequestDTO;
+import com.server.auth.dto.ResetPasswordRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
 import com.server.auth.dto.UnlockDormantRequestDTO;
@@ -27,18 +29,6 @@ import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.UserStatus;
 import com.server.user.repository.UserRepository;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -173,6 +163,46 @@ public class AuthService {
         log.info("[휴면 해제 성공] 계정이 다시 활성화됨: loginId={}", user.getLoginId());
       }
     });
+  }
+
+  @Transactional(readOnly = true)
+  public FindIdResponseDTO findId(FindIdRequestDTO request) {
+    String normalizedPhone = request.getPhoneNumber().replaceAll("[^0-9]", "");
+    if (!smsAuthService.isVerified(normalizedPhone)) {
+      throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
+    }
+    TBUser user = userRepository.findByUserNmAndUserPhone(request.getUsername(), normalizedPhone)
+        .orElseThrow(() -> new ApiException(ErrorStatus.FIND_ID_USER_NOT_FOUND));
+    log.info("[아이디 찾기 성공] userNm={}", request.getUsername());
+    return new FindIdResponseDTO(maskLoginId(user.getLoginId()));
+  }
+
+  @Transactional(rollbackFor = {Exception.class, Error.class})
+  public void resetPassword(ResetPasswordRequestDTO request) {
+    String normalizedPhone = request.getPhoneNumber().replaceAll("[^0-9]", "");
+    if (!smsAuthService.isVerified(normalizedPhone)) {
+      throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
+    }
+    TBUser user = userRepository.findByLoginIdAndUserPhone(request.getLoginId(), normalizedPhone)
+        .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND));
+    if (!user.getUserNm().equals(request.getUsername())) {
+      throw new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND);
+    }
+    user.setUserPwd(passwordEncoder.encode(request.getNewPassword()));
+    user.setPwdChangedAt(LocalDateTime.now());
+    userRepository.save(user);
+    TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+      @Override
+      public void afterCommit() {
+        smsAuthService.clearVerification(normalizedPhone);
+        log.info("[비밀번호 재설정 성공] loginId={}", user.getLoginId());
+      }
+    });
+  }
+
+  private String maskLoginId(String loginId) {
+    if (loginId == null || loginId.length() <= 3) return loginId;
+    return loginId.substring(0, 3) + "*".repeat(loginId.length() - 3);
   }
 
   private SubscriberDTO createSubscriberDTO(TBUser user) {

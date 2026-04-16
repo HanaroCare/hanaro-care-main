@@ -2,6 +2,7 @@ type PrimaryButtonProps = {
   label: string;
   disabled?: boolean;
   onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
   variant?: 'primary' | 'secondary' | 'disabled';
   fullWidth?: boolean;
   className?: string;
@@ -12,6 +13,7 @@ export default function PrimaryButton({
   label,
   disabled = false,
   onClick,
+  type = 'button',
   variant = 'primary',
   fullWidth = true,
   className = '',
@@ -29,7 +31,7 @@ export default function PrimaryButton({
 
   return (
     <button
-      type="button"
+      type={type}
       disabled={isDisabled}
       onClick={onClick}
       className={`

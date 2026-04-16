@@ -25,7 +25,12 @@ function Avatar({ name }: { name: string }) {
 
 export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
   // 1. 백엔드에서 가족 목록 가져오기
-  const { data: familyList, isLoading } = useQuery({
+  const {
+    data: familyList,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: ['familyList'],
     queryFn: () => myhanaApi.getFamily(),
   });
@@ -44,6 +49,28 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
         가족 정보를 불러오는 중...
       </div>
     );
+  if (isError) {
+    return (
+      <div className="p-10 text-center">
+        <p className="text-gray-400">가족 정보를 불러오지 못했어요.</p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="mt-3 text-hana-ez-600"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
+  if (!familyList?.length) {
+    return (
+      <div className="p-10 text-center text-gray-400">
+        등록된 가족 정보가 없어요.
+      </div>
+    );
+  }
 
   return (
     <div>

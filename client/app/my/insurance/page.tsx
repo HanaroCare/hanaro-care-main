@@ -36,7 +36,14 @@ export default function MyFamilyInsurancePage() {
     fetchInsurances();
   }, []);
 
-  console.log(insuranceList);
+  const [isAgentLoading, setAgentLoading] = useState(false);
+
+  const handleInsAgentVerify = async () => {
+    setAgentLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setAgentLoading(false);
+    setInsAgent(true);
+  };
 
   return (
     <div className="mb-10 flex min-h-[calc(100vh-180px)] flex-col">
@@ -54,7 +61,7 @@ export default function MyFamilyInsurancePage() {
           <div className="mt-7 mb-7">
             <AlertBanner
               actionText="인증하기"
-              onActionAction={() => {}}
+              onActionAction={handleInsAgentVerify}
               variant="warning"
               icon={
                 <Image

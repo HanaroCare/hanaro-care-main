@@ -37,7 +37,7 @@ public class MyHanaInheritanceService {
   }
 
   // 계약서 생성하기
-  @CheckUser(key = "#userId")
+  @CheckUser(key = "#user.userId")
   public byte[] generateContract(SubscriberDTO user, ContractDto dto) throws Exception {
     String phone = userRepository.findUserPhoneByUserId(user.getUserId());
     try (InputStream template = getClass().getResourceAsStream("/templates/contract.docx")) {

@@ -18,12 +18,14 @@ export default function MyFamilyInsuranceDetailPage() {
   const insuranceId = params.insuranceId as string;
   const [detail, setDetail] = useState<InsuranceDetailDto | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
+    setHasError(false);
     myhanaApi
       .getInsuranceDetail(Number(insuranceId))
       .then(setDetail)
-      .catch(() => {})
+      .catch(() => setHasError(true))
       .finally(() => setLoading(false));
   }, [insuranceId]);
 
@@ -43,6 +45,15 @@ export default function MyFamilyInsuranceDetailPage() {
       <div className="flex min-h-full items-center justify-center">
         <p className="text-gray-400 text-sm">
           보험 정보를 불러오는 중입니다...
+        </p>
+      </div>
+    );
+  }
+  if (hasError) {
+    return (
+      <div className="flex min-h-full items-center justify-center">
+        <p className="text-gray-400 text-sm">
+          보험 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.
         </p>
       </div>
     );

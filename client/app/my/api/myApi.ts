@@ -11,7 +11,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -30,7 +30,7 @@ export const myhanaApi = {
     const response = await apiClient.get<ApiResponse<FamilySummaryDto[]>>(
       '/api/myhana/guardian/family',
     );
-    console.log(response.data);
+
     return response.data.result;
   },
 
@@ -52,7 +52,6 @@ export const myhanaApi = {
 
   // 임의후견인 계약서 생성 및 다운로드
   downloadContract: async (dto: ContractDto) => {
-    console.log(dto);
     const response = await apiClient.post(
       '/api/myhana/guardian/contract',
       dto,

@@ -86,6 +86,7 @@ public class MyHanaInsuranceService {
 
   @CheckUser(key = "#userId")
   public Boolean isInsAgent(Long userId) {
-    return familyAuthRepository.existsIsProxyClaimsByGrantee_UserId(userId);
+    return familyAuthRepository.existsByGrantee_UserIdAndIsProxyClaimTrue(userId);
+
   }
 }

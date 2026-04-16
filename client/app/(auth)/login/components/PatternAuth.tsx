@@ -9,7 +9,7 @@ type Point = {
 };
 
 type PatternAuthProps = {
-	onSuccess: () => void;
+	onSuccess: (value: string) => void;
 };
 
 export default function PatternAuth({ onSuccess }: PatternAuthProps) {
@@ -119,7 +119,7 @@ export default function PatternAuth({ onSuccess }: PatternAuthProps) {
 	const handleEnd = () => {
 		setIsDrawing(false);
 		if (path.length >= 4) {
-			onSuccess();
+			onSuccess(path.join(""));
 		}
 	};
 
