@@ -3,22 +3,38 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
-export default function OTPInput({ isActive, onComplete }: { isActive: boolean; onComplete: (val: string) => void }) {
+interface OTPInputProps {
+  isActive: boolean;
+  onComplete: (val: string) => void;
+  error?: string;
+  isLoading?: boolean;
+  onReset?: () => void;
+}
+
+export default function OTPInput({ isActive, onComplete, error, isLoading = false, onReset }: OTPInputProps) {
   const [otp, setOtp] = useState(new Array(6).fill(""));
-  const [timeLeft, setTimeLeft] = useState(166);
+  const [timeLeft, setTimeLeft] = useState(300);
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (isActive) {
-      setTimeLeft(166);
+      setTimeLeft(300);
       inputs.current[0]?.focus();
       const timer = setInterval(() => setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0)), 1000);
       return () => clearInterval(timer);
     }
   }, [isActive]);
 
+  useEffect(() => {
+    if (error) {
+      setOtp(new Array(6).fill(""));
+      inputs.current[0]?.focus();
+    }
+  }, [error]);
+
   const handleChange = (val: string, index: number) => {
-    if (isNaN(Number(val))) return;
+    if (isNaN(Number(val)) || isLoading) return;
+    onReset?.();
     const newOtp = [...otp];
     newOtp[index] = val.substring(val.length - 1);
     setOtp(newOtp);
@@ -51,12 +67,25 @@ export default function OTPInput({ isActive, onComplete }: { isActive: boolean; 
             value={data}
             onChange={(e) => handleChange(e.target.value, i)}
             onKeyDown={(e) => handleKeyDown(e, i)}
-            disabled={!isActive}
-            className="w-[2.6rem] h-[3rem] rounded-xl border-[0.125rem] border-gray-100 bg-gray-50 text-center text-[1rem] font-bold text-gray-900 focus:border-hana-ez-600 focus:bg-white outline-none transition-all"
+            disabled={!isActive || isLoading}
+            className={`w-[2.6rem] h-[3rem] rounded-xl border-[0.125rem] text-center text-[1rem] font-bold text-gray-900 outline-none transition-all ${isLoading
+              ? "border-hana-ez-600/40 bg-gray-50 text-gray-400"
+              : error
+                ? "border-red-400 bg-red-50 focus:border-red-500"
+                : "border-gray-100 bg-gray-50 focus:border-hana-ez-600 focus:bg-white"
+              }`}
           />
         ))}
       </div>
-      {isActive && <p className="text-[0.75rem] font-medium text-red-500 ml-[0.25rem]">남은시간 {formatTime(timeLeft)}</p>}
+      {isActive && isLoading && (
+        <p className="text-[0.75rem] font-medium text-hana-ez-600 ml-[0.25rem]">확인 중...</p>
+      )}
+      {isActive && error && !isLoading && (
+        <p className="text-[0.75rem] font-medium text-red-500 ml-[0.25rem] animate-in fade-in slide-in-from-top-1">{error}</p>
+      )}
+      {isActive && !isLoading && !error && (
+        <p className="text-[0.75rem] font-medium text-red-500 ml-[0.25rem]">남은시간 {formatTime(timeLeft)}</p>
+      )}
     </motion.div>
   );
 }

@@ -1,7 +1,11 @@
 package com.server.auth.controller;
 
+import com.server.auth.dto.DormantSmsRequestDTO;
+import com.server.auth.dto.FindIdRequestDTO;
+import com.server.auth.dto.FindIdResponseDTO;
 import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.PasswordFindRequestDTO;
+import com.server.auth.dto.ResetPasswordRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.SmsRequestDTO;
 import com.server.auth.dto.SmsVerifyRequestDTO;
@@ -94,11 +98,31 @@ public class AuthController {
     return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
   }
 
+  @Operation(summary = "휴면 계정 해제용 인증번호 발송", description = "아이디와 전화번호가 DB 정보와 일치할 때만 인증번호를 발송합니다.")
+  @PostMapping("/sms/send/dormant")
+  public ApiResponse<String> sendDormantSms(@Valid @RequestBody DormantSmsRequestDTO request) {
+    smsAuthService.sendDormantSms(request);
+    return ApiResponse.onSuccess("인증번호가 발송되었습니다.");
+  }
+
   @Operation(summary = "SMS 인증번호 확인")
   @ApiSmsVerifyResponse
   @PostMapping("/sms/verify")
   public ApiResponse<String> verifySms(@Valid @RequestBody SmsVerifyRequestDTO request) {
     smsAuthService.verifySms(request);
     return ApiResponse.onSuccess("인증에 성공하였습니다.");
+  }
+
+  @Operation(summary = "아이디 찾기", description = "SMS 인증 완료 후 이름과 전화번호로 마스킹된 아이디를 반환합니다.")
+  @PostMapping("/find-id")
+  public ApiResponse<FindIdResponseDTO> findId(@Valid @RequestBody FindIdRequestDTO request) {
+    return ApiResponse.onSuccess(authService.findId(request));
+  }
+
+  @Operation(summary = "비밀번호 재설정", description = "SMS 인증 완료 후 새 비밀번호로 업데이트합니다.")
+  @PostMapping("/reset-password")
+  public ApiResponse<String> resetPassword(@Valid @RequestBody ResetPasswordRequestDTO request) {
+    authService.resetPassword(request);
+    return ApiResponse.onSuccess("비밀번호가 변경되었습니다.");
   }
 }

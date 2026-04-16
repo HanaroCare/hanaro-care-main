@@ -1,12 +1,8 @@
 "use client";
 
-import { ChevronLeft, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-/**
- * 폰트 설정 페이지
- */
 export default function FontConfigPage() {
 	const router = useRouter();
 	const [isMounted, setIsMounted] = useState(false);
@@ -25,7 +21,6 @@ export default function FontConfigPage() {
 		const savedLevel = localStorage.getItem("font-level");
 		const parsed = Number(savedLevel);
 
-		// 1~5 사이의 정수인지 검증, 아니면 기본값 2 사용
 		const level = (savedLevel !== null &&
 			Number.isFinite(parsed) &&
 			Number.isInteger(parsed) &&
@@ -47,10 +42,15 @@ export default function FontConfigPage() {
 		}
 	};
 
+	const handleComplete = () => {
+		localStorage.setItem("HAS_SEEN_FONT_CONFIG", "true");
+		document.cookie = "HAS_SEEN_FONT_CONFIG=true; path=/; max-age=31536000";
+		router.push("/onboarding");
+	};
+
 	return (
 		<div className="app-shell bg-white shadow-2xl font-scale-isolated">
 			<div className="app-layout">
-
 				<main
 					className="app-main flex flex-1 flex-col"
 					style={{ padding: "48px 24px 0" }}
@@ -95,7 +95,6 @@ export default function FontConfigPage() {
 						</div>
 					</div>
 
-
 					<div className="mt-auto" style={{ padding: '0 24px 40px' }}>
 						<div
 							className="flex items-center justify-between"
@@ -118,8 +117,13 @@ export default function FontConfigPage() {
 										step="1"
 										value={selectedLevel}
 										onChange={(e) => handleLevelChange(Number(e.target.value))}
-										className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-primary"
-										style={{ height: '8px', margin: '0', display: 'block' }}
+										className="h-2.5 w-full cursor-pointer appearance-none rounded-full bg-gray-200 accent-primary touch-none select-none"
+										style={{
+											height: '8px',
+											margin: '0',
+											display: 'block',
+											touchAction: 'none'
+										}}
 									/>
 								) : (
 									<div className="h-2.5 w-full rounded-full bg-gray-200" style={{ height: '8px' }} />
@@ -150,7 +154,7 @@ export default function FontConfigPage() {
 				>
 					<button
 						type="button"
-						onClick={() => router.push("/onboarding" as any)}
+						onClick={handleComplete}
 						className="w-full bg-primary font-bold text-white transition-colors hover:bg-primary/90 active:scale-[0.98]"
 						style={{
 							height: "56px",

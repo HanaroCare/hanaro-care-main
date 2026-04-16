@@ -53,9 +53,24 @@ VALUES
 
     -- 6. 시뮬레이션 테스트용 자녀 유저
     (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW());
+     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW()),
 
+    -- 7. Tsid: 간편비밀번호(654321) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
+    (1007, 'Tsid', '하나테스터', '$2a$12$BYTWmmP4M2n/t2Fb/L.QnOejBuoHqILdK1syQ1rk62sfWBKtam9Ji',
+     '01012345678', 30, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW()),
 
+    -- 8. TsidZ: 패턴(Z모양: 0124678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
+    (1008, 'TsidZ', '패턴Z테스터', '$2a$12$1Sk8P7kehKkY933ANOAj1.AC52WVGH2/SB54gyil1Go.SMIm7IJKm',
+     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
+
+    -- 9. TsidL: 패턴(ㄴ모양: 03678) 테스트 유저 / SIMPLE_AUTH 테이블에 별도 등록
+    (1009, 'TsidL', '패턴L테스터', '$2a$12$heAv.jDZ5PHLQ.fupN2e.uRIbjWd7o7PfYiTSkc5XFyDvXd7/jQ7q',
+     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW()),
+
+    -- 10. 최장기: 비밀번호 변경한 지 1년 넘은 유저 (무조건 팝업 떠야 함)
+    (1010, 'oldUser', '고하나', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01099998888', 50, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(),
+     DATE_SUB(NOW(), INTERVAL 12 MONTH));
 -- ========================
 -- TB_PRODUCT
 -- ========================
@@ -132,35 +147,36 @@ VALUES (3001, 1001, '역삼동 아파트', 'REAL_ESTATE', 920000000.00, '서울 
 -- ========================
 -- TB_CARD
 -- ========================
-INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE, BALANCE_AMT, PAY_DAY)
+INSERT INTO TB_CARD (CARD_ID, ACCOUNT_ID, CARD_NM, LIMIT_AMT, AUTO_TRANS_AMT, IS_USE, BALANCE_AMT,
+                     PAY_DAY)
 VALUES (4001, 2001, '한금순 요양보호사 간병비 카드', 5000000.00, 0.00, 1, 320000.00, 15),
        (4002, 2001, '최고운 요양보호사 생활비 카드', 2000000.00, 500000.00, 1, 150000.00, 20);
 
 -- ========================
 -- TB_CARD_USAGE
 -- ========================
-INSERT INTO TB_CARD_USAGE (CARD_USAGE_ID, CARD_ID, USAGE_NM, USAGE_LOC, USAGE_TYPE_CD, USAGE_AMT, ABNML_YN, APRVL_YN)
-VALUES
-    (9001, 4001, '강남성심병원', '서울 강남구 도곡동', 'SPEND', 25000.00, 'N', 'Y'),
-    (9002, 4001, '홍길동', NULL, 'CHARGE', 300000.00, 'N', 'Y'),
-    (9003, 4001, '네일샵 강남점', '서울 강남구 강남대로', 'SPEND', 45000.00, 'Y', 'Y'),
-    (9004, 4001, '삼성서울병원 약국', '서울 강남구 일원동', 'SPEND', 18500.00, 'N', 'Y'),
-    (9005, 4001, '강남구보건소', '서울 강남구 삼성동', 'SPEND', 5000.00, 'N', 'Y'),
-    (9006, 4001, '온누리약국 역삼점', '서울 강남구 역삼동', 'SPEND', 12800.00, 'N', 'Y'),
-    (9007, 4001, '노래방 강남점', '서울 강남구 역삼동', 'SPEND', 35000.00, 'Y', 'Y'),
-    (9008, 4001, '의료기기센터 강남', '서울 강남구 논현동', 'SPEND', 45000.00, 'N', 'Y'),
-    (9009, 4001, '강남재활의학과', '서울 강남구 역삼동', 'SPEND', 32000.00, 'N', 'Y'),
-    (9010, 4001, '한마음약국', '서울 강남구 대치동', 'SPEND', 9500.00, 'N', 'Y'),
-    (9011, 4002, '이마트 도곡점', '서울 강남구 도곡동', 'SPEND', 62000.00, 'N', 'Y'),
-    (9012, 4002, '홍길동', NULL, 'CHARGE', 200000.00, 'N', 'Y'),
-    (9013, 4002, 'GS25 역삼점', '서울 강남구 역삼동', 'SPEND', 7500.00, 'N', 'Y'),
-    (9014, 4002, '올리브영 강남점', '서울 강남구 강남대로', 'SPEND', 28000.00, 'N', 'Y'),
-    (9015, 4002, '코리아마트 논현점', '서울 강남구 논현동', 'SPEND', 41000.00, 'N', 'Y'),
-    (9016, 4002, '홍길동', NULL, 'CHARGE', 150000.00, 'N', 'Y'),
-    (9017, 4002, 'CU 논현점', '서울 강남구 논현동', 'SPEND', 5800.00, 'N', 'Y'),
-    (9018, 4002, '롯데마트 강남점', '서울 강남구 대치동', 'SPEND', 55000.00, 'N', 'Y'),
-    (9019, 4002, '강남세탁소', '서울 강남구 역삼동', 'SPEND', 15000.00, 'N', 'Y'),
-    (9020, 4002, '한강공원 편의점', '서울 강남구 강남대로', 'SPEND', 8200.00, 'N', 'Y');
+INSERT INTO TB_CARD_USAGE (CARD_USAGE_ID, CARD_ID, USAGE_NM, USAGE_LOC, USAGE_TYPE_CD, USAGE_AMT,
+                           ABNML_YN, APRVL_YN)
+VALUES (9001, 4001, '강남성심병원', '서울 강남구 도곡동', 'SPEND', 25000.00, 'N', 'Y'),
+       (9002, 4001, '홍길동', NULL, 'CHARGE', 300000.00, 'N', 'Y'),
+       (9003, 4001, '네일샵 강남점', '서울 강남구 강남대로', 'SPEND', 45000.00, 'Y', 'Y'),
+       (9004, 4001, '삼성서울병원 약국', '서울 강남구 일원동', 'SPEND', 18500.00, 'N', 'Y'),
+       (9005, 4001, '강남구보건소', '서울 강남구 삼성동', 'SPEND', 5000.00, 'N', 'Y'),
+       (9006, 4001, '온누리약국 역삼점', '서울 강남구 역삼동', 'SPEND', 12800.00, 'N', 'Y'),
+       (9007, 4001, '노래방 강남점', '서울 강남구 역삼동', 'SPEND', 35000.00, 'Y', 'Y'),
+       (9008, 4001, '의료기기센터 강남', '서울 강남구 논현동', 'SPEND', 45000.00, 'N', 'Y'),
+       (9009, 4001, '강남재활의학과', '서울 강남구 역삼동', 'SPEND', 32000.00, 'N', 'Y'),
+       (9010, 4001, '한마음약국', '서울 강남구 대치동', 'SPEND', 9500.00, 'N', 'Y'),
+       (9011, 4002, '이마트 도곡점', '서울 강남구 도곡동', 'SPEND', 62000.00, 'N', 'Y'),
+       (9012, 4002, '홍길동', NULL, 'CHARGE', 200000.00, 'N', 'Y'),
+       (9013, 4002, 'GS25 역삼점', '서울 강남구 역삼동', 'SPEND', 7500.00, 'N', 'Y'),
+       (9014, 4002, '올리브영 강남점', '서울 강남구 강남대로', 'SPEND', 28000.00, 'N', 'Y'),
+       (9015, 4002, '코리아마트 논현점', '서울 강남구 논현동', 'SPEND', 41000.00, 'N', 'Y'),
+       (9016, 4002, '홍길동', NULL, 'CHARGE', 150000.00, 'N', 'Y'),
+       (9017, 4002, 'CU 논현점', '서울 강남구 논현동', 'SPEND', 5800.00, 'N', 'Y'),
+       (9018, 4002, '롯데마트 강남점', '서울 강남구 대치동', 'SPEND', 55000.00, 'N', 'Y'),
+       (9019, 4002, '강남세탁소', '서울 강남구 역삼동', 'SPEND', 15000.00, 'N', 'Y'),
+       (9020, 4002, '한강공원 편의점', '서울 강남구 강남대로', 'SPEND', 8200.00, 'N', 'Y');
 
 -- ========================
 -- TB_ASSET_SIMULATION
@@ -459,9 +475,18 @@ VALUES (7001, 1001, 1, 'SIMPLE_PASSWORD', '192.168.0.1', 'iPhone 15 Pro'),
 -- ========================
 -- TB_USER_SIMPLE_AUTH
 -- ========================
+-- 평문 → BCrypt(strength=12) 매핑
+-- 1002 chulsoo7 : SIMPLE_PASSWORD (기존)
+-- 1007 Tsid     : SIMPLE_PASSWORD "654321"
+-- 1008 TsidZ    : PATTERN         "0124678"  (Z모양)
+-- 1009 TsidL    : PATTERN         "03678"    (ㄴ모양)
 INSERT INTO TB_USER_SIMPLE_AUTH (SIMPLE_AUTH_ID, USER_ID, AUTH_VALUE, AUTH_MEANS_CD)
 VALUES (8001, 1002, '$2a$12$3vbJaMEQ0c8gmy8vOTUq4u0oKkUZEiI584xqRz1bFKHe.drWmV3/G',
-        'SIMPLE_PASSWORD');
+        'SIMPLE_PASSWORD'),
+       (8002, 1007, '$2b$12$AoCj7a0AsEeEjo5udi57AuuQF9epqRY39.HzYvcafdQ3Ck7MrL22e',
+        'SIMPLE_PASSWORD'),
+       (8003, 1008, '$2b$12$B07o/MgdB1C0JpHHj7OGuu0zoOTy6dTmNmZU2SXPqPQ9lP/Psjnkq', 'PATTERN'),
+       (8004, 1009, '$2b$12$/8bGIb4EbZtDaFlFIe8uXeZM.vK5Mflt686CZb89q4Ax98KMnft4e', 'PATTERN');
 
 -- ========================
 -- TB_REFRESH_TOKEN
