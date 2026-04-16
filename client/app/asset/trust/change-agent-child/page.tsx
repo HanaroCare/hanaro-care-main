@@ -4,7 +4,7 @@ import { FileCheck, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import InfoBox from '@/components/modules/InfoBox';
+import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
 
 export default function ChangeAgentChildPage() {
@@ -22,25 +22,20 @@ export default function ChangeAgentChildPage() {
         </footer>
       }
     >
-      <section className="px-6 pt-4">
+      <Header title="신탁 열람 권한 신청" showBackButton />
+      <section className="px-6 pt-2">
         <div className="mt-14">
           <h2 className="text-[22px] leading-[1.45] font-bold tracking-tight text-black">
-            특별지급 신청
+            신탁 현황 열람 권한 신청하기
           </h2>
-          <p className="mt-4 text-[12px] leading-5 font-normal tracking-snug text-[#6A7282]">
-            자산이 오직 치료와 안녕을 위해서만 쓰이도록
+          <p className="mt-4 text-[14px] leading-5 font-normal tracking-snug text-[#6A7282]">
+            자산이 오직 부모님의 치료와 안녕을 위해서만 쓰이도록
             <br />
-            미리 지정한 대리인에게 권한을 위임해주세요
+            열람 권한을 신청하여 자산 운용 현황을 확인하세요
           </p>
         </div>
 
-        <InfoBox
-          title="특별지급 신청이란?"
-          desc="부득이한 경우, 미리 지정한 지급청구대리인을 통해 자산을 안전하게 운용 및 집행하는 보호 시스템"
-          className="mt-6"
-        />
-
-        <div className="mt-8">
+        <div className="mt-12">
           <p className="mb-3 text-[13px] leading-5 font-medium tracking-snug text-[#6A7282]">
             위탁자(부모님) 정보
           </p>
@@ -70,7 +65,7 @@ export default function ChangeAgentChildPage() {
 
         <div className="mt-6">
           <p className="mb-3 text-[13px] leading-5 font-medium tracking-snug text-[#6A7282]">
-            대리인 지정을 위한 본인 확인 서류
+            열람 권한 신청을 위한 본인 확인 서류
           </p>
 
           <div className="flex flex-col gap-3">

@@ -36,7 +36,7 @@ public class TBAccount extends BaseEntity {
   @Id
   @Tsid
   @Column(name = "ACCOUNT_ID", columnDefinition = "bigint unsigned")
-  private Long id;
+  private Long accountId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID",
@@ -61,7 +61,7 @@ public class TBAccount extends BaseEntity {
   @Column(name = "ASSET_CATE_CD", nullable = false)
   private AssetCategory assetCateCd;
 
-  @Column(name = "PROFIT_RATE", precision = 4, scale = 2)
+  @Column(name = "PROFIT_RATE", precision = 5, scale = 2)
   private BigDecimal profitRate;
 
   @Column(name = "LIMIT_AMT", precision = 13, scale = 2)
@@ -81,4 +81,8 @@ public class TBAccount extends BaseEntity {
 
   @Column(name = "MONTHLY_PREM_AMT", precision = 13, scale = 2)
   private BigDecimal monthlyPremAmt;
+
+  @Builder.Default
+  @Column(name = "IS_LINKED", nullable = false)
+  private Boolean isLinked = true;
 }

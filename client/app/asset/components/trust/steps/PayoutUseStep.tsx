@@ -1,10 +1,13 @@
 'use client';
 
-import { TriangleAlert } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import {
+  formatKoreanAmount,
+  parseKoreanAmount,
+} from '@/app/asset/constants/trustUtils';
+import { AlertBanner } from '@/components/modules/AlertBanner'; // 중괄호 사용 확인
 import DualActionFooter from '@/components/modules/DualActionFooter';
-import { formatKoreanAmount, parseKoreanAmount } from '@/app/asset/trust/trustUtils';
 import TrustAmountList from '../TrustAmountList';
 import TrustWizardStep from '../TrustWizardStep';
 
@@ -39,39 +42,28 @@ export default function PayoutUseStep() {
           leftLabel="지금 안할래요"
           rightLabel="다음으로"
           rightDisabled={selected.size === 0}
-          onLeftClick={() => router.push('/asset/trust/result')}
+          onLeftClick={() => router.push('/asset/trust/select-agent')}
           onRightClick={() => router.push('/asset/trust/select-agent')}
         />
       }
     >
-      <div className="mt-14 flex items-start justify-between gap-4">
-        <div>
-          <h2 className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
-            어디에
-            <br />
-            사용할까요?
-          </h2>
-          <p className="mt-4 font-normal text-[#6A7282] text-[12px] leading-5 tracking-snug">
-            병원비 계산기 결과가
-            <br />
-            자동 반영되었어요
-          </p>
-        </div>
+      <div className="mt-12">
+        <h2 className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
+          어디에
+          <br />
+          사용할까요?
+        </h2>
 
-        <div className="shrink-0 rounded-[28px] bg-[#FDEEEE] px-5 py-4">
-          <div className="flex items-start gap-3">
-            <TriangleAlert className="text-hana-red-500" />
-            <p className="font-medium text-[12px] text-hana-red-500 leading-5 tracking-snug">
-              집행 내역을
-              <br />
-              나중에 바꿀 수 있어요!
-            </p>
-          </div>
+        <div className="mt-8 flex justify-center">
+          <AlertBanner
+            variant="info"
+            message="선택지에 병원비 계산 결과가 반영되었어요"
+          />
         </div>
       </div>
 
       <TrustAmountList
-        className="mt-10"
+        className="mt-5"
         items={items}
         selected={selected}
         onToggle={toggle}

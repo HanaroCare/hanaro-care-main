@@ -34,7 +34,7 @@ public class TBRefreshToken {
   @JoinColumn(name = "USER_ID", insertable = false, updatable = false) // 읽기 전용 연관관계
   private TBUser user;
 
-  @Column(name = "TOKEN_VAL", nullable = false, length = 500)
+  @Column(name = "TOKEN_VAL", nullable = false, length = 500, unique = true)
   private String tokenValue;
 
   @Column(name = "EXPIRY_DT", nullable = false)
@@ -47,3 +47,4 @@ public class TBRefreshToken {
     }
   }
 }
+

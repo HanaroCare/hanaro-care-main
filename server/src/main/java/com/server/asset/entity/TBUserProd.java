@@ -2,6 +2,7 @@ package com.server.asset.entity;
 
 import com.server.asset.entity.enums.InvestType;
 import com.server.asset.entity.enums.PayoutType;
+import com.server.asset.entity.enums.PensionPayoutType;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.StartType;
@@ -19,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -65,6 +67,10 @@ public class TBUserProd extends BaseEntity {
   @Column(name = "PROD_STAT_CD", nullable = false)
   private ProdStat prodStat;
 
+  @Enumerated(EnumType.STRING)
+  @Column(name = "PENSION_PAYOUT_TYPE_CD", nullable = true)
+  private PensionPayoutType pensionPayoutType;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TARGET_ASSET_ID", referencedColumnName = "REAL_ASSET_ID",
       columnDefinition = "bigint unsigned",
@@ -72,13 +78,10 @@ public class TBUserProd extends BaseEntity {
       foreignKey = @ForeignKey(name = "fk_UserProd_targetAssetId_RealAsset"))
   private TBRealAsset targetAsset;
 
-  @Column(name = "EXPECTED_MONTHLY_PAYOUT",
+  @Column(name = "MONTHLY_PAYOUT",
       precision = 13, scale = 2,
       nullable = true)
-  private BigDecimal expectedMonthlyPayout;
-
-  @Column(name = "EXPECTED_PERIOD", nullable = true)
-  private Byte expectedPeriod;
+  private BigDecimal monthlyPayout;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "INVEST_TYPE_CD", nullable = true)
@@ -89,19 +92,22 @@ public class TBUserProd extends BaseEntity {
       nullable = true)
   private BigDecimal principalAmount;
 
-  @Column(name = "EXPECTED_RATE",
+  @Column(name = "PROFIT_RATE",
       precision = 5, scale = 2,
       nullable = true)
-  private BigDecimal expectedRate;
+  private BigDecimal profitRate;
 
-  @Column(name = "EXPECTED_PROFIT",
+  @Column(name = "PROFIT",
       precision = 13, scale = 2,
       nullable = true)
-  private BigDecimal expectedProfit;
+  private BigDecimal profit;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "START_TYPE", nullable = true)
   private StartType startType;
+
+  @Column(name = "START_DATE", nullable = true)
+  private LocalDate startDate;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "CLAIM_AGENT_ID", referencedColumnName = "USER_ID",
@@ -110,6 +116,10 @@ public class TBUserProd extends BaseEntity {
       foreignKey = @ForeignKey(name = "fk_UserProd_claimAgentId_User"))
   private TBUser claimAgent;
 
-  @Column(name = "AGENT_VIEW_YN", length = 1)
-  private String agentViewYn;
+  @Builder.Default
+  @Column(name = "IS_AGENT_VIEW", nullable = false)
+  private Boolean isAgentView = false;
+
+  @Column(name = "PAYOUT_SETTINGS", columnDefinition = "JSON")
+  private String payoutSettings;
 }

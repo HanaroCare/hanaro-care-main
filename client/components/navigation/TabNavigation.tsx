@@ -33,7 +33,7 @@ export function TabNavigation({
               aria-selected={isActive}
               tabIndex={isActive ? 0 : -1}
               onClick={() => onTabChange(tab.id)}
-              className={`relative flex flex-1 items-center justify-center py-3 font-medium text-[15px] transition-colors ${
+              className={`relative flex flex-1 items-center justify-center py-4 font-medium text-[15px] transition-colors ${
                 isActive ? 'text-hana-green-700' : 'text-border-gray'
               }`}
             >

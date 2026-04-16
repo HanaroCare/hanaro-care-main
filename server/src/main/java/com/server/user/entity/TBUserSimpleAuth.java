@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,7 +28,12 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-@Table(name = "TB_USER_SIMPLE_AUTH")
+@Table(
+    name = "TB_USER_SIMPLE_AUTH",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "uk_user_means", columnNames = {"USER_ID", "AUTH_MEANS_CD"})
+    }
+)
 public class TBUserSimpleAuth extends BaseEntity {
 
   @Id
@@ -48,7 +54,7 @@ public class TBUserSimpleAuth extends BaseEntity {
   @Column(name = "AUTH_MEANS_CD", nullable = false, length = 20)
   private LoginMeans authMeansCd;
 
-  @Column(name = "AUTH_VALUE", nullable = false, length = 255)
+  @Column(name = "AUTH_VALUE", nullable = false, length = 512)
   private String authValue;
 
 }

@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,9 +46,8 @@ public class TBInheritDetail extends BaseEntity {
   @Enumerated(EnumType.STRING)
   private FamilyRelation relationCd;
 
-  @Column(name = "DIST_RATIO", nullable = false,
-      columnDefinition = "double DEFAULT 0")
-  private Double distRatio;
+  @Column(name = "DIST_RATIO", nullable = false, precision = 5, scale = 2)
+  private BigDecimal distRatio;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "INHERIT_PLAN_ID", referencedColumnName = "INHERIT_PLAN_ID",

@@ -1,5 +1,6 @@
 'use client';
 
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -33,7 +34,7 @@ export default function PayoutTypeStep() {
           <PrimaryButton
             label="다음으로"
             disabled={!selected}
-            onClick={() => router.push('/asset/trust/payout-use')}
+            onClick={() => router.push('/asset/trust/payout-use' as Route)}
           />
         </footer>
       }

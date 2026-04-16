@@ -1,5 +1,6 @@
 package com.server.common.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.common.exception.CustomJwtException;
 import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;
@@ -15,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import tools.jackson.databind.ObjectMapper;
 
 @Component
 @RequiredArgsConstructor

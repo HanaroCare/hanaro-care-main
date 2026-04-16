@@ -1,5 +1,6 @@
 'use client';
 
+import { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -48,7 +49,7 @@ export default function OperationTypeStep() {
         <footer className="shrink-0 bg-white px-6 pb-8 pt-10">
           <PrimaryButton
             label="다음으로"
-            onClick={() => router.push('/asset/trust/payout-type')}
+            onClick={() => router.push('/asset/trust/payout-type' as Route)}
           />
         </footer>
       }

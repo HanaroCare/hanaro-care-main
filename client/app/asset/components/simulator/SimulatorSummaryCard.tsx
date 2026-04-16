@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronRight } from 'lucide-react';
+import { Route } from 'next';
 import { useRouter } from 'next/navigation';
 
 type SummaryItemProps = {
@@ -26,10 +27,10 @@ export function SimulatorSummaryCard() {
     <div
       className="relative flex w-full flex-col overflow-hidden rounded-[24px] p-6 text-white shadow-lg"
       style={{
-        background: 'linear-gradient(135deg, #00A8A6 0%, #4AFEF1 100%)',
+        background: 'linear-gradient(135deg, #0C8585 0%, #58C7C7 100%)',
       }}
     >
-      <div className="mb-6 flex flex-col gap-1">
+      <div className="mb-4 flex flex-col gap-1">
         <span className="font-medium text-[14px] text-white/90">
           시뮬레이터 결과
         </span>
@@ -38,7 +39,7 @@ export function SimulatorSummaryCard() {
         </h3>
       </div>
 
-      <div className="mb-8 flex gap-3">
+      <div className="mb-5 flex gap-3">
         <SummaryItem label="필요 비용" value="6.2억" />
         <SummaryItem label="확보 자금" value="5.1억" />
         <SummaryItem label="월 부족액" value="42만원" />
@@ -48,8 +49,8 @@ export function SimulatorSummaryCard() {
 
       <button
         type="button"
-        onClick={() => router.push('/asset/simulator/result')}
-        className="mt-5 flex items-center justify-between rounded-lg font-semibold text-[15px] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#00A8A6]"
+        onClick={() => router.push('/asset/simulator/result' as Route)}
+        className="mt-3 flex items-center justify-between rounded-lg font-semibold text-[15px] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#00A8A6]"
       >
         <span>상세 결과 보기</span>
         <ChevronRight size={20} />
