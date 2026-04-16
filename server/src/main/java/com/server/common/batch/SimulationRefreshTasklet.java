@@ -1,4 +1,4 @@
-package com.server.asset.batch;
+package com.server.common.batch;
 
 import com.server.asset.repository.AssetSimulationRepository;
 import com.server.asset.service.SimulationRefreshService;
@@ -10,6 +10,7 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,7 +35,7 @@ public class SimulationRefreshTasklet implements Tasklet {
     private final SimulationService simulationService;
 
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+    public RepeatStatus execute(@NonNull StepContribution contribution, @NonNull ChunkContext chunkContext) {
         int processed = 0;
         int skipped = 0;
         int failed = 0;
