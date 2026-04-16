@@ -33,6 +33,8 @@ public class PensionForecastInternalDto {
 		private List<Scenario> scenarios;
 		private List<ChartPoint> chartPoints;
 		private String recommendedScenario;
+		private String marketSummary;
+		private String locationSummary;
 		private String recommendedReason;  // Gemini 생성 추천 이유 (1~2문장)
 		private String modelVersion;
 		private LocalDateTime predictedAt;

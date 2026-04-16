@@ -42,11 +42,12 @@ public interface PensionMapper {
 	@Mapping(target = "scenarios",           source = "result.scenarios")
 	@Mapping(target = "chartPoints",         source = "result.chartPoints")
 	@Mapping(target = "recommendedScenario", source = "result.recommendedScenario")
+	@Mapping(target = "marketSummary",       source = "result.marketSummary")
+	@Mapping(target = "locationSummary",     source = "result.locationSummary")
 	@Mapping(target = "recommendedReason",   source = "result.recommendedReason")
 	@Mapping(target = "modelVersion",        source = "result.modelVersion")
 	@Mapping(target = "predictedAt",         source = "result.predictedAt")
 	PensionForecastResponse toForecastResponse(TBRealAsset asset, PensionForecastInternalDto.Result result);
-
 	// TBPensionSimulation -> PensionSimulationSummaryResponse
 	@Mapping(target = "recommendedType",             expression = "java(simulation.getRecommendedType().name())")
 	@Mapping(target = "recommendedLabel",            expression = "java(simulation.getRecommendedType().getDescription())")

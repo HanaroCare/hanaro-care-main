@@ -75,7 +75,7 @@ export const scenarioDescriptionMap: Record<
     title: '중립 (현상 유지)',
     desc: '시장 분위기가 차분해지면서 안정적인 흐름이 예상됩니다.',
     recommendation:
-      '안정적인 자산 유지가 예상되므로,\n조기 가입을 통해 수령 금액을 늘리는 것이 유리합니다.',
+      '안정적인 자산 유지가 예상되므로,\n가입을 통해 높은 수령 금액을 확보하는 것이\n유리합니다.',
   },
   bear: {
     title: '비관 (집값 정체)',

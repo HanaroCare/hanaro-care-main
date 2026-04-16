@@ -6,10 +6,18 @@ import type { ReactNode } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
+import { handleReservation } from '../../constants/trustUtils';
 
 export default function ChangeAgentChildPage() {
-  const router = useRouter();
+  const handleFamilyDoc = () => {
+    window.location.href =
+      'https://www.gov.kr/main?a=AA020InfoCappViewApp&HighCtgCD=A01008&CappBizCD=97400000004';
+  };
 
+  const handleGuardianshipDoc = () => {
+    window.location.href =
+      'https://egdrs.scourt.go.kr/ug/SrvcGuideDtlInq.do?bltnBordId=042018000002';
+  };
   return (
     <TrustStepLayout
       footer={
@@ -17,7 +25,7 @@ export default function ChangeAgentChildPage() {
           <PrimaryButton
             label="상담 예약하기"
             className="h-14 rounded-2xl text-[16px] leading-6"
-            onClick={() => router.back()}
+            onClick={handleReservation}
           />
         </footer>
       }
@@ -75,13 +83,16 @@ export default function ChangeAgentChildPage() {
               iconBg="#E9F8F9"
               buttonLabel="발급받기"
               icon={<FileText size={20} className="text-hana-ez-600" />}
+              onClick={handleFamilyDoc}
             />
+
             <DocumentItem
               title="후견 증명서"
               desc="전자후견등기에서 발급받기"
               iconBg="#FDEEEE"
               buttonLabel="발급받기"
               icon={<FileCheck size={20} className="text-hana-red-500" />}
+              onClick={handleGuardianshipDoc}
             />
           </div>
         </div>

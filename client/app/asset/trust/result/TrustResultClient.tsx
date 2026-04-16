@@ -1,8 +1,8 @@
 'use client';
-
+import { toPng } from 'html-to-image';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -18,6 +18,7 @@ import type {
 } from '@/app/asset/actions/trust';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
+import { handleReservation } from '../../constants/trustUtils';
 
 function formatWon(amount: number): string {
   const eok = Math.floor(amount / 100_000_000);
@@ -165,6 +166,43 @@ export default function TrustResultClient({
     setIsCustomView(false);
   };
 
+  const captureRef = useRef<HTMLDivElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSaveImage = async () => {
+    if (!captureRef.current) return;
+
+    try {
+      setIsSaving(true);
+
+      const node = captureRef.current;
+      const width = node.scrollWidth;
+      const height = node.scrollHeight;
+
+      const dataUrl = await toPng(node, {
+        cacheBust: true,
+        pixelRatio: 2,
+        canvasWidth: width,
+        canvasHeight: height,
+        width,
+        height,
+        style: {
+          width: `${width}px`,
+          height: `${height}px`,
+        },
+      });
+
+      const link = document.createElement('a');
+      link.download = `trust-result-${Date.now()}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error('이미지 저장 실패', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="app-shell bg-white">
       <div className="app-layout bg-white">
@@ -174,7 +212,10 @@ export default function TrustResultClient({
           onClose={() => router.push('/asset/simulator' as Route)}
         />
 
-        <main className="app-main no-scrollbar px-4 py-5">
+        <main
+          ref={captureRef}
+          className="app-main no-scrollbar px-4 py-5 bg-white"
+        >
           <div className="rounded-[24px] bg-linear-to-br from-hana-teal-600 to-hana-teal-300 px-6 py-7">
             <p className="text-[13px] leading-5 font-medium text-white/80">
               5년 후
@@ -286,10 +327,10 @@ export default function TrustResultClient({
         </main>
 
         <DualActionFooter
-          leftLabel="결과 저장하기"
+          leftLabel={isSaving ? '저장 중...' : '결과 저장하기'}
           rightLabel="상담 예약하기"
-          onLeftClick={() => {}}
-          onRightClick={() => {}}
+          onLeftClick={handleSaveImage}
+          onRightClick={handleReservation}
         />
       </div>
     </div>
