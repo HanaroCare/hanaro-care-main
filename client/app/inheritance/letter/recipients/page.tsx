@@ -2,12 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import {
-  type InheritanceSummaryDto,
-  inheritanceApi,
-} from '@/app/inheritance/inheritApi';
+import { inheritanceApi } from '../../api/inheritApi';
 import { RecipientCard } from '../../components/letter/RecipientCard';
 import { formatAmount } from '../../utils/format';
+import type { InheritanceSummaryDto } from '../types';
 
 export default function InheritanceLetterPage() {
   const router = useRouter();
@@ -39,8 +37,8 @@ export default function InheritanceLetterPage() {
     );
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-white">
-      <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-[calc(100vh-155px)] w-full flex-col bg-white">
+      <div className="flex w-full flex-col">
         <div className="flex flex-1 flex-col gap-5 pt-8 pb-6">
           <h2 className="font-bold text-gray-900 text-xl">
             누구에게 남길까요?
@@ -49,16 +47,18 @@ export default function InheritanceLetterPage() {
           <div className="flex flex-col gap-3">
             {recipients?.map((recipient: InheritanceSummaryDto) => (
               <RecipientCard
-                key={recipient.id}
-                // DTO 필드명에 맞춰 props 매핑 (RecipientCard 내부 구조에 따라 조정 필요)
+                key={recipient.inheritDetailId}
                 recipient={{
-                  id: recipient.id,
-                  username: recipient.username, // InheritanceSummaryDto의 username
-                  percent: recipient.percent, // InheritanceSummaryDto의 percent
-                  amt: recipient.amt, // InheritanceSummaryDto의 amt
+                  inheritDetailId: recipient.inheritDetailId,
+                  userId: recipient.userId,
+                  username: recipient.username,
+                  percent: recipient.percent,
+                  amt: recipient.amt,
                 }}
                 onClick={() =>
-                  router.push(`/inheritance/letter/recipients/${recipient.id}`)
+                  router.push(
+                    `/inheritance/letter/recipients/${recipient.inheritDetailId}`,
+                  )
                 }
               />
             ))}

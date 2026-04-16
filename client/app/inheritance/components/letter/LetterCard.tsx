@@ -1,4 +1,5 @@
-import AudioPlayer from "./AudioPlayer";
+import { LetterType } from '../../letter/types';
+import AudioPlayer from './AudioPlayer';
 
 interface Props {
   nickname: string;
@@ -6,6 +7,7 @@ interface Props {
   message: string | null;
   audioUrl: string | null;
   elasped?: number;
+  letterType: LetterType;
 }
 
 export default function LetterCard({
@@ -13,23 +15,23 @@ export default function LetterCard({
   recipientName,
   message,
   audioUrl,
+  letterType,
 }: Props) {
-  message = null; // * 변경
   return (
-    <div className="relative w-full flex items-center justify-center h-56">
+    <div className="relative flex h-56 w-full items-center justify-center">
       {/* 뒤 카드들 */}
-      <div className="absolute w-[88%] h-44 bg-[#F5E4B1] rounded-3xl -rotate-10" />
-      <div className="absolute w-[88%] h-44 bg-[#BFECD8] rounded-3xl -rotate-4" />
-      <div className="absolute w-[88%] h-44 bg-[#F8CEDB] rounded-3xl rotate-7" />
+      <div className="-rotate-10 absolute h-44 w-[88%] rounded-3xl bg-[#F5E4B1]" />
+      <div className="-rotate-4 absolute h-44 w-[88%] rounded-3xl bg-[#BFECD8]" />
+      <div className="absolute h-44 w-[88%] rotate-7 rounded-3xl bg-[#F8CEDB]" />
 
       {/* 메인 카드 */}
-      <div className="relative w-[88%] h-44 bg-[#2C3E5D] rounded-3xl px-5 py-4 flex flex-col">
+      <div className="relative flex h-44 w-[88%] flex-col rounded-3xl bg-[#2C3E5D] px-5 py-4">
         {/* To. 닉네임 */}
-        <p className="text-white font-semibold text-base">To. {nickname}</p>
+        <p className="font-semibold text-base text-white">To. {nickname}</p>
 
         {/* 내용 */}
-        {message ? (
-          <p className="text-white text-sm leading-relaxed mt-2">"{message}"</p>
+        {letterType === 'WRITING' ? (
+          <p className="mt-1 text-sm text-white leading-relaxed">{message}</p>
         ) : audioUrl ? (
           <AudioPlayer
             audioUrl={audioUrl}
@@ -41,8 +43,8 @@ export default function LetterCard({
         ) : null}
 
         {/* 배우자 태그 */}
-        <div className="absolute bottom-4 right-5">
-          <span className="bg-[#3D5070] text-white text-xs px-3 py-1 rounded-full">
+        <div className="absolute right-5 bottom-4">
+          <span className="rounded-full bg-[#3D5070] px-3 py-1 text-white text-xs">
             {recipientName}
           </span>
         </div>

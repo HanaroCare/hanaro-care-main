@@ -1,5 +1,6 @@
 import axios from 'axios';
-import type { ContractDto, FamilySummaryDto } from '../guardian/types';
+import type { ApiResponse } from '@/lib/ApiResponse';
+import type { ContractDto, FamilySummaryDto } from '../guardian/types/types';
 import type {
   InsuranceDetailDto,
   InsuranceListResponseDto,
@@ -14,12 +15,6 @@ apiClient.interceptors.request.use((config) => {
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
-
-type ApiResponse<T> = {
-  isSuccess: boolean;
-  result: T;
-  message?: string;
-};
 
 export const myhanaApi = {
   // 사용자 이름 조회

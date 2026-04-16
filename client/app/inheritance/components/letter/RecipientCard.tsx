@@ -1,5 +1,5 @@
 import { User } from 'lucide-react';
-import type { InheritanceSummaryDto } from '../../inheritApi';
+import type { InheritanceSummaryDto } from '../../letter/types';
 import { formatAmount } from '../../utils/format';
 
 export function RecipientCard({
@@ -28,7 +28,7 @@ export function RecipientCard({
       {/* Right: percentage + amount */}
       <div className="flex flex-col items-end gap-0.5">
         <span className="font-bold text-sm text-teal-500">
-          {recipient.percent}%
+          {recipient.percent * 100}%
         </span>
         <span className="text-gray-400 text-xs">
           {formatAmount(recipient.amt)}

@@ -44,20 +44,22 @@ public class LetterController {
   // 상속 편지 생성
   @Operation(summary = "상속 편지 생성", description = "상속 편지를 작성합니다.")
   @PostMapping(value = "/letter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ApiResponse sendLetter(
+  ApiResponse<LetterResponseDto> sendLetter(
       @AuthenticationPrincipal SubscriberDTO user,
       @Valid @ModelAttribute @ParameterObject LetterRequestDto dto,
       @RequestPart(value = "voice", required = false) MultipartFile voice
   ) throws IOException {
-    return ApiResponse.onSuccess(service.sendLetter(user.getUserId(), dto, voice));
+    LetterResponseDto result = service.sendLetter(user.getUserId(), dto, voice);
+    return ApiResponse.onSuccess(result);
   }
 
   // 상속 편지 조회
   @Operation(summary = "상속 편지 조회", description = "상속 편지를 조회합니다.")
   @GetMapping("/letter/{inheritDetailId}")
-  LetterResponseDto getLetter(@AuthenticationPrincipal SubscriberDTO user,
+  ApiResponse<LetterResponseDto> getLetter(@AuthenticationPrincipal SubscriberDTO user,
       @Parameter(description = "가족 상세 ID", example = "1") @PathVariable Long inheritDetailId) {
-    return service.getLetter(user.getUserId(), inheritDetailId);
+    LetterResponseDto letter = service.getLetter(user.getUserId(), inheritDetailId);
+    return ApiResponse.onSuccess(letter);
   }
 
   // 상속 편지 삭제

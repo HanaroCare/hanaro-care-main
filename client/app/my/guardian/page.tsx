@@ -9,7 +9,7 @@ import Step4Verification from './components/Step4Verification';
 import Step5GenerateDocs from './components/Step5Generatedocs';
 import Step6FindNotary from './components/Step6Findnotary';
 import Step7Complete from './components/Step7Complete';
-import type { GuardianData } from './types';
+import type { GuardianData } from './types/types';
 
 const TOTAL_STEPS = 7;
 

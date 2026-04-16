@@ -1,12 +1,12 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query'; // React Query 필요
+import { useQuery } from '@tanstack/react-query';
 import { toPng } from 'html-to-image';
 import { useRouter } from 'next/navigation';
 import { use, useRef } from 'react';
+import { inheritanceApi } from '@/app/inheritance/api/inheritApi';
 import LetterCard from '@/app/inheritance/components/letter/LetterCard';
 import LetterSummary from '@/app/inheritance/components/letter/LetterSummary';
-import { inheritanceApi } from '@/app/inheritance/inheritApi';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 
 export default function InheritanceCompletePage({
@@ -16,51 +16,49 @@ export default function InheritanceCompletePage({
     method?: string;
     nickname?: string;
     yearsLater?: string;
-    id?: string; // inheritDetailId
+    inheritDetailId?: string;
   }>;
 }) {
   const router = useRouter();
   const resolvedSearchParams = use(searchParams);
 
-  // 1. URL Query Params (프론트 전용 데이터)
+  console.log('searchParams:', resolvedSearchParams);
+
   const method = (resolvedSearchParams.method as 'once' | 'divided') || 'once';
   const nickname = resolvedSearchParams.nickname || '가족';
   const deliverAfterYears = Number(resolvedSearchParams.yearsLater) || 0;
-  const inheritDetailId = resolvedSearchParams.id;
-
-  // 2. API 데이터 1: LetterResponseDto (편지 내용)
+  const inheritDetailId = resolvedSearchParams.inheritDetailId;
+  console.log('123' + inheritDetailId);
   const { data: letterData, isLoading: isLetterLoading } = useQuery({
     queryKey: ['letter', inheritDetailId],
     queryFn: () => inheritanceApi.getLetter(inheritDetailId!),
     enabled: !!inheritDetailId,
   });
 
-  // 3. API 데이터 2: InheritanceSummaryDto (가족 상속 정보)
-  // 전체 목록에서 해당 ID를 찾거나, 특정 요약 API를 호출한다고 가정
   const { data: summaryList, isLoading: isSummaryLoading } = useQuery({
     queryKey: ['inheritanceSummary'],
     queryFn: () => inheritanceApi.getInheritanceInfo(),
   });
 
-  // 현재 상세 ID와 일치하는 가족 정보 찾기
+  console.log('summaryList:', summaryList);
+
   const currentSummary = summaryList?.find(
-    (s) => String(s.id) === inheritDetailId,
+    (s) => String(s.inheritDetailId) === inheritDetailId,
   );
 
-  // 4. 데이터 조립 (Mock 대신 사용)
   const result = {
     nickname: nickname,
-    relationCode: currentSummary?.username || '가족', // 혹은 관계 코드
+    relationCode: currentSummary?.username || '가족',
     distRatio: currentSummary?.percent || 0,
     deliverAfterYears: deliverAfterYears,
     totalAmount: currentSummary?.amt || 0,
-    letterType: letterData?.letterTypeCd || 'LETTER',
+    letterType: letterData?.letterTypeCd || 'WRITING',
     letterContent: letterData?.letterCont || '',
     voiceUrl: letterData?.voiceUrl || '',
   };
-
+  console.log(result);
   const handleShare = async () => {
-    const isLetter = result.letterType === 'LETTER';
+    const isLetter = result.letterType === 'WRITING';
     const shareData: ShareData = {
       title: '상속 편지',
       text: isLetter ? result.letterContent : undefined,
@@ -112,6 +110,7 @@ export default function InheritanceCompletePage({
               recipientName={result.relationCode}
               message={result.letterContent}
               audioUrl={result.voiceUrl}
+              letterType={result.letterType}
             />
           </div>
 
@@ -120,7 +119,7 @@ export default function InheritanceCompletePage({
             distRatio={result.distRatio}
             deliverAfterYears={result.deliverAfterYears}
             letterType={result.letterType}
-            amount={result.totalAmount * (result.distRatio / 100)}
+            amount={result.totalAmount}
             inheritanceMethod={method}
             onImageSave={handleImageSave}
             onShare={handleShare}

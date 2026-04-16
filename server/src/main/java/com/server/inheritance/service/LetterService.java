@@ -11,8 +11,8 @@ import com.server.inheritance.entity.TBInheritLetter;
 import com.server.inheritance.entity.TBInheritPlan;
 import com.server.inheritance.enums.LetterType;
 import com.server.inheritance.repository.InheritDetailRepository;
-import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.inheritance.repository.InheritLetterRepository;
+import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.user.repository.FamilyAuthRepository;
 import jakarta.transaction.Transactional;
 import java.io.IOException;
@@ -54,12 +54,14 @@ public class LetterService {
         plan.getId());
 
     return inheritDetails.stream().map(i -> InheritanceSummaryDto.builder()
-        .id(i.getUser().getUserId())
+        .inheritDetailId(i.getInheritDetailId())
+        .userId(i.getUser().getUserId())
         .username(i.getUser().getUserNm())
         .percent(i.getDistRatio())
         .amt(i.getInheritPlan().getTotalInheritAmt()
             .multiply(i.getDistRatio())
-            .longValue()).build()).toList();
+            .longValue())
+        .build()).toList();
   }
 
   // 편지 생성
@@ -96,7 +98,8 @@ public class LetterService {
           .letterTypeCd(dto.getLetterTypeCd())
           .build();
       letterRepository.save(letter);
-      return LetterResponseDto.builder().letterTypeCd(dto.getLetterTypeCd())
+      return LetterResponseDto.builder()
+          .letterTypeCd(dto.getLetterTypeCd())
           .letterCont(dto.getLetterCont()).voiceUrl(filename).build();
     } catch (RuntimeException e) {
       if (!filename.isBlank()) {

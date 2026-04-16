@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { myhanaApi } from '@/app/my/api/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
-import type { GuardianData } from '../types';
+import type { GuardianData } from '../types/types';
 
 type Props = {
   data: GuardianData;

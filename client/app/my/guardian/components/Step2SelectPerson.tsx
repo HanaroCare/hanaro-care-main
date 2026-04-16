@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { myhanaApi } from '@/app/my/api/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { FamilySummaryDto, GuardianData } from '../types';
+import type { FamilySummaryDto, GuardianData } from '../types/types';
 
 type Props = {
   data: GuardianData;

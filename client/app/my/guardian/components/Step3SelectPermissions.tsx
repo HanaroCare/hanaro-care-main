@@ -2,7 +2,7 @@
 
 import { FileText, HeartPulse, Home, Landmark, Shield } from 'lucide-react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { GuardianData } from '../types';
+import type { GuardianData } from '../types/types';
 
 type Props = {
   data: GuardianData;

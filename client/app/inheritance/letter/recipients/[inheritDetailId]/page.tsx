@@ -1,7 +1,9 @@
 'use client';
 
+import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
+import { use, useState } from 'react';
+import { inheritanceApi } from '@/app/inheritance/api/inheritApi';
 import AudioPlayer from '@/app/inheritance/components/letter/AudioPlayer';
 import InheritanceMethodToggle from '@/app/inheritance/components/letter/InheritanceMethodToggle';
 import MessageInput from '@/app/inheritance/components/letter/MessageInput';
@@ -9,13 +11,9 @@ import NicknameInput from '@/app/inheritance/components/letter/NicknameInput';
 import RecipientHeader from '@/app/inheritance/components/letter/RecipientHeader';
 import VoiceRecorderSheet from '@/app/inheritance/components/letter/VoiceRecorderSheet';
 import YearsInput from '@/app/inheritance/components/letter/YearsInput';
-import {
-  createLetterFormData,
-  inheritanceApi,
-} from '@/app/inheritance/inheritApi';
 import type { InheritanceMethod } from '@/app/inheritance/types';
+import { createLetterFormData } from '@/app/inheritance/utils/createLetterFormData';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import { mockRecipients } from '../../data';
 
 export default function InheritanceWritePage({
   params,
@@ -23,8 +21,16 @@ export default function InheritanceWritePage({
   params: Promise<{ inheritDetailId: string }>;
 }) {
   const { inheritDetailId } = use(params);
-
   const router = useRouter();
+
+  const { data: recipients, isLoading } = useQuery({
+    queryKey: ['inheritanceInfo'],
+    queryFn: inheritanceApi.getInheritanceInfo,
+  });
+
+  const recipient = recipients?.find(
+    (r) => String(r.inheritDetailId) === inheritDetailId,
+  );
 
   const [nickname, setNickname] = useState('');
   const [yearsLater, setYearsLater] = useState<number | null>(null);
@@ -35,20 +41,19 @@ export default function InheritanceWritePage({
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
 
-  useEffect(() => {
-    return () => {
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
-    };
-  }, [audioUrl]);
+  if (isLoading) {
+    return <div className="p-8 text-center">불러오는 중...</div>;
+  }
+
+  if (!recipient) {
+    return <div className="p-8 text-center">대상을 찾을 수 없습니다.</div>;
+  }
 
   const handleSubmit = async () => {
     if (isSubmitting) return;
     setIsSubmitting(true);
 
     try {
-      // 1. 서버 전송용 데이터 (필수 데이터만!)
       const formData = createLetterFormData({
         inheritDetailId,
         letterCont: message,
@@ -56,11 +61,10 @@ export default function InheritanceWritePage({
         audioBlob,
       });
 
-      // 2. 백엔드 API 호출
       await inheritanceApi.sendLetter(formData);
 
-      // 3. 결과 페이지로 이동 (보여주기용 데이터 포함)
       const queryParams = new URLSearchParams({
+        inheritDetailId,
         method,
         nickname: nickname || '',
         yearsLater: String(yearsLater || 0),
@@ -68,27 +72,23 @@ export default function InheritanceWritePage({
 
       router.push(`/inheritance/letter/recipients/result?${queryParams}`);
     } catch (error) {
-      console.error('전송 실패:', error);
+      console.error(error);
       alert('저장에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const recipient =
-    mockRecipients.find(
-      (r: { id: number }) => r.id === parseInt(inheritDetailId, 10),
-    ) ?? mockRecipients[0];
-
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <div className="flex min-h-screen flex-col">
-        {/* Form */}
+    <div className="flex min-h-[calc(100vh-155px)] flex-col bg-white">
+      <div className="flex flex-col">
         <div className="flex flex-1 flex-col gap-7 pt-6">
           <RecipientHeader recipient={recipient} onEdit={() => router.back()} />
+
           <NicknameInput value={nickname} onChange={setNickname} />
           <YearsInput value={yearsLater} onChange={setYearsLater} />
           <InheritanceMethodToggle value={method} onChange={setMethod} />
+
           {audioUrl ? (
             <div>
               <div className="flex w-full justify-center">
@@ -101,7 +101,7 @@ export default function InheritanceWritePage({
                   setAudioBlob(null);
                   setAudioUrl(null);
                 }}
-                className="flex w-full items-center justify-end gap-1.5 pt-2 pr-4 text-gray-500 text-sm"
+                className="flex w-full justify-end pt-2 pr-4 text-gray-500 text-sm"
               >
                 녹음 삭제하기
               </button>
@@ -113,6 +113,7 @@ export default function InheritanceWritePage({
               onVoice={() => setShowVoiceSheet(true)}
             />
           )}
+
           <PrimaryButton
             onClick={handleSubmit}
             disabled={isSubmitting}
@@ -121,13 +122,12 @@ export default function InheritanceWritePage({
           />
         </div>
       </div>
+
       {showVoiceSheet && (
         <VoiceRecorderSheet
           onClose={() => setShowVoiceSheet(false)}
           onSave={(blob) => {
-            if (audioUrl) {
-              URL.revokeObjectURL(audioUrl);
-            }
+            if (audioUrl) URL.revokeObjectURL(audioUrl);
             setAudioBlob(blob);
             setAudioUrl(URL.createObjectURL(blob));
             setShowVoiceSheet(false);
