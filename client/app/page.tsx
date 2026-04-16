@@ -117,14 +117,14 @@ export default async function Home() {
               {activeBanner.userName} 손님,{'\n'}
               매달{' '}
               <span className="text-hana-red-500">
-                {activeBanner.monthlyPayout.toLocaleString()}원
+                {(activeBanner.monthlyPayout / 10000).toLocaleString()}만원
               </span>{' '}
-              수령으로 부담이 줄었네요
+              수령으로{'\n'} 병원비 부담이 줄었네요
             </>
           }
           buttonText="확인하러 가기"
           imageSrc="/images/asset/asset-big-change.svg"
-          href="/simulator/result"
+          href="asset/simulator/result"
         />
       )}
 
