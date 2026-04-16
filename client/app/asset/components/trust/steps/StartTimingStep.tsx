@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import TrustWizardStep from '../TrustWizardStep';
 
@@ -28,7 +29,14 @@ const options = [
 
 export default function StartTimingStep() {
   const router = useRouter();
-  const [selected, setSelected] = useState<string | null>(null);
+  const { form, setStartTiming } = useTrustForm();
+  const [selected, setSelected] = useState<string | null>(form.startTiming);
+
+  const handleNext = () => {
+    if (!selected) return;
+    setStartTiming(selected);
+    router.push('/asset/trust/operation-type');
+  };
 
   return (
     <TrustWizardStep
@@ -38,7 +46,7 @@ export default function StartTimingStep() {
           <PrimaryButton
             label="다음으로"
             disabled={!selected}
-            onClick={() => router.push('/asset/trust/operation-type')}
+            onClick={handleNext}
           />
         </footer>
       }

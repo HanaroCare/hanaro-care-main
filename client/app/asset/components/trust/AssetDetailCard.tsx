@@ -1,19 +1,51 @@
+import { formatKoreanCurrency } from '../../utils/formatCurrency';
 import SectionCard from '../trust/SectionCard';
 
-export function AssetDetailCard() {
+type Props = {
+  principalAmount?: number;
+  executionAmount?: number;
+  profit?: number;
+  currentAmount?: number;
+};
+
+export function AssetDetailCard({
+  principalAmount,
+  executionAmount,
+  profit,
+  currentAmount,
+}: Props) {
   return (
     <SectionCard>
-      <p className="font-semibold mb-4">상세 내역</p>
+      <p className="mb-4 font-semibold">상세 내역</p>
 
       <div className="space-y-3 text-sm">
-        <Row label="원금" value="5,000만원" />
-        <Row label="누적 사용 금액" value="-143만원" red />
-        <Row label="누적 수익" value="+380만원" green />
+        <Row
+          label="원금"
+          value={principalAmount ? formatKoreanCurrency(principalAmount) : '-'}
+        />
+
+        <Row
+          label="누적 사용 금액"
+          value={
+            executionAmount ? `-${formatKoreanCurrency(executionAmount)}` : '-'
+          }
+          red
+        />
+
+        <Row
+          label="누적 수익"
+          value={profit ? `+${formatKoreanCurrency(profit)}` : '-'}
+          green
+        />
       </div>
 
       <div className="my-4 h-px bg-[#F2F3F5]" />
 
-      <Row label="실 수령액" value="5,846만원" highlight />
+      <Row
+        label="실 수령액"
+        value={currentAmount ? formatKoreanCurrency(currentAmount) : '-'}
+        highlight
+      />
     </SectionCard>
   );
 }
@@ -38,10 +70,10 @@ function Row({
       <span className="text-[#6A7282]">{label}</span>
       <span
         className={`
-					${red ? 'text-red-500' : ''}
-					${green ? 'text-hana-ez-600' : ''}
-					${highlight ? 'font-bold text-hana-ez-600' : ''}
-				`}
+          ${red ? 'text-red-500' : ''}
+          ${green ? 'text-hana-ez-600' : ''}
+          ${highlight ? 'font-bold text-hana-ez-600' : ''}
+        `}
       >
         {value}
       </span>

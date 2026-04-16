@@ -9,7 +9,7 @@ import com.server.myhana.dto.response.FamilyMemberResponse;
 import com.server.user.entity.TBFamilyAuth;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.FamilyRelation;
-import com.server.user.repository.TBFamilyAuthRepository;
+import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MyHanaFamilyService {
 
-  private final TBFamilyAuthRepository familyAuthRepository;
+  private final FamilyAuthRepository familyAuthRepository;
   private final UserRepository userRepository;
   private final JwtUtil jwtUtil;
 

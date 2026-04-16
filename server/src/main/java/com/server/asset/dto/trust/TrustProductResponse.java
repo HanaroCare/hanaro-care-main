@@ -16,7 +16,7 @@ public record TrustProductResponse(
 		allowableValues = {"IN_PROGRESS", "CANCELLED", "EXPIRED"})
 	String prodStatus,
 
-	@Schema(description = "현재 자산 (원금 + 세후 누적 수익)", example = "51500000")
+	@Schema(description = "현재 자산 (원금 + 세후 누적 수익 - 누적 집행 금액)", example = "51500000")
 	BigDecimal currentAmount,
 
 	@Schema(description = "세후 수익률 (%)", example = "20.0")
@@ -32,7 +32,13 @@ public record TrustProductResponse(
 	BigDecimal profit,
 
 	@Schema(description = "집행 설정 (병원비 / 생활비)")
-	ExecutionSetting executionSetting
+	ExecutionSetting executionSetting,
+
+	@Schema(description = "지급청구대리인 정보")
+	ClaimAgent claimAgent,
+
+	@Schema(description = "대리인 열람 권한 여부", example = "true")
+	Boolean agentViewEnabled
 
 ) {
 	@Schema(description = "집행 설정")
@@ -48,5 +54,17 @@ public record TrustProductResponse(
 
 		@Schema(description = "생활비 월 집행 금액", example = "250000")
 		BigDecimal livingAmount
+	) {}
+
+	@Schema(description = "지급청구대리인 정보")
+	public record ClaimAgent(
+		@Schema(description = "대리인 userId", example = "1002")
+		Long userId,
+
+		@Schema(description = "대리인 이름", example = "권하나")
+		String userName,
+
+		@Schema(description = "관계 라벨", example = "배우자")
+		String relation
 	) {}
 }
