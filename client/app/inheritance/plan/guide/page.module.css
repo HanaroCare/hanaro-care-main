@@ -1,0 +1,97 @@
+.container {
+  padding: 24px;
+}
+
+.pageTitle {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  margin-bottom: 12px;
+}
+
+.description {
+  font-size: 15px;
+  color: var(--color-hana-black-500);
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.iconBox {
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-hana-silver-50);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.sectionTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-hana-black-900);
+}
+
+.infoBox {
+  background-color: var(--color-hana-silver-50);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.ratioCard {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-hana-silver-100);
+}
+
+.ratioRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.ratioRow:not(:last-child) {
+  border-bottom: 1px dashed var(--color-hana-silver-100);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-hana-black-600);
+}
+
+.value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-hana-ez-600);
+}
+
+.uBox {
+  background-color: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-hana-silver-100);
+}
+
+.tipBox {
+  margin-top: 32px;
+  padding: 16px;
+  background-color: var(--color-hana-green-50);
+  border-radius: 12px;
+  border: 1px solid var(--color-hana-green-100);
+}
