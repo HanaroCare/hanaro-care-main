@@ -65,18 +65,6 @@ export function ProductStatusCard({
       );
       return;
     }
-    if (isDesigned) {
-      const id = isTrust
-        ? simulationSummary?.realAssetId // 신탁 설계 데이터의 ID
-        : pensionSimulationSummary?.realAssetId; // 주택연금 설계 데이터의 ID
-
-      router.push(
-        isTrust
-          ? (`/asset/trust/result?id=${id}` as Route)
-          : (`/asset/home-pension/result?id=${id}` as Route),
-      );
-      return;
-    }
   };
 
   // 1. 로딩 상태
