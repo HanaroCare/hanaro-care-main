@@ -27,8 +27,6 @@ public interface AccountRepository extends JpaRepository<TBAccount, Long> {
       """)
   BigDecimal findTotalBalanceByUserId(@Param("userId") Long userId);
 
-  List<TBAccount> findAllByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCategory);
-
   Optional<TBAccount> findByAccountIdAndAssetCateCd(Long insuranceId, AssetCategory assetCategory);
 
   List<TBAccount> findAllByUser_UserId(Long userId);
