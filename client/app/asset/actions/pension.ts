@@ -82,7 +82,7 @@ export type ChartPoint = {
 export type PensionStatusResponse = {
   pensionPayoutType: string;
   pensionPayoutLabel: string;
-  startDate: string;
+  createdAt: string;
   elapsedYear: number;
   currentMonthlyPayout: number;
   currentCumulativeAmount: number;
@@ -94,6 +94,16 @@ export type PensionSimulationSummaryResponse = {
   recommendedLabel: string;
   recommendedMonthlyAmount: number;
   recommendedCumulativeAmount: number;
+};
+
+export type PensionPayoutHistoryRecord = {
+  payoutDate: string;
+  amount: number;
+};
+
+export type PensionPayoutHistoryResponse = {
+  totalReceivedAmount: number;
+  history: PensionPayoutHistoryRecord[];
 };
 
 export async function getPayoutComparison(
@@ -132,7 +142,6 @@ export async function getPensionStatus(): Promise<PensionStatusResponse | null> 
       '/api/asset/pension/status',
     );
   } catch (error) {
-    // 가입 내역이 없는 경우 404 등이 발생할 수 있으므로 null 반환 처리
     console.warn('주택연금 가입 현황이 없습니다.');
     return null;
   }
@@ -146,8 +155,18 @@ export async function getPensionSimulationSummary(
       `/api/asset/pension/${realAssetId}/payout-summary`,
     );
   } catch (error) {
-    // 설계 내역이 없는 경우 null 반환
     console.warn('저장된 주택연금 설계 내역이 없습니다.');
+    return null;
+  }
+}
+
+export async function getPayoutHistory(): Promise<PensionPayoutHistoryResponse | null> {
+  try {
+    return await serverFetch<PensionPayoutHistoryResponse>(
+      '/api/asset/pension/payout-history',
+    );
+  } catch (error) {
+    console.warn('주택연금 수령 내역이 없습니다.');
     return null;
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { CircleDollarSign, Home } from 'lucide-react';
-import { Route } from 'next';
+import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import type {
   TrustProductDetail,
@@ -42,7 +42,6 @@ export function ProductStatusCard({
 }: Props) {
   const router = useRouter();
   const isTrust = type === 'trust';
-  const isPension = type === 'pension';
   const title = isTrust ? '내맘대로신탁' : '주택연금';
   const Icon = isTrust ? CircleDollarSign : Home;
   const isActive = status === 'active';
@@ -66,7 +65,18 @@ export function ProductStatusCard({
       );
       return;
     }
-    if (isTrust) router.push('/asset/trust/result' as Route);
+    if (isDesigned) {
+      const id = isTrust
+        ? simulationSummary?.realAssetId // 신탁 설계 데이터의 ID
+        : pensionSimulationSummary?.realAssetId; // 주택연금 설계 데이터의 ID
+
+      router.push(
+        isTrust
+          ? (`/asset/trust/result?id=${id}` as Route)
+          : (`/asset/home-pension/result?id=${id}` as Route),
+      );
+      return;
+    }
   };
 
   // 1. 로딩 상태
@@ -176,7 +186,10 @@ export function ProductStatusCard({
     if (!simData) return null;
 
     return (
-      <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
+      <button
+        onClick={handleNavigation}
+        className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm"
+      >
         <div className="mb-5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F9F9]">
@@ -243,13 +256,18 @@ export function ProductStatusCard({
             </>
           )}
         </div>
-        <button
-          onClick={handleReservation}
+        <div
+          role="button"
+          tabIndex={-1}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleReservation();
+          }}
           className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700"
         >
           상담 예약하기
-        </button>
-      </div>
+        </div>
+      </button>
     );
   }
 

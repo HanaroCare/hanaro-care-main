@@ -54,14 +54,12 @@ export default function SimulatorPage() {
   const [accessLevel, setAccessLevel] = useState<TrustAccessLevel | null>(null);
   const [grantorId, setGrantorId] = useState<number | null>(null);
 
-  // --- 신탁 상태 ---
   const [myTrustSimulationSummary, setMyTrustSimulationSummary] =
     useState<TrustSimulationSummary | null>(null);
   const [myTrustProductSummary, setMyTrustProductSummary] =
     useState<TrustProductDetail | null>(null);
   const [isLoadingMyTrust, setIsLoadingMyTrust] = useState(false);
 
-  // --- 주택연금 상태 추가 ---
   const [myPensionSimulationSummary, setMyPensionSimulationSummary] = useState<
     any | null
   >(null);
@@ -86,7 +84,6 @@ export default function SimulatorPage() {
     setHasResult(completed === 'true');
   }, []);
 
-  // 가족 권한 조회
   useEffect(() => {
     getTrustFamilyAccess().then((list) => {
       if (list.some((item) => item.accessLevel === 'READ_WRITE'))
@@ -104,7 +101,6 @@ export default function SimulatorPage() {
     });
   }, [accessLevel]);
 
-  // 내 신탁 & 주택연금 데이터 Fetch
   useEffect(() => {
     const fetchMyAssetsState = async () => {
       if (!hasResult || isRecalculating) {
@@ -148,7 +144,6 @@ export default function SimulatorPage() {
     fetchMyAssetsState();
   }, [hasResult, isRecalculating]);
 
-  // 부모님 모드 데이터 Fetch
   useEffect(() => {
     const fetchParentTrustState = async () => {
       if (!isParentMode || accessLevel !== 'READ_WRITE' || !grantorId) {
@@ -173,7 +168,6 @@ export default function SimulatorPage() {
 
   const handleRecalculate = () => setIsRecalculating(true);
 
-  // 상태 판별 useMemo
   const myTrustStatus = useMemo(() => {
     if (myTrustProductSummary) return 'active';
     if (myTrustSimulationSummary) return 'designed';
@@ -187,7 +181,6 @@ export default function SimulatorPage() {
   }, [myPensionProductSummary, myPensionSimulationSummary]);
 
   const shouldShowParentToggle = accessLevel !== null && accessLevel !== 'NONE';
-  const shouldShowMyActivePension = !isParentMode;
   const shouldShowParentProxyBanner =
     isParentMode && accessLevel === 'PROXY_ONLY';
   const shouldShowParentTrustActive =
@@ -241,7 +234,6 @@ export default function SimulatorPage() {
                     onClick={handleRecalculate}
                   />
 
-                  {/* 부족 자산 채우기 추천 영역 */}
                   <div className="mt-4 flex flex-col gap-5">
                     <div className="flex items-center justify-between">
                       <h2 className="text-[19px] font-bold text-hana-black-900">
@@ -256,7 +248,6 @@ export default function SimulatorPage() {
                     </div>
                   </div>
 
-                  {/* 내 자산 현황 섹션 */}
                   <div className="grid grid-cols-1 gap-4">
                     <ProductStatusCard
                       type="trust"
