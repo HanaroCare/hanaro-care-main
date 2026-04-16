@@ -21,6 +21,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+//  강사님 강의에 있던데 생각좀 해볼개요
+//  private static final String[] EXCLUDE_PATTERNS = {
+//      "/api/subscriber/login",
+//      "/api/subscriber/signup",
+//      "/posts/**",
+//      "/api/public/**",
+//      "/api/auth/**",
+//      "/apis/files/*/static",
+//      "/favicon.ico",
+//      "/actuator/**",
+//      "/*.html",
+//      "/swagger-ui/**",
+//      "/hana8/api-docs/**",
+//      "/broadcast/**"
+//  };
+
   private final JwtUtil jwtUtil;
   private final ObjectMapper objectMapper;
 
