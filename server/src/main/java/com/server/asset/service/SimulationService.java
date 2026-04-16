@@ -16,6 +16,7 @@ import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.dto.simulation.SimulationResponse;
 import com.server.asset.dto.simulation.SimulationSummaryResponse;
 import com.server.asset.entity.TBAssetSimulation;
+import com.server.asset.entity.enums.CareType;
 import com.server.asset.mapper.SimulationMapper;
 import com.server.asset.repository.AssetSimulationRepository;
 import com.server.asset.util.UserContextUtil;
@@ -119,6 +120,71 @@ public class SimulationService {
 
     TBAssetSimulation savedSimulation = assetSimulationRepository.save(simulation);
     return simulationMapper.toSimulationResponse(savedSimulation);
+  }
+
+  /**
+   * 스케줄러(배치)에서 내부적으로 호출합니다. @CheckUser 없이 동일 로직 재실행.
+   * SecurityContext 없이 동작하므로 외부 API 엔드포인트에 노출하지 마세요.
+   */
+  @Transactional
+  public void rerunLatestSimulation(Long userId, Integer targetAge, CareType careType) {
+    SimulationRequest request = SimulationRequest.builder()
+        .targetAge(targetAge)
+        .careType(careType)
+        .build();
+
+    AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
+    SimulationDetailResponse aiResult = simulationEngine.run(input);
+
+    BigDecimal totalAccumulatedCost = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedLiving = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedMedical = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedCare = BigDecimal.ZERO;
+    BigDecimal totalAccumulatedIncome = BigDecimal.ZERO;
+    int totalMonths = 0;
+
+    if (aiResult.getAgeSegments() != null) {
+      for (SimulationDetailResponse.AgeSegment segment : aiResult.getAgeSegments()) {
+        int segmentMonths = extractMonthsFromRange(segment.getRange());
+        BigDecimal months = new BigDecimal(segmentMonths);
+        totalMonths += segmentMonths;
+
+        totalAccumulatedCost = totalAccumulatedCost.add(segment.getExpense().multiply(months));
+        totalAccumulatedIncome = totalAccumulatedIncome.add(segment.getIncome().multiply(months));
+
+        if (segment.getDetail() != null) {
+          totalAccumulatedLiving = totalAccumulatedLiving.add(segment.getDetail().getLiving().multiply(months));
+          totalAccumulatedMedical = totalAccumulatedMedical.add(segment.getDetail().getMedical().multiply(months));
+          totalAccumulatedCare = totalAccumulatedCare.add(segment.getDetail().getCare().multiply(months));
+        }
+      }
+    }
+
+    BigDecimal totalShortageAmt = totalAccumulatedCost.subtract(totalAccumulatedIncome);
+    BigDecimal monthlyShortageAmt = totalMonths > 0
+        ? totalShortageAmt.divide(new BigDecimal(totalMonths), 0, RoundingMode.HALF_UP)
+        : BigDecimal.ZERO;
+
+    String ageRangeDetails;
+    try {
+      ageRangeDetails = objectMapper.writeValueAsString(aiResult);
+    } catch (JsonProcessingException e) {
+      throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
+    }
+
+    assetSimulationRepository.save(TBAssetSimulation.builder()
+        .user(UserRepository.getReferenceById(userId))
+        .targetAge(targetAge)
+        .careType(careType)
+        .totalIncomeAmt(totalAccumulatedIncome)
+        .shortageAmt(monthlyShortageAmt)
+        .isSufficient(totalShortageAmt.compareTo(BigDecimal.ZERO) <= 0)
+        .livingCost(totalAccumulatedLiving)
+        .medicalCost(totalAccumulatedMedical)
+        .careCost(totalAccumulatedCare)
+        .monthlyCost(totalAccumulatedCost)
+        .ageRangeDetails(ageRangeDetails)
+        .build());
   }
 
   @CheckUser(key = "#userId")
