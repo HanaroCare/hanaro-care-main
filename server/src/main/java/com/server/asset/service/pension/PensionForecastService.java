@@ -5,7 +5,7 @@ import com.server.asset.dto.pension.PensionForecastResponse;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.mapper.PensionMapper;
-import com.server.asset.repository.TBRealAssetRepository;
+import com.server.asset.repository.RealAssetRepository;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 @Transactional(readOnly = true)
 public class PensionForecastService {
 
-	private final TBRealAssetRepository realAssetRepository;
+	private final RealAssetRepository realAssetRepository;
 	private final PensionPricePredictor pensionPricePredictor;
 	private final PensionMapper pensionMapper;
 
