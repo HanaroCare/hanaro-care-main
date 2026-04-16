@@ -235,14 +235,8 @@ export async function getTrustSimulationSummary(): Promise<TrustSimulationSummar
   }
 }
 
-export async function getTrustProductSummary(): Promise<TrustProductDetail | null> {
-  try {
-    return await serverFetch<TrustProductDetail>(
-      '/api/asset/trust/product/summary',
-    );
-  } catch {
-    return null;
-  }
+export async function getTrustProductSummary(): Promise<TrustProductDetail> {
+  return serverFetch<TrustProductDetail>('/api/asset/trust/product/summary');
 }
 
 export async function updateTrustPayoutSettings(

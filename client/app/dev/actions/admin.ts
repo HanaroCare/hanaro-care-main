@@ -1,6 +1,6 @@
 'use server';
 
-import { serverFetch } from '@/lib/serverFetch';
+import { ServerFetchError, serverFetch } from '@/lib/serverFetch';
 
 export type MyInfo = {
   userId: number;
@@ -17,7 +17,13 @@ export type MyInfo = {
 export async function getMyInfo(): Promise<MyInfo | null> {
   try {
     return await serverFetch<MyInfo>('/api/users/me');
-  } catch {
-    return null;
+  } catch (error) {
+    if (error instanceof ServerFetchError) {
+      if (error.status === 401 || error.status === 403) {
+        return null;
+      }
+    }
+
+    throw error;
   }
 }

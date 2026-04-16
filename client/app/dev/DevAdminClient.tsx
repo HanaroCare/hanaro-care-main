@@ -48,6 +48,10 @@ function ResultBadge({ result }: { result: ResultState }) {
 
 export default function DevAdminPage() {
   const [isPending, startTransition] = useTransition();
+  const isPositiveInt = (v: string) => {
+    const n = Number(v);
+    return Number.isInteger(n) && n > 0;
+  };
 
   const [trustUserId, setTrustUserId] = useState('');
   const [trustResult, setTrustResult] = useState<ResultState>({
@@ -70,7 +74,13 @@ export default function DevAdminPage() {
 
   const handleTrustSubscribe = () => {
     const userId = Number(trustUserId);
-    if (!userId) return;
+    if (!Number.isInteger(userId) || userId <= 0) {
+      setTrustResult({
+        status: 'error',
+        message: 'userId는 1 이상의 정수여야 합니다.',
+      });
+      return;
+    }
     setTrustResult({ status: 'idle', message: '' });
     startTransition(async () => {
       try {
@@ -91,7 +101,18 @@ export default function DevAdminPage() {
   const handlePensionSubscribe = () => {
     const userId = Number(pensionUserId);
     const realAssetId = Number(pensionRealAssetId);
-    if (!userId || !realAssetId) return;
+    if (
+      !Number.isInteger(userId) ||
+      !Number.isInteger(realAssetId) ||
+      userId <= 0 ||
+      realAssetId <= 0
+    ) {
+      setPensionResult({
+        status: 'error',
+        message: 'userId/realAssetId는 1 이상의 정수여야 합니다.',
+      });
+      return;
+    }
     setPensionResult({ status: 'idle', message: '' });
     startTransition(async () => {
       try {
@@ -114,7 +135,13 @@ export default function DevAdminPage() {
 
   const handleEnableAgentView = () => {
     const userId = Number(agentUserId);
-    if (!userId) return;
+    if (!Number.isInteger(userId) || userId <= 0) {
+      setAgentResult({
+        status: 'error',
+        message: 'userId는 1 이상의 정수여야 합니다.',
+      });
+      return;
+    }
     setAgentResult({ status: 'idle', message: '' });
     startTransition(async () => {
       try {
@@ -159,7 +186,7 @@ export default function DevAdminPage() {
             />
             <button
               type="button"
-              disabled={!trustUserId || isPending}
+              disabled={!isPositiveInt(trustUserId) || isPending}
               onClick={handleTrustSubscribe}
               className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
             >
@@ -191,7 +218,11 @@ export default function DevAdminPage() {
             </div>
             <button
               type="button"
-              disabled={!pensionUserId || !pensionRealAssetId || isPending}
+              disabled={
+                !isPositiveInt(pensionUserId) ||
+                !isPositiveInt(pensionRealAssetId) ||
+                isPending
+              }
               onClick={handlePensionSubscribe}
               className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
             >
@@ -214,7 +245,7 @@ export default function DevAdminPage() {
             />
             <button
               type="button"
-              disabled={!agentUserId || isPending}
+              disabled={!isPositiveInt(agentUserId) || isPending}
               onClick={handleEnableAgentView}
               className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 font-semibold text-[14px] text-white disabled:opacity-40"
             >

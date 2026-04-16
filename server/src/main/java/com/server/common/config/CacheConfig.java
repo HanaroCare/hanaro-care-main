@@ -16,13 +16,15 @@ public class CacheConfig {
 	@Bean(name = "pensionForecastKeyGenerator")
 	public org.springframework.cache.interceptor.KeyGenerator pensionForecastKeyGenerator() {
 		return (target, method, params) -> {
-			PensionForecastInternalDto.Command cmd = (PensionForecastInternalDto.Command) params[0];
+			if (params.length == 0 || !(params[0] instanceof PensionForecastInternalDto.Command cmd)) {
+				throw new IllegalArgumentException("pensionForecastKeyGenerator expects PensionForecastInternalDto.Command as first argument");
+			}
 
-			String rawKey =
-				cmd.getAddr()
-					+ cmd.getCurrentPrice()
-					+ cmd.getAssetSize()
-					+ cmd.getPeriodYears();
+			String rawKey = "addr=%s|currentPrice=%s|assetSize=%s|periodYears=%s".formatted(String.valueOf(cmd.getAddr()),
+				cmd.getCurrentPrice() == null ? "" : cmd.getCurrentPrice().stripTrailingZeros().toPlainString(),
+				cmd.getAssetSize() == null ? "" : cmd.getAssetSize().stripTrailingZeros().toPlainString(),
+				String.valueOf(cmd.getPeriodYears())
+			);
 
 			return sha256(rawKey);
 		};

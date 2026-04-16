@@ -4,8 +4,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
   getTrustProductSummary,
-  updateTrustPayoutSettings,
   type TrustProductDetail,
+  updateTrustPayoutSettings,
 } from '@/app/asset/actions/trust';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
@@ -44,7 +44,7 @@ export default function ChangeUsagePage() {
         const data = await getTrustProductSummary();
         setProductDetail(data);
 
-        if (!data?.executionSetting) {
+        if (!data.executionSetting) {
           setItems([]);
           setSelected(new Set());
           return;
