@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getMyInfo } from '../../dev/actions/admin';
 
 export interface HeirDistribution {
-  heirUserId?: number;
+  heirUserId: number | null;
   heirName: string;
   relation: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
   distRatio: number;
@@ -85,9 +85,18 @@ export async function submitInheritancePlan(data: InheritancePlanRequest) {
     const user = await getMyInfo();
     if (!user) throw new Error('Unauthorized: User info not found');
 
+    // 데이터 정제: null인 필드를 서버 사양에 맞춰 처리 (필요시)
+    const sanitizedDistributions = data.distributions.map(d => ({
+      ...d,
+      heirUserId: d.heirUserId || null // undefined 방지
+    }));
+
+    const payload = { distributions: sanitizedDistributions };
+    console.log('[submitInheritancePlan] Sending payload:', JSON.stringify(payload, null, 2));
+
     const result = await serverFetch<InheritancePlanResponse>(`/api/inheritance/plan/${user.userId}`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
     });
     
     revalidatePath('/inheritance/result');

@@ -4,8 +4,8 @@ import { useMemo, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import Header from '@/components/navigation/Header';
-import styles from './page.module.css';
 import { getInheritanceContext, type InheritanceContext } from '../actions/plan';
+import styles from './page.module.css';
 
 const COLORS = [
   'var(--color-chart-1)',
@@ -22,7 +22,7 @@ export default function InheritancePlanPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const data = await getInheritanceContext(); // 인자 제거
+        const data = await getInheritanceContext();
         setContext(data);
       } catch (error) {
         console.error('Failed to fetch inheritance context:', error);
@@ -67,12 +67,11 @@ export default function InheritancePlanPage() {
       <div className="app-layout">
         <Header title="상속 설계" showBackButton={true} />
 
-        <div className={styles.scrollArea}>
-          <main className={styles.content}>
-            <p className={styles.customerName}>권하나 손님의 상속설계를 도와드릴게요</p>
+        <div className="app-main">
+          <div className={styles.content}>
+            <p className={styles.customerName}>손님의 상속설계를 도와드릴게요</p>
             <h1 className={styles.pageTitle}>상속할 자산을 확인해주세요</h1>
 
-            {/* Recharts Pie Chart Section */}
             <section className={styles.chartSection}>
               <div className={styles.chartWrapper} style={{ height: '200px', width: '100%', position: 'relative' }}>
                 <ResponsiveContainer width="100%" height="100%">
@@ -106,7 +105,6 @@ export default function InheritancePlanPage() {
               </div>
             </section>
 
-            {/* Financial assets card */}
             <div className={styles.card}>
               <p className={styles.cardLabel}>연동 총 자산</p>
               <p className={styles.cardTitle}>{totalAssetBillion}억원</p>
@@ -126,7 +124,6 @@ export default function InheritancePlanPage() {
               </ul>
             </div>
 
-            {/* Real estate card */}
             <div className={styles.card}>
               <p className={styles.cardLabel}>부동산</p>
               <div className={styles.listItem}>
@@ -134,7 +131,7 @@ export default function InheritancePlanPage() {
                 <span className={styles.highlightValue}>{(context.assetSummary.realEstate / 100000000).toFixed(1)}억원</span>
               </div>
             </div>
-          </main>
+          </div>
         </div>
 
         <footer className={styles.footer}>
