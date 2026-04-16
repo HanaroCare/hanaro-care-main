@@ -38,7 +38,7 @@ public class SimulationEngine {
             input.getUserAge(),
             input.getAverageMonthlySpending(),
             20,   // 납부 기간 20년 고정
-            true  // 지출 데이터 기반이므로 true
+            false  // 지출 데이터 기반이므로 true
         );
 
         BigDecimal estimatedPension = pensionResult.getAmount();
@@ -144,15 +144,18 @@ public class SimulationEngine {
                 .build());
         }
 
-        BigDecimal firstSegExpense = segments.get(0).getExpense();
+        SimulationDetailResponse.AgeSegment firstSegment = segments.get(0);
+        BigDecimal actualFirstRetirement = firstSegment.getIncomeDetail().getRetirement();
+        BigDecimal actualFirstTotalIncome = firstSegment.getIncome();
+        BigDecimal firstSegExpense = firstSegment.getExpense();
 
         return SimulationDetailResponse.builder()
             .incomeDetails(SimulationDetailResponse.IncomeDetails.builder()
                 .nationalPension(pension)
-                .retirementPension(new BigDecimal("1200000"))
+                .retirementPension(actualFirstRetirement) // 하드코딩 제거
                 .localSubsidyAmt(localSubsidy)
                 .localSubsidyName("지자체 노인 지원금")
-                .totalMonthlyIncome(pension.add(new BigDecimal("1500000"))) // 연금 + 퇴직 + 지원금
+                .totalMonthlyIncome(actualFirstTotalIncome) // 하드코딩 제거
                 .build())
             .ageSegments(segments)
             .aiOpinion("통계 데이터(임금 상승률 " + AVG_WAGE_GROWTH + "%, 의료 물가 " + MEDICAL_INFLATION + "%) 기반 분석 결과입니다. "

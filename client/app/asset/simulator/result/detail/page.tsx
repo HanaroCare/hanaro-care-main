@@ -77,7 +77,7 @@ export default function SimulationDetailPage() {
             className="border-none bg-transparent"
         />
         <main className="flex flex-col gap-10 px-6 pt-6 pb-20">
-          {data && !data.isLinked && (
+          {data && !data.is_linked && (
               <div className="flex justify-center">
                 <AlertBanner
                     variant="note" // 노란색 계열로 '주의' 환기
