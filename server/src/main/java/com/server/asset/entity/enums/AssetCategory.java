@@ -3,10 +3,8 @@ package com.server.asset.entity.enums;
 import java.util.EnumSet;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
 public enum AssetCategory {
 	CASH("01", "현금"),
 	PENSION("02", "연금"),           // 주택연금 (기존 호환 유지)
@@ -19,6 +17,11 @@ public enum AssetCategory {
 
 	private final String code;
 	private final String description;
+
+	AssetCategory(String code, String description) {
+		this.code = code;
+		this.description = description;
+	}
 
 	public boolean isPensionFamily() {
 		return EnumSet.of(PENSION, PENSION_NATIONAL, PENSION_RETIRE, PENSION_PERSONAL)

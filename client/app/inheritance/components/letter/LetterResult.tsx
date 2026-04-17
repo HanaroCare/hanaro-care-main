@@ -6,6 +6,7 @@ import { useRef } from 'react';
 import LetterCard from '@/app/inheritance/components/letter/LetterCard';
 import LetterSummary from '@/app/inheritance/components/letter/LetterSummary';
 import DualActionFooter from '@/components/modules/DualActionFooter';
+import {LetterType} from "@/app/inheritance/letter/types";
 
 interface LetterResultProps {
   result: {
@@ -14,7 +15,7 @@ interface LetterResultProps {
     distRatio: number;
     deliverAfterYears: number;
     totalAmount: number;
-    letterType: string;
+    letterType: LetterType;
     letterContent: string;
     voiceUrl: string;
   };

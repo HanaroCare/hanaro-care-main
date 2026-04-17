@@ -1,9 +1,9 @@
 import axios from "axios";
-import type { ContractDto, FamilySummaryDto } from '../guardian/types';
 import type {
   InsuranceDetailDto,
   InsuranceListResponseDto,
 } from '../insurance/types';
+import {ContractDto, FamilySummaryDto} from "@/app/my/guardian/types/types";
 
 const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
