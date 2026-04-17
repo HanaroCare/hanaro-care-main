@@ -44,7 +44,7 @@ public class MyHanaInsuranceService {
 
     return accounts.stream()
         .map(a -> InsuranceDto.builder()
-            .accountId(a.getAccountId())
+            .accountId(String.valueOf(a.getAccountId()))
             .instNm(a.getInstNm())
             .accountNm(a.getAccountNm())
             .monthlyPremAmt(a.getMonthlyPremAmt())

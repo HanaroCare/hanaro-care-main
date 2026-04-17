@@ -47,7 +47,7 @@ export interface FinancialAssetResponse {
 }
 
 export interface InsuranceAssetResponse {
-    assetId: number;
+    assetId: string;
     assetCateCd: 'INSURANCE';
     assetNm: string;
     amount: number;
@@ -62,7 +62,7 @@ export interface InsuranceAssetResponse {
 }
 
 export interface AssetDetailResponse {
-    assetId: number;
+    assetId: string;
     assetCateCd: AssetCategory | RealAssetCategory;
     assetNm: string;
     amount: number;

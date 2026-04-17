@@ -2,83 +2,34 @@
 
 import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import {
+  type AccountLinkItem,
+  getConnectableAssets,
+} from '../connect/actions/mydata';
 
 type Category = 'bank' | 'card' | 'invest' | 'insurance';
 
-type Agency = {
-  id: string;
-  name: string;
-  description: string;
-  category: Category;
-};
-
-const AGENCIES: Agency[] = [
-  {
-    id: '1',
-    name: '하나은행',
-    description: '하나원큐 카드, 저축예금 외 2개',
-    category: 'bank',
-  },
-  {
-    id: '2',
-    name: '국민은행',
-    description: 'KB마이핏통장, 주택청약종합저축',
-    category: 'bank',
-  },
-  {
-    id: '3',
-    name: '신한은행',
-    description: '신한 My Car 대출, 입출금통장',
-    category: 'bank',
-  },
-  {
-    id: '4',
-    name: '하나카드',
-    description: 'Any PLUS 카드, 원큐패스 카드',
-    category: 'card',
-  },
-  {
-    id: '5',
-    name: '현대카드',
-    description: 'M Edition3, ZERO Edition2',
-    category: 'card',
-  },
-  {
-    id: '6',
-    name: '삼성카드',
-    description: '삼성카드 taptap O, iD ON',
-    category: 'card',
-  },
-  {
-    id: '7',
-    name: '하나증권',
-    description: '주식 위탁 계좌, CMA 계좌',
-    category: 'invest',
-  },
-  {
-    id: '8',
-    name: '미래에셋증권',
-    description: '개인연금저축, 해외주식 계좌',
-    category: 'invest',
-  },
-  {
-    id: '9',
-    name: '하나생명',
-    description: '(무)하나가득 담은 암보험',
-    category: 'insurance',
-  },
-  {
-    id: '10',
-    name: '삼성화재',
-    description: '애니카 자동차보험, 통합보험',
-    category: 'insurance',
-  },
-];
+function mapCategory(assetCateCd: string): Category {
+  switch (assetCateCd) {
+    case 'CASH':
+    case 'PENSION':
+      return 'bank';
+    case 'CARD':
+      return 'card';
+    case 'STOCK':
+      return 'invest';
+    case 'INSURANCE':
+      return 'insurance';
+    default:
+      return 'bank';
+  }
+}
 
 /**
  * 기관 선택 화면 (개별 선택 모드)
+ * GET /api/asset/link 로 실제 계좌 데이터를 불러와서 렌더링한다.
  */
 export default function AgencySelectStep({
   onNext,
@@ -86,7 +37,16 @@ export default function AgencySelectStep({
   onNext: (selectedIds: string[]) => void;
 }) {
   const [selectedTab, setSelectedTab] = useState<Category>('bank');
+  const [accounts, setAccounts] = useState<AccountLinkItem[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    getConnectableAssets().then((data) => {
+      setAccounts(data);
+      // 초기 상태: 전체 선택
+      setSelectedIds(data.map((a) => a.accountId));
+    });
+  }, []);
 
   const toggleAgency = (id: string) => {
     setSelectedIds((prev) =>
@@ -101,7 +61,9 @@ export default function AgencySelectStep({
     { id: 'insurance', label: '보험' },
   ];
 
-  const filteredAgencies = AGENCIES.filter((a) => a.category === selectedTab);
+  const filteredAccounts = accounts.filter(
+    (a) => mapCategory(a.assetCateCd) === selectedTab,
+  );
 
   return (
     <div className="flex flex-1 flex-col">
@@ -119,9 +81,8 @@ export default function AgencySelectStep({
             key={tab.id}
             type="button"
             onClick={() => setSelectedTab(tab.id)}
-            className={`relative flex-1 py-[1rem] font-semibold text-[0.875rem] transition-colors ${
-              selectedTab === tab.id ? 'text-primary' : 'text-muted-foreground'
-            }`}
+            className={`relative flex-1 py-[1rem] font-semibold text-[0.875rem] transition-colors ${selectedTab === tab.id ? 'text-primary' : 'text-muted-foreground'
+              }`}
           >
             {tab.label}
             {selectedTab === tab.id && (
@@ -135,38 +96,45 @@ export default function AgencySelectStep({
       </div>
 
       <div className="flex flex-1 flex-col gap-[0.75rem] overflow-y-auto px-[1.5rem] py-[1.5rem]">
-        {filteredAgencies.map((agency) => (
-          <button
-            key={agency.id}
-            type="button"
-            onClick={() => toggleAgency(agency.id)}
-            className={`flex h-[5rem] w-full items-center justify-between rounded-[1rem] border px-[1.25rem] transition-all duration-200 ${
-              selectedIds.includes(agency.id)
+        {filteredAccounts.length === 0 ? (
+          <p className="py-[2rem] text-center text-[0.875rem] text-muted-foreground">
+            해당 카테고리의 계좌가 없습니다.
+          </p>
+        ) : (
+          filteredAccounts.map((account) => (
+            <button
+              key={account.accountId}
+              type="button"
+              onClick={() => toggleAgency(account.accountId)}
+              className={`flex h-[5rem] w-full items-center justify-between rounded-[1rem] border px-[1.25rem] transition-all duration-200 ${selectedIds.includes(account.accountId)
                 ? 'border-primary bg-primary/5 shadow-[0_4px_12px_rgba(0,132,133,0.08)]'
                 : 'border-gray-200 bg-white'
-            }`}
-          >
-            <div className="flex flex-col items-start text-left">
-              <span
-                className={`font-semibold text-[1rem] ${selectedIds.includes(agency.id) ? 'text-primary' : 'text-hana-black-800'}`}
-              >
-                {agency.name}
-              </span>
-              <span className="mt-[0.25rem] text-[0.75rem] text-gray-400">
-                {agency.description}
-              </span>
-            </div>
-            <div
-              className={`flex h-[1.25rem] w-[1.25rem] items-center justify-center rounded-full ${
-                selectedIds.includes(agency.id)
+                }`}
+            >
+              <div className="flex flex-col items-start text-left">
+                <span
+                  className={`font-semibold text-[1rem] ${selectedIds.includes(account.accountId)
+                    ? 'text-primary'
+                    : 'text-hana-black-800'
+                    }`}
+                >
+                  {account.instNm}
+                </span>
+                <span className="mt-[0.25rem] text-[0.75rem] text-gray-400">
+                  {account.accountNm}
+                </span>
+              </div>
+              <div
+                className={`flex h-[1.25rem] w-[1.25rem] items-center justify-center rounded-full ${selectedIds.includes(account.accountId)
                   ? 'bg-primary text-white'
                   : 'border border-gray-200 text-transparent'
-              }`}
-            >
-              <Check size={12} strokeWidth={4} />
-            </div>
-          </button>
-        ))}
+                  }`}
+              >
+                <Check size={12} strokeWidth={4} />
+              </div>
+            </button>
+          ))
+        )}
       </div>
 
       <div className="p-[1.5rem] pb-[3rem]">

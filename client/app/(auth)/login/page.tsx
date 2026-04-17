@@ -56,11 +56,12 @@ export default function LoginPage() {
         document.cookie = `HAS_SEEN_ONBOARDING=true; ${expireDate}`;
         document.cookie = `AUTH_TYPE=PASSWORD; ${expireDate}`;
 
-        if (result.isPasswordExpired) {
-          setPwdExpiryLoginId(data.id);
-          setIsPwdExpiryOpen(true);
-          return; // stop here — onConfirm/onClose handle navigation
-        }
+        // [시연 기간 비활성화] 비밀번호 만료 팝업 — 시연 종료 후 아래 주석 해제
+        // if (result.isPasswordExpired) {
+        //   setPwdExpiryLoginId(data.id);
+        //   setIsPwdExpiryOpen(true);
+        //   return;
+        // }
 
         router.replace("/");
       } else if (!result.ok && result.isDormant) {

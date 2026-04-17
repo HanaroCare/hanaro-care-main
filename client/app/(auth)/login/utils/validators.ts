@@ -10,7 +10,7 @@ export const validatePhone = (phone: string): boolean => {
  * validatePassword: 영문자가 최소 1개 포함되어야 하며, 전체 길이는 6자 이상 8자 이하인지 체크
  */
 export const validatePassword = (password: string): boolean => {
-  const passwordRegex = /^(?=.*[A-Za-z]).{6,8}$/;
+  const passwordRegex = /^(?=.*[A-Za-z]).{8,16}$/;
   return passwordRegex.test(password);
 };
 

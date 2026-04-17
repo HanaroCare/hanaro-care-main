@@ -15,6 +15,7 @@ import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
@@ -46,6 +47,18 @@ public class RedisConfig {
     return new GenericJackson2JsonRedisSerializer(objectMapper);
   }
 
+
+  /**
+   * SMS 인증 코드 저장에 사용되는 StringRedisTemplate.
+   * 키/값 모두 StringRedisSerializer를 사용해 plain-text로 저장한다.
+   * (Spring Boot 자동 구성에 의존하지 않고 명시적으로 등록)
+   */
+  @Bean
+  public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
+    StringRedisTemplate template = new StringRedisTemplate();
+    template.setConnectionFactory(factory);
+    return template;
+  }
 
   @Bean
   public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory factory) {

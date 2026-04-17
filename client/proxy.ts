@@ -10,7 +10,7 @@ const ALWAYS_ACCESSIBLE = ['/login/reset-password', '/login/find-id'];
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const token = request.cookies.get('AUTH_TOKEN')?.value;
+  const token = request.cookies.get('ACCESS_TOKEN')?.value;
   const hasSeenFont = request.cookies.get('HAS_SEEN_FONT_CONFIG')?.value === 'true';
   const hasSeenOnboarding = request.cookies.get('HAS_SEEN_ONBOARDING')?.value === 'true';
   const authType = request.cookies.get('AUTH_TYPE')?.value;
