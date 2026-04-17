@@ -1,4 +1,4 @@
-import PensionResultClient from './PensionResultClient';
+import HomePensionResultClient from './PensionResultClient';
 
 type PageProps = {
   searchParams: Promise<{ id?: string }>;
@@ -8,5 +8,5 @@ export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
   const realAssetId = Number(params.id);
 
-  return <PensionResultClient realAssetId={realAssetId} />;
+  return <HomePensionResultClient realAssetId={realAssetId} />;
 }

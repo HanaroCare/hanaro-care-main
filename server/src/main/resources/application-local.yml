@@ -10,3 +10,8 @@ cloud:
       bucket:
         public: hanacare-public
         private: hanacare-private
+
+voice:
+  upload-dir: src/main/resources/static/voice
+  base-url: http://localhost:8080/voice/
+  voice-storage-path: file:src/main/resources/static/voice/

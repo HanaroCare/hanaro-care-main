@@ -18,14 +18,6 @@ import lombok.Setter;
 public class ContractDto {
 
   @NotBlank
-  @Schema(description = "사용자 이름", example = "홍길동")
-  private String userName;
-
-  @NotBlank
-  @Schema(description = "사용자 전화번호", example = "010-1234-5678")
-  private String userPhone;
-
-  @NotBlank
   @Schema(description = "임의후견인으로 지정할 성명", example = "홍말동")
   private String guardianName;
 

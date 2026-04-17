@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class InsuranceService {
+public class MyHanaInsuranceService {
 
   private final FamilyAuthRepository familyAuthRepository;
   private final AccountRepository accountRepository;
@@ -30,7 +30,7 @@ public class InsuranceService {
     List<TBAccount> account = accountRepository.findAllByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
 
-    List<TBFamilyAuth> family = familyAuthRepository.findAllByGranteeUserIdAndIsInsView(userId,
+    List<TBFamilyAuth> family = familyAuthRepository.findAllByGrantee_UserIdAndIsInsView(userId,
         true);
 
     List<TBAccount> accounts = new ArrayList<>();
@@ -65,7 +65,7 @@ public class InsuranceService {
 
     if (!accountOwnerId.equals(userId)) {
       boolean hasAuth = familyAuthRepository
-          .findByGrantorUserIdAndGranteeUserIdAndIsInsView(
+          .findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(
               accountOwnerId, userId, true)
           .isPresent();
 
@@ -82,5 +82,11 @@ public class InsuranceService {
         .contrDt(account.getContrDt())
         .expireDt(account.getExpireDt())
         .build();
+  }
+
+  @CheckUser(key = "#userId")
+  public Boolean isInsAgent(Long userId) {
+    return familyAuthRepository.existsByGrantee_UserIdAndIsProxyClaimTrue(userId);
+
   }
 }

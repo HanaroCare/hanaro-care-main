@@ -2,6 +2,11 @@
 
 import { createContext, useContext, useMemo, useState } from 'react';
 
+export type StartTimingValue = 'now' | 'when-needed' | 'custom-date';
+export type OperationTypeValue = 'managed' | 'self';
+export type PayoutTypeValue = 'free' | 'pension';
+export type PayoutItemValue = 'hospital' | 'living';
+
 export type PayoutAmounts = {
   hospital: number;
   living: number;
@@ -10,29 +15,29 @@ export type PayoutAmounts = {
 export type TrustFormState = {
   selectedAssets: string[];
   principalAmount: number;
-  startTiming: string | null;
+  startTiming: StartTimingValue | null;
   startDate: string | null;
-  operationType: string;
-  payoutType: string | null;
-  payoutItems: string[];
+  operationType: OperationTypeValue;
+  payoutType: PayoutTypeValue | null;
+  payoutItems: PayoutItemValue[];
   payoutAmounts: PayoutAmounts;
-  selectedAgent: string | null;
+  selectedAgent: number | null;
 };
 
 type TrustFormContextValue = {
   form: TrustFormState;
   setSelectedAssets: (ids: string[], total: number) => void;
   setStartTiming: (
-    startTiming: string | null,
+    startTiming: StartTimingValue | null,
     startDate?: string | null,
   ) => void;
-  setOperationType: (operationType: string) => void;
-  setPayoutType: (payoutType: string | null) => void;
+  setOperationType: (operationType: OperationTypeValue) => void;
+  setPayoutType: (payoutType: PayoutTypeValue | null) => void;
   setPayoutItems: (
-    payoutItems: string[],
+    payoutItems: PayoutItemValue[],
     payoutAmounts?: Partial<PayoutAmounts>,
   ) => void;
-  setSelectedAgent: (selectedAgent: string | null) => void;
+  setSelectedAgent: (selectedAgent: number | null) => void;
   resetForm: () => void;
 };
 
@@ -72,7 +77,7 @@ export function TrustFormProvider({ children }: { children: React.ReactNode }) {
         setForm((prev) => ({
           ...prev,
           startTiming,
-          startDate,
+          startDate: startTiming === 'custom-date' ? startDate : null,
         }));
       },
 
@@ -87,18 +92,32 @@ export function TrustFormProvider({ children }: { children: React.ReactNode }) {
         setForm((prev) => ({
           ...prev,
           payoutType,
+          payoutItems: payoutType === 'free' ? prev.payoutItems : [],
+          payoutAmounts:
+            payoutType === 'free'
+              ? prev.payoutAmounts
+              : { hospital: 0, living: 0 },
         }));
       },
 
       setPayoutItems: (payoutItems, payoutAmounts = {}) => {
-        setForm((prev) => ({
-          ...prev,
-          payoutItems,
-          payoutAmounts: {
+        setForm((prev) => {
+          const nextAmounts = {
             ...prev.payoutAmounts,
             ...payoutAmounts,
-          },
-        }));
+          };
+
+          return {
+            ...prev,
+            payoutItems,
+            payoutAmounts: {
+              hospital: payoutItems.includes('hospital')
+                ? nextAmounts.hospital
+                : 0,
+              living: payoutItems.includes('living') ? nextAmounts.living : 0,
+            },
+          };
+        });
       },
 
       setSelectedAgent: (selectedAgent) => {

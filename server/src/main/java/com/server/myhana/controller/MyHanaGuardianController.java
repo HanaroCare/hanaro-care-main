@@ -1,5 +1,6 @@
 package com.server.myhana.controller;
 
+import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.myhana.dto.ContractDto;
 import com.server.myhana.dto.FamilySummaryDto;
@@ -21,17 +22,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "마이하나 API", description = "마이하나 API 입니다.")
 @RestController
-@RequestMapping("/myhana/inheritance")
+@RequestMapping("/api/myhana/guardian")
 @RequiredArgsConstructor
-public class MyHanaInheritanceController {
+public class MyHanaGuardianController {
 
   private final MyHanaInheritanceService myHanaInheritanceService;
 
   // 가족 조회
   @Operation(summary = "후견인 가족 조회", description = "후견인으로 선택할 가족을 조회합니다.")
   @GetMapping("/family")
-  List<FamilySummaryDto> getFamily(@AuthenticationPrincipal SubscriberDTO user) {
-    return myHanaInheritanceService.getFamily(user.getUserId());
+  ApiResponse<List<FamilySummaryDto>> getFamily(@AuthenticationPrincipal SubscriberDTO user) {
+    List<FamilySummaryDto> result = myHanaInheritanceService.getFamily(user.getUserId());
+    return ApiResponse.onSuccess(result);
   }
 
   // 계약서 생성하기
@@ -39,7 +41,7 @@ public class MyHanaInheritanceController {
   @PostMapping("/contract")
   ResponseEntity<byte[]> downloadContract(@AuthenticationPrincipal SubscriberDTO user,
       @Valid @RequestBody ContractDto dto) throws Exception {
-    byte[] file = myHanaInheritanceService.generateContract(user.getUserId(), dto);
+    byte[] file = myHanaInheritanceService.generateContract(user, dto);
     return ResponseEntity.ok()
         .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=contract.docx")
         .contentType(MediaType.APPLICATION_OCTET_STREAM)

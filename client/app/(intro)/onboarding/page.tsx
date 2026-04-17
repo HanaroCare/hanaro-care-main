@@ -26,7 +26,7 @@ export default function OnboardingPage() {
 		{
 			title: (
 				<>
-					의료비·간병비<br />
+					<span className="text-primary">의료비·간병비</span><br />
 					미리 계산해두세요
 				</>
 			),
@@ -36,7 +36,7 @@ export default function OnboardingPage() {
 		{
 			title: (
 				<>
-					요양보호사 전용 카드<br />
+					요양보호사 <span className="text-primary">전용 카드</span><br />
 					가족이 함께 관리해요
 				</>
 			),
@@ -47,13 +47,21 @@ export default function OnboardingPage() {
 			title: (
 				<>
 					건강할 때 챙겨야 하는<br />
-					노후 준비 A to Z
+					<span className="text-primary">노후 준비</span> A to Z
 				</>
 			),
 			subtitle: "상속·신탁 설계부터 임의후견인 등록까지 한번에",
 			imagePath: "/images/onboarding/onboarding3.svg",
 		},
 	];
+
+	const handleBack = () => {
+		if (currentSlide > 0) {
+			setCurrentSlide(prev => prev - 1);
+		} else {
+			router.push("/font-config");
+		}
+	};
 
 	const handleNext = () => {
 		if (currentSlide < slides.length - 1) {
@@ -63,16 +71,16 @@ export default function OnboardingPage() {
 		}
 	};
 
-	// 경로 이동 및 온보딩 확인 여부 저장
 	const handleNavigation = (path: string) => {
 		localStorage.setItem("HAS_SEEN_ONBOARDING", "true");
+		document.cookie = "HAS_SEEN_ONBOARDING=true; path=/; max-age=31536000";
 		router.push(path);
 	};
 
 	return (
 		<div className="app-shell relative overflow-hidden bg-background">
 			<div className="app-layout">
-				<Header title="서비스 소개" />
+				<Header title="서비스 소개" onBack={handleBack} />
 
 				<ProgressBar currentStep={currentSlide + 1} totalSteps={slides.length} />
 
@@ -96,23 +104,23 @@ export default function OnboardingPage() {
 				onClose={() => setIsBottomSheetOpen(false)}
 			>
 				<div className="flex w-full flex-col">
-					<div className="mb-[2.5rem] w-full text-center">
-						<h2 className="text-[1.5rem] font-bold text-foreground">
-							처음 오셨나요?
+					<div className="mb-[40px] w-full text-center">
+						<h2 className="text-[24px] font-bold text-foreground">
+							<span>처음</span> 오셨나요?
 						</h2>
 					</div>
 
-					<div className="flex w-full flex-col gap-3">
+					<div className="flex w-full flex-col gap-[12px]">
 						<PrimaryButton
 							label="회원가입"
 							onClick={() => handleNavigation("/signup")}
-							className="!h-[4rem] !bg-white border border-gray-200 !text-gray-900 !text-[1.125rem]"
+							className="!h-[64px] !bg-white border border-gray-200 !text-gray-900 !text-[18px]"
 						/>
 
 						<PrimaryButton
 							label="하나인증서로 로그인"
 							onClick={() => handleNavigation("/login/hanaCert")}
-							className="!h-[4rem] !text-[1.125rem]"
+							className="!h-[64px] !text-[18px]"
 						/>
 					</div>
 				</div>

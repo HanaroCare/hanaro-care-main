@@ -4,17 +4,26 @@ import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { validatePassword, validatePasswordMatch } from "../utils/validators";
 
-export default function PasswordStep({ isActive, onComplete }: { isActive: boolean; onComplete: (val: string) => void }) {
+interface PasswordStepProps {
+  isActive: boolean;
+  onComplete: (val: string) => void;
+  isLoading?: boolean;
+  externalError?: string;
+}
+
+export default function PasswordStep({ isActive, onComplete, isLoading = false, externalError }: PasswordStepProps) {
   const [pw, setPw] = useState("");
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState("");
   const confirmRef = useRef<HTMLInputElement>(null);
 
+  const displayError = externalError || error;
+
   const handleKeyDown = (e: React.KeyboardEvent, type: "pw" | "confirm") => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && !isLoading) {
       if (type === "pw") {
         if (!validatePassword(pw)) {
-          setError("6~8자 영문 포함하여 입력해주세요.");
+          setError("8~16자, 영문과 숫자를 포함해주세요.");
           return;
         }
         setError("");
@@ -47,7 +56,7 @@ export default function PasswordStep({ isActive, onComplete }: { isActive: boole
           비밀번호를 설정해주세요
         </label>
         <p className="text-[0.75rem] font-medium text-gray-500 px-[0.125rem] mb-[0.25rem]">
-          6~8자 영문 포함하여 입력해주세요
+          8~16자, 영문과 숫자를 포함해주세요 (특수문자 @$!%*#?& 사용 가능)
         </p>
 
         <div className="flex flex-col gap-[0.5rem]">
@@ -56,9 +65,9 @@ export default function PasswordStep({ isActive, onComplete }: { isActive: boole
             value={pw}
             onChange={(e) => { setPw(e.target.value); setError(""); }}
             onKeyDown={(e) => handleKeyDown(e, "pw")}
-            disabled={!isActive}
+            disabled={!isActive || isLoading}
             placeholder="비밀번호 입력"
-            className={`w-full h-[3rem] rounded-xl border-[0.125rem] bg-gray-50 px-[0.875rem] text-[0.9rem] font-semibold outline-none transition-all ${isActive ? "border-hana-ez-600 bg-white shadow-sm" : "border-gray-100"
+            className={`w-full h-[3rem] rounded-xl border-[0.125rem] bg-gray-50 px-[0.875rem] text-[0.9rem] font-semibold outline-none transition-all ${isActive && !isLoading ? "border-hana-ez-600 bg-white shadow-sm" : "border-gray-100"
               }`}
           />
           <input
@@ -67,13 +76,22 @@ export default function PasswordStep({ isActive, onComplete }: { isActive: boole
             value={confirm}
             onChange={(e) => { setConfirm(e.target.value); setError(""); }}
             onKeyDown={(e) => handleKeyDown(e, "confirm")}
-            disabled={!isActive || pw.length < 6}
+            disabled={!isActive || pw.length < 8 || isLoading}
             placeholder="비밀번호 확인"
-            className={`w-full h-[3rem] rounded-xl border-[0.125rem] bg-gray-50 px-[0.875rem] text-[0.9rem] font-semibold outline-none transition-all ${isActive ? "border-hana-ez-600 bg-white shadow-sm" : "border-gray-100"
+            className={`w-full h-[3rem] rounded-xl border-[0.125rem] bg-gray-50 px-[0.875rem] text-[0.9rem] font-semibold outline-none transition-all ${isActive && !isLoading ? "border-hana-ez-600 bg-white shadow-sm" : "border-gray-100"
               }`}
           />
         </div>
-        {error && <p className="text-[0.75rem] font-medium text-red-500 mt-1 px-[0.125rem]">{error}</p>}
+        {displayError && !isLoading && (
+          <p className="text-[0.75rem] font-medium text-red-500 mt-1 px-[0.125rem] animate-in fade-in slide-in-from-top-1">
+            {displayError}
+          </p>
+        )}
+        {isLoading && (
+          <p className="text-[0.75rem] font-medium text-hana-ez-600 mt-1 px-[0.125rem]">
+            처리 중...
+          </p>
+        )}
       </div>
     </motion.div>
   );

@@ -77,4 +77,5 @@ public class TBFamilyAuth extends BaseEntity {
   @Builder.Default
   @Column(name = "IS_TRUST_VIEW", nullable = false)
   private Boolean isTrustView = false; // 신탁 조회 권한 여부
+
 }

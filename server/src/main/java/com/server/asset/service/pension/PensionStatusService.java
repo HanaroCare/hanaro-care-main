@@ -17,17 +17,16 @@ import com.server.asset.repository.UserProdRepository;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -35,11 +34,11 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class PensionStatusService {
 
+	private static final int PENSION_PAYOUT_DAY = 25;
+
 	private final UserProdRepository userProdRepository;
 	private final PensionSimulationRepository pensionSimulationRepository;
 	private final ObjectMapper objectMapper;
-
-	private static final int PENSION_PAYOUT_DAY = 25;
 
 	@CheckUser(key = "#userId")
 	public PensionStatusResponse getStatus(Long userId) {
@@ -51,15 +50,12 @@ public class PensionStatusService {
 
 		int elapsedYear = calcElapsedYear(Math.max(0, paidMonths - 1));
 		PensionPayoutYearlyDto floorEntry = floorEntry(ctx.yearlyData(), elapsedYear);
-		BigDecimal currentMonthlyPayout = floorEntry.getMonthlyAmount();
+		BigDecimal currentMonthlyPayout = defaultIfNull(ctx.userProd().getMonthlyPayout());
+		if (currentMonthlyPayout.compareTo(BigDecimal.ZERO) <= 0) {
+			currentMonthlyPayout = floorEntry.getMonthlyAmount();
+		}
 
-		long extraMonths = Math.max(
-			0,
-			paidMonths - (long) (floorEntry.getYear() - 1) * 12
-		);
-
-		BigDecimal currentCumulativeAmount =
-			calculateCumulativeAtMonth(ctx.yearlyData(), elapsedYear, extraMonths);
+		BigDecimal currentCumulativeAmount = defaultIfNull(ctx.userProd().getProfit());
 
 		List<ChartPoint> chartPoints = new ArrayList<>();
 
@@ -133,8 +129,6 @@ public class PensionStatusService {
 			.build();
 	}
 
-	// ── 공통 컨텍스트 로드 ───────────────────────────────────────────────────────
-
 	private record PensionContext(TBUserProd userProd, List<PensionPayoutYearlyDto> yearlyData) {}
 
 	private PensionContext loadContext(Long userId) {
@@ -158,8 +152,6 @@ public class PensionStatusService {
 
 		return new PensionContext(userProd, yearlyData);
 	}
-
-	// ── 유틸 ────────────────────────────────────────────────────────────────────
 
 	private LocalDate resolveBaseDate(TBUserProd userProd) {
 		if (userProd.getCreatedAt() != null) {
@@ -190,25 +182,6 @@ public class PensionStatusService {
 		return floorEntry(yearlyData, year).getMonthlyAmount();
 	}
 
-	private BigDecimal calculateCumulativeAtMonth(
-		List<PensionPayoutYearlyDto> yearlyData,
-		int elapsedYear,
-		long extraMonths
-	) {
-		BigDecimal baseCumulative = BigDecimal.ZERO;
-
-		if (elapsedYear > 1) {
-			baseCumulative = yearlyData.stream()
-				.filter(d -> d.getYear() < elapsedYear)
-				.max(Comparator.comparingInt(PensionPayoutYearlyDto::getYear))
-				.map(PensionPayoutYearlyDto::getCumulativeAmount)
-				.orElse(BigDecimal.ZERO);
-		}
-
-		BigDecimal currentMonthly = resolveMonthlyAmount(yearlyData, elapsedYear);
-		return baseCumulative.add(currentMonthly.multiply(BigDecimal.valueOf(extraMonths)));
-	}
-
 	private List<PensionPayoutPlanDto> deserializePlans(String plansJson) {
 		try {
 			return objectMapper.readValue(plansJson, new TypeReference<>() {});
@@ -219,13 +192,14 @@ public class PensionStatusService {
 	}
 
 	private LocalDate resolveFirstPayoutDate(LocalDate baseDate) {
-		if (baseDate == null) return null;
+		if (baseDate == null) {
+			return null;
+		}
 
 		LocalDate payoutDate = baseDate.withDayOfMonth(
 			Math.min(PENSION_PAYOUT_DAY, baseDate.lengthOfMonth())
 		);
 
-		// 가입일이 25일 이후면 다음 달 25일부터 지급
 		if (baseDate.isAfter(payoutDate)) {
 			LocalDate nextMonth = baseDate.plusMonths(1);
 			return nextMonth.withDayOfMonth(
@@ -234,5 +208,9 @@ public class PensionStatusService {
 		}
 
 		return payoutDate;
+	}
+
+	private BigDecimal defaultIfNull(BigDecimal value) {
+		return value == null ? BigDecimal.ZERO : value;
 	}
 }

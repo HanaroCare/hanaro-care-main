@@ -72,3 +72,8 @@ logging:
   level:
     com.server: debug
     org.hibernate.SQL: info
+
+voice:
+  upload-dir: ${VOICE_UPLOAD_DIR}
+  base-url: ${VOICE_BASE_URL}
+  voice-storage-path: ${VOICE_STORAGE_PATH}
