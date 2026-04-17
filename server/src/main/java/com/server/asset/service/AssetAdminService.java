@@ -1,5 +1,8 @@
 package com.server.asset.service;
 
+import com.server.asset.dto.admin.AdminRealAssetResponse;
+import com.server.asset.dto.admin.AdminUserDetailResponse;
+import com.server.asset.dto.admin.AdminUserSearchResponse;
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBProduct;
@@ -8,12 +11,14 @@ import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.ProdCate;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
+import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.entity.enums.StartType;
 import com.server.asset.mapper.PensionMapper;
 import com.server.asset.mapper.TrustMapper;
-import com.server.asset.repository.ProductRepository;
 import com.server.asset.repository.AccountRepository;
 import com.server.asset.repository.PensionSimulationRepository;
+import com.server.asset.repository.ProductRepository;
+import com.server.asset.repository.RealAssetRepository;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.asset.util.TrustCalculator;
@@ -25,6 +30,7 @@ import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -38,6 +44,7 @@ public class AssetAdminService {
 
   private final UserRepository userRepository;
   private final TrustRepository trustRepository;
+  private final SimulationRefreshService simulationRefreshService;
   private final UserProdRepository userProdRepository;
   private final ProductRepository productRepository;
   private final TrustMapper trustMapper;
@@ -45,14 +52,43 @@ public class AssetAdminService {
   private final PensionSimulationRepository pensionSimulationRepository;
   private final AccountRepository accountRepository;
   private final FamilyAuthRepository familyAuthRepository;
+  private final RealAssetRepository realAssetRepository;
+
+  @Transactional(readOnly = true)
+  public List<AdminUserSearchResponse> searchUsers(String keyword) {
+    String trimmed = keyword == null ? "" : keyword.trim();
+    if (trimmed.isBlank()) {
+      return List.of();
+    }
+
+    return userRepository.searchAdminUsers(trimmed).stream()
+        .map(AdminUserSearchResponse::from)
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public AdminUserDetailResponse getUserDetail(Long userId) {
+    TBUser user = userRepository.findById(userId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+    return AdminUserDetailResponse.from(user);
+  }
+
+  @Transactional(readOnly = true)
+  public List<AdminRealAssetResponse> getUserRealAssets(Long userId) {
+    userRepository.findById(userId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+
+    return realAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.REAL_ESTATE)
+        .stream()
+        .map(AdminRealAssetResponse::from)
+        .toList();
+  }
 
   @Transactional
   public Long subscribeTrustProduct(Long userId) {
-    // 1. 유저 락 획득 (동시 가입 시도 직렬화)
     TBUser user = userRepository.findByIdWithLock(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_USER_NOT_FOUND));
 
-    // 2. 가입 여부 체크
     if (userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
         userId, ProdType.TRUST, ProdStat.IN_PROGRESS
     )) {
@@ -72,7 +108,6 @@ public class AssetAdminService {
 
     TBUserProd userProd = trustMapper.toUserProd(simulation, user, product, principal, detail);
 
-    // 시작 타입에 따른 상태 처리
     if (simulation.getStartType() == StartType.CUSTOM) {
       userProd.setProdStat(ProdStat.PENDING);
     } else if (simulation.getStartType() == StartType.NOW) {
@@ -80,7 +115,6 @@ public class AssetAdminService {
       userProd.setProdStat(ProdStat.IN_PROGRESS);
     }
 
-    // 사후수익자(대리인) 처리
     TBUser claimAgent = simulation.getClaimAgent();
     if (claimAgent != null) {
       userProd.setIsAgentView(true);
@@ -91,29 +125,27 @@ public class AssetAdminService {
     }
 
     try {
-      return userProdRepository.save(userProd).getUserProdId();
+      Long userProdId = userProdRepository.save(userProd).getUserProdId();
+      simulationRefreshService.enqueue(userId);
+      return userProdId;
     } catch (DataIntegrityViolationException e) {
       log.warn("신탁 상품 중복 가입 시도 차단: userId={}", userId);
       throw new ApiException(ErrorStatus.TRUST_PRODUCT_ALREADY_EXISTS);
     }
   }
 
-
   @Transactional
   public Long subscribePensionProduct(Long userId, Long realAssetId) {
-    // 1. 유저 락 획득
     TBUser user = userRepository.findByIdWithLock(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_USER_NOT_FOUND));
 
-    // 2. 중복 가입 체크
     if (userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
         userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS
     )) {
       throw new ApiException(ErrorStatus.PENSION_ALREADY_EXISTS);
     }
 
-    TBPensionSimulation simulation = pensionSimulationRepository.findByRealAsset_RealAssetId(
-            realAssetId)
+    TBPensionSimulation simulation = pensionSimulationRepository.findByRealAsset_RealAssetId(realAssetId)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND));
 
     if (!simulation.getRealAsset().getUser().getUserId().equals(userId)) {
@@ -129,10 +161,10 @@ public class AssetAdminService {
       );
 
       accountRepository.save(
-          pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(),
-              simulation)
+          pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(), simulation)
       );
 
+      simulationRefreshService.enqueue(userId);
       return savedProd.getUserProdId();
     } catch (DataIntegrityViolationException e) {
       log.warn("주택연금 중복 가입 시도 차단: userId={}, assetId={}", userId, realAssetId);

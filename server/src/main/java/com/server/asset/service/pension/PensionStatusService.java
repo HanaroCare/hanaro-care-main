@@ -17,23 +17,24 @@ import com.server.asset.repository.UserProdRepository;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class PensionStatusService {
+
+	private static final int PENSION_PAYOUT_DAY = 25;
 
 	private final UserProdRepository userProdRepository;
 	private final PensionSimulationRepository pensionSimulationRepository;
@@ -43,27 +44,27 @@ public class PensionStatusService {
 	public PensionStatusResponse getStatus(Long userId) {
 		PensionContext ctx = loadContext(userId);
 
-		long totalMonths = calcTotalMonths(ctx.userProd().getStartDate());
-		int elapsedYear = calcElapsedYear(totalMonths);
+		LocalDate baseDate = resolveBaseDate(ctx.userProd());
+		LocalDate firstPayoutDate = resolveFirstPayoutDate(baseDate);
+		long paidMonths = calcPaidMonths(firstPayoutDate);
 
-		// 1. 현재 시점의 누적액 및 수령액 계산 (Point 0)
+		int elapsedYear = calcElapsedYear(Math.max(0, paidMonths - 1));
 		PensionPayoutYearlyDto floorEntry = floorEntry(ctx.yearlyData(), elapsedYear);
-		BigDecimal currentMonthlyPayout = floorEntry.getMonthlyAmount();
+		BigDecimal currentMonthlyPayout = defaultIfNull(ctx.userProd().getMonthlyPayout());
+		if (currentMonthlyPayout.compareTo(BigDecimal.ZERO) <= 0) {
+			currentMonthlyPayout = floorEntry.getMonthlyAmount();
+		}
 
-		long extraMonths = Math.max(0, totalMonths - (long) (floorEntry.getYear() - 1) * 12);
-		BigDecimal currentCumulativeAmount = calculateCumulativeAtMonth(ctx.yearlyData(), elapsedYear, extraMonths);
+		BigDecimal currentCumulativeAmount = defaultIfNull(ctx.userProd().getProfit());
 
-		// 2. 차트 포인트 재구성: [현재 시점] + [현재 이후의 미래 Sparse 포인트들]
 		List<ChartPoint> chartPoints = new ArrayList<>();
 
-		// 현재 시점 추가
 		chartPoints.add(ChartPoint.builder()
 			.year(elapsedYear)
 			.monthlyAmount(currentMonthlyPayout)
 			.cumulativeAmount(currentCumulativeAmount)
 			.build());
 
-		// 미래의 주요 변곡점(10년, 11년, 20년 등) 추가
 		ctx.yearlyData().stream()
 			.filter(d -> d.getYear() > elapsedYear)
 			.map(d -> ChartPoint.builder()
@@ -76,7 +77,7 @@ public class PensionStatusService {
 		return PensionStatusResponse.builder()
 			.pensionPayoutType(ctx.userProd().getPensionPayoutType().name())
 			.pensionPayoutLabel(ctx.userProd().getPensionPayoutType().getDescription())
-			.startDate(ctx.userProd().getStartDate())
+			.createdAt(baseDate)
 			.elapsedYear(elapsedYear)
 			.currentMonthlyPayout(currentMonthlyPayout)
 			.currentCumulativeAmount(currentCumulativeAmount)
@@ -88,8 +89,10 @@ public class PensionStatusService {
 	public PensionPayoutHistoryResponse getPayoutHistory(Long userId) {
 		PensionContext ctx = loadContext(userId);
 
-		LocalDate startDate = ctx.userProd().getStartDate();
-		if (startDate == null || startDate.isAfter(LocalDate.now())) {
+		LocalDate baseDate = resolveBaseDate(ctx.userProd());
+		LocalDate firstPayoutDate = resolveFirstPayoutDate(baseDate);
+
+		if (firstPayoutDate == null || firstPayoutDate.isAfter(LocalDate.now())) {
 			return PensionPayoutHistoryResponse.builder()
 				.totalReceivedAmount(BigDecimal.ZERO)
 				.history(List.of())
@@ -98,14 +101,24 @@ public class PensionStatusService {
 
 		List<PayoutRecord> history = new ArrayList<>();
 		BigDecimal total = BigDecimal.ZERO;
-		LocalDate cursor = startDate;
+		LocalDate cursor = firstPayoutDate;
 
 		while (!cursor.isAfter(LocalDate.now())) {
-			long monthsSinceStart = ChronoUnit.MONTHS.between(startDate, cursor);
-			BigDecimal monthly = resolveMonthlyAmount(ctx.yearlyData(), calcElapsedYear(monthsSinceStart));
+			long monthsSinceStart = ChronoUnit.MONTHS.between(firstPayoutDate, cursor);
+			int elapsedYear = calcElapsedYear(monthsSinceStart);
+			BigDecimal monthly = resolveMonthlyAmount(ctx.yearlyData(), elapsedYear);
+
 			total = total.add(monthly);
-			history.add(PayoutRecord.builder().payoutDate(cursor).amount(monthly).build());
+
+			history.add(PayoutRecord.builder()
+				.payoutDate(cursor)
+				.amount(monthly)
+				.build());
+
 			cursor = cursor.plusMonths(1);
+			cursor = cursor.withDayOfMonth(
+				Math.min(PENSION_PAYOUT_DAY, cursor.lengthOfMonth())
+			);
 		}
 
 		return PensionPayoutHistoryResponse.builder()
@@ -116,13 +129,15 @@ public class PensionStatusService {
 			.build();
 	}
 
-	// ── 공통 컨텍스트 로드 ───────────────────────────────────────────────────────
-
 	private record PensionContext(TBUserProd userProd, List<PensionPayoutYearlyDto> yearlyData) {}
 
 	private PensionContext loadContext(Long userId) {
 		TBUserProd userProd = userProdRepository
-			.findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS)
+			.findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
+				userId,
+				ProdType.HOUSING_PENSION,
+				ProdStat.IN_PROGRESS
+			)
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_NOT_SUBSCRIBED));
 
 		TBPensionSimulation simulation = pensionSimulationRepository
@@ -138,15 +153,21 @@ public class PensionStatusService {
 		return new PensionContext(userProd, yearlyData);
 	}
 
-	// ── 유틸 ────────────────────────────────────────────────────────────────────
+	private LocalDate resolveBaseDate(TBUserProd userProd) {
+		if (userProd.getCreatedAt() != null) {
+			return userProd.getCreatedAt().toLocalDate();
+		}
+		return userProd.getStartDate();
+	}
 
-	private long calcTotalMonths(LocalDate startDate) {
-		if (startDate == null || startDate.isAfter(LocalDate.now())) return 0;
-		return ChronoUnit.MONTHS.between(startDate, LocalDate.now());
+	private long calcPaidMonths(LocalDate baseDate) {
+		if (baseDate == null || baseDate.isAfter(LocalDate.now())) {
+			return 0;
+		}
+		return ChronoUnit.MONTHS.between(baseDate, LocalDate.now()) + 1;
 	}
 
 	private int calcElapsedYear(long totalMonths) {
-		// 0개월~11개월 -> 1년차, 12개월~23개월 -> 2년차
 		return (int) (totalMonths / 12) + 1;
 	}
 
@@ -161,26 +182,6 @@ public class PensionStatusService {
 		return floorEntry(yearlyData, year).getMonthlyAmount();
 	}
 
-	/**
-	 * 특정 경과 월수 시점의 정확한 누적 수령액 계산
-	 * @param extraMonths 현재 연차 내에서 추가로 경과한 월 수
-	 */
-	private BigDecimal calculateCumulativeAtMonth(List<PensionPayoutYearlyDto> yearlyData, int elapsedYear, long extraMonths) {
-		// 직전 연차까지의 누적액
-		BigDecimal baseCumulative = BigDecimal.ZERO;
-		if (elapsedYear > 1) {
-			baseCumulative = yearlyData.stream()
-				.filter(d -> d.getYear() < elapsedYear)
-				.max(Comparator.comparingInt(PensionPayoutYearlyDto::getYear))
-				.map(PensionPayoutYearlyDto::getCumulativeAmount)
-				.orElse(BigDecimal.ZERO);
-		}
-
-		// 현재 연차의 월 수령액 * 추가 개월 수
-		BigDecimal currentMonthly = resolveMonthlyAmount(yearlyData, elapsedYear);
-		return baseCumulative.add(currentMonthly.multiply(BigDecimal.valueOf(extraMonths)));
-	}
-
 	private List<PensionPayoutPlanDto> deserializePlans(String plansJson) {
 		try {
 			return objectMapper.readValue(plansJson, new TypeReference<>() {});
@@ -188,5 +189,28 @@ public class PensionStatusService {
 			log.warn("플랜 JSON 역직렬화 실패", e);
 			throw new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND);
 		}
+	}
+
+	private LocalDate resolveFirstPayoutDate(LocalDate baseDate) {
+		if (baseDate == null) {
+			return null;
+		}
+
+		LocalDate payoutDate = baseDate.withDayOfMonth(
+			Math.min(PENSION_PAYOUT_DAY, baseDate.lengthOfMonth())
+		);
+
+		if (baseDate.isAfter(payoutDate)) {
+			LocalDate nextMonth = baseDate.plusMonths(1);
+			return nextMonth.withDayOfMonth(
+				Math.min(PENSION_PAYOUT_DAY, nextMonth.lengthOfMonth())
+			);
+		}
+
+		return payoutDate;
+	}
+
+	private BigDecimal defaultIfNull(BigDecimal value) {
+		return value == null ? BigDecimal.ZERO : value;
 	}
 }

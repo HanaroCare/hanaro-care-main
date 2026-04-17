@@ -5,7 +5,7 @@ import { Delete } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 
 type SimplePasswordAuthProps = {
-	onSuccess: () => void;
+	onSuccess: (value: string) => void;
 };
 
 export default function SimplePasswordAuth({ onSuccess }: SimplePasswordAuthProps) {
@@ -35,7 +35,7 @@ export default function SimplePasswordAuth({ onSuccess }: SimplePasswordAuthProp
 	useEffect(() => {
 		if (pin.length === 6) {
 			const timer = setTimeout(() => {
-				onSuccess();
+				onSuccess(pin);
 			}, 300);
 			return () => clearTimeout(timer);
 		}

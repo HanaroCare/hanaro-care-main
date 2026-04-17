@@ -24,30 +24,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class MyHanaFamilyController {
 
-    private final MyHanaFamilyService familyService;
+  private final MyHanaFamilyService familyService;
 
-    @Operation(summary = "가족 목록 조회", description = "본인 및 입증된(승인된) 가족 목록을 조회합니다.")
-    @GetMapping
-    public ApiResponse<List<FamilyMemberResponse>> getFamilyMembers(
-            @AuthenticationPrincipal SubscriberDTO subscriberDTO) {
-        return ApiResponse.onSuccess(familyService.getFamilyMembers(subscriberDTO.getUserId()));
-    }
+  @Operation(summary = "사용자 조회", description = "본인을 조회합니다.")
+  @GetMapping("/me")
+  public ApiResponse<String> getUser(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO) {
+    return ApiResponse.onSuccess(familyService.getUser(subscriberDTO.getUserId()));
+  }
 
-    @Operation(summary = "가족 초대하기", description = "가족을 초대하기 위한 온보딩 링크를 생성합니다.")
-    @PostMapping("/invite")
-    public ApiResponse<String> inviteFamily(
-            @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-            @RequestBody FamilyInviteRequest request) {
-        String inviteToken = familyService.inviteFamily(subscriberDTO.getUserId(), request);
-        return ApiResponse.onSuccess(inviteToken);
-    }
+  @Operation(summary = "가족 목록 조회", description = "본인 및 입증된(승인된) 가족 목록을 조회합니다.")
+  @GetMapping
+  public ApiResponse<List<FamilyMemberResponse>> getFamilyMembers(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO) {
+    return ApiResponse.onSuccess(familyService.getFamilyMembers(subscriberDTO.getUserId()));
+  }
 
-    @Operation(summary = "보험 내역 열람 권한 관리", description = "입증된 가족에게 보험 내역 열람 권한을 주거나 취소합니다.")
-    @PatchMapping("/insurance-permission")
-    public ApiResponse<Void> updateInsurancePermission(
-            @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-            @RequestBody GrantInsuranceViewRequest request) {
-        familyService.updateInsuranceViewPermission(subscriberDTO.getUserId(), request);
-        return ApiResponse.onSuccess(null);
-    }
+  @Operation(summary = "가족 초대하기", description = "가족을 초대하기 위한 온보딩 링크를 생성합니다.")
+  @PostMapping("/invite")
+  public ApiResponse<String> inviteFamily(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+      @RequestBody FamilyInviteRequest request) {
+    String inviteToken = familyService.inviteFamily(subscriberDTO.getUserId(), request);
+    return ApiResponse.onSuccess(inviteToken);
+  }
+
+  @Operation(summary = "보험 내역 열람 권한 관리", description = "입증된 가족에게 보험 내역 열람 권한을 주거나 취소합니다.")
+  @PatchMapping("/insurance-permission")
+  public ApiResponse<Void> updateInsurancePermission(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+      @RequestBody GrantInsuranceViewRequest request) {
+    familyService.updateInsuranceViewPermission(subscriberDTO.getUserId(), request);
+    return ApiResponse.onSuccess(null);
+  }
 }

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-
 @Schema(description = "주택연금 운용 현황")
 @Getter
 @Builder
@@ -23,35 +22,35 @@ public class PensionStatusResponse {
 	@Schema(description = "수령 방식 이름", example = "정액형")
 	private String pensionPayoutLabel;
 
-	@Schema(description = "연금 가입 시작일", example = "2026-05-01")
-	private LocalDate startDate;
+	@Schema(description = "가입일", example = "2026-05-01")
+	private LocalDate createdAt;
 
-	@Schema(description = "현재 가입 연차 (1-based)", example = "3")
+	@Schema(description = "경과 연차", example = "3")
 	private int elapsedYear;
 
-	@Schema(description = "이달의 수령액 (원)", example = "2050000")
+	@Schema(description = "현재 월 수령액", example = "2050000")
 	private BigDecimal currentMonthlyPayout;
 
-	@Schema(description = "현재까지 누적 수령액 (원)", example = "73800000")
+	@Schema(description = "누적 수령액", example = "73800000")
 	private BigDecimal currentCumulativeAmount;
 
-	@Schema(description = "누적 수령액 차트 (가입 시점 ~ 현재 + 10년)")
+	@Schema(description = "차트 데이터")
 	private List<ChartPoint> chartPoints;
 
-	@Schema(description = "차트 포인트")
 	@Getter
 	@Builder
 	@NoArgsConstructor
 	@AllArgsConstructor
+	@Schema(description = "차트 포인트")
 	public static class ChartPoint {
 
-		@Schema(description = "가입 연차", example = "4")
+		@Schema(description = "연차", example = "4")
 		private int year;
 
-		@Schema(description = "해당 연차 월 수령액 (원)", example = "2050000")
+		@Schema(description = "월 수령액", example = "2050000")
 		private BigDecimal monthlyAmount;
 
-		@Schema(description = "해당 연차까지 누적 수령액 (원)", example = "98400000")
+		@Schema(description = "누적 수령액", example = "98400000")
 		private BigDecimal cumulativeAmount;
 	}
 }

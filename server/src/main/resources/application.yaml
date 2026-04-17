@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -35,6 +35,12 @@ spring:
   sql:
     init:
       mode: always
+
+  batch:
+    job:
+      enabled: false        # 서버 시작 시 배치 자동 실행 방지 (스케줄러가 제어)
+    jdbc:
+      initialize-schema: always  # Spring Batch 메타 테이블 자동 생성 (MySQL)
 
   web:
     resources:
@@ -66,3 +72,8 @@ logging:
   level:
     com.server: debug
     org.hibernate.SQL: info
+
+voice:
+  upload-dir: ${VOICE_UPLOAD_DIR}
+  base-url: ${VOICE_BASE_URL}
+  voice-storage-path: ${VOICE_STORAGE_PATH}

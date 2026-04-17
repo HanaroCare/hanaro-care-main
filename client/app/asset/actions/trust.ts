@@ -8,18 +8,6 @@ type InvestType = 'LUMP_SUM' | 'DIRECT';
 type PayoutType = 'FLEXIBLE' | 'PENSION';
 type TrustItemType = 'HOSPITAL' | 'LIVING';
 
-type TrustSimulationRequest = {
-  principalAmount: number;
-  startType: StartType;
-  startDate: string | null;
-  investType: InvestType;
-  payoutType: PayoutType;
-  payoutSettings: {
-    items: { type: TrustItemType; amount: number }[];
-  } | null;
-  claimAgentId: number | null;
-};
-
 const START_TYPE_MAP: Record<string, StartType> = {
   now: 'NOW',
   'when-needed': 'SCHEDULED',
@@ -41,13 +29,30 @@ const PAYOUT_ITEM_TYPE: Record<string, TrustItemType> = {
   living: 'LIVING',
 };
 
+export type TrustAccessLevel = 'READ_WRITE' | 'PROXY_ONLY' | 'NONE';
 export type TrustType = 'HOSPITAL' | 'LIVING';
 
+export type TrustPayoutItem = {
+  type: TrustType;
+  amount: number;
+};
+
+export type TrustPayoutSettingsDto = {
+  items: TrustPayoutItem[];
+};
+
+type TrustSimulationRequest = {
+  principalAmount: number;
+  startType: StartType;
+  startDate: string | null;
+  investType: InvestType;
+  payoutType: PayoutType;
+  payoutSettings: TrustPayoutSettingsDto | null;
+  claimAgentId: number | null;
+};
+
 export type TrustPayoutSettingsUpdateRequest = {
-  items: {
-    type: TrustType;
-    amount: number;
-  }[];
+  payoutSettings: TrustPayoutSettingsDto;
 };
 
 export type TrustAgentViewUpdateRequest = {
@@ -77,19 +82,12 @@ export type TrustSimulationResultResponse = {
   amountResults: AmountResultDto[];
 };
 
-export type TrustAccessLevel = 'READ_WRITE' | 'PROXY_ONLY' | 'NONE';
-
-export type TrustAccessItem = {
-  grantorId: number;
-  grantorName: string;
-  accessLevel: TrustAccessLevel;
-};
-
 export type TrustGrantorItem = {
   grantorId: number;
   grantorName: string;
   relation: string;
   relationLabel: string;
+  accessLevel: TrustAccessLevel;
 };
 
 export type TrustGrantorResponse = {
@@ -136,16 +134,11 @@ export type FamilyMember = {
   isMe: boolean;
 };
 
-export async function getTrustFamilyAccess(): Promise<TrustAccessItem[]> {
-  const res = await serverFetch<{ accessList: TrustAccessItem[] }>(
-    '/api/asset/trust/family/access',
-  );
-  return res.accessList ?? [];
-}
-
 export async function getTrustSimulationResult(): Promise<TrustSimulationResultResponse | null> {
   try {
-    return await serverFetch<TrustSimulationResultResponse>('/api/asset/trust');
+    return await serverFetch<TrustSimulationResultResponse>(
+      '/api/asset/trust?view=detail',
+    );
   } catch (error) {
     if (
       isNoDataError(error, {
@@ -159,6 +152,26 @@ export async function getTrustSimulationResult(): Promise<TrustSimulationResultR
     throw error;
   }
 }
+
+export async function getTrustSimulationSummary(): Promise<TrustSimulationSummary | null> {
+  try {
+    return await serverFetch<TrustSimulationSummary>(
+      '/api/asset/trust?view=summary',
+    );
+  } catch (error) {
+    if (
+      isNoDataError(error, {
+        statuses: [404],
+        codes: ['TRUST_001'],
+      })
+    ) {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
 export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
   const startType = START_TYPE_MAP[form.startTiming ?? 'now'] ?? 'NOW';
   const startDate = startType === 'CUSTOM' ? form.startDate : null;
@@ -166,6 +179,7 @@ export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
   if (startType === 'CUSTOM' && !startDate) {
     throw new Error('Custom start date is required.');
   }
+
   const payoutItems = form.payoutItems
     .filter((id) => PAYOUT_ITEM_TYPE[id])
     .map((id) => ({
@@ -186,7 +200,7 @@ export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
     claimAgentId: form.selectedAgent ? Number(form.selectedAgent) : null,
   };
 
-  return serverFetch<void>('/api/asset/trust', {
+  await serverFetch<void>('/api/asset/trust', {
     method: 'POST',
     body: JSON.stringify(body),
   });
@@ -204,7 +218,7 @@ export async function getFamilyTrustSummary(
 ): Promise<TrustSimulationSummary | null> {
   try {
     return await serverFetch<TrustSimulationSummary>(
-      `/api/asset/trust/family/${grantorId}/summary`,
+      `/api/asset/trust/family/${grantorId}?view=summary`,
     );
   } catch (error) {
     if (
@@ -225,7 +239,7 @@ export async function getFamilyTrustDetail(
 ): Promise<TrustProductDetail | null> {
   try {
     return await serverFetch<TrustProductDetail>(
-      `/api/asset/trust/family/${grantorId}/detail`,
+      `/api/asset/trust/family/${grantorId}?view=detail`,
     );
   } catch (error) {
     if (
@@ -245,16 +259,14 @@ export async function getFamilyMembers(): Promise<FamilyMember[]> {
   return serverFetch<FamilyMember[]>('/api/myhana/family');
 }
 
-export async function getTrustSimulationSummary(): Promise<TrustSimulationSummary | null> {
+export async function getTrustProduct(): Promise<TrustProductDetail | null> {
   try {
-    return await serverFetch<TrustSimulationSummary>(
-      '/api/asset/trust/summary',
-    );
+    return await serverFetch<TrustProductDetail>('/api/asset/trust/product');
   } catch (error) {
     if (
       isNoDataError(error, {
         statuses: [404],
-        codes: ['TRUST_001'],
+        codes: ['ASSET_001'],
       })
     ) {
       return null;
@@ -264,23 +276,14 @@ export async function getTrustSimulationSummary(): Promise<TrustSimulationSummar
   }
 }
 
-export async function getTrustProductSummary(): Promise<TrustProductDetail | null> {
-  try {
-    return await serverFetch<TrustProductDetail>(
-      '/api/asset/trust/product/summary',
-    );
-  } catch (error) {
-    if (error instanceof ServerFetchError && error.status === 404) {
-      return null;
-    }
-    throw error;
-  }
-}
-
 export async function updateTrustPayoutSettings(
-  body: TrustPayoutSettingsUpdateRequest,
+  payoutSettings: TrustPayoutSettingsDto,
 ): Promise<void> {
-  return serverFetch<void>('/api/asset/trust/product/payout-settings', {
+  const body: TrustPayoutSettingsUpdateRequest = {
+    payoutSettings,
+  };
+
+  await serverFetch<void>('/api/asset/trust/product/payout-settings', {
     method: 'PATCH',
     body: JSON.stringify(body),
   });
@@ -289,7 +292,7 @@ export async function updateTrustPayoutSettings(
 export async function updateTrustAgentView(
   body: TrustAgentViewUpdateRequest,
 ): Promise<void> {
-  return serverFetch<void>('/api/asset/trust/product/agent-view', {
+  await serverFetch<void>('/api/asset/trust/product/agent-view', {
     method: 'PATCH',
     body: JSON.stringify(body),
   });

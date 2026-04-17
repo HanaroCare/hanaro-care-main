@@ -41,7 +41,7 @@ public class RedisConfig {
     objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     objectMapper.activateDefaultTyping(
         objectMapper.getPolymorphicTypeValidator(),
-        ObjectMapper.DefaultTyping.NON_FINAL
+        ObjectMapper.DefaultTyping.EVERYTHING
     );
     return new GenericJackson2JsonRedisSerializer(objectMapper);
   }

@@ -1,11 +1,12 @@
 package com.server.common.response.code.status;
 
+import org.springframework.http.HttpStatus;
 
 import com.server.common.response.code.BaseErrorCode;
 import com.server.common.response.code.ErrorReasonDTO;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -26,6 +27,8 @@ public enum ErrorStatus implements BaseErrorCode {
   AUTH_ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "AUTH_008", "이용이 정지된 계정입니다. 고객센터에 문의해주세요."),
   AUTH_ACCOUNT_DORMANT(HttpStatus.FORBIDDEN, "AUTH_009", "휴면 계정입니다. 본인인증을 통해 계정을 복구해 주세요."),
   AUTH_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_001", "아이디 또는 비밀번호가 일치하지 않습니다."),
+  FIND_ID_USER_NOT_FOUND(HttpStatus.NOT_FOUND, "AUTH_010", "입력하신 정보와 일치하는 회원이 없습니다."),
+  DORMANT_PHONE_MISMATCH(HttpStatus.BAD_REQUEST, "AUTH_011", "등록된 휴대폰 번호와 일치하지 않습니다."),
   // sms
   SMS_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "SMS_001", "인증번호 발송에 실패했습니다. 잠시 후 다시 시도해 주세요."),
   SMS_CODE_EXPIRED(HttpStatus.UNAUTHORIZED, "SMS_002", "인증 시간이 만료되었습니다. 다시 시도해 주세요."),
@@ -72,6 +75,7 @@ public enum ErrorStatus implements BaseErrorCode {
   // asset
   ASSET_NOT_FOUND(HttpStatus.NOT_FOUND, "ASSET_404", "자산 정보를 찾을 수 없습니다."),
   ACCOUNT_NOT_FOUND(HttpStatus.NOT_FOUND, "ACCOUNT_404", "계좌 정보를 찾을 수 없습니다."),
+  REAL_ASSET_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "ASSET_400", "이미 연동된 자산입니다."),
 
   // user
   USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_001", "사용자를 찾을 수 없습니다."),

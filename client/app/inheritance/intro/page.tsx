@@ -162,7 +162,7 @@ export default function InheritanceIntroPage() {
 
             {/* CTA 버튼 */}
             <Link
-              href="/inheritance/plan"
+              href="/inheritance/plan/guide"
               className="block w-full rounded-2xl bg-[var(--color-hana-ez-600)] py-4 text-center font-bold text-lg text-white shadow-[var(--color-hana-ez-600)]/20 shadow-lg"
             >
               상속설계 시작하기

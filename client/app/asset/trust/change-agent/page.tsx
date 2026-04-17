@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useId, useState, useTransition } from 'react';
 import {
-  getTrustProductSummary,
+  getTrustProduct,
   type TrustProductDetail,
   updateTrustAgentView,
 } from '@/app/asset/actions/trust';
@@ -12,6 +12,7 @@ import ProgressBar from '@/components/baseelements/ProgressBar';
 import StackedActionFooter from '@/components/modules/StackedActionFooter';
 import Header from '@/components/navigation/Header';
 import TrustStepLayout from '../../components/trust/TrustStepLayout';
+import { handleReservation } from '../../constants/trustUtils';
 
 export default function ChangeAgentPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function ChangeAgentPage() {
         setIsLoading(true);
         setError(null);
 
-        const data = await getTrustProductSummary();
+        const data = await getTrustProduct();
         setProductDetail(data);
         setOpenPermission(data?.agentViewEnabled ?? true);
       } catch (error) {
@@ -152,9 +153,7 @@ export default function ChangeAgentPage() {
     <TrustStepLayout
       footer={
         <StackedActionFooter
-          onConsultClick={() => {
-            // 상담 예약 로직
-          }}
+          onConsultClick={handleReservation}
           onNextClick={handleSubmit}
           nextDisabled={isPending}
         />

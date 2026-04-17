@@ -2,7 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
+import {
+  type StartTimingValue,
+  useTrustForm,
+} from '@/app/asset/trust/TrustFormContext';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import TrustWizardStep from '../TrustWizardStep';
 
@@ -25,12 +28,14 @@ const options = [
     desc: ['내가 원하는 날짜에 시작해요'],
     recommended: false,
   },
-];
+] as const;
 
 export default function StartTimingStep() {
   const router = useRouter();
   const { form, setStartTiming } = useTrustForm();
-  const [selected, setSelected] = useState<string | null>(form.startTiming);
+  const [selected, setSelected] = useState<StartTimingValue | null>(
+    form.startTiming,
+  );
 
   const handleNext = () => {
     if (!selected) return;

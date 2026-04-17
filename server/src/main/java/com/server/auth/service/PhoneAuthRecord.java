@@ -1,41 +1,51 @@
 package com.server.auth.service;
 
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Getter
 public class PhoneAuthRecord {
 
-  private static final int CODE_EXPIRE_MINUTES = 3;
-  private static final int VERIFIED_EXPIRE_MINUTES = 5;
+  private static final Duration CODE_EXPIRE = Duration.ofMinutes(5);
+  private static final Duration VERIFIED_EXPIRE = Duration.ofMinutes(5);
 
   private final String code;
-  private final LocalDateTime issuedAt;
-  private final LocalDateTime verifiedAt;
+  private final Instant issuedAt;
+  private final Instant verifiedAt;
 
   public PhoneAuthRecord(String code) {
     this.code = code;
-    this.issuedAt = LocalDateTime.now();
+    this.issuedAt = Instant.now();
     this.verifiedAt = null;
   }
 
-  private PhoneAuthRecord(String code, LocalDateTime issuedAt, LocalDateTime verifiedAt) {
+  private PhoneAuthRecord(String code, Instant issuedAt, Instant verifiedAt) {
     this.code = code;
     this.issuedAt = issuedAt;
     this.verifiedAt = verifiedAt;
   }
 
   public boolean isPendingValid() {
-    return verifiedAt == null
-        && LocalDateTime.now().isBefore(issuedAt.plusMinutes(CODE_EXPIRE_MINUTES));
+    Instant now = Instant.now();
+    Duration elapsed = Duration.between(issuedAt, now);
+    long secondsLeft = CODE_EXPIRE.minus(elapsed).getSeconds();
+
+    log.debug("[isPendingValid] issuedAt={} | elapsed={}s | secondsLeft={}s | alreadyVerified={}",
+        issuedAt.toEpochMilli(), elapsed.getSeconds(), secondsLeft, verifiedAt != null);
+
+    return elapsed.compareTo(CODE_EXPIRE) < 0;
   }
 
   public boolean isVerifiedValid() {
-    return verifiedAt != null
-        && LocalDateTime.now().isBefore(verifiedAt.plusMinutes(VERIFIED_EXPIRE_MINUTES));
+    if (verifiedAt == null) return false;
+    Duration elapsed = Duration.between(verifiedAt, Instant.now());
+    return elapsed.compareTo(VERIFIED_EXPIRE) < 0;
   }
 
   public PhoneAuthRecord markVerified() {
-    return new PhoneAuthRecord(code, issuedAt, LocalDateTime.now());
+    return new PhoneAuthRecord(code, issuedAt, Instant.now());
   }
 }

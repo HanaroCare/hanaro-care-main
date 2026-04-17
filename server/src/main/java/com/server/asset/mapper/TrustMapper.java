@@ -1,6 +1,5 @@
 package com.server.asset.mapper;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.dto.trust.TrustProductResponse;
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.dto.trust.TrustSimulationSaveRequest;
@@ -9,34 +8,30 @@ import com.server.asset.entity.TBTrustSimulation;
 import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
-import com.server.common.exception.ApiException;
-import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBUser;
-
 import java.math.BigDecimal;
-
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.springframework.beans.factory.annotation.Autowired;
 
-@Mapper(componentModel = "spring", imports = {ProdType.class, ProdStat.class})
-public abstract class TrustMapper {
-
-  @Autowired
-  protected ObjectMapper objectMapper;
+@Mapper(
+    componentModel = "spring",
+    imports = {ProdType.class, ProdStat.class}
+)
+public interface TrustMapper {
 
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.SET_TO_NULL)
   @Mapping(target = "trustSimulationId", ignore = true)
   @Mapping(target = "user", ignore = true)
-  @Mapping(target = "payoutSettings", expression = "java(toJson(request.payoutSettings()))")
+  @Mapping(target = "payoutSettings", expression = "java(trustMapperHelper.toJson(request.payoutSettings()))")
   @Mapping(target = "claimAgent", source = "claimAgent")
-  public abstract void updateSimulation(
+  void updateSimulation(
       TrustSimulationSaveRequest request,
       TBUser claimAgent,
-      @MappingTarget TBTrustSimulation simulation
+      @MappingTarget TBTrustSimulation simulation,
+      @org.mapstruct.Context TrustMapperHelper trustMapperHelper
   );
 
   @Mapping(target = "userProdId", ignore = true)
@@ -49,15 +44,15 @@ public abstract class TrustMapper {
   @Mapping(target = "principalAmount", source = "principal")
   @Mapping(target = "profitRate", source = "detail.profitRate")
   @Mapping(
-            target = "profit",
-            expression = "java((detail != null && detail.expectedNetAmount() != null && principal != null) ? detail.expectedNetAmount().subtract(principal) : null)"
-        )
+      target = "profit",
+      expression = "java((detail != null && detail.expectedNetAmount() != null && principal != null) ? detail.expectedNetAmount().subtract(principal) : null)"
+  )
   @Mapping(target = "startType", source = "simulation.startType")
   @Mapping(target = "startDate", source = "simulation.startDate")
   @Mapping(target = "claimAgent", source = "simulation.claimAgent")
   @Mapping(target = "payoutSettings", source = "simulation.payoutSettings")
   @Mapping(target = "isAgentView", constant = "false")
-  public abstract TBUserProd toUserProd(
+  TBUserProd toUserProd(
       TBTrustSimulation simulation,
       TBUser user,
       TBProduct product,
@@ -76,7 +71,7 @@ public abstract class TrustMapper {
   @Mapping(target = "executionSetting", source = "executionSetting")
   @Mapping(target = "claimAgent", source = "claimAgent")
   @Mapping(target = "agentViewEnabled", source = "agentViewEnabled")
-  public abstract TrustProductResponse toProductResponse(
+  TrustProductResponse toProductResponse(
       TBUserProd userProd,
       BigDecimal currentAmount,
       BigDecimal profitRate,
@@ -87,14 +82,4 @@ public abstract class TrustMapper {
       TrustProductResponse.ClaimAgent claimAgent,
       Boolean agentViewEnabled
   );
-
-  // JSON 변환 헬퍼 메서드
-  protected String toJson(Object obj) {
-    if (obj == null) return null;
-    try {
-      return objectMapper.writeValueAsString(obj);
-    } catch (Exception e) {
-      throw new ApiException(ErrorStatus.TRUST_JSON_PROCESSING_ERROR);
-    }
-  }
 }

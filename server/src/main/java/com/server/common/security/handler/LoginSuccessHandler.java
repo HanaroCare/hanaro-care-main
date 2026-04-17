@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.util.Map;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,19 +48,30 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     SubscriberDTO subscriber = (SubscriberDTO) loginToken.getPrincipal();
     LoginMeans means = loginToken.getMeans();
 
-    TBUser userRef = userRepository.getReferenceById(subscriber.getUserId());
+    TBUser user = userRepository.findById(subscriber.getUserId())
+        .orElseThrow(() -> new AuthenticationServiceException("사용자를 찾을 수 없습니다."));
 
     Map<String, Object> claims = jwtUtil.authenticationToClaims(authentication);
-    saveRefreshToken(userRef, (String) claims.get("refreshToken"));
-    loginLogService.save(userRef, means, true);
+    claims.put("isPasswordExpired", isPasswordExpired(user.getPwdChangedAt()));
 
-    log.info("[로그인 성공] 계정: {}, 인증 수단: {}, 인증서 여부: {}",
-        subscriber.getLoginId(), means.getDescription(), subscriber.isHanaCertYn());
+    saveRefreshToken(user, (String) claims.get("refreshToken"));
+    loginLogService.save(user, means, true);
+
+    log.info("[로그인 성공] 계정: {}, 인증 수단: {}, 인증서 여부: {}, 비밀번호만료: {}",
+        subscriber.getLoginId(), means.getDescription(), subscriber.isHanaCertYn(),
+        claims.get("isPasswordExpired"));
 
     response.setContentType("application/json;charset=UTF-8");
     try (PrintWriter out = response.getWriter()) {
       out.println(objectMapper.writeValueAsString(claims));
     }
+  }
+
+  private static final long PASSWORD_EXPIRY_DAYS = 180L;
+
+  private boolean isPasswordExpired(LocalDateTime pwdChangedAt) {
+    if (pwdChangedAt == null) return true;
+    return pwdChangedAt.isBefore(LocalDateTime.now().minusDays(PASSWORD_EXPIRY_DAYS));
   }
 
   private void saveRefreshToken(TBUser user, String refreshToken) {

@@ -1,4 +1,5 @@
 import { Download, Send } from 'lucide-react';
+import type { LetterType } from '../../letter/types';
 import type { InheritanceMethod } from '../../types';
 import { formatAmount } from '../../utils/format';
 
@@ -7,7 +8,7 @@ interface Props {
   distRatio: number;
   amount: number;
   deliverAfterYears: number | null;
-  letterType: 'LETTER' | 'VOICE';
+  letterType: LetterType;
   inheritanceMethod: InheritanceMethod;
   onImageSave: () => void;
   onShare: () => void;
@@ -33,7 +34,7 @@ export default function LetterSummary({
       {/* 상단 정보 */}
       <div className="flex items-center justify-between">
         <span className="font-medium text-gray-700 text-sm">
-          {relationCode} ( {distRatio}% )
+          {relationCode} ( {distRatio * 100}% )
         </span>
         <span className="font-semibold text-gray-900 text-sm">
           {formatAmount(amount)}
@@ -48,7 +49,7 @@ export default function LetterSummary({
 
       {/* 버튼 */}
       <div className="mt-1 flex gap-3">
-        {letterType === 'LETTER' && (
+        {letterType === 'WRITING' && (
           <button
             type="button"
             className="flex flex-1 items-center gap-2 rounded-xl border-2 border-gray-200 p-2 text-sm"
