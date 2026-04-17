@@ -2,7 +2,7 @@
 
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
@@ -111,7 +111,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
 
     const currentSummary = summaryData[activeTab];
 
-    const renderTabContent = () => {
+    const tabContent = useMemo(() => {
         switch (activeTab) {
             case 'asset': {
                 const chartPoints = chartData.map(p => ({ name: p.month, value: p.value }));
@@ -199,7 +199,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 ));
             default: return null;
         }
-    };
+    }, [activeTab, realAssets, financialAssets, insuranceAssets, chartData]);
 
     return (
         <div className="flex min-h-screen flex-col bg-white">
@@ -208,7 +208,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 <AssetSummaryHeader type={currentSummary.type} amount={currentSummary.amount} />
             </div>
             <main className="flex flex-col items-center gap-6 px-6 pb-24">
-                {renderTabContent()}
+                {tabContent}
                 {activeTab !== 'asset' && (
                     <div className="mt-4 w-full">
                         <PrimaryButton
