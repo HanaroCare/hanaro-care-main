@@ -29,15 +29,16 @@ export async function getInsuranceAssets(): Promise<InsuranceAssetResponse[]> {
   return serverFetch<InsuranceAssetResponse[]>('/api/asset/insurance');
 }
 
+export async function getAssetChart(): Promise<AssetChartPoint[]> {
+  return serverFetch<AssetChartPoint[]>('/api/asset/chart');
+}
+
 export async function getRealAssetDetail(
   assetId: string,
 ): Promise<AssetDetailResponse> {
   return serverFetch<AssetDetailResponse>(`/api/asset/real-asset/${assetId}`);
 }
 
-export async function getAssetChart(): Promise<AssetChartPoint[]> {
-  return serverFetch<AssetChartPoint[]>('/api/asset/chart');
-}
 
 export async function getSimulationSummary(): Promise<
   | { ok: true; data: SimulationSummaryResponse }

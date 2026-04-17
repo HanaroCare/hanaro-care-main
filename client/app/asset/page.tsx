@@ -3,7 +3,6 @@ import AssetPageContent from './components/AssetPageContent';
 import {getAssetChart, getAssetDashboard, getFinancialAssets, getInsuranceAssets} from './actions/asset';
 
 export default async function AssetPage() {
-    // 병렬 데이터 호출
     const [dashboardData, financialAssets, insuranceAssets, chartData] = await Promise.all([
         getAssetDashboard().catch(() => null),
         getFinancialAssets().catch(() => []),
