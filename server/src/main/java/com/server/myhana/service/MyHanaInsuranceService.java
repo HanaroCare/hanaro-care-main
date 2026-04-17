@@ -27,7 +27,7 @@ public class MyHanaInsuranceService {
   @CheckUser(key = "#userId")
   @Cacheable(value = "insuranceList", key = "#userId")
   public List<InsuranceDto> getInsurances(Long userId) {
-    List<TBAccount> account = accountRepository.findAllByUser_UserIdAndAssetCateCd(
+    List<TBAccount> account = accountRepository.findByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
 
     List<TBFamilyAuth> family = familyAuthRepository.findAllByGrantee_UserIdAndIsInsView(userId,
@@ -38,7 +38,7 @@ public class MyHanaInsuranceService {
 
     family.stream()
         .flatMap(f ->
-            accountRepository.findAllByUser_UserIdAndAssetCateCd(
+            accountRepository.findByUser_UserIdAndAssetCateCd(
                 f.getGrantor().getUserId(), AssetCategory.INSURANCE).stream())
         .forEach(accounts::add);
 
@@ -47,7 +47,7 @@ public class MyHanaInsuranceService {
             .accountId(a.getAccountId())
             .instNm(a.getInstNm())
             .accountNm(a.getAccountNm())
-            .monthlyPremAmt(a.getMonthlyPremAmt().intValue())
+            .monthlyPremAmt(a.getMonthlyPremAmt())
             .username(a.getUser().getUserNm())
             .build())
         .toList();
@@ -75,7 +75,7 @@ public class MyHanaInsuranceService {
     }
 
     InsuranceDto insuranceDto = InsuranceDto.builder().instNm(account.getInstNm())
-        .accountNm(account.getAccountNm()).monthlyPremAmt(account.getMonthlyPremAmt().intValue())
+        .accountNm(account.getAccountNm()).monthlyPremAmt(account.getMonthlyPremAmt())
         .build();
     return InsuranceDetailDto.builder()
         .insuranceDto(insuranceDto)

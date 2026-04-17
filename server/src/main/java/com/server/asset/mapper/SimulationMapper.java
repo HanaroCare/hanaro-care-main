@@ -1,5 +1,6 @@
 package com.server.asset.mapper;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.mapstruct.Mapper;
@@ -23,6 +24,7 @@ public interface SimulationMapper {
     @Mapping(target = "currentSpending.care", source = "careCost")
     SimulationResponse toSimulationResponse(TBAssetSimulation simulation);
 
+    @Mapping(target = "targetAge", source = "simulation.targetAge")
     @Mapping(target = "isSufficient", source = "simulation.isSufficient")
     @Mapping(target = "shortageAmt", source = "simulation.shortageAmt")
     @Mapping(target = "livingCost", source = "simulation.livingCost")
@@ -30,5 +32,6 @@ public interface SimulationMapper {
     @Mapping(target = "careCost", source = "simulation.careCost")
     @Mapping(target = "ageSegments", source = "ageSegments")
     @Mapping(target = "aiOpinion", source = "aiOpinion")
-    SimulationSummaryResponse toSimulationSummaryResponse(TBAssetSimulation simulation, List<SimulationDetailResponse.AgeSegment> ageSegments, String aiOpinion);
+    @Mapping(target = "housingPensionMonthlyPayout", source = "housingPensionMonthlyPayout")
+    SimulationSummaryResponse toSimulationSummaryResponse(TBAssetSimulation simulation, List<SimulationDetailResponse.AgeSegment> ageSegments, String aiOpinion, BigDecimal housingPensionMonthlyPayout);
 }

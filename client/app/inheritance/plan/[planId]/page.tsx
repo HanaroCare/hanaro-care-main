@@ -1,65 +1,90 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { Plus, User, TriangleAlert } from 'lucide-react';
+import {
+  Edit2,
+  Loader2,
+  Plus,
+  Trash2,
+  TriangleAlert,
+  User,
+} from 'lucide-react';
 import Image from 'next/image';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  getInheritanceContext,
+  type HeirDistribution,
+  submitInheritancePlan,
+} from '@/app/inheritance/actions/plan';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import BottomSheet from '@/components/modules/BottomSheet';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import Header from '@/components/navigation/Header';
-import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import styles from './page.module.css';
 
 interface Heir {
   id: number;
+  userId?: number;
   name: string;
-  relationship: string;
+  relationship: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
   percentage: number;
   icon: React.ReactNode;
 }
 
-const RELATIONSHIPS = ['배우자', '자녀', '기타'];
+const RELATIONSHIPS = [
+  { label: '배우자', value: 'SPOUSE' },
+  { label: '자녀', value: 'CHILD' },
+  { label: '부모', value: 'PARENT' },
+  { label: '기타', value: 'FAMILY' },
+];
 
 export default function InheritancePlanDetailPage() {
   const router = useRouter();
-  const [heirs, setHeirs] = useState<Heir[]>([
-    {
-      id: 1,
-      name: '배우자',
-      relationship: '배우자',
-      percentage: 40,
-      icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
-    },
-    {
-      id: 2,
-      name: '자녀1',
-      relationship: '자녀',
-      percentage: 20,
-      icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
-    },
-    {
-      id: 3,
-      name: '자녀2',
-      relationship: '자녀',
-      percentage: 20,
-      icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
-    },
-    {
-      id: 4,
-      name: '자녀3',
-      relationship: '자녀',
-      percentage: 20,
-      icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
-    },
-  ]);
+  const params = useParams();
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [totalAsset, setTotalAsset] = useState(0);
+  const [heirs, setHeirs] = useState<Heir[]>([]);
 
   const [editingHeir, setEditingHeir] = useState<Heir | null>(null);
   const [tempPercentage, setTempPercentage] = useState<number>(0);
 
-  // New Heir Modal State
+  // New Heir Modal State (Used for both Add and Edit name/relation)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
+  const [targetHeirId, setTargetHeirId] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
-  const [newRelationship, setNewRelationship] = useState('자녀');
+  const [newRelationship, setNewRelationship] = useState<
+    'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY'
+  >('CHILD');
+
+  // 초기 데이터 로드
+  useEffect(() => {
+    async function loadContext() {
+      try {
+        const context = await getInheritanceContext();
+        setTotalAsset(context.assetSummary.totalAsset / 100000000); // 원 단위를 억원 단위로 변환 (필요시 조정)
+
+        const initialHeirs: Heir[] = context.familyMembers.map(
+          (member, index) => ({
+            id: index + 1,
+            userId: member.userId,
+            name: member.userNm,
+            relationship: member.relationCd,
+            percentage: 0,
+            icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
+          }),
+        );
+
+        setHeirs(initialHeirs);
+      } catch (error) {
+        console.error('Failed to load inheritance context:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadContext();
+  }, []);
 
   useEffect(() => {
     if (editingHeir || isAddModalOpen) {
@@ -77,25 +102,23 @@ export default function InheritancePlanDetailPage() {
     [heirs],
   );
 
-  const totalAsset = 13.4;
-
   // 법정상속분 및 유류분 계산 로직
   const shares = useMemo(() => {
-    // 배우자 1.5, 자녀 1.0, 기타 0 (가정)
     let totalParts = 0;
     heirs.forEach((h) => {
-      if (h.relationship === '배우자') totalParts += 1.5;
-      else if (h.relationship === '자녀') totalParts += 1.0;
-      // 기타는 법정상속분이 없다고 가정하거나 필요시 추가
+      if (h.relationship === 'SPOUSE') totalParts += 1.5;
+      else if (h.relationship === 'CHILD') totalParts += 1.0;
+      else if (h.relationship === 'PARENT') totalParts += 1.0;
+      else totalParts += 1.0;
     });
 
     return heirs.map((h) => {
-      let part = 0;
-      if (h.relationship === '배우자') part = 1.5;
-      else if (h.relationship === '자녀') part = 1.0;
+      let part = 1.0;
+      if (h.relationship === 'SPOUSE') part = 1.5;
 
       const legalShareRatio = totalParts > 0 ? part / totalParts : 0;
       const legalPercentage = Math.round(legalShareRatio * 100);
+
       const forcedPercentage = Math.round((legalShareRatio / 2) * 100);
 
       return {
@@ -117,23 +140,56 @@ export default function InheritancePlanDetailPage() {
   };
 
   const handleOpenAddModal = () => {
+    setModalMode('add');
     setNewName('');
-    setNewRelationship('자녀');
+    setNewRelationship('CHILD');
     setIsAddModalOpen(true);
   };
 
-  const handleAddHeir = () => {
+  const handleOpenEditModal = (e: React.MouseEvent, heir: Heir) => {
+    e.stopPropagation();
+    if (!heir) return;
+
+    setModalMode('edit');
+    setTargetHeirId(heir.id);
+    setNewName(heir.name);
+    // 관계 값이 RELATIONSHIPS 정의와 일치하는지 확인 후 설정
+    setNewRelationship(heir.relationship);
+    setIsAddModalOpen(true);
+  };
+
+  const handleDeleteHeir = (e: React.MouseEvent, heirId: number) => {
+    e.stopPropagation();
+    setHeirs((prev) => prev.filter((h) => h.id !== heirId));
+  };
+
+  const handleSaveModal = () => {
     if (!newName.trim()) return;
 
-    const newId = heirs.length > 0 ? Math.max(...heirs.map((h) => h.id)) + 1 : 1;
-    const newHeir: Heir = {
-      id: newId,
-      name: newName,
-      relationship: newRelationship,
-      percentage: 0,
-      icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
-    };
-    setHeirs([...heirs, newHeir]);
+    if (modalMode === 'add') {
+      const newId =
+        heirs.length > 0 ? Math.max(...heirs.map((h) => h.id)) + 1 : 1;
+      const newHeir: Heir = {
+        id: newId,
+        name: newName,
+        relationship: newRelationship,
+        percentage: 0,
+        icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
+      };
+      setHeirs((prev) => [...prev, newHeir]);
+    } else if (modalMode === 'edit' && targetHeirId !== null) {
+      setHeirs((prev) =>
+        prev.map((h) =>
+          h.id === targetHeirId
+            ? {
+                ...h,
+                name: (newName || '').trim(),
+                relationship: newRelationship,
+              }
+            : h,
+        ),
+      );
+    }
     setIsAddModalOpen(false);
   };
 
@@ -151,24 +207,39 @@ export default function InheritancePlanDetailPage() {
     }
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (totalPercentage === 100) {
-      localStorage.setItem('inheritance_completed', 'true');
-      const heirsToSave = heirs.map((h) => {
-        const shareInfo = shares.find((s) => s.id === h.id);
-        return {
-          id: h.id,
-          name: h.name,
-          relationship: h.relationship,
-          percentage: h.percentage,
-          legalPercentage: shareInfo?.legalPercentage || 0,
-          forcedPercentage: shareInfo?.forcedPercentage || 0,
-        };
-      });
-      localStorage.setItem('inheritance_heirs', JSON.stringify(heirsToSave));
-      router.push('/inheritance/result');
+      setSubmitting(true);
+      try {
+        const distributions: HeirDistribution[] = heirs.map((h) => ({
+          heirUserId: h.userId || null,
+          heirName: h.name,
+          relation: h.relationship,
+          distRatio: h.percentage, // 정수(40) 형태로 전송
+        }));
+
+        console.log(
+          '[handleComplete] Submitting distributions:',
+          distributions,
+        );
+        await submitInheritancePlan({ distributions });
+        router.push('/inheritance/result');
+      } catch (error) {
+        console.error('Failed to submit inheritance plan:', error);
+        alert('상속 설계 저장에 실패했습니다. 다시 시도해주세요.');
+      } finally {
+        setSubmitting(false);
+      }
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-hana-ez-600)]" />
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell bg-white">
@@ -194,7 +265,9 @@ export default function InheritancePlanDetailPage() {
             <div className={styles.summaryCard}>
               <div className={styles.summaryRow}>
                 <span>전체 상속 자산</span>
-                <span className="font-bold">{totalAsset}억원</span>
+                <span className="font-bold">
+                  {totalAsset.toLocaleString()}억원
+                </span>
               </div>
               <div className={`${styles.summaryRow} ${styles.ratioHighlight}`}>
                 <span>설정된 비율 합계</span>
@@ -207,30 +280,61 @@ export default function InheritancePlanDetailPage() {
 
             <div className={styles.heirList}>
               {heirs.map((heir) => (
-                <div
-                  key={heir.id}
-                  className={styles.heirCard}
-                  onClick={() => handleCardClick(heir)}
-                >
-                  <div className={styles.heirInfo}>
-                    <div className={styles.heirIcon}>{heir.icon}</div>
-                    <div className="flex flex-col">
-                      <span className={styles.heirName}>{heir.name}</span>
-                      <span className="text-[11px] text-gray-400">{heir.relationship}</span>
+                <div key={heir.id} className={styles.heirCard}>
+                  <div
+                    className={styles.heirContent}
+                    onClick={() => handleCardClick(heir)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <div className={styles.heirInfo}>
+                      <div className={styles.heirIcon}>{heir.icon}</div>
+                      <div className="flex flex-col">
+                        <span className={styles.heirName}>{heir.name}</span>
+                        <span className="text-[11px] text-gray-400">
+                          {RELATIONSHIPS.find(
+                            (r) => r.value === heir.relationship,
+                          )?.label || '기타'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.heirDetails}>
+                      <div className={styles.heirPercentage}>
+                        {heir.percentage}%
+                      </div>
+                      <div className={styles.heirAmount}>
+                        약 {(totalAsset * (heir.percentage / 100)).toFixed(2)}
+                        억원
+                      </div>
                     </div>
                   </div>
-                  <div className={styles.heirDetails}>
-                    <div className={styles.heirPercentage}>
-                      {heir.percentage}%
-                    </div>
-                    <div className={styles.heirAmount}>
-                      약 {(totalAsset * (heir.percentage / 100)).toFixed(2)}억원
-                    </div>
+                  <div className={styles.heirActions}>
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles.editBtn}`}
+                      onClick={(e) => handleOpenEditModal(e, heir)}
+                      aria-label="수정"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                    <div className={styles.separator} />
+                    <button
+                      type="button"
+                      className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                      onClick={(e) => handleDeleteHeir(e, heir.id)}
+                      aria-label="삭제"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </div>
               ))}
 
-              <button className={styles.addHeirBtn} onClick={handleOpenAddModal}>
+              <button
+                type="button"
+                className={styles.addHeirBtn}
+                onClick={handleOpenAddModal}
+              >
                 <Plus size={18} />
                 <span>상속인 추가하기</span>
               </button>
@@ -240,13 +344,18 @@ export default function InheritancePlanDetailPage() {
 
         <footer className={styles.footer}>
           <button
+            type="button"
             className={styles.nextBtn}
-            disabled={totalPercentage !== 100}
+            disabled={totalPercentage !== 100 || submitting}
             onClick={handleComplete}
           >
-            {totalPercentage === 100
-              ? '설정 완료'
-              : '비율의 합을 100%로 맞춰주세요'}
+            {submitting ? (
+              <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+            ) : totalPercentage === 100 ? (
+              '설정 완료'
+            ) : (
+              '비율의 합을 100%로 맞춰주세요'
+            )}
           </button>
         </footer>
 
@@ -264,14 +373,15 @@ export default function InheritancePlanDetailPage() {
                 <div className={styles.inputHeader}>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-red-500" />
-                      <span className="text-[12px] font-bold text-red-500">
-                        최소 유류분 보장: {currentEditingShares?.forcedPercentage}%
+                      <div className="h-2 w-2 rounded-full bg-red-500" />
+                      <span className="font-bold text-[12px] text-red-500">
+                        최소 유류분 보장:{' '}
+                        {currentEditingShares?.forcedPercentage}%
                       </span>
                     </div>
                   </div>
                 </div>
-                
+
                 <div className={styles.percentageInputWrapper}>
                   <input
                     type="number"
@@ -279,7 +389,8 @@ export default function InheritancePlanDetailPage() {
                     max={maxVal}
                     value={tempPercentage === 0 ? '' : tempPercentage}
                     onChange={(e) => {
-                      const val = e.target.value === '' ? 0 : parseInt(e.target.value);
+                      const val =
+                        e.target.value === '' ? 0 : parseInt(e.target.value);
                       if (val > maxVal) {
                         setTempPercentage(maxVal);
                       } else {
@@ -292,14 +403,16 @@ export default function InheritancePlanDetailPage() {
                   <span className={styles.percentSymbol}>%</span>
                 </div>
 
-                <p className="text-[12px] text-gray-400 mt-2">
+                <p className="mt-2 text-[12px] text-gray-400">
                   설정 가능 범위: 0% ~ {maxVal}%
                 </p>
 
-                {tempPercentage < (currentEditingShares?.forcedPercentage || 0) && (
-                  <p className="flex items-center gap-1 text-[11px] text-red-500 mt-2">
+                {tempPercentage <
+                  (currentEditingShares?.forcedPercentage || 0) && (
+                  <p className="mt-2 flex items-center gap-1 text-[11px] text-red-500">
                     <TriangleAlert size={12} />
-                    유류분({currentEditingShares?.forcedPercentage}%)보다 적게 설정되었습니다.
+                    유류분({currentEditingShares?.forcedPercentage}%)보다 적게
+                    설정되었습니다.
                   </p>
                 )}
               </div>
@@ -315,15 +428,20 @@ export default function InheritancePlanDetailPage() {
           </div>
         )}
 
-        <BottomSheet isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)}>
+        <BottomSheet
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+        >
           <div className={styles.bottomSheetContent}>
-            <h2 className={styles.bottomSheetTitle}>상속인 추가</h2>
-            
+            <h2 className={styles.bottomSheetTitle}>
+              {modalMode === 'add' ? '상속인 추가' : '상속인 수정'}
+            </h2>
+
             <div className={styles.inputGroup}>
               <label className={styles.inputLabel}>이름</label>
               <input
                 type="text"
-                value={newName}
+                value={newName || ''}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="상속인의 이름을 입력해주세요"
                 className={styles.textInput}
@@ -335,11 +453,11 @@ export default function InheritancePlanDetailPage() {
               <div className={styles.relationshipGrid}>
                 {RELATIONSHIPS.map((rel) => (
                   <button
-                    key={rel}
-                    className={`${styles.relBtn} ${newRelationship === rel ? styles.activeRel : ''}`}
-                    onClick={() => setNewRelationship(rel)}
+                    key={rel.value}
+                    className={`${styles.relBtn} ${newRelationship === rel.value ? styles.activeRel : ''}`}
+                    onClick={() => setNewRelationship(rel.value as any)}
                   >
-                    {rel}
+                    {rel.label}
                   </button>
                 ))}
               </div>
@@ -347,9 +465,9 @@ export default function InheritancePlanDetailPage() {
 
             <div className="mt-8">
               <PrimaryButton
-                label="추가하기"
-                disabled={!newName.trim()}
-                onClick={handleAddHeir}
+                label={modalMode === 'add' ? '추가하기' : '수정하기'}
+                disabled={!(newName || '').trim()}
+                onClick={handleSaveModal}
               />
             </div>
           </div>
@@ -358,4 +476,3 @@ export default function InheritancePlanDetailPage() {
     </div>
   );
 }
-

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.server.asset.dto.dashboard.AssetChartPointDTO;
 import com.server.asset.dto.dashboard.AssetDashboardResponse;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
@@ -94,6 +95,14 @@ public class AssetController {
 		@AuthenticationPrincipal SubscriberDTO subscriberDTO
 	) {
 		return ApiResponse.onSuccess(assetService.getInsuranceAssets(subscriberDTO.getUserId()));
+	}
+
+	@Operation(summary = "6개월 자산 변화 차트 조회", description = "현재 달은 실제 DB 값, 과거 5개월은 ±3% 랜덤 가짜 데이터를 반환합니다.")
+	@GetMapping("/chart")
+	public ApiResponse<List<AssetChartPointDTO>> getAssetChart(
+		@AuthenticationPrincipal SubscriberDTO subscriberDTO
+	) {
+		return ApiResponse.onSuccess(assetService.getAssetChart(subscriberDTO.getUserId()));
 	}
 
 	@Operation(
