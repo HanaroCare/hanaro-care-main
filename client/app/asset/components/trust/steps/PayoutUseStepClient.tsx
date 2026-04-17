@@ -39,9 +39,11 @@ export default function PayoutUseStepClient({
   const { form, setPayoutItems } = useTrustForm();
 
   const [selectedItems, setSelectedItems] = useState<PayoutItemValue[]>(
-    form.payoutItems ?? [],
+    (form.payoutItems ?? []).filter(
+      (item): item is PayoutItemValue =>
+        item === 'hospital' || item === 'living',
+    ),
   );
-
   const toggleItem = (id: PayoutItemValue) => {
     setSelectedItems((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
