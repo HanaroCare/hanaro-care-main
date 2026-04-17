@@ -73,31 +73,31 @@ export default async function Home() {
         ? (3 as const)
         : null;
 
-  // ─── 표시할 배너 1개 결정 ───
   const activeBanner: ActiveBanner = (() => {
-    // 마이데이터 미연결 시 배너 전체 미표시
     if (!hasLinkedMyData) return null;
 
-    // Group 1: 시뮬레이션 (최우선)
-    if (!hasCompletedSimulation) return { type: 'simulation-cta' };
-    // 시뮬레이션만으로는 미표시 — 주택연금 상품 실제 가입 시에만 표시
-    if (housingPensionProduct) {
-      return {
+    const candidates: ActiveBanner[] = [];
+
+    if (!hasCompletedSimulation) {
+      candidates.push({ type: 'simulation-cta' });
+    } else if (housingPensionProduct) {
+      candidates.push({
         type: 'simulation-result',
         userName,
         monthlyPayout: housingPensionProduct.monthlyPayout,
-      };
+      });
     }
 
-    // Group 2: 동순위 → 시기적 긴급도 순으로 첫 번째 해당 항목
-    if (pension) return { type: 'pension', ...pension };
-    if (medicalBill) return { type: 'medical-bill', ...medicalBill };
-    // 상속 설계 미완료(step 1·2) → BannerCard, 신탁 연결만 남은 경우(step 3) → InheritanceStepCard
-    if (!hasInheritancePlan) return { type: 'inheritance-cta' };
-    if (inheritanceStep === 3) return { type: 'inheritance-step', step: 3 };
-    if (!hasHousingPension) return { type: 'housing-pension' };
+    if (pension) candidates.push({ type: 'pension', ...pension });
+    if (medicalBill) candidates.push({ type: 'medical-bill', ...medicalBill });
+    if (!hasInheritancePlan) candidates.push({ type: 'inheritance-cta' });
+    if (inheritanceStep === 3) candidates.push({ type: 'inheritance-step', step: 3 });
+    if (!hasHousingPension) candidates.push({ type: 'housing-pension' });
 
-    return null;
+    if (candidates.length === 0) return null;
+
+    const randomIndex = Math.floor(Math.random() * candidates.length);
+    return candidates[randomIndex];
   })();
 
   return (
