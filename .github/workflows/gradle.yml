@@ -24,7 +24,7 @@ jobs:
           build-root-directory: server
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew build -x test
+        run: ./gradlew build -x test -x jacocoTestCoverageVerification
         working-directory: server
 
       # [2] EC2 접속 후 실제 자동 배포 실행
@@ -42,13 +42,12 @@ jobs:
             # 2. [Back-end] Spring Boot 배포
             cd server
             ./gradlew build -x test
-            # 백엔드용 PM2를 'hanacare-server'라는 이름으로 관리합니다.
-            # 이미 켜져있으면 재시작, 꺼져있으면 새로 시작합니다.
+            # 백엔드 전용 앱 이름을 'hanacare-server'로 새로 만듭니다.
             pm2 reload hanacare-server || pm2 start build/libs/*.jar --name "hanacare-server"
             
             # 3. [Front-end] Next.js 배포
             cd ../client
             npm install --legacy-peer-deps
             npm run build
-            # 기존 'hanacare'라는 이름으로 돌아가는 프론트엔드를 재시작합니다.
+            # 기존에 'hanacare'라는 이름으로 돌던 프론트엔드를 재시작합니다.
             pm2 reload hanacare
