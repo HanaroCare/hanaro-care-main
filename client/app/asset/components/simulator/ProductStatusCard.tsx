@@ -4,6 +4,10 @@ import { CircleDollarSign, Home } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import type {
+  PensionSimulationSummaryResponse,
+  PensionStatusResponse,
+} from '@/app/asset/actions/pension';
+import type {
   TrustProductDetail,
   TrustSimulationSummary,
 } from '@/app/asset/actions/trust';
@@ -19,8 +23,8 @@ interface Props {
   ownerLabel?: string;
   simulationSummary?: TrustSimulationSummary | null;
   productSummary?: TrustProductDetail | null;
-  pensionSimulationSummary?: any | null;
-  pensionProductSummary?: any | null;
+  pensionSimulationSummary?: PensionSimulationSummaryResponse | null;
+  pensionProductSummary?: PensionStatusResponse | null;
   realAssetId?: number | null;
 }
 
