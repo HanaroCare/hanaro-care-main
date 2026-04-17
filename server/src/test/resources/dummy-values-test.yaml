@@ -1,0 +1,51 @@
+jwt:
+  secret: dGhpcy1pcy1hLXZlcnktc3Ryb25nLXNlY3JldC1rZXktZm9yLWhhbmFyby1jYXJlLW1haW4tc2VydmVyLTM0Cg==
+  access-expiration: 604800000
+  refresh-expiration: 604800000
+
+encrypt:
+  aes:
+    key: "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+
+external:
+  gemini:
+    base-url: https://generativelanguage.googleapis.com/v1beta
+    api-key: dummy_gemini_key # 변수 대신 더미값
+    connect-timeout: 5s
+    read-timeout: 15s
+  kosis:
+    base-url: https://kosis.kr/openapi
+    api-key: dummy_kosis_key
+  public-data:
+    base-url: http://apis.data.go.kr
+    api-key: dummy_public_key
+
+cloud:
+  aws:
+    credentials:
+      access-key: dummy_aws_key
+      secret-key: dummy_aws_secret
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket:
+        public: hanacare-public
+        private: hanacare-private
+
+voice:
+  upload-dir: src/test/resources/static/voice
+  base-url: http://localhost:8080/voice/
+  voice-storage-path: file:src/test/resources/static/voice/
+
+cache:
+  gemini-ttl: 86400
+  welfare-ttl: 3600
+  simulation-ttl: 86000
+  pension-forecast-ttl: 604800
+
+slack:
+  webhook:
+    url: https://hooks.slack.com/services/test/dummy/url
+
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:8080
