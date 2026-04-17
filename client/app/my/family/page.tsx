@@ -293,7 +293,7 @@ const BottomSheet = ({
         </div>
 
         <PrimaryButton
-          label="공유 요청하기"
+          label="공유하기"
           onClick={() => {
             if (selectedId) {
               onRequestShare(selectedId);
