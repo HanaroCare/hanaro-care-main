@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 
 export async function getUserName() {
-  const token = (await cookies()).get('AUTH_TOKEN')?.value;
+  const token = (await cookies()).get('ACCESS_TOKEN')?.value;
 
   const response = await fetch(`${process.env.API_URL}/api/myhana/family/me`, {
     headers: {

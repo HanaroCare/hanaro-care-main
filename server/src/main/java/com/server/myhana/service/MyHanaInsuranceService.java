@@ -29,8 +29,6 @@ public class MyHanaInsuranceService {
   public List<InsuranceDto> getInsurances(Long userId) {
     List<TBAccount> account = accountRepository.findByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
-    System.out.println(userId);
-    System.out.println(account);
 
     List<TBFamilyAuth> family = familyAuthRepository.findAllByGrantee_UserIdAndIsInsView(userId,
         true);

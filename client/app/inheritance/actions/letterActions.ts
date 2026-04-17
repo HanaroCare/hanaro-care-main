@@ -14,7 +14,7 @@ export async function getInheritanceInfo() {
 
   if (!response.ok) throw new Error('상속 정보를 불러오지 못했습니다.');
   const data = await response.json();
-
+  console.log(data);
   return data;
 }
 
