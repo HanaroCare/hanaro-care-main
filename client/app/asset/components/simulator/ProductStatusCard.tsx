@@ -72,17 +72,14 @@ export function ProductStatusCard({
 
       if (realAssetId) {
         router.push(`/asset/home-pension/result?id=${realAssetId}` as Route);
-        return;
       }
 
       return;
     }
 
-    if (isRecommend) {
-      router.push(
-        isTrust ? ('/asset/trust' as Route) : ('/asset/home-pension' as Route),
-      );
-    }
+    router.push(
+      isTrust ? ('/asset/trust' as Route) : ('/asset/home-pension' as Route),
+    );
   };
 
   if (isLoading) {

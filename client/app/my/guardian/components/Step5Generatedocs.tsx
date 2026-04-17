@@ -2,10 +2,10 @@
 
 import { FileText } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { myhanaApi } from '@/app/my/api/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
-import type { GuardianData } from '../types';
+import type { GuardianData } from '../types/types';
+import { getContractBlob, getUserName } from '../../actions/guardianActions';
 
 type Props = {
   data: GuardianData;
@@ -30,7 +30,7 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const name = await myhanaApi.getUser();
+        const name = await getUserName();
         setUserName(name);
       } catch (e) {
         console.error(e);
@@ -55,7 +55,7 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
       setIsDownloading(true);
 
       // 백엔드 ContractDto 규격에 맞게 조립
-      await myhanaApi.downloadContract({
+      await getContractBlob({
         guardianName: guardianName,
         guardianRelation: data.relationship,
         permission: data.permissions, // [true, false, ...] boolean[5]

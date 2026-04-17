@@ -1,14 +1,5 @@
 package com.server.asset.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
-
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBProduct;
@@ -17,12 +8,15 @@ import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.ProdCate;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
+import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.entity.enums.StartType;
 import com.server.asset.mapper.PensionMapper;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.AccountRepository;
 import com.server.asset.repository.AssetSimulationRepository;
 import com.server.asset.repository.PensionSimulationRepository;
+import com.server.asset.repository.ProductRepository;
+import com.server.asset.repository.RealAssetRepository;
 import com.server.asset.repository.ProductRepository;
 import com.server.asset.repository.TrustRepository;
 import com.server.asset.repository.UserProdRepository;
@@ -33,6 +27,9 @@ import com.server.user.entity.TBFamilyAuth;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +51,37 @@ public class AssetAdminService {
   private final PensionSimulationRepository pensionSimulationRepository;
   private final AccountRepository accountRepository;
   private final FamilyAuthRepository familyAuthRepository;
+  private final RealAssetRepository realAssetRepository;
+
+  @Transactional(readOnly = true)
+  public List<AdminUserSearchResponse> searchUsers(String keyword) {
+    String trimmed = keyword == null ? "" : keyword.trim();
+    if (trimmed.isBlank()) {
+      return List.of();
+    }
+
+    return userRepository.searchAdminUsers(trimmed).stream()
+        .map(AdminUserSearchResponse::from)
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
+  public AdminUserDetailResponse getUserDetail(Long userId) {
+    TBUser user = userRepository.findById(userId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+    return AdminUserDetailResponse.from(user);
+  }
+
+  @Transactional(readOnly = true)
+  public List<AdminRealAssetResponse> getUserRealAssets(Long userId) {
+    userRepository.findById(userId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+
+    return realAssetRepository.findAllByUser_UserIdAndAssetCateCd(userId, RealAssetCategory.REAL_ESTATE)
+        .stream()
+        .map(AdminRealAssetResponse::from)
+        .toList();
+  }
 
   @Transactional
   public Long subscribeTrustProduct(Long userId) {
@@ -123,8 +151,7 @@ public class AssetAdminService {
       throw new ApiException(ErrorStatus.PENSION_ALREADY_EXISTS);
     }
 
-    TBPensionSimulation simulation = pensionSimulationRepository.findByRealAsset_RealAssetId(
-            realAssetId)
+    TBPensionSimulation simulation = pensionSimulationRepository.findByRealAsset_RealAssetId(realAssetId)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND));
 
     if (!simulation.getRealAsset().getUser().getUserId().equals(userId)) {
@@ -140,8 +167,7 @@ public class AssetAdminService {
       );
 
       accountRepository.save(
-          pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(),
-              simulation)
+          pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(), simulation)
       );
 
       assetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)

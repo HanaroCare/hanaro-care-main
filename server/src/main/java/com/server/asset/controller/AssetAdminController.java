@@ -1,19 +1,21 @@
 package com.server.asset.controller;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.server.asset.dto.admin.AdminRealAssetResponse;
+import com.server.asset.dto.admin.AdminUserDetailResponse;
+import com.server.asset.dto.admin.AdminUserSearchResponse;
 import com.server.asset.service.AssetAdminService;
+import com.server.asset.service.TrustDailyBatchService;
+import com.server.asset.service.pension.PensionMonthlyBatchService;
 import com.server.asset.service.SimulationRefreshService;
 import com.server.common.response.ApiResponse;
 
@@ -24,9 +26,10 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/admin/asset")
 @RequiredArgsConstructor
@@ -40,6 +43,8 @@ public class AssetAdminController {
 
 	@Qualifier("simulationRefreshJob")
 	private final Job simulationRefreshJob;
+	private final PensionMonthlyBatchService pensionMonthlyBatchService;
+	private final TrustDailyBatchService trustDailyBatchService;
 
 	@PostMapping("/trust/subscribe")
 	@Operation(
@@ -149,5 +154,71 @@ public class AssetAdminController {
 	) {
 		trustAdminService.enableAgentView(userId);
 		return ApiResponse.onSuccess("대리인 열람 권한 허용 처리가 완료되었습니다.");
+	}
+
+	@GetMapping("/users/search")
+	@Operation(
+		summary = "관리자 사용자 검색",
+		description = "이름, 로그인 아이디, 전화번호로 사용자를 검색합니다."
+	)
+	public ApiResponse<List<AdminUserSearchResponse>> searchUsers(
+		@Parameter(description = "검색 키워드", required = true)
+		@RequestParam String keyword
+	) {
+		return ApiResponse.onSuccess(trustAdminService.searchUsers(keyword));
+	}
+
+	@GetMapping("/users/{userId}")
+	@Operation(
+		summary = "관리자 사용자 상세 조회",
+		description = "선택한 사용자의 기본 정보를 조회합니다."
+	)
+	public ApiResponse<AdminUserDetailResponse> getUserDetail(
+		@Parameter(description = "조회 대상 유저 ID", required = true)
+		@PathVariable Long userId
+	) {
+		return ApiResponse.onSuccess(trustAdminService.getUserDetail(userId));
+	}
+
+	@GetMapping("/users/{userId}/real-assets")
+	@Operation(
+		summary = "관리자 사용자 부동산 자산 조회",
+		description = "선택한 사용자의 부동산 자산 목록을 조회합니다."
+	)
+	public ApiResponse<List<AdminRealAssetResponse>> getUserRealAssets(
+		@Parameter(description = "조회 대상 유저 ID", required = true)
+		@PathVariable Long userId
+	) {
+		return ApiResponse.onSuccess(trustAdminService.getUserRealAssets(userId));
+	}
+
+	@PostMapping("/batch/pension")
+	@Operation(
+		summary = "주택연금 월배치 수동 실행",
+		description = "지정한 날짜 기준으로 주택연금 월배치를 수동 실행합니다. date를 생략하면 오늘 날짜로 실행합니다."
+	)
+	public ResponseEntity<ApiResponse<String>> runPensionBatch(
+		@RequestParam(required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		LocalDate date
+	) {
+		LocalDate targetDate = date != null ? date : LocalDate.now();
+		pensionMonthlyBatchService.settleMonthlyPayout(targetDate);
+		return ResponseEntity.ok(ApiResponse.onSuccess("주택연금 배치 실행 완료: " + targetDate));
+	}
+
+	@PostMapping("/batch/trust")
+	@Operation(
+		summary = "신탁 일배치 수동 실행",
+		description = "지정한 날짜 기준으로 신탁 일배치를 수동 실행합니다. date를 생략하면 오늘 날짜로 실행합니다."
+	)
+	public ResponseEntity<ApiResponse<String>> runTrustBatch(
+		@RequestParam(required = false)
+		@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+		LocalDate date
+	) {
+		LocalDate targetDate = date != null ? date : LocalDate.now();
+		trustDailyBatchService.settleDailyProfit(targetDate);
+		return ResponseEntity.ok(ApiResponse.onSuccess("신탁 배치 실행 완료: " + targetDate));
 	}
 }

@@ -3,7 +3,7 @@
 import { Shield, Smartphone } from 'lucide-react';
 import { useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { GuardianData } from '../types';
+import type { GuardianData } from '../types/types';
 
 type Props = {
   data: GuardianData;
@@ -47,7 +47,6 @@ export default function Step4Verification({ data, onChange, onNext }: Props) {
       </div>
     );
   }
-
   return (
     <div>
       <div className="pt-6 pb-4">
