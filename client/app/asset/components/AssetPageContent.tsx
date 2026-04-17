@@ -13,6 +13,7 @@ import { AssetListCard } from './AssetListCard';
 import { AssetSummaryHeader } from './AssetSummaryHeader';
 import { formatKoreanCurrency } from '../utils/formatCurrency';
 import type { AssetChartPoint, AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse } from '../utils/types';
+import Image from "next/image";
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
@@ -156,7 +157,6 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             case 'insurance':
                 return (
                     <div className="mt-4 flex w-full flex-col items-center gap-6">
-                        <AlertBanner message="보험대리청구인으로 지정되셨나요?" actionText="인증하기" variant="warning" />
                         {insuranceAssets.length > 0 ? (
                             insuranceAssets.map(asset => (
                                 <AssetDetailCard
@@ -167,7 +167,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                                     insuranceName={asset.assetNm}
                                     monthlyPremium={`월 ${formatKoreanCurrency(asset.monthlyPremAmt || 0)}`}
                                     status="normal"
-                                    href={`/asset/insurance/${asset.assetId}` as Route} // 보험 상세 ID 경로
+                                    href={`my/insurance/${asset.assetId}` as Route} // 보험 상세 ID 경로
                                 />
                             ))
                         ) : (

@@ -93,6 +93,7 @@ export default function SimulatorResultPage() {
   }));
 
   const targetAge = data.targetAge;
+  const hasHousingPension = !!data.housing_pension_monthly_payout;
 
   return (
       <div
@@ -166,12 +167,19 @@ export default function SimulatorResultPage() {
             <SimulationResultChart data={chartData} />
           </section>
 
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col gap-3">
             <PrimaryButton
                 label="연령별로 결과 자세히 보기"
                 onClick={() => router.push('/asset/simulator/result/detail')}
                 variant="primary"
             />
+            {hasHousingPension && (
+              <PrimaryButton
+                label="가입 현황 보기"
+                onClick={() => router.push('/asset/simulator')}
+                variant="secondary"
+              />
+            )}
           </div>
         </main>
       </div>
