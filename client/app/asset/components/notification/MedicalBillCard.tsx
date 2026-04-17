@@ -4,18 +4,21 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { NotificationButton } from "./NotificationButton";
 import { NotificationCardWrapper } from "./NotificationCardWrapper";
+import {useRouter} from "next/navigation";
 
 type MedicalBillCardProps = {
 	usedAmount?: number;
 	totalLimit?: number;
-	onClick?: () => void;
+	href?: string;
 };
 
 export function MedicalBillCard({
 	usedAmount = 180000,
 	totalLimit = 500000,
-	onClick,
+									href = "/card"
 }: MedicalBillCardProps) {
+	const router = useRouter();
+
 	const remainingAmount = Math.max(0, totalLimit - usedAmount);
 	const progressPercent =
 		totalLimit > 0
@@ -71,7 +74,8 @@ export function MedicalBillCard({
 			</div>
 
 			<div className="mt-8 w-full">
-				<NotificationButton variant="blue" onClick={onClick}>
+
+				<NotificationButton variant="blue" onClick={() => router.push(href)}>
 					사용 내역 확인하기
 				</NotificationButton>
 			</div>

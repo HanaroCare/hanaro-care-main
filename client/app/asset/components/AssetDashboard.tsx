@@ -8,11 +8,14 @@ import type { AssetCategory, AssetDashboardResponse } from '../utils/types';
 import { formatKoreanCurrency } from "@/app/asset/utils/formatCurrency";
 
 const CATEGORY_META: Record<AssetCategory, { label: string; color: string }> = {
-  STOCK:     { label: '주식',  color: '#015E5F' },
-  CASH:      { label: '계좌',  color: '#1EB1B2' },
-  PENSION:   { label: '연금',  color: '#8DC8C8' },
-  INSURANCE: { label: '보험',  color: '#C7E4E4' },
-  CARD:      { label: '카드',  color: '#BDAE7F' },
+  STOCK:            { label: '주식',   color: '#015E5F' },
+  CASH:             { label: '계좌',   color: '#1EB1B2' },
+  PENSION:          { label: '연금',   color: '#8DC8C8' },
+  PENSION_NATIONAL: { label: '국민연금', color: '#6BB8B9' },
+  PENSION_RETIRE:   { label: '퇴직연금', color: '#4DA3A4' },
+  PENSION_PERSONAL: { label: '개인연금', color: '#A8D8D8' },
+  INSURANCE:        { label: '보험',   color: '#C7E4E4' },
+  CARD:             { label: '카드',   color: '#BDAE7F' },
 }
 
 const DUMMY_CHART_DATA = [

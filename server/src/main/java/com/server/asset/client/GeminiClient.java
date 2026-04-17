@@ -30,8 +30,7 @@ public class GeminiClient {
     @Value("${external.gemini.api-key}")
     private String apiKey;
 
-    private static final String GENERATE_PATH =
-        "/v1beta/models/gemini-2.0-flash:generateContent";
+    private static final String GENERATE_PATH = "/models/gemini-2.5-flash:generateContent";
 
     public GeminiResponse generateContent(GeminiRequest.RequestBody requestBody) {
         try {

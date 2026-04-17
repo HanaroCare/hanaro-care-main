@@ -38,7 +38,7 @@ export default function GoldPage() {
         footer={
           <PrimaryButton
             label="확인하기"
-            onClick={() => router.push('/mydata/main')}
+            onClick={() => router.push('/asset')}
           />
         }
       >
@@ -76,7 +76,7 @@ export default function GoldPage() {
             </PageHeading>
           </div>
 
-          <div className="rounded-[20px] border border-border-gray bg-white p-6 shadow-sm">
+          <div className="rounded-4xl border border-border-gray bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between border-border-gray border-b pb-4">
               <span className="font-bold text-[18px] text-hana-black-900">
                 보유 금 자산
