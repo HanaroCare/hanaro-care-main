@@ -1,7 +1,15 @@
 /**
  * ─── 자산(Asset) 도메인 ───
  */
-export type AssetCategory = 'CASH' | 'PENSION' | 'CARD' | 'INSURANCE' | 'STOCK';
+export type AssetCategory =
+    | 'CASH'
+    | 'PENSION_NATIONAL'
+    | 'PENSION_RETIRE'
+    | 'PENSION_PERSONAL'
+    | 'PENSION'
+    | 'CARD'
+    | 'INSURANCE'
+    | 'STOCK';
 export type RealAssetCategory = 'REAL_ESTATE' | 'VEHICLE' | 'GOLD';
 
 export interface AssetDashboardResponse {
@@ -39,7 +47,7 @@ export interface FinancialAssetResponse {
 }
 
 export interface InsuranceAssetResponse {
-    assetId: number;
+    assetId: string;
     assetCateCd: 'INSURANCE';
     assetNm: string;
     amount: number;
@@ -54,7 +62,7 @@ export interface InsuranceAssetResponse {
 }
 
 export interface AssetDetailResponse {
-    assetId: number;
+    assetId: string;
     assetCateCd: AssetCategory | RealAssetCategory;
     assetNm: string;
     amount: number;
@@ -66,6 +74,11 @@ export interface AssetDetailResponse {
     expireDt?: string;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface AssetChartPoint {
+    month: string;
+    value: number; // 억 단위
 }
 
 /**
@@ -110,6 +123,7 @@ export interface AgeSegmentApiResponse {
 }
 
 export interface SimulationSummaryApiResponse {
+    targetAge: number;
     isSufficient: boolean;
     shortageAmt: number;
     livingCost: number;
@@ -117,6 +131,7 @@ export interface SimulationSummaryApiResponse {
     careCost: number;
     age_segments: AgeSegmentApiResponse[];
     ai_opinion: string;
+    housing_pension_monthly_payout?: number;
 }
 
 export interface IncomeDetailsApiResponse {

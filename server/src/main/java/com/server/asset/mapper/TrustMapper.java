@@ -1,5 +1,13 @@
 package com.server.asset.mapper;
 
+import java.math.BigDecimal;
+
+import org.mapstruct.BeanMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+
 import com.server.asset.dto.trust.TrustProductResponse;
 import com.server.asset.dto.trust.TrustSimulationResultResponse.SimulationDetailDto;
 import com.server.asset.dto.trust.TrustSimulationSaveRequest;
@@ -9,12 +17,6 @@ import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
 import com.server.user.entity.TBUser;
-import java.math.BigDecimal;
-import org.mapstruct.BeanMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(
     componentModel = "spring",
@@ -52,6 +54,9 @@ public interface TrustMapper {
   @Mapping(target = "claimAgent", source = "simulation.claimAgent")
   @Mapping(target = "payoutSettings", source = "simulation.payoutSettings")
   @Mapping(target = "isAgentView", constant = "false")
+  @Mapping(target = "pensionPayoutType", ignore = true)
+  @Mapping(target = "targetAsset", ignore = true)
+  @Mapping(target = "monthlyPayout", ignore = true)
   TBUserProd toUserProd(
       TBTrustSimulation simulation,
       TBUser user,

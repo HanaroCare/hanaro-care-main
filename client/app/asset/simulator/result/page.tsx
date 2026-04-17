@@ -48,10 +48,6 @@ export default function SimulatorResultPage() {
 
   const isLeeway = data.isSufficient ?? false;
 
-  // shortageAmt = 월 부족/여유 금액 (원 단위). age_segments[0]에서 맥락 표시용 수입/지출 추출
-  const firstSeg = data.age_segments?.[0];
-  // const monthlyIncomeManwon = firstSeg ? Math.floor(Number(firstSeg.income) / 10000) : null;
-  // const monthlyExpenseManwon = firstSeg ? Math.floor(Number(firstSeg.expense) / 10000) : null;
   const shortageManwon = Math.floor(Math.abs(Number(data.shortageAmt) || 0) / 10000);
 
   const living = Number(data.livingCost) || 0;
@@ -96,9 +92,8 @@ export default function SimulatorResultPage() {
     expense: Math.floor(Number(seg.expense) / 10000),
   }));
 
-  const targetAge = typeof window !== 'undefined'
-    ? parseInt(localStorage.getItem('simulation_target_age') || '85')
-    : 85;
+  const targetAge = data.targetAge;
+  const hasHousingPension = !!data.housing_pension_monthly_payout;
 
   return (
       <div
@@ -152,7 +147,7 @@ export default function SimulatorResultPage() {
             ) : (
                 <PrimaryButton
                     label="부족한 자금 해결하러 가기 >"
-                    onClick={() => router.push('/asset/housing')}
+                    onClick={() => router.push('/asset/home-pension')}
                     className="mt-1 bg-hana-red-500 text-white shadow-sm active:bg-hana-red-600"
                 />
             )}
@@ -172,12 +167,19 @@ export default function SimulatorResultPage() {
             <SimulationResultChart data={chartData} />
           </section>
 
-          <div className="mt-4">
+          <div className="mt-4 flex flex-col gap-3">
             <PrimaryButton
                 label="연령별로 결과 자세히 보기"
                 onClick={() => router.push('/asset/simulator/result/detail')}
                 variant="primary"
             />
+            {hasHousingPension && (
+              <PrimaryButton
+                label="가입 현황 보기"
+                onClick={() => router.push('/asset/simulator')}
+                variant="secondary"
+              />
+            )}
           </div>
         </main>
       </div>

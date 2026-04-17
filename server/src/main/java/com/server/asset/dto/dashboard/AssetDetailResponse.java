@@ -3,6 +3,8 @@ package com.server.asset.dto.dashboard;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
@@ -10,6 +12,7 @@ import lombok.Builder;
 @Schema(description = "자산 상세 정보 공통 응답 (부동산/자동차/금/보험)")
 public record AssetDetailResponse(
     @Schema(description = "자산 ID", example = "1")
+    @JsonSerialize(using = ToStringSerializer.class)
     Long assetId,
     
     @Schema(description = "자산 카테고리 코드", example = "REAL_ESTATE / VEHICLE / GOLD / INSURANCE")

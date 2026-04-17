@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -44,6 +45,10 @@ type AssetChartProps = {
 const TICK_STYLE = { fontSize: 11, fill: '#888988' } as const;
 
 export function AssetChart({ title, subtitle, data, config }: AssetChartProps) {
+  // 브라우저 레이아웃 완료 후에만 차트 렌더링 — ResponsiveContainer width/height -1 에러 방지
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -61,8 +66,8 @@ export function AssetChart({ title, subtitle, data, config }: AssetChartProps) {
         )}
       </div>
 
-      <div className="h-50 w-full">
-        <ResponsiveContainer width="100%" height="100%">
+      <div className="h-[200px] w-full">
+        {mounted && <ResponsiveContainer width="100%" height="100%">
           {config.type === 'bar' ? (
             <BarChart
               data={data}
@@ -144,7 +149,7 @@ export function AssetChart({ title, subtitle, data, config }: AssetChartProps) {
               />
             </LineChart>
           )}
-        </ResponsiveContainer>
+        </ResponsiveContainer>}
       </div>
     </motion.div>
   );

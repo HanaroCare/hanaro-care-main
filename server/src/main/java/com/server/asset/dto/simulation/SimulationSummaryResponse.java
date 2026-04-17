@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SimulationSummaryResponse {
+    private Integer targetAge;
     private Boolean isSufficient;
     private BigDecimal shortageAmt;
     private BigDecimal livingCost;
@@ -25,4 +26,7 @@ public class SimulationSummaryResponse {
 
     @JsonProperty("ai_opinion")
     private String aiOpinion;
+
+    @JsonProperty("housing_pension_monthly_payout")
+    private BigDecimal housingPensionMonthlyPayout;
 }

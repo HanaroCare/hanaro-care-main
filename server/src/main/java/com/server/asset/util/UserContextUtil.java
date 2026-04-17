@@ -1,22 +1,33 @@
 package com.server.asset.util;
 
-import com.server.asset.dto.external.AIAnalysisInput;
-import com.server.asset.dto.simulation.SimulationRequest;
-import com.server.asset.entity.TBAssetTrans;
-import com.server.asset.entity.enums.TransType;
-import com.server.asset.repository.AccountRepository;
-import com.server.asset.repository.AssetTransRepository;
-import com.server.user.entity.TBUser;
-import com.server.user.repository.UserRepository;
+import static com.server.common.response.code.status.ErrorStatus.*;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import com.server.asset.dto.external.AIAnalysisInput;
+import com.server.asset.dto.simulation.SimulationRequest;
+import com.server.asset.entity.TBAccount;
+import com.server.asset.entity.TBAssetTrans;
+import com.server.asset.entity.enums.AssetCategory;
+import com.server.asset.entity.enums.ProdStat;
+import com.server.asset.entity.enums.ProdType;
+import com.server.asset.entity.enums.TransType;
+import com.server.asset.repository.AccountRepository;
+import com.server.asset.repository.AssetTransRepository;
+import com.server.asset.repository.UserProdRepository;
+import com.server.common.exception.ApiException;
+import com.server.user.entity.TBUser;
+import com.server.user.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -26,10 +37,11 @@ public class UserContextUtil {
   private final UserRepository tbUserRepository;
   private final AssetTransRepository assetTransRepository;
   private final AccountRepository accountRepository;
+  private final UserProdRepository userProdRepository;
 
   public AIAnalysisInput collectUserContext(Long userId, SimulationRequest request) {
     TBUser user = tbUserRepository.findById(userId)
-        .orElseThrow(() -> new RuntimeException("User not found"));
+        .orElseThrow(() -> new ApiException(USER_NOT_FOUND));
 
     LocalDateTime oneYearAgo = LocalDateTime.now().minusYears(1);
     List<TBAssetTrans> paymentHistory = assetTransRepository.findAllByUser_UserIdAndTransTypeAndTransDtAfter(
@@ -45,6 +57,15 @@ public class UserContextUtil {
     BigDecimal totalAssetAmt = accountRepository.findTotalBalanceByUserId(userId);
     totalAssetAmt = (totalAssetAmt != null) ? totalAssetAmt : BigDecimal.ZERO;
 
+    BigDecimal retirementPensionBalance = sumLinkedBalance(userId, AssetCategory.PENSION_RETIRE);
+    BigDecimal personalPensionBalance = sumLinkedBalance(userId, AssetCategory.PENSION_PERSONAL);
+
+    BigDecimal housingPensionMonthlyPayout = userProdRepository
+        .findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
+            userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS)
+        .map(prod -> prod.getMonthlyPayout() != null ? prod.getMonthlyPayout() : BigDecimal.ZERO)
+        .orElse(BigDecimal.ZERO);
+
     return AIAnalysisInput.builder()
         .userId(userId)
         .userAge(user.getUserAge())
@@ -54,7 +75,17 @@ public class UserContextUtil {
         .averageMonthlySpending(averageMonthlySpending)
         .spendingByCategory(spendingByCategory)
         .totalAssetAmt(totalAssetAmt)
+        .retirementPensionBalance(retirementPensionBalance)
+        .personalPensionBalance(personalPensionBalance)
+        .housingPensionMonthlyPayout(housingPensionMonthlyPayout)
         .build();
+  }
+
+  private BigDecimal sumLinkedBalance(Long userId, AssetCategory category) {
+    return accountRepository.findByUser_UserIdAndAssetCateCdAndIsLinkedTrue(userId, category)
+        .stream()
+        .map(TBAccount::getBalanceAmt)
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
   }
 
   private Map<String, BigDecimal> aggregateSpending(List<TBAssetTrans> transactions) {

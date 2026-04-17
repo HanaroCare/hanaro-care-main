@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { NotificationButton } from "./NotificationButton";
 import { NotificationCardWrapper } from "./NotificationCardWrapper";
+import Link from "next/link";
+import {useRouter} from "next/navigation";
 
 type PensionItem = {
 	name: string;
@@ -12,7 +14,7 @@ type PensionItem = {
 type PensionCardProps = {
 	totalAmount?: number;
 	items?: PensionItem[];
-	onClick?: () => void;
+	href?: string;
 };
 
 export function PensionCard({
@@ -22,8 +24,10 @@ export function PensionCard({
 		{ name: "퇴직연금", amount: 800000 },
 		{ name: "개인연금", amount: 200000 },
 	],
-	onClick,
+								href = "/asset"
 }: PensionCardProps) {
+	const router = useRouter();
+
 	return (
 		<NotificationCardWrapper
 			gradientColor="#FAA131"
@@ -63,8 +67,8 @@ export function PensionCard({
 					</div>
 				))}
 			</div>
-
-			<NotificationButton variant="yellow" onClick={onClick}>
+			<NotificationButton variant="yellow" onClick={() => router.push(href)}
+			>
 				자산 현황 보러가기
 			</NotificationButton>
 		</NotificationCardWrapper>
