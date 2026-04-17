@@ -27,7 +27,7 @@ export default function DualActionFooter({
     >
       <PrimaryButton
         label={leftLabel}
-        variant="secondary"
+        variant="warning"
         disabled={isLeftDisabled}
         onClick={onLeftClick}
         className="h-14 flex-1 rounded-2xl text-[17px] leading-6"
