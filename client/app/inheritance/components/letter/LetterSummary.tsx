@@ -4,6 +4,8 @@ import type { InheritanceMethod } from '../../types';
 import { formatAmount } from '../../utils/format';
 
 interface Props {
+  message: string;
+  audioUrl: string;
   relationCode: string;
   distRatio: number;
   amount: number;
@@ -11,7 +13,6 @@ interface Props {
   letterType: LetterType;
   inheritanceMethod: InheritanceMethod;
   onImageSave: () => void;
-  onShare: () => void;
 }
 
 const METHOD_LABEL: Record<InheritanceMethod, string> = {
@@ -20,6 +21,8 @@ const METHOD_LABEL: Record<InheritanceMethod, string> = {
 };
 
 export default function LetterSummary({
+  message,
+  audioUrl,
   relationCode,
   distRatio,
   deliverAfterYears,
@@ -27,8 +30,28 @@ export default function LetterSummary({
   amount,
   inheritanceMethod,
   onImageSave,
-  onShare,
 }: Props) {
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        const isVoice = letterType === 'VOICE';
+
+        await navigator.share({
+          title: '상속 편지',
+          text: isVoice ? '음성 편지를 들어보세요 🎧' : message,
+          url: isVoice ? audioUrl : undefined,
+        });
+      } else {
+        const fallbackText = letterType === 'WRITING' ? message : audioUrl;
+
+        await navigator.clipboard.writeText(fallbackText);
+        alert('복사되었습니다.');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="flex w-full flex-col gap-3 rounded-2xl border border-gray-200 px-5 py-4">
       {/* 상단 정보 */}
@@ -62,7 +85,7 @@ export default function LetterSummary({
         <button
           type="button"
           className="flex flex-1 items-center justify-center gap-3 rounded-xl border-2 border-gray-200 p-2 text-sm"
-          onClick={onShare}
+          onClick={handleShare}
         >
           <Send className="m-2 mr-0 h-4 w-4" />
           공유하기

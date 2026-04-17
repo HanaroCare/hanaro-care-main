@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Pause, Play } from "lucide-react";
-import { useRef, useState } from "react";
+import { Pause, Play } from 'lucide-react';
+import { useRef, useState } from 'react';
 
 interface Props {
   audioUrl: string;
@@ -13,10 +13,10 @@ interface Props {
 
 export default function AudioPlayer({
   audioUrl,
-  bgColor = "bg-teal-50",
-  buttonColor = "text-hana-green-700 fill-hana-green-700",
-  timeColor = "text-gray-400",
-  className = "px-6 pt-4",
+  bgColor = 'bg-teal-50',
+  buttonColor = 'text-hana-green-700 fill-hana-green-700',
+  timeColor = 'text-gray-400',
+  className = 'px-6 pt-4',
 }: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -37,21 +37,21 @@ export default function AudioPlayer({
   const formatTime = (sec: number) => {
     const m = Math.floor(sec / 60)
       .toString()
-      .padStart(2, "0");
+      .padStart(2, '0');
     const s = Math.floor(sec % 60)
       .toString()
-      .padStart(2, "0");
+      .padStart(2, '0');
     return `${m}:${s}`;
   };
 
   return (
     <div
-      className={`${bgColor} rounded-2xl flex flex-col justify-between ${className} pb-5 w-full h-38.75`}
+      className={`${bgColor} flex flex-col justify-between rounded-2xl ${className} h-38.75 w-full pb-5`}
     >
       {/* 진행바 */}
-      <div className={`w-full h-1 bg-white rounded-full mt-7`}>
+      <div className={`mt-7 h-1 w-full rounded-full bg-white`}>
         <div
-          className={`h-1 bg-hana-green-700 rounded-full w-full`}
+          className={`h-1 w-full rounded-full bg-hana-green-700`}
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -63,19 +63,20 @@ export default function AudioPlayer({
         <span className={`text-xs ${timeColor}`}>{formatTime(duration)}</span>
       </div>
       {/* 재생버튼 */}
-      <div className="flex justify-center mt-1 mb-3">
+      <div className="mt-1 mb-3 flex justify-center">
         <button
           type="button"
           onClick={togglePlay}
-          className="w-8 h-8 pb-2 rounded-full flex items-center justify-center"
+          className="flex h-8 w-8 items-center justify-center rounded-full pb-2"
         >
           {isPlaying ? (
-            <Pause className={`w-7 h-7 ${buttonColor}`} />
+            <Pause className={`h-7 w-7 ${buttonColor}`} />
           ) : (
-            <Play className={`w-7 h-7 ${buttonColor}`} />
+            <Play className={`h-7 w-7 ${buttonColor}`} />
           )}
         </button>
       </div>
+      {/** biome-ignore lint/a11y/useMediaCaption: track 안 쓸래! */}
       <audio
         ref={audioRef}
         src={audioUrl}

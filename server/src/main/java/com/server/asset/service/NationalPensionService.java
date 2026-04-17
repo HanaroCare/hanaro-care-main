@@ -25,7 +25,7 @@ public class NationalPensionService {
 
         // 1. DB에서 사용자의 연금 계좌 조회
         List<TBAccount> pensionAccounts = accountRepository
-            .findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION);
+            .findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION_NATIONAL);
 
         // 2. 하나라도 연동(IS_LINKED=1)된 계좌가 있는지 확인
         boolean isLinked = pensionAccounts.stream().anyMatch(TBAccount::getIsLinked);

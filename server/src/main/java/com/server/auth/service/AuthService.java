@@ -74,6 +74,7 @@ public class AuthService {
         .userPwd(passwordEncoder.encode(request.getUserPwd()))
         .userStatusCd(UserStatus.ACTIVE)
         .isHanaCert(false)
+        .pwdChangedAt(LocalDateTime.now())   // 신규 가입 시점을 기준으로 만료 기산
         .build();
 
     try {

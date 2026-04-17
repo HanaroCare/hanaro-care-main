@@ -1,0 +1,28 @@
+spring:
+  profiles:
+    active: test
+
+  config:
+    import:
+      - classpath:dummy-values-test.yaml
+
+  datasource:
+    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    defer-datasource-initialization: true
+
+  sql:
+    init:
+      mode: always
+
+voice:
+  upload-dir: ./test-uploads
+  base-url: http://localhost:8080
+  voice-storage-path: ./test-voice-storage

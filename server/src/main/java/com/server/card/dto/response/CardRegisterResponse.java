@@ -28,10 +28,13 @@ public class CardRegisterResponse {
   @Schema(description = "카드 디자인 코드 (A~E)", example = "A")
   private String designCd;
 
+  @Schema(description = "자동이체일")
+  private Integer payDay;
+
   public static CardRegisterResponse from(TBCard card) {
-    String[] parts = card.getCardNm().split("::", 2);
-    String designCd = parts.length > 1 ? parts[0] : "";
-    String cardNm = parts.length > 1 ? parts[1] : parts[0];
+    String rawNm = card.getCardNm(); // "A::김복순 요양사의 카드"
+    String designCd = rawNm.split("::")[0];   // "A"
+    String cardNm = rawNm.split("::")[1];     // "김복순 요양사의 카드"
 
     return CardRegisterResponse.builder()
         .cardId(String.valueOf(card.getCardId()))
@@ -40,6 +43,7 @@ public class CardRegisterResponse {
         .limitAmt(card.getLimitAmt())
         .autoTransAmt(card.getAutoTransAmt())
         .isUse(card.getIsUse())
+        .payDay(card.getPayDay())
         .build();
   }
 }

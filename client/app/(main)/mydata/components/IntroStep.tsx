@@ -4,15 +4,14 @@ import { motion } from 'framer-motion';
 import { Wallet } from 'lucide-react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 
-/**
- * 정보 불러오기 안내 (전체 연결 모드 전용)
- */
 export default function IntroStep({
   onConfirm,
   onCustomMode,
+  name,
 }: {
   onConfirm: () => void;
   onCustomMode: () => void;
+  name?: string;
 }) {
   return (
     <div className="flex flex-1 flex-col items-center px-[1.5rem] pt-[4rem] pb-[3rem]">
@@ -27,7 +26,7 @@ export default function IntroStep({
 
       <div className="mb-[4rem] text-center">
         <h2 className="font-bold text-[1.5rem] text-foreground leading-tight tracking-tight">
-          권하나님이 쓰고 있는
+          {name || '사용자'}님이 쓰고 있는
           <br />
           자산 정보를 불러올게요
         </h2>

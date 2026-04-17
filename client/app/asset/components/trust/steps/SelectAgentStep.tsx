@@ -16,7 +16,9 @@ export default function SelectAgentStep() {
   const router = useRouter();
   const { form, setSelectedAgent } = useTrustForm();
 
-  const [selected, setSelected] = useState<number | null>(form.selectedAgent);
+  const [selected, setSelected] = useState<number | null>(
+    form.selectedAgent ? Number(form.selectedAgent) : null,
+  );
   const [isPending, startTransition] = useTransition();
 
   const [familyList, setFamilyList] = useState<FamilyMember[]>([]);
@@ -54,7 +56,10 @@ export default function SelectAgentStep() {
 
     startTransition(async () => {
       try {
-        await saveTrustSimulation({ ...form, selectedAgent: validAgentId });
+        await saveTrustSimulation({
+          ...form,
+          selectedAgent: validAgentId !== null ? String(validAgentId) : null,
+        });
         localStorage.setItem('has_completed_trust', 'true');
         router.push('/asset/trust/result');
       } catch (error) {

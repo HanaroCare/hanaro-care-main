@@ -2,7 +2,13 @@
 
 import { createContext, useContext, useMemo, useState } from 'react';
 
-export type StartTimingValue = 'now' | 'when-needed' | 'custom-date';
+export type StartTimingType = 'now' | 'when-needed' | 'custom-date';
+
+export type StartTimingValue = {
+  type: StartTimingType;
+  startDate: string | null;
+};
+
 export type OperationTypeValue = 'managed' | 'self';
 export type PayoutTypeValue = 'free' | 'pension';
 export type PayoutItemValue = 'hospital' | 'living';
@@ -16,21 +22,17 @@ export type TrustFormState = {
   selectedAssets: string[];
   principalAmount: number;
   startTiming: StartTimingValue | null;
-  startDate: string | null;
   operationType: OperationTypeValue;
   payoutType: PayoutTypeValue | null;
   payoutItems: PayoutItemValue[];
   payoutAmounts: PayoutAmounts;
-  selectedAgent: number | null;
+  selectedAgent: string | null;
 };
 
 type TrustFormContextValue = {
   form: TrustFormState;
   setSelectedAssets: (ids: string[], total: number) => void;
-  setStartTiming: (
-    startTiming: StartTimingValue | null,
-    startDate?: string | null,
-  ) => void;
+  setStartTiming: (startTiming: StartTimingValue | null) => void;
   setOperationType: (operationType: OperationTypeValue) => void;
   setPayoutType: (payoutType: PayoutTypeValue | null) => void;
   setPayoutItems: (
@@ -45,7 +47,6 @@ const initialFormState: TrustFormState = {
   selectedAssets: [],
   principalAmount: 0,
   startTiming: null,
-  startDate: null,
   operationType: 'managed',
   payoutType: null,
   payoutItems: [],
@@ -73,11 +74,10 @@ export function TrustFormProvider({ children }: { children: React.ReactNode }) {
         }));
       },
 
-      setStartTiming: (startTiming, startDate = null) => {
+      setStartTiming: (startTiming) => {
         setForm((prev) => ({
           ...prev,
           startTiming,
-          startDate: startTiming === 'custom-date' ? startDate : null,
         }));
       },
 
@@ -123,7 +123,7 @@ export function TrustFormProvider({ children }: { children: React.ReactNode }) {
       setSelectedAgent: (selectedAgent) => {
         setForm((prev) => ({
           ...prev,
-          selectedAgent,
+          selectedAgent: selectedAgent !== null ? String(selectedAgent) : null,
         }));
       },
 

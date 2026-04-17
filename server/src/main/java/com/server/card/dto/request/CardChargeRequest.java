@@ -12,7 +12,7 @@ public class CardChargeRequest {
 
   @NotNull
   @Schema(description = "카드 ID", example = "4001")
-  private Long cardId;
+  private String cardId;
 
   @NotNull
   @DecimalMin("1000")

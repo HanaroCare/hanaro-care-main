@@ -58,7 +58,7 @@ export default function HanaCertLoginPage() {
 				document.cookie = `HAS_SEEN_FONT_CONFIG=true; ${maxAge}`;
 				document.cookie = `HAS_SEEN_ONBOARDING=true; ${maxAge}`;
 				document.cookie = `AUTH_TYPE=HANA_CERT; ${maxAge}`;
-				document.cookie = `AUTH_TOKEN=FACE_ID_MOCK; ${maxAge}`;
+				document.cookie = `ACCESS_TOKEN=FACE_ID_MOCK; ${maxAge}`;
 
 				setTimeout(() => {
 					setIsLoading(false);
@@ -87,12 +87,14 @@ export default function HanaCertLoginPage() {
 					document.cookie = `HAS_SEEN_ONBOARDING=true; ${maxAge}`;
 					document.cookie = `AUTH_TYPE=HANA_CERT; ${maxAge}`;
 
-					if (result.isPasswordExpired) {
-						setPwdExpiryLoginId(MODE_TO_LOGIN_ID[mode]);
-						setIsPwdExpiryOpen(true);
-					} else {
-						router.replace("/");
-					}
+					// [시연 기간 비활성화] 비밀번호 만료 팝업 — 시연 종료 후 아래 주석 해제
+					// if (result.isPasswordExpired) {
+					//   setPwdExpiryLoginId(MODE_TO_LOGIN_ID[mode]);
+					//   setIsPwdExpiryOpen(true);
+					// } else {
+					//   router.replace("/");
+					// }
+					router.replace("/");
 					return;
 				}
 

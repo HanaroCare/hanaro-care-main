@@ -227,7 +227,7 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 			.locationSummary(geminiResult.locationSummary())
 			.recommendedReason(geminiResult.recommendedReason())
 			.modelVersion(MODEL_VERSION)
-			.predictedAt(LocalDateTime.now())
+			.predictedAt(LocalDateTime.now().toString())
 			.build();
 	}
 
