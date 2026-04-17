@@ -20,6 +20,7 @@ export default function LetterCard({
   return (
     <div className="relative flex h-56 w-full items-center justify-center">
       {/* 뒤 카드들 */}
+      <div className="absolute h-60 w-full bg-white" />
       <div className="-rotate-10 absolute h-44 w-[88%] rounded-3xl bg-[#F5E4B1]" />
       <div className="-rotate-4 absolute h-44 w-[88%] rounded-3xl bg-[#BFECD8]" />
       <div className="absolute h-44 w-[88%] rotate-7 rounded-3xl bg-[#F8CEDB]" />
