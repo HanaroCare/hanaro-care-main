@@ -1,13 +1,14 @@
 package com.server.asset.dto.trust;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "신탁 상품 운용현황 응답")
 public record TrustProductResponse(
 
 	@Schema(description = "가입 상품 ID", example = "1234567890")
-	Long userProdId,
+	String userProdId,
 
 	@Schema(description = "상품명", example = "내맘대로신탁")
 	String productName,

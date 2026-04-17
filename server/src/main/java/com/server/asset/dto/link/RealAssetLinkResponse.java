@@ -1,7 +1,8 @@
 package com.server.asset.dto.link;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
@@ -9,7 +10,7 @@ import lombok.Builder;
 public record RealAssetLinkResponse(
 
     @Schema(description = "생성된 실물 자산 ID")
-    Long realAssetId,
+    String realAssetId,
 
     @Schema(description = "자산명", example = "반포 래미안 아파트")
     String assetNm,

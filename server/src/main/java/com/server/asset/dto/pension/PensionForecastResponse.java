@@ -1,14 +1,14 @@
 package com.server.asset.dto.pension;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
 
 
 @Schema(description = "주택 집값 예측 응답")
@@ -19,7 +19,7 @@ import java.util.List;
 public class PensionForecastResponse {
 
 	@Schema(description = "부동산 자산 ID", example = "1")
-	private Long realAssetId;
+	private String realAssetId;
 
 	@Schema(description = "자산명", example = "대치동 OO아파트")
 	private String assetNm;
