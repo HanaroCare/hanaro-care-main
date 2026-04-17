@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef } from 'react';
 
 interface KakaoAddressMapProps {
   address: string;
@@ -9,7 +9,7 @@ interface KakaoAddressMapProps {
 
 export default function KakaoAddressMap({
   address,
-  height = "257px",
+  height = '257px',
 }: KakaoAddressMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +40,11 @@ export default function KakaoAddressMap({
                 level: 3,
               },
             );
-            new window.kakao.maps.Marker({ map, position: coords });
+            new window.kakao.maps.Marker({
+              map,
+              position: coords,
+              title: address,
+            });
           }
         },
       );
@@ -64,7 +68,7 @@ export default function KakaoAddressMap({
     }
 
     // 스크립트 없는 경우 새로 로드
-    const script = document.createElement("script");
+    const script = document.createElement('script');
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_MAP_KEY}&autoload=false&libraries=services`;
     script.async = true;
     document.head.appendChild(script);
@@ -75,5 +79,5 @@ export default function KakaoAddressMap({
     };
   }, [address]);
 
-  return <div ref={mapRef} style={{ width: "100%", height }} />;
+  return <div ref={mapRef} style={{ width: '100%', height }} />;
 }
