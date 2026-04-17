@@ -113,13 +113,12 @@ public class SimulationService {
   @CheckUser(key = "#userId")
   @Cacheable(
       value = "simulationDetail",
-      key = "#userId + ':' + #request.targetAge + ':' + #request.careType.name()",
+      key = "#userId",
       unless = "#result == null"
   )
-  public SimulationDetailResponse getSimulationDetail(Long userId, SimulationRequest request) {
+  public SimulationDetailResponse getSimulationDetail(Long userId) {
     TBAssetSimulation simulation = assetSimulationRepository
-        .findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(
-            userId, request.getTargetAge(), request.getCareType())
+        .findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.SIMULATION_NOT_FOUND));
 
     return fromJson(simulation.getAgeRangeDetails(), SimulationDetailResponse.class);

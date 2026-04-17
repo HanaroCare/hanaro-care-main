@@ -397,7 +397,7 @@ export default function FamilyManagementPage() {
       <div className="app-layout">
         <Header
           title="가족 관리"
-          onBack={() => router.push('/my/mypage' as Route)}
+          onBack={() => router.push('/my' as Route)}
           showCloseButton={true}
           onClose={() => router.push('/' as Route)}
         />

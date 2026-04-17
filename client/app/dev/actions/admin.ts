@@ -113,3 +113,15 @@ export async function runPensionBatch(date?: string): Promise<string> {
     method: 'POST',
   });
 }
+
+export async function runSimulationEnqueue(): Promise<string> {
+  return serverFetch<string>('/api/admin/asset/simulation/enqueue', {
+    method: 'POST',
+  });
+}
+
+export async function runSimulationBatchRun(): Promise<string> {
+  return serverFetch<string>('/api/admin/asset/simulation/batch-run', {
+    method: 'POST',
+  });
+}

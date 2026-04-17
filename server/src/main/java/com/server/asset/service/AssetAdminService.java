@@ -26,7 +26,6 @@ import com.server.asset.entity.enums.StartType;
 import com.server.asset.mapper.PensionMapper;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.AccountRepository;
-import com.server.asset.repository.AssetSimulationRepository;
 import com.server.asset.repository.PensionSimulationRepository;
 import com.server.asset.repository.ProductRepository;
 import com.server.asset.repository.RealAssetRepository;
@@ -51,8 +50,7 @@ public class AssetAdminService {
   private final UserRepository userRepository;
   private final TrustRepository trustRepository;
   private final SimulationRefreshService simulationRefreshService;
-  private final SimulationService simulationService;
-  private final AssetSimulationRepository assetSimulationRepository;
+  private final SimulationAsyncService simulationAsyncService;
   private final UserProdRepository userProdRepository;
   private final ProductRepository productRepository;
   private final TrustMapper trustMapper;
@@ -109,7 +107,7 @@ public class AssetAdminService {
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_SIMULATION_NOT_FOUND));
 
     TBProduct product = productRepository
-        .findByProdCate(ProdCate.TRUST)
+        .findFirstByProdCate(ProdCate.TRUST)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_FIXED_PRODUCT_NOT_FOUND));
 
     BigDecimal principal = TrustCalculator.defaultIfNull(simulation.getPrincipalAmount());
@@ -167,7 +165,7 @@ public class AssetAdminService {
       throw new ApiException(ErrorStatus._FORBIDDEN);
     }
 
-    TBProduct product = productRepository.findByProdCate(ProdCate.PENSION)
+    TBProduct product = productRepository.findFirstByProdCate(ProdCate.PENSION)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_PRODUCT_NOT_FOUND));
 
     try {
@@ -179,17 +177,14 @@ public class AssetAdminService {
           pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(), simulation)
       );
 
-      assetSimulationRepository.findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
-          .ifPresent(last -> {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-              @Override
-              public void afterCommit() {
-                // 커밋 완료 후 즉시 Redis 큐에 작업을 던지고 스레드를 해제합니다.
-                simulationRefreshService.enqueue(userId);
-                log.info("[주택연금 가입] 커밋 후 시뮬레이션 재실행 큐 등록 완료: userId={}", userId);
-              }
-            });
-          });
+      // 커밋 완료 후 백그라운드에서 즉시 시뮬레이션 재실행
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+          simulationAsyncService.rerunAfterAssetChange(userId);
+          log.info("[주택연금 가입] 커밋 후 비동기 시뮬레이션 재실행 요청: userId={}", userId);
+        }
+      });
 
       return savedProd.getUserProdId();
     } catch (DataIntegrityViolationException e) {

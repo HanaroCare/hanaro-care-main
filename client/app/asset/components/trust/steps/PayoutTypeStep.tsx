@@ -30,9 +30,10 @@ export default function PayoutTypeStep() {
   const router = useRouter();
   const { form, setPayoutType } = useTrustForm();
   const [selected, setSelected] = useState<PayoutTypeValue | null>(
-    form.payoutType,
+    form.payoutType === 'free' || form.payoutType === 'pension'
+      ? form.payoutType
+      : null,
   );
-
   const handleNext = () => {
     if (!selected) return;
     setPayoutType(selected);

@@ -299,27 +299,6 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
               </div>
             )}
 
-            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
-              {pensionOptions.map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  onClick={() => setSelectedType(item.key)}
-                  className="flex items-center gap-2"
-                >
-                  <LegendDot color={item.color} />
-                  <span
-                    className="text-[14px] leading-5 font-medium"
-                    style={{
-                      color: selectedType === item.key ? '#374151' : '#6B7280',
-                    }}
-                  >
-                    {item.label}
-                  </span>
-                </button>
-              ))}
-            </div>
-
             <div className="mt-4 rounded-[24px] border border-[#E5E7EB] bg-white px-5 py-6 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
               <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
                 수령 방식별 누적 연금
@@ -414,6 +393,27 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
+            </div>
+
+            <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+              {pensionOptions.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  onClick={() => setSelectedType(item.key)}
+                  className="flex items-center gap-2"
+                >
+                  <LegendDot color={item.color} />
+                  <span
+                    className="text-[14px] leading-5 font-medium"
+                    style={{
+                      color: selectedType === item.key ? '#374151' : '#6B7280',
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </button>
+              ))}
             </div>
 
             <div className="mt-10">
