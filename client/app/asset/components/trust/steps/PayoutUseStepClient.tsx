@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { formatKoreanAmount } from '@/app/asset/constants/trustUtils';
-import type { PayoutAmounts } from '@/app/asset/trust/TrustFormContext';
-import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
-import { AlertBanner } from '@/components/modules/AlertBanner';
-import DualActionFooter from '@/components/modules/DualActionFooter';
-import TrustAmountList from '../TrustAmountList';
+import { useMemo, useState } from 'react';
+import {
+  type PayoutAmounts,
+  type PayoutItemValue,
+  useTrustForm,
+} from '@/app/asset/trust/TrustFormContext';
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import TrustWizardStep from '../TrustWizardStep';
 
 type Props = {
@@ -15,50 +15,51 @@ type Props = {
   livingAmount: number;
 };
 
+const options: {
+  id: PayoutItemValue;
+  title: string;
+}[] = [
+  {
+    id: 'hospital',
+    title: '병원비 자동 집행',
+  },
+  {
+    id: 'living',
+    title: '생활비',
+  },
+];
+
 export default function PayoutUseStepClient({
   hospitalAmount,
   livingAmount,
 }: Props) {
   const router = useRouter();
   const { form, setPayoutItems } = useTrustForm();
-  const [selected, setSelected] = useState<Set<string>>(
-    new Set(form.payoutItems),
+
+  const [selectedItems, setSelectedItems] = useState<PayoutItemValue[]>(
+    form.payoutItems,
   );
 
-  const items = [
-    {
-      id: 'hospital',
-      title: '병원비 자동 집행',
-      amount: `월 ${formatKoreanAmount(hospitalAmount)}`,
-    },
-    {
-      id: 'living',
-      title: '생활비',
-      amount: `월 ${formatKoreanAmount(livingAmount)}`,
-    },
-  ];
-
-  const toggle = (id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
+  const toggleItem = (id: PayoutItemValue) => {
+    setSelectedItems((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    );
   };
 
-  const total = items
-    .filter((item) => selected.has(item.id))
-    .reduce((sum, item) => {
-      const amt = item.id === 'hospital' ? hospitalAmount : livingAmount;
-      return sum + amt;
+  const totalAmount = useMemo(() => {
+    return selectedItems.reduce((sum, item) => {
+      if (item === 'hospital') return sum + hospitalAmount;
+      if (item === 'living') return sum + livingAmount;
+      return sum;
     }, 0);
+  }, [hospitalAmount, livingAmount, selectedItems]);
 
-  const handleNext = (withItems: boolean) => {
-    const selectedItems = withItems ? Array.from(selected) : [];
-    const amounts: PayoutAmounts = {
+  const handleNext = () => {
+    const amounts: Partial<PayoutAmounts> = {
       hospital: hospitalAmount,
       living: livingAmount,
     };
+
     setPayoutItems(selectedItems, amounts);
     router.push('/asset/trust/select-agent');
   };
@@ -67,38 +68,69 @@ export default function PayoutUseStepClient({
     <TrustWizardStep
       step={5}
       footer={
-        <DualActionFooter
-          leftLabel="지금 안할래요"
-          rightLabel="다음으로"
-          rightDisabled={selected.size === 0}
-          onLeftClick={() => handleNext(false)}
-          onRightClick={() => handleNext(true)}
-        />
+        <footer className="shrink-0 bg-white px-6 pt-10 pb-8">
+          <PrimaryButton
+            label="다음으로"
+            disabled={selectedItems.length === 0}
+            onClick={handleNext}
+          />
+        </footer>
       }
     >
       <div className="mt-12">
-        <h2 className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
-          어디에
+        <p className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
+          신탁 자금을 어디에
           <br />
           사용할까요?
-        </h2>
-
-        <div className="mt-8 flex justify-center">
-          <AlertBanner
-            variant="info"
-            message="선택지에 병원비 계산 결과가 반영되었어요"
-          />
-        </div>
+        </p>
       </div>
 
-      <TrustAmountList
-        className="mt-5"
-        items={items}
-        selected={selected}
-        onToggle={toggle}
-        totalLabel="월 집행 합계"
-        formattedTotal={formatKoreanAmount(total)}
-      />
+      <div className="mt-10 flex flex-col gap-5">
+        {options.map((option) => {
+          const isSelected = selectedItems.includes(option.id);
+          const amount =
+            option.id === 'hospital' ? hospitalAmount : livingAmount;
+
+          return (
+            <button
+              key={option.id}
+              type="button"
+              onClick={() => toggleItem(option.id)}
+              aria-pressed={isSelected}
+              className={`flex min-h-20 items-center justify-between rounded-[24px] px-6 py-7 text-left shadow-[0_2px_10px_rgba(0,0,0,0.03)] transition ${
+                isSelected
+                  ? 'border border-hana-ez-600 bg-[#EFFFFD]'
+                  : 'border border-[#F2F3F5] bg-white'
+              }`}
+            >
+              <p className="text-[16px] leading-6 font-semibold tracking-tight text-[#1F2937]">
+                {option.title}
+              </p>
+
+              <p
+                className={`text-[16px] leading-6 font-medium tracking-tight ${
+                  isSelected ? 'text-hana-ez-600' : 'text-[#1F2937]'
+                }`}
+              >
+                월 {amount.toLocaleString()}원
+              </p>
+            </button>
+          );
+        })}
+      </div>
+
+      {selectedItems.length > 0 && (
+        <div className="mt-6 rounded-[20px] bg-[#EFF8F7] px-6 py-7">
+          <div className="flex items-center justify-between">
+            <span className="text-[16px] leading-6 font-semibold tracking-tight text-hana-ez-600">
+              월 집행 합계
+            </span>
+            <span className="text-[22px] leading-8 font-bold tracking-tight text-hana-ez-600">
+              {totalAmount.toLocaleString()}원
+            </span>
+          </div>
+        </div>
+      )}
     </TrustWizardStep>
   );
 }

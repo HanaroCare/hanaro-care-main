@@ -101,45 +101,62 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 
 	private String buildPrompt(PensionForecastInternalDto.Command command) {
 		return """
-        당신은 한국 주택시장 분석가입니다.
-        아래 정보를 바탕으로 %d년 후 주택 가격 전망을 분석하세요.
+    당신은 한국 주택시장 분석가이다.
+    입력된 주소와 면적, 현재 평가금액을 기준으로 해당 주택 또는 동일 생활권의 대표적인 아파트/주택 시세 맥락을 먼저 파악한 뒤,
+    그 결과를 바탕으로 %d년 후 주택 가격 전망을 분석한다.
 
-        입력 정보:
-        - 주소: %s
-        - 현재 평가금액: %s원
-        - 면적: %s㎡
+    입력 정보:
+    - 주소: %s
+    - 현재 평가금액: %s원
+    - 면적: %s㎡
 
-        시나리오 연율은 이미 고정되어 있습니다:
-        - UP(낙관): 연 +4%%
-        - BASE(중립): 연 +2%%
-        - DOWN(비관): 연 0%%
+    분석 절차:
+    1. 입력 주소를 기준으로 해당 주택의 단지명, 생활권, 교통, 학군, 실거주 수요 특성을 우선 식별한다.
+    2. 동일 주소의 정확한 매물이 확인되지 않으면, 같은 동/생활권/유사 면적대의 공동주택 시세 흐름을 기준으로 추론한다.
+    3. 최근 거래 분위기, 공급, 금리, 실거주 수요를 반영해 시나리오별 확률을 판단한다.
+    4. 확률이 가장 높은 시나리오를 recommendedScenario로 선택한다.
 
-        반드시 아래 JSON 형식으로만 응답하세요. JSON 외 텍스트는 금지합니다.
-        {
-          "scenarios": [
-            { "type": "UP", "probability": 0.30 },
-            { "type": "BASE", "probability": 0.50 },
-            { "type": "DOWN", "probability": 0.20 }
-          ],
-          "recommendedScenario": "BASE",
-          "marketSummary": "최근 시장 흐름에 대한 요약",
-          "locationSummary": "입지/생활권/수요 특성에 대한 요약",
-          "recommendedReason": "왜 이 시나리오를 추천하는지에 대한 결론"
-        }
+    중요 규칙:
+    - 입력 정보와 무관한 일반론만 작성하지 마라.
+    - 주소 기반으로 지역 특성과 수요 요인을 반드시 반영하라.
+    - 특정 단지명을 확신할 수 없으면 단정하지 말고, "해당 생활권", "유사 면적대", "인근 단지 흐름"처럼 보수적으로 표현하라.
+    - 입력값만 반복하거나 현재 평가금액만 다시 설명하지 마라.
+    - locationSummary와 recommendedReason에는 반드시 주소 기반 판단 근거가 드러나야 한다.
+    - 문장은 서로 다른 정보를 담아야 하며, 같은 뜻 반복을 금지한다.
+    - 모든 문장은 한국어 평서문으로 작성한다.
+    - JSON 외의 텍스트는 절대 출력하지 마라.
 
-        작성 규칙:
-        1. probability 세 값의 합은 반드시 1.0이어야 합니다.
-        2. recommendedScenario는 probability가 가장 높은 시나리오와 반드시 같아야 합니다.
-        3. marketSummary는 금리, 거래량, 수요심리 등 시장 요인을 반영해 1문장으로 작성합니다.
-        4. locationSummary는 주소 기준의 입지, 생활권, 교통, 학군, 실거주 수요 등을 반영해 1문장으로 작성합니다.
-        5. recommendedReason는 "그래서 어떤 시나리오를 기준으로 보는 것이 적절한지"를 1문장으로 작성합니다.
-        6. 다음과 같은 추상적 표현은 사용하지 마세요:
-           - "현재 평가금액 기준으로"
-           - "안정적으로 참고할 수 있습니다"
-           - "무난합니다"
-        7. 문장은 서로 다른 정보를 담아야 하며, 같은 뜻 반복을 금지합니다.
-        8. 모든 문장은 한국어 존댓말 없이 평서문으로 작성합니다.
-        """
+    시나리오 연율은 이미 고정되어 있다:
+    - UP(낙관): 연 +4%%
+    - BASE(중립): 연 +2%%
+    - DOWN(비관): 연 0%%
+
+    반드시 아래 JSON 형식으로만 응답하라:
+    {
+      "scenarios": [
+        { "type": "UP", "probability": 0.30 },
+        { "type": "BASE", "probability": 0.50 },
+        { "type": "DOWN", "probability": 0.20 }
+      ],
+      "recommendedScenario": "BASE",
+      "marketSummary": "최근 시장 흐름에 대한 요약",
+      "locationSummary": "입지, 생활권, 교통, 학군, 실거주 수요를 반영한 주소 기반 요약",
+      "recommendedReason": "왜 이 주소와 생활권 기준으로 해당 시나리오를 추천하는지에 대한 결론"
+    }
+
+    JSON 작성 규칙:
+    1. probability 세 값의 합은 반드시 1.0이어야 한다.
+    2. recommendedScenario는 probability가 가장 높은 시나리오와 반드시 같아야 한다.
+    3. marketSummary는 금리, 거래량, 수요심리 등 시장 요인을 반영한 1문장이어야 한다.
+    4. locationSummary는 주소 기반 입지와 생활권 특성을 반영한 1문장이어야 한다.
+    5. recommendedReason는 주소와 수요 특성을 근거로 왜 그 시나리오를 기준으로 봐야 하는지 설명하는 1문장이어야 한다.
+    6. 다음 표현은 사용하지 마라:
+       - "현재 평가금액 기준으로"
+       - "안정적으로 참고할 수 있다"
+       - "무난하다"
+       - "일반적으로"
+    7. recommendedReason는 marketSummary나 locationSummary를 단순 반복하지 마라.
+    """
 			.formatted(
 				command.getPeriodYears(),
 				command.getAddr(),

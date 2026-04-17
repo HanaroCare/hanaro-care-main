@@ -108,18 +108,16 @@ export default function HomePensionDashboard() {
     );
   }, [historyWithTotal]);
 
+  useEffect(() => {
+    setCurrentYearIdx(0);
+  }, [years]);
+
   const currentYear = years[currentYearIdx];
 
   const currentHistory = useMemo(() => {
     if (!currentYear) return [];
     return historyWithTotal.filter((item) => item.year === currentYear);
   }, [historyWithTotal, currentYear]);
-
-  useEffect(() => {
-    if (currentYearIdx > years.length - 1) {
-      setCurrentYearIdx(0);
-    }
-  }, [years, currentYearIdx]);
 
   const handlePrevYear = () => {
     if (currentYearIdx < years.length - 1) {
@@ -282,32 +280,24 @@ export default function HomePensionDashboard() {
                   type="button"
                   onClick={handlePrevYear}
                   disabled={currentYearIdx === years.length - 1}
-                  aria-label="이전 연도로 이동"
-                  className={`p-1 text-[#9CA3AF] transition-opacity ${
+                  className={`p-1 text-[#9CA3AF] ${
                     currentYearIdx === years.length - 1
-                      ? 'cursor-not-allowed opacity-30'
-                      : 'opacity-100 hover:text-[#374151]'
+                      ? 'opacity-30'
+                      : 'hover:text-[#374151]'
                   }`}
                 >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="m15 18-6-6 6-6" />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="m15 18-6-6 6-6"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </button>
 
-                <span
-                  className="min-w-[60px] text-center text-[14px] font-bold text-[#374151]"
-                  aria-live="polite"
-                >
+                <span className="min-w-[60px] text-center text-[14px] font-bold text-[#374151]">
                   {currentYear ?? '-'}
                 </span>
 
@@ -315,25 +305,18 @@ export default function HomePensionDashboard() {
                   type="button"
                   onClick={handleNextYear}
                   disabled={currentYearIdx === 0}
-                  aria-label="다음 연도로 이동"
-                  className={`p-1 text-[#9CA3AF] transition-opacity ${
-                    currentYearIdx === 0
-                      ? 'cursor-not-allowed opacity-30'
-                      : 'opacity-100 hover:text-[#374151]'
+                  className={`p-1 text-[#9CA3AF] ${
+                    currentYearIdx === 0 ? 'opacity-30' : 'hover:text-[#374151]'
                   }`}
                 >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="m9 18 6-6-6-6" />
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                    <path
+                      d="m9 18 6-6-6-6"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
                   </svg>
                 </button>
               </div>

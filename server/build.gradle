@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.1'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com'
@@ -12,6 +13,10 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
 }
 
 repositories {
@@ -52,15 +57,19 @@ dependencies {
     // aws
     implementation 'software.amazon.awssdk:s3:2.25.39'
 
-    // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    // mapstruct
+    implementation 'org.mapstruct:mapstruct:1.6.3'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
     // queryDSL
-    implementation 'com.querydsl:querydsl-jpa::jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
@@ -69,23 +78,63 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'
 
-    // mapstruct
-    implementation 'org.mapstruct:mapstruct:1.6.3'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
-    annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
-
-    // 문서 생성
+    // utilities
     implementation 'org.apache.poi:poi-ooxml:5.2.3'
-
-    // batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
-
-    // api & utilities
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport // 테스트 끝나면 자동으로 리포트 생성
 }
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    // 리포트에서 제외할 클래스들
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "**/dto/**",
+                    "**/entity/**",
+                    "**/config/**",
+                    "**/Q*", // Querydsl
+                    "**/*Application*",
+                    "**/*MapperImpl*" // MapStruct 구현체
+            ])
+        }))
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.80
+            }
+            // 검증에서도 제외 설정 (중요)
+            excludes = [
+                    "**.dto.*",
+                    "**.entity.*",
+                    "**.config.*",
+                    "**.Q*",
+                    "**.*Application*",
+                    "**.*MapperImpl*"
+            ]
+        }
+    }
+}
+
+// 빌드 시 검증 실행
+check.dependsOn jacocoTestCoverageVerification

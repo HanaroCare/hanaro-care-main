@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import {
   getPensionForecast,
@@ -65,18 +65,25 @@ export default function HomeValueForecastClient({ realAssetId }: Props) {
 
     try {
       const parsed = JSON.parse(saved) as PensionForecastResponse;
-      setForecast(parsed);
-      setSelectedScenario(mapScenarioTypeToKey(parsed.recommendedScenario));
+      if (parsed.realAssetId === realAssetId) {
+        setForecast(parsed);
+        setPeriod(String(parsed.periodYears) as PeriodKey);
+        setSelectedScenario(mapScenarioTypeToKey(parsed.recommendedScenario));
+      }
     } catch (error) {
       console.error('예측 결과 파싱 실패', error);
       setErrorMessage('예측 결과를 불러오지 못했어요.');
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [realAssetId]);
 
   useEffect(() => {
-    if (!realAssetId) return;
+    if (!Number.isFinite(realAssetId)) {
+      setIsLoading(false);
+      setErrorMessage('잘못된 주택 정보예요.');
+      return;
+    }
 
     startTransition(async () => {
       try {

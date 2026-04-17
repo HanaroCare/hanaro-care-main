@@ -5,8 +5,8 @@ import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import Header from '@/components/navigation/Header';
 import ShareSheet from '@/components/modules/ShareSheet';
+import Header from '@/components/navigation/Header';
 
 // --- 임시 데이터 및 인터페이스 ---
 interface FamilyMember {
@@ -478,9 +478,9 @@ export default function FamilyManagementPage() {
         />
 
         {isAddSheetOpen && (
-          <ShareSheet 
-            title="가족 추가하기" 
-            onClose={() => setIsAddSheetOpen(false)} 
+          <ShareSheet
+            title="가족 추가하기"
+            onClose={() => setIsAddSheetOpen(false)}
           />
         )}
 

@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { toPng } from 'html-to-image';
 import type { Route } from 'next';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Area,
@@ -28,6 +28,7 @@ import { type PensionType, pensionOptions } from '../../constants/constants';
 import { handleReservation } from '../../constants/trustUtils';
 
 const COMPLETION_PENSION_KEY = 'has_completed_pension';
+
 function LegendDot({ color }: { color: string }) {
   return (
     <span
@@ -64,7 +65,7 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (!realAssetId) {
+    if (!Number.isFinite(realAssetId)) {
       setErrorMessage('대상 주택 정보를 확인할 수 없어요.');
       setIsLoading(false);
       return;
@@ -99,10 +100,12 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
     fetchData();
   }, [realAssetId]);
 
-  const current = useMemo(
-    () => pensionOptions.find((item) => item.key === selectedType)!,
-    [selectedType],
-  );
+  const current = useMemo(() => {
+    return (
+      pensionOptions.find((item) => item.key === selectedType) ??
+      pensionOptions[0]
+    );
+  }, [selectedType]);
 
   const planMap = useMemo(() => {
     const result: Record<PensionType, PensionPayoutPlan | null> = {

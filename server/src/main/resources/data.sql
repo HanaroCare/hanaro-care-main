@@ -444,9 +444,11 @@ VALUES (1, 1001, 1000000000.00, 45000000.00);
 -- TB_INHERIT_DETAIL
 -- ========================
 INSERT INTO TB_INHERIT_DETAIL (INHERIT_DETAIL_ID, INHERIT_PLAN_ID, USER_ID, RELATION_CD, DIST_RATIO)
-VALUES (1, 1, 1002, 'CHILD', 0.50),
+VALUES (1, 1, 1002, 'CHILD', 0.20),
        (2, 1, 1003, 'SPOUSE', 0.50),
-       (3, 1, 1004, 'CHILD', 0.00);
+       (3, 1, 1004, 'CHILD', 0.20),
+       (4, 1, 1005, 'PARENT', 0.10);
+
 
 -- ========================
 -- TB_INHERIT_LETTER
@@ -462,7 +464,8 @@ INSERT INTO TB_FAMILY_AUTH (FAMILY_AUTH_ID, USER_GRANTOR_ID, USER_GRANTEE_ID,
                             RELATION_CD, IS_INS_VIEW, IS_CARD_VIEW, IS_PROXY_CLAIM, IS_TRUST_VIEW)
 VALUES (1, 1001, 1002, 'CHILD', 1, 1, 1, 1),
        (2, 1005, 1006, 'CHILD', 0, 0, 0, 0),
-       (3, 1001, 1004, 'CHILD', 1, 1, 1, 1);
+       (3, 1001, 1004, 'CHILD', 1, 1, 1, 1),
+       (4, 1001, 1005, 'PARENT', 1, 1, 1, 1);
 
 -- ========================
 -- TB_USER_LOGIN_LOG

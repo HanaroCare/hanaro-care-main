@@ -8,22 +8,22 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Schema(description = "주택연금 요약 카드 응답 — 메인/자산 화면용 빠른 조회")
+@Schema(description = "주택연금 요약 카드 응답")
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PensionSimulationSummaryResponse {
 
-	@Schema(description = "추천 수령 방식 타입", example = "FIXED", allowableValues = {"FIXED", "FRONT_LOADED", "GROWING"})
+	@Schema(description = "추천 수령 방식 타입", example = "FIXED")
 	private String recommendedType;
 
-	@Schema(description = "추천 수령 방식 한글명", example = "정액형")
+	@Schema(description = "추천 수령 방식 이름", example = "정액형")
 	private String recommendedLabel;
 
-	@Schema(description = "추천 방식 월 수령액 (원)", example = "3040000")
+	@Schema(description = "월 수령액", example = "3040000")
 	private BigDecimal recommendedMonthlyAmount;
 
-	@Schema(description = "추천 방식 20년 누적 수령액 (원)", example = "490000000")
+	@Schema(description = "누적 수령액", example = "490000000")
 	private BigDecimal recommendedCumulativeAmount;
 }
