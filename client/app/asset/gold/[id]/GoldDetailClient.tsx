@@ -1,18 +1,28 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import Header from '@/components/navigation/Header';
 import { InfoListCard } from '@/components/modules/InfoListCard';
 import { AssetChart } from '../../components/AssetChart';
+import { AssetDetailLayout } from '../../components/AssetDetailLayout';
 import { formatKoreanCurrency } from '../../utils/formatCurrency';
-import {AssetDetailResponse} from "@/app/asset/utils/types";
+import type { AssetDetailResponse } from '@/app/asset/utils/types';
 
 interface Props {
     assetData: AssetDetailResponse | null;
 }
 
+type GoldDesc = { purity?: string; weight_g?: string; price_per_gram?: string };
+
+function safeJsonParse<T>(json: string | null | undefined): T {
+    if (!json) return {} as T;
+    try {
+        return JSON.parse(json) as T;
+    } catch {
+        return {} as T;
+    }
+}
+
 export default function GoldDetailClient({ assetData }: Props) {
-    const router = useRouter();
 
     if (!assetData) {
         return (
@@ -25,12 +35,18 @@ export default function GoldDetailClient({ assetData }: Props) {
         );
     }
 
-    // 가라(Mock) 데이터 생성
+    const desc = safeJsonParse<GoldDesc>(assetData.assetDesc);
+    const purity = desc.purity ?? '';
+    const weightG = desc.weight_g ?? (assetData.assetSize ? String(assetData.assetSize) : '');
+    const pricePerGram = desc.price_per_gram
+        ? `${Number(desc.price_per_gram).toLocaleString('ko-KR')}원/g`
+        : '118,500원/g';
+    const itemNm = purity ? `금 현물 (${purity}K)` : assetData.assetNm;
+    const weightLabel = weightG ? `${weightG}g` : '정보 없음';
+
     const goldInfo = {
         priceChange: 800000,
         changePercent: 6.4,
-        weight: assetData.assetSize ? `${assetData.assetSize}g` : '100g',
-        avgPrice: '12.5만원/g',
         location: '하나은행 역삼동지점',
     };
 
@@ -44,15 +60,15 @@ export default function GoldDetailClient({ assetData }: Props) {
                         {assetData.assetNm}
                     </h2>
                     <p className="mt-1 text-[15px] text-hana-black-500">
-                        중량: {goldInfo.weight}
+                        중량: {weightLabel}
                     </p>
                     <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
-              {formatKoreanCurrency(assetData.amount)}
-            </span>
+                        <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
+                            {formatKoreanCurrency(assetData.amount)}
+                        </span>
                         <span className="font-medium text-[15px] text-hana-red-500">
-              ▲ {formatKoreanCurrency(goldInfo.priceChange)} ({goldInfo.changePercent}%)
-            </span>
+                            ▲ {formatKoreanCurrency(goldInfo.priceChange)} ({goldInfo.changePercent}%)
+                        </span>
                     </div>
                 </div>
 
@@ -78,9 +94,9 @@ export default function GoldDetailClient({ assetData }: Props) {
                 <InfoListCard
                     title="보유 정보"
                     items={[
-                        { label: '품목명', value: assetData.assetNm },
-                        { label: '보유량', value: goldInfo.weight },
-                        { label: '평균단가', value: goldInfo.avgPrice },
+                        { label: '품목명', value: itemNm },
+                        { label: '보유량', value: weightLabel },
+                        { label: '현재 시세', value: pricePerGram },
                         { label: '보관장소', value: goldInfo.location },
                     ]}
                 />
@@ -94,11 +110,6 @@ export default function GoldDetailClient({ assetData }: Props) {
                     ]}
                 />
 
-                <div className="w-full px-2">
-                    <p className="text-[12px] text-hana-black-400 leading-normal">
-                        * {assetData.assetDesc || '하나은행 금 현물 계좌를 통해 안전하게 보관 중입니다.'}
-                    </p>
-                </div>
             </main>
         </div>
     );

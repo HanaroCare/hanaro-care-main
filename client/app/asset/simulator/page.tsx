@@ -9,6 +9,8 @@ import {
   getLinkedHouses,
   getPensionSimulationSummary,
   getPensionStatus,
+  type PensionSimulationSummaryResponse,
+  type PensionStatusResponse,
 } from '@/app/asset/actions/pension';
 import {
   createSimulation,
@@ -34,6 +36,7 @@ import { LifeExpectancySlider } from '../components/simulator/LifeExpectancySlid
 import { ProductStatusCard } from '../components/simulator/ProductStatusCard';
 import SimulatorOnboarding from '../components/simulator/SimulatorOnboarding';
 import { SimulatorSummaryCard } from '../components/simulator/SimulatorSummaryCard';
+import { useProductStatus } from '../hooks/useProductStatus';
 import type { SimulationSummaryApiResponse } from '../utils/types';
 
 const ONBOARDING_KEY = 'has_seen_simulator_onboarding';
@@ -72,12 +75,10 @@ export default function SimulatorPage() {
     useState<TrustSimulationSummary | null>(null);
   const [myTrustProductSummary, setMyTrustProductSummary] =
     useState<TrustProductDetail | null>(null);
-  const [myPensionSimulationSummary, setMyPensionSimulationSummary] = useState<
-    any | null
-  >(null);
-  const [myPensionProductSummary, setMyPensionProductSummary] = useState<
-    any | null
-  >(null);
+  const [myPensionSimulationSummary, setMyPensionSimulationSummary] =
+    useState<PensionSimulationSummaryResponse | null>(null);
+  const [myPensionProductSummary, setMyPensionProductSummary] =
+    useState<PensionStatusResponse | null>(null);
   const [myPensionRealAssetId, setMyPensionRealAssetId] = useState<
     number | null
   >(null);
@@ -186,17 +187,8 @@ export default function SimulatorPage() {
     }
   };
 
-  const myTrustStatus = useMemo(() => {
-    if (myTrustProductSummary) return 'active';
-    if (myTrustSimulationSummary) return 'designed';
-    return 'recommend';
-  }, [myTrustProductSummary, myTrustSimulationSummary]);
-
-  const myPensionStatus = useMemo(() => {
-    if (myPensionProductSummary) return 'active';
-    if (myPensionSimulationSummary) return 'designed';
-    return 'recommend';
-  }, [myPensionProductSummary, myPensionSimulationSummary]);
+  const myTrustStatus = useProductStatus(myTrustProductSummary, myTrustSimulationSummary);
+  const myPensionStatus = useProductStatus(myPensionProductSummary, myPensionSimulationSummary);
 
   const parentAccessLevel = useMemo<TrustAccessLevel>(() => {
     if (grantors.some((item) => item.accessLevel === 'READ_WRITE')) {

@@ -4,23 +4,29 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   ChevronDown,
   ChevronRight,
-  CircleUserRound, // Lucide 아이콘 추가
+  CircleUserRound,
   Dna,
   FileHeart,
   Gift,
   Handshake,
   Heart,
+  LogOut,
   type LucideIcon,
   Mail,
   Shield,
+  UserMinus,
   UserPlus,
   Users,
 } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '@/components/navigation/Header';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
+import { getFamilyMembers, getMe } from '@/app/my/actions/familyActions';
+import { getInsurances } from '@/app/my/actions/insuranceActions';
+import { getMyInfo } from '@/app/dev/actions/admin';
+import { logout, withdraw } from './actions/authActions';
 
 /**
  * My하나 마이페이지
@@ -29,15 +35,73 @@ import { NavigationBar } from '@/components/navigation/NavigationBar';
  */
 export default function MyHanaPage() {
   const router = useRouter();
-  // 실제 연동 시에는 useSession이나 전역 상태에서 가져오는 값입니다.
   const [userRole, setUserRole] = useState<'parent' | 'child'>('parent');
+  const [userName, setUserName] = useState<string>('사용자');
+  const [familyCount, setFamilyCount] = useState<number>(0);
+  const [insuranceCount, setInsuranceCount] = useState<number>(0);
 
   const [isFuturePlanExpanded, setIsFuturePlanExpanded] = useState(false);
+  const [isWithdrawPopupOpen, setIsWithdrawPopupOpen] = useState(false);
+  const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
+
+  useEffect(() => {
+    // 1. 이름 조회 (가장 확실한 경로)
+    getMe().then((name) => {
+      if (name) setUserName(name);
+    }).catch(err => console.error("getMe error:", err));
+
+    // 2. 역할 조회 및 기본 정보 보완
+    getMyInfo().then((info) => {
+      if (info) {
+        // getMe가 실패했거나 아직 안 끝났을 경우를 대비해 보완
+        if (info.userName) setUserName(info.userName);
+        
+        if (info.userRole === 'ROLE_CHILD') {
+          setUserRole('child');
+        } else {
+          setUserRole('parent');
+        }
+      }
+    });
+
+    // 2. 가족 수 조회
+    getFamilyMembers().then((members) => {
+      if (members) {
+        setFamilyCount(members.length);
+      }
+    });
+
+    // 3. 보험 수 조회
+    getInsurances().then((data) => {
+      if (data && data.insurances) {
+        setInsuranceCount(data.insurances.length);
+      }
+    });
+  }, []);
+
+  const onLogoutClick = () => {
+    setIsLogoutPopupOpen(true);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setIsLogoutPopupOpen(false);
+  };
+
+  const handleWithdraw = async () => {
+    const res = await withdraw();
+    if (res.success) {
+      alert('회원 탈퇴가 완료되었습니다.');
+      router.push('/' as Route);
+    } else {
+      alert(res.message);
+    }
+    setIsWithdrawPopupOpen(false);
+  };
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <div className="flex h-full flex-col">
-        {/* --- 상단 헤더 --- */}
         <Header
           title="마이페이지"
           onBack={() => router.push('/' as Route)}
@@ -46,21 +110,18 @@ export default function MyHanaPage() {
         />
 
         <main className="no-scrollbar flex-1 pb-28">
-          {/* --- 프로필 섹션 --- */}
           <section className="flex flex-col items-center py-10">
-            {/* 이모티콘을 Lucide 아이콘으로 변경 */}
             <div className="mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-hana-green-100 bg-hana-green-50 shadow-sm">
               <CircleUserRound
                 className="h-20 w-20 text-hana-ez-600"
                 role="img"
-                aria-label="권하나의 프로필"
+                aria-label={`${userName}의 프로필`}
               />
             </div>
             <h2 className="font-bold text-2xl text-hana-black-900 tracking-tight">
-              권하나
+              {userName}
             </h2>
 
-            {/* 역할 전환 버튼 (개발용/테스트용) */}
             <button
               type="button"
               onClick={() =>
@@ -71,49 +132,44 @@ export default function MyHanaPage() {
               {userRole === 'parent' ? '부모 모드' : '자녀 모드'} (전환)
             </button>
 
-            {/* [자녀 모드] 가족/보험 통계 수치 */}
             {userRole === 'child' && (
               <div className="mt-8 flex w-full justify-around px-12 text-center">
                 <div>
-                  <p className="mb-1 text-hana-black-500 text-sm tracking-tight">
-                    가족
-                  </p>
-                  <p className="font-bold text-2xl text-hana-green-700">3</p>
+                  <p className="mb-1 text-hana-black-500 text-sm tracking-tight">가족</p>
+                  <p className="font-bold text-2xl text-hana-green-700">{familyCount}</p>
                 </div>
                 <div className="h-10 w-[1px] self-center bg-border" />
                 <div>
-                  <p className="mb-1 text-hana-black-500 text-sm tracking-tight">
-                    보험
-                  </p>
-                  <p className="font-bold text-2xl text-hana-green-700">5</p>
+                  <p className="mb-1 text-hana-black-500 text-sm tracking-tight">보험</p>
+                  <p className="font-bold text-2xl text-hana-green-700">{insuranceCount}</p>
                 </div>
               </div>
             )}
           </section>
 
-          {/* --- 메뉴 리스트 영역 --- */}
           <section className="space-y-1.5 px-6">
             <MenuItem
               Icon={Users}
               title="가족 관리"
               onClick={() => router.push('/my/family' as Route)}
             />
-            {/* TODO: 가족 보험 관리 기능 구현 시 연결 필요 */}
-            <MenuItem Icon={Shield} title="가족 보험 관리" disabled />
+            <MenuItem
+              Icon={Shield}
+              title="가족 보험 관리"
+              onClick={() => router.push('/my/insurance' as Route)}
+            />
 
             {userRole === 'parent' ? (
-              /* --- 부모 전용 메뉴 --- */
               <>
-                {/* TODO: 후견인 등록 기능 구현 시 연결 필요 */}
-                <MenuItem Icon={UserPlus} title="후견인 등록" disabled />
-
-                {/* 내 미래 설계하기 (아코디언 슬라이드) */}
+                <MenuItem
+                  Icon={UserPlus}
+                  title="후견인 등록"
+                  onClick={() => router.push('/my/guardian' as Route)}
+                />
                 <div className="py-1">
                   <button
                     type="button"
-                    onClick={() =>
-                      setIsFuturePlanExpanded(!isFuturePlanExpanded)
-                    }
+                    onClick={() => setIsFuturePlanExpanded(!isFuturePlanExpanded)}
                     className="group flex w-full items-center rounded-2xl p-4 transition-all hover:bg-gray-50"
                   >
                     <Dna className="mr-4 h-6 w-6 text-hana-ez-600 transition-transform group-hover:scale-110" />
@@ -128,7 +184,6 @@ export default function MyHanaPage() {
                     </motion.div>
                   </button>
 
-                  {/* 슬라이드 확장 영역 (Framer Motion 적용) */}
                   <AnimatePresence>
                     {isFuturePlanExpanded && (
                       <motion.div
@@ -143,16 +198,19 @@ export default function MyHanaPage() {
                             Icon={FileHeart}
                             title="연명의료 결정"
                             desc="사전연명의료의향서를 작성하세요"
+                            onClick={() => router.push('/future/advance-directive' as Route)}
                           />
                           <SubMenuItem
                             Icon={Handshake}
                             title="새생명 나눔"
                             desc="생명을 나누세요"
+                            onClick={() => router.push('/future/organ-donation' as Route)}
                           />
                           <SubMenuItem
                             Icon={Gift}
                             title="유산기부"
                             desc="당신의 이름이 희망이 됩니다"
+                            onClick={() => router.push('/future/legacy-donation' as Route)}
                           />
                         </div>
                       </motion.div>
@@ -160,9 +218,9 @@ export default function MyHanaPage() {
                   </AnimatePresence>
                 </div>
 
-                {/* 하단 지원제도 배너 */}
                 <motion.div
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/future/support' as Route)}
                   className="mt-8 flex cursor-pointer items-center justify-between rounded-2xl bg-hana-green-700 p-6 text-white shadow-md transition-all hover:brightness-105"
                 >
                   <div className="flex items-center space-x-4">
@@ -170,35 +228,93 @@ export default function MyHanaPage() {
                       <Heart className="h-5 w-5 fill-white text-white" />
                     </div>
                     <div>
-                      <p className="font-bold text-[17px] leading-snug tracking-tight">
-                        나를 위한 지원제도
-                      </p>
-                      <p className="mt-0.5 text-[12px] text-hana-green-50/80 tracking-tight">
-                        맞춤 혜택 바로가기
-                      </p>
+                      <p className="font-bold text-[17px] leading-snug tracking-tight">나를 위한 지원제도</p>
+                      <p className="mt-0.5 text-[12px] text-hana-green-50/80 tracking-tight">맞춤 혜택 바로가기</p>
                     </div>
                   </div>
                   <ChevronRight className="h-6 w-6 text-hana-green-100" />
                 </motion.div>
               </>
             ) : (
-              /* --- 자녀 전용 메뉴 --- */
-              <>
-                {/* TODO: 부모님 편지 보기 기능 구현 시 연결 필요 */}
-                <MenuItem Icon={Mail} title="부모님 편지 보기" disabled />
-              </>
+              <MenuItem Icon={Mail} title="부모님 편지 보기" disabled />
             )}
+
+            <div className="mt-8 space-y-1 pt-4 border-t border-gray-100">
+              <MenuItem Icon={LogOut} title="로그아웃" onClick={onLogoutClick} />
+              <MenuItem Icon={UserMinus} title="회원 탈퇴" onClick={() => setIsWithdrawPopupOpen(true)} />
+            </div>
           </section>
         </main>
 
-        {/* --- 하단 네비게이션 --- */}
         <NavigationBar />
       </div>
+
+      <ConfirmPopup
+        isOpen={isLogoutPopupOpen}
+        onClose={() => setIsLogoutPopupOpen(false)}
+        onConfirm={handleLogout}
+        title="로그아웃"
+        description="정말 로그아웃 하시겠습니까?"
+        confirmText="로그아웃"
+      />
+
+      <ConfirmPopup
+        isOpen={isWithdrawPopupOpen}
+        onClose={() => setIsWithdrawPopupOpen(false)}
+        onConfirm={handleWithdraw}
+        title="회원 탈퇴"
+        description="정말 탈퇴하시겠습니까? 탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다."
+        confirmText="탈퇴하기"
+        confirmButtonClass="bg-red-500"
+      />
     </div>
   );
 }
 
-// --- 하위 컴포넌트 ---
+function ConfirmPopup({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  description,
+  confirmText = '확인',
+  confirmButtonClass = 'bg-hana-ez-600',
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  description: string;
+  confirmText?: string;
+  confirmButtonClass?: string;
+}) {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className="fade-in zoom-in relative w-full animate-in rounded-3xl bg-white p-8 shadow-xl duration-200">
+        <div className="flex flex-col items-center text-center">
+          <h3 className="mb-3 font-bold text-[#1A1A1A] text-xl">{title}</h3>
+          <p className="mb-8 text-[#5A5A5A] text-sm leading-relaxed">{description}</p>
+          <div className="flex w-full gap-3">
+            <button
+              onClick={onClose}
+              className="h-14 flex-1 rounded-2xl bg-gray-100 font-bold text-[#5A5A5A]"
+            >
+              취소
+            </button>
+            <button
+              onClick={onConfirm}
+              className={`h-14 flex-1 rounded-2xl font-bold text-white ${confirmButtonClass}`}
+            >
+              {confirmText}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function MenuItem({
   Icon,
@@ -225,9 +341,7 @@ function MenuItem({
       <Icon
         className={`mr-4 h-6 w-6 ${disabled ? 'text-gray-400' : 'text-hana-ez-600'} transition-transform ${!disabled && 'group-hover:scale-110'}`}
       />
-      <span className="flex-1 text-left font-semibold text-hana-black-800 tracking-tight">
-        {title}
-      </span>
+      <span className="flex-1 text-left font-semibold text-hana-black-800 tracking-tight">{title}</span>
       {!disabled && (
         <ChevronRight className="h-5 w-5 text-hana-black-400 transition-transform group-hover:translate-x-1" />
       )}
@@ -239,24 +353,22 @@ function SubMenuItem({
   Icon,
   title,
   desc,
+  onClick,
 }: {
   Icon: LucideIcon;
   title: string;
   desc: string;
+  onClick?: () => void;
 }) {
   return (
-    <div className="group/sub flex cursor-pointer items-center justify-between">
+    <div className="group/sub flex cursor-pointer items-center justify-between" onClick={onClick}>
       <div className="flex items-center space-x-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white shadow-sm">
           <Icon className="h-5 w-5 text-hana-ez-600" />
         </div>
         <div>
-          <p className="font-bold text-[15px] text-hana-black-900 leading-tight tracking-tight">
-            {title}
-          </p>
-          <p className="mt-0.5 text-[11px] text-hana-black-500 tracking-tight">
-            {desc}
-          </p>
+          <p className="font-bold text-[15px] text-hana-black-900 leading-tight tracking-tight">{title}</p>
+          <p className="mt-0.5 text-[11px] text-hana-black-500 tracking-tight">{desc}</p>
         </div>
       </div>
       <ChevronRight className="h-4 w-4 text-hana-black-300 transition-transform group-hover/sub:translate-x-1" />

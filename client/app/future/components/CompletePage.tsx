@@ -7,9 +7,15 @@ import CompleteStep from "@/components/modules/CompleteStep";
 
 interface CompletePageProps {
   confirmHref: Route;
+  documentDownloadSrc?: string;
+  registerHref?: string;
 }
 
-export default function CompletePage({ confirmHref }: CompletePageProps) {
+export default function CompletePage({
+  confirmHref,
+  documentDownloadSrc,
+  registerHref,
+}: CompletePageProps) {
   const router = useRouter();
 
   return (
@@ -26,24 +32,50 @@ export default function CompletePage({ confirmHref }: CompletePageProps) {
           </button>
 
           <div className="flex flex-row gap-[10px]">
-            <button
-              type="button"
-              className="flex flex-row items-center justify-center gap-[8px] flex-1 h-[53px] rounded-[10px] border border-[#C4C4C4]"
-            >
-              <Printer size={24} color="#C4C4C4" />
-              <span className="font-medium text-[14px] leading-[20px] tracking-[-0.31px] text-[#C4C4C4]">
-                서류 작성하기
-              </span>
-            </button>
-            <button
-              type="button"
-              className="flex flex-row items-center justify-center gap-[8px] flex-1 h-[53px] rounded-[10px] border border-[#C4C4C4]"
-            >
-              <FileText size={24} color="#C4C4C4" />
-              <span className="font-medium text-[14px] leading-[20px] tracking-[-0.31px] text-[#C4C4C4]">
-                등록하러 가기
-              </span>
-            </button>
+            {documentDownloadSrc ? (
+              <a
+                href={documentDownloadSrc}
+                download
+                className="flex flex-row items-center justify-center gap-[8px] flex-1 h-[53px] rounded-[10px] border border-[#01A5AC]"
+              >
+                <Printer size={24} color="#01A5AC" />
+                <span className="font-medium text-[14px] leading-[20px] tracking-[-0.31px] text-[#01A5AC]">
+                  서류 다운로드
+                </span>
+              </a>
+            ) : (
+              <button
+                type="button"
+                className="flex flex-row items-center justify-center gap-[8px] flex-1 h-[53px] rounded-[10px] border border-[#C4C4C4]"
+              >
+                <Printer size={24} color="#C4C4C4" />
+                <span className="font-medium text-[14px] leading-[20px] tracking-[-0.31px] text-[#C4C4C4]">
+                  서류 다운로드
+                </span>
+              </button>
+            )}
+            {registerHref ? (
+              <button
+                type="button"
+                onClick={() => window.open(registerHref, "_blank", "noopener,noreferrer")}
+                className="flex flex-row items-center justify-center gap-[8px] flex-1 h-[53px] rounded-[10px] border border-[#01A5AC]"
+              >
+                <FileText size={24} color="#01A5AC" />
+                <span className="font-medium text-[14px] leading-[20px] tracking-[-0.31px] text-[#01A5AC]">
+                  등록하러 가기
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="flex flex-row items-center justify-center gap-[8px] flex-1 h-[53px] rounded-[10px] border border-[#C4C4C4]"
+              >
+                <FileText size={24} color="#C4C4C4" />
+                <span className="font-medium text-[14px] leading-[20px] tracking-[-0.31px] text-[#C4C4C4]">
+                  등록하러 가기
+                </span>
+              </button>
+            )}
           </div>
         </div>
       }

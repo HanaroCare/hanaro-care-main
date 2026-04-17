@@ -182,4 +182,11 @@ public class CardController {
       @PathVariable Long cardId) {
     return ApiResponse.onSuccess(cardService.getCardBalance(subscriberDTO.getUserId(), cardId));
   }
+
+  @GetMapping("/usages/{usageId}")
+  public ApiResponse<CardUsageResponse> getCardUsage(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+      @PathVariable Long usageId) {
+    return ApiResponse.onSuccess(cardService.getCardUsage(subscriberDTO.getUserId(), usageId));
+  }
 }

@@ -2,7 +2,7 @@ export type Screen = 'family' | 'main' | 'detail'; // 보험 기본 정보
 
 // 보험 정보
 export interface InsuranceDto {
-  accountId: number;
+  accountId: string;
   instNm: string;
   accountNm: string;
   monthlyPremAmt: number;

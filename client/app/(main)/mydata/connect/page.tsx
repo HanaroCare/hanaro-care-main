@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getBannerStatus } from '@/app/asset/actions/notificationStatus';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import CompleteStep from '@/components/modules/CompleteStep';
 import AgencySelectStep from '../components/AgencySelectStep';
@@ -10,27 +11,36 @@ import ConsentStep from '../components/ConsentStep';
 import IntroStep from '../components/IntroStep';
 import LoadingStep from '../components/LoadingStep';
 import SuccessModal from '../components/SuccessModal';
+import { getConnectableAssets, updateAssetLinkStatus } from './actions/mydata';
 
 type Step = 'consent' | 'intro' | 'select' | 'loading' | 'complete';
 
 export default function MyDataConnectPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('consent');
-  const [isCustomSelection, setIsCustomSelection] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userName, setUserName] = useState('사용자');
 
-  const handleConsentNext = () => {
-    setIsCustomSelection(false);
-    setStep('intro');
+  useEffect(() => {
+    getBannerStatus().then((s) => {
+      if (s.userName) setUserName(s.userName);
+    });
+  }, []);
+
+  const handleConsentNext = () => setStep('intro');
+
+  const handleCustomSelectMode = () => setStep('select');
+
+  const handleIntroConfirm = async () => {
+    const accounts = await getConnectableAssets();
+    await updateAssetLinkStatus(accounts.map((a) => a.accountId));
+    setStep('loading');
   };
 
-  const handleCustomSelectMode = () => {
-    setIsCustomSelection(true);
-    setStep('select');
+  const handleAgencySelectComplete = async (selectedIds: string[]) => {
+    await updateAssetLinkStatus(selectedIds);
+    setStep('loading');
   };
-
-  const handleIntroConfirm = () => setStep('loading');
-  const handleAgencySelectComplete = () => setStep('loading');
 
   const handleLoadingComplete = () => {
     setStep('complete');
@@ -42,9 +52,7 @@ export default function MyDataConnectPage() {
     router.push('/mydata/house');
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
+  const handleModalClose = () => setIsModalOpen(false);
 
   return (
     <div className="app-shell bg-background">
@@ -62,6 +70,7 @@ export default function MyDataConnectPage() {
               {step === 'consent' && <ConsentStep onNext={handleConsentNext} />}
               {step === 'intro' && (
                 <IntroStep
+                  name={userName}
                   onConfirm={handleIntroConfirm}
                   onCustomMode={handleCustomSelectMode}
                 />
@@ -70,7 +79,7 @@ export default function MyDataConnectPage() {
                 <AgencySelectStep onNext={handleAgencySelectComplete} />
               )}
               {step === 'loading' && (
-                <LoadingStep onComplete={handleLoadingComplete} />
+                <LoadingStep name={userName} onComplete={handleLoadingComplete} />
               )}
 
               {step === 'complete' && (
@@ -78,7 +87,7 @@ export default function MyDataConnectPage() {
                   footer={
                     <PrimaryButton
                       label="확인하기"
-                      onClick={() => router.push('/mydata/main')}
+                      onClick={() => router.push('/asset')}
                     />
                   }
                 >

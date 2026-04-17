@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { Suspense } from "react";
 import { useIssueSteps } from "./hooks/useIssueSteps";
 import StepLimitSlider from "./components/StepLimitSlider";
 import StepAccountSelect from "./components/StepAccountSelect";
@@ -10,9 +9,13 @@ import StepFamilyShare from "./components/StepFamilyShare";
 import CompleteModal from "./components/CompleteModal";
 import { Route } from "next";
 import Header from "@/components/navigation/Header";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-export default function CardIssuePage() {
+function CardIssueContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const designId = searchParams.get("designId") ?? "1";
   const {
     currentStep,
     visibleSteps,
@@ -23,10 +26,10 @@ export default function CardIssuePage() {
     toggleAllMembers,
     nextStep,
     topRef,
-  } = useIssueSteps();
+  } = useIssueSteps(designId);
 
   const handleConfirm = () => {
-    router.push("/card/add/complete" as Route);
+    router.push(`/card/add/complete?designId=${designId}` as Route);
   };
 
   const handleReset = () => {
@@ -71,7 +74,7 @@ export default function CardIssuePage() {
         {visibleSteps.includes("account") && (
           <StepAccountSelect
             value={formData.accountId}
-            onChange={(accountId) => updateFormData({ accountId })}
+            onChange={(accountId: number) => updateFormData({ accountId })}
             onNext={nextStep}
             isActive={currentStep === "account"}
           />
@@ -83,6 +86,7 @@ export default function CardIssuePage() {
             onChange={(val) => updateFormData({ limitAmt: val })}
             onNext={nextStep}
             isActive={currentStep === "limit"}
+            onPayDayChange={(day) => updateFormData({ payDay: day })} // 추가
           />
         )}
       </div>
@@ -92,5 +96,13 @@ export default function CardIssuePage() {
         <CompleteModal onConfirm={handleConfirm} onReset={handleReset} />
       )}
     </div>
+  );
+}
+
+export default function CardIssuePage() {
+  return (
+    <Suspense>
+      <CardIssueContent />
+    </Suspense>
   );
 }

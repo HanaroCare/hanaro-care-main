@@ -4,6 +4,7 @@ import com.server.asset.dto.pension.PensionForecastInternalDto;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -11,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Configuration
 @EnableCaching
+@EnableAsync
 public class CacheConfig {
 
 	@Bean(name = "pensionForecastKeyGenerator")

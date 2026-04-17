@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { motion } from 'framer-motion';
-import { Home, PieChart, User, Wallet } from 'lucide-react';
-import type { Route } from 'next';
-import { usePathname, useRouter } from 'next/navigation';
+import { motion } from "framer-motion";
+import { Home, PieChart, User, Wallet } from "lucide-react";
+import type { Route } from "next";
+import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-  { id: 'home', label: '홈', Icon: Home, href: '/' },
+  { id: "home", label: "홈", Icon: Home, href: "/" },
   {
-    id: 'assets',
-    label: '자산 설계',
+    id: "assets",
+    label: "자산 설계",
     Icon: PieChart,
-    href: '/asset/simulator',
+    href: "/asset/simulator",
   },
-  { id: 'wallet', label: '돌봄 지갑', Icon: Wallet, href: '/wallet' },
-  { id: 'my', label: 'My하나', Icon: User, href: '/my' },
+  { id: "card", label: "돌봄 지갑", Icon: Wallet, href: "/card" },
+  { id: "my", label: "My하나", Icon: User, href: "/my" },
 ];
 
 export function NavigationBar() {
@@ -31,12 +31,12 @@ export function NavigationBar() {
         {NAV_ITEMS.map(({ id, label, Icon, href }) => {
           // 활성화 로직 상세 설정
           let isActive = false;
-          if (id === 'home') {
+          if (id === "home") {
             // 메인 홈이거나, 시뮬레이터가 아닌 일반 자산(/asset) 페이지들인 경우 '홈' 활성화
             isActive =
-              pathname === '/' ||
-              (pathname.startsWith('/asset') &&
-                !pathname.startsWith('/asset/simulator'));
+              pathname === "/" ||
+              (pathname.startsWith("/asset") &&
+                !pathname.startsWith("/asset/simulator"));
           } else {
             // 나머지는 해당 경로로 시작할 때 활성화
             isActive = pathname.startsWith(href);
@@ -53,12 +53,12 @@ export function NavigationBar() {
                 size={24}
                 strokeWidth={2}
                 className={
-                  isActive ? 'text-hana-green-700' : 'text-hana-black-400'
+                  isActive ? "text-hana-green-700" : "text-hana-black-400"
                 }
                 aria-hidden="true"
               />
               <span
-                className={`font-semibold text-[12px] ${isActive ? 'text-hana-green-700' : 'text-hana-black-400'}`}
+                className={`font-semibold text-[12px] ${isActive ? "text-hana-green-700" : "text-hana-black-400"}`}
               >
                 {label}
               </span>

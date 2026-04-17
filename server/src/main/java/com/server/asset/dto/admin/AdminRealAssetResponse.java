@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AdminRealAssetResponse {
 
-	private Long realAssetId;
+	private String realAssetId;
 	private String assetNm;
 	private String addr;
 	private BigDecimal evalAmt;
@@ -23,7 +23,7 @@ public class AdminRealAssetResponse {
 
 	public static AdminRealAssetResponse from(TBRealAsset asset) {
 		return AdminRealAssetResponse.builder()
-			.realAssetId(asset.getRealAssetId())
+			.realAssetId(String.valueOf(asset.getRealAssetId()))
 			.assetNm(asset.getAssetNm())
 			.addr(asset.getAddr())
 			.evalAmt(asset.getEvalAmt())

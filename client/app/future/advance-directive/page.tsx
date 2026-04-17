@@ -29,8 +29,9 @@ export default function AdvanceDirectivePage() {
       <ConsentIntro
         videoSubtitle="동영상으로 이해하는"
         videoTitle="사전연명의료의향서"
+        videoSrc="https://www.youtube.com/embed/yKhqQDATY-M?playsinline=1&rel=0"
         faqItems={faqItems}
-        consultHref={"/future/advance-directive/consult" as Route}
+        consultHref={"tel:18550075" as Route}
         applyHref={"/future/advance-directive/hospice" as Route}
         applyLabel="신청서 작성하기"
       />

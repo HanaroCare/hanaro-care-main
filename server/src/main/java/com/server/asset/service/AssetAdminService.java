@@ -1,5 +1,15 @@
 package com.server.asset.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+
 import com.server.asset.dto.admin.AdminRealAssetResponse;
 import com.server.asset.dto.admin.AdminUserDetailResponse;
 import com.server.asset.dto.admin.AdminUserSearchResponse;
@@ -28,14 +38,9 @@ import com.server.user.entity.TBFamilyAuth;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -45,6 +50,7 @@ public class AssetAdminService {
   private final UserRepository userRepository;
   private final TrustRepository trustRepository;
   private final SimulationRefreshService simulationRefreshService;
+  private final SimulationAsyncService simulationAsyncService;
   private final UserProdRepository userProdRepository;
   private final ProductRepository productRepository;
   private final TrustMapper trustMapper;
@@ -86,9 +92,11 @@ public class AssetAdminService {
 
   @Transactional
   public Long subscribeTrustProduct(Long userId) {
+    // 1. 유저 락 획득 (동시 가입 시도 직렬화)
     TBUser user = userRepository.findByIdWithLock(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_USER_NOT_FOUND));
 
+    // 2. 가입 여부 체크
     if (userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
         userId, ProdType.TRUST, ProdStat.IN_PROGRESS
     )) {
@@ -99,7 +107,7 @@ public class AssetAdminService {
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_SIMULATION_NOT_FOUND));
 
     TBProduct product = productRepository
-        .findByProdCate(ProdCate.TRUST)
+        .findFirstByProdCate(ProdCate.TRUST)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_FIXED_PRODUCT_NOT_FOUND));
 
     BigDecimal principal = TrustCalculator.defaultIfNull(simulation.getPrincipalAmount());
@@ -108,6 +116,7 @@ public class AssetAdminService {
 
     TBUserProd userProd = trustMapper.toUserProd(simulation, user, product, principal, detail);
 
+    // 시작 타입에 따른 상태 처리
     if (simulation.getStartType() == StartType.CUSTOM) {
       userProd.setProdStat(ProdStat.PENDING);
     } else if (simulation.getStartType() == StartType.NOW) {
@@ -115,6 +124,7 @@ public class AssetAdminService {
       userProd.setProdStat(ProdStat.IN_PROGRESS);
     }
 
+    // 사후수익자(대리인) 처리
     TBUser claimAgent = simulation.getClaimAgent();
     if (claimAgent != null) {
       userProd.setIsAgentView(true);
@@ -134,11 +144,14 @@ public class AssetAdminService {
     }
   }
 
+
   @Transactional
   public Long subscribePensionProduct(Long userId, Long realAssetId) {
+    // 1. 유저 락 획득
     TBUser user = userRepository.findByIdWithLock(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_USER_NOT_FOUND));
 
+    // 2. 중복 가입 체크
     if (userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
         userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS
     )) {
@@ -152,7 +165,7 @@ public class AssetAdminService {
       throw new ApiException(ErrorStatus._FORBIDDEN);
     }
 
-    TBProduct product = productRepository.findByProdCate(ProdCate.PENSION)
+    TBProduct product = productRepository.findFirstByProdCate(ProdCate.PENSION)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_PRODUCT_NOT_FOUND));
 
     try {
@@ -164,7 +177,15 @@ public class AssetAdminService {
           pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(), simulation)
       );
 
-      simulationRefreshService.enqueue(userId);
+      // 커밋 완료 후 백그라운드에서 즉시 시뮬레이션 재실행
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCommit() {
+          simulationAsyncService.rerunAfterAssetChange(userId);
+          log.info("[주택연금 가입] 커밋 후 비동기 시뮬레이션 재실행 요청: userId={}", userId);
+        }
+      });
+
       return savedProd.getUserProdId();
     } catch (DataIntegrityViolationException e) {
       log.warn("주택연금 중복 가입 시도 차단: userId={}, assetId={}", userId, realAssetId);

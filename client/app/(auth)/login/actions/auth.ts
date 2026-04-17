@@ -25,7 +25,7 @@ export async function login(loginId: string, userPwd: string): Promise<LoginResu
       const body = await res.json().catch(() => ({}));
       if (body.accessToken) {
         const jar = await cookies();
-        jar.set("AUTH_TOKEN", body.accessToken, {
+        jar.set("ACCESS_TOKEN", body.accessToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
@@ -61,7 +61,7 @@ export async function loginWithHanaCert(
       const body = await res.json().catch(() => ({}));
       if (body.accessToken) {
         const jar = await cookies();
-        jar.set("AUTH_TOKEN", body.accessToken, {
+        jar.set("ACCESS_TOKEN", body.accessToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",

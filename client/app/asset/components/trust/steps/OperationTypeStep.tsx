@@ -46,7 +46,7 @@ export default function OperationTypeStep() {
   const router = useRouter();
   const { form, setOperationType } = useTrustForm();
   const [selected, setSelected] = useState<OperationTypeValue>(
-    form.operationType,
+    form.operationType as OperationTypeValue,
   );
 
   const handleNext = () => {

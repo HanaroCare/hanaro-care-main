@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown } from "lucide-react";
+import { getCardAccounts, Account } from "../../../actions/card";
 
 interface StepAccountSelectProps {
   value: number | null;
@@ -10,23 +11,33 @@ interface StepAccountSelectProps {
   isActive: boolean;
 }
 
-const ACCOUNTS = [
-  { id: 1, label: "하나은행 123-123456-12345", balance: 1454927 },
-  { id: 2, label: "국민은행 456-789012-34567", balance: 830000 },
-  { id: 3, label: "신한은행 789-012345-67890", balance: 320000 },
-];
-
 export default function StepAccountSelect({
   value,
   onChange,
   onNext,
   isActive,
 }: StepAccountSelectProps) {
-  const [selectedAccount, setSelectedAccount] = useState(
-    ACCOUNTS.find((a) => a.id === value) ?? ACCOUNTS[0],
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
+    value,
   );
   const [showDropdown, setShowDropdown] = useState(false);
   const [touched, setTouched] = useState(false);
+
+  const selectedAccount = accounts.find(
+    (a) => a.accountId === selectedAccountId,
+  );
+
+  useEffect(() => {
+    getCardAccounts().then((data) => {
+      setAccounts(data);
+      if (data.length > 0) {
+        setSelectedAccountId(data[0].accountId);
+        onChange(data[0].accountId);
+        setTouched(true);
+      }
+    });
+  }, []);
 
   return (
     <div className="page-in px-8 pt-8 pb-6 border-t border-border-gray">
@@ -37,17 +48,14 @@ export default function StepAccountSelect({
       <div className="mt-6 relative">
         <button
           disabled={!isActive}
-          onClick={() => {
-            setShowDropdown(!showDropdown);
-            setTouched(true);
-          }}
+          onClick={() => setShowDropdown(!showDropdown)}
           className="flex items-center justify-between w-full h-[50px] px-4 border border-[#E3E5E8] rounded-xl bg-white"
         >
-          <div className="text-left">
-            <p className="text-sm font-medium tracking-tight text-hana-black-600">
-              {selectedAccount.label}
-            </p>
-          </div>
+          <p className="text-sm font-medium tracking-tight text-hana-black-600">
+            {selectedAccount
+              ? `${selectedAccount.instNm} ${selectedAccount.accountNum}`
+              : "계좌 선택"}
+          </p>
           <ChevronDown
             size={16}
             color="#E5E5E5"
@@ -61,24 +69,22 @@ export default function StepAccountSelect({
 
         {showDropdown && isActive && (
           <div className="absolute left-0 right-0 bg-white border border-[#E3E5E8] rounded-xl shadow-lg z-10 mt-1">
-            {ACCOUNTS.map((a) => (
+            {accounts.map((a) => (
               <button
-                key={a.id}
+                key={a.accountId}
                 onClick={() => {
-                  setSelectedAccount(a);
-                  onChange(a.id); // 추가
+                  setSelectedAccountId(a.accountId);
+                  onChange(a.accountId);
                   setShowDropdown(false);
                   setTouched(true);
                 }}
-                className={`w-full px-4 py-3 text-left flex justify-between items-center hover:bg-hana-silver-50 ${
-                  selectedAccount.id === a.id ? "bg-hana-green-50" : ""
-                }`}
+                className={`w-full px-4 py-3 text-left flex justify-between items-center hover:bg-hana-silver-50 ${selectedAccountId === a.accountId ? "bg-hana-green-50" : ""}`}
               >
                 <p className="text-sm font-medium text-hana-black-800">
-                  {a.label}
+                  {a.instNm} {a.accountNum}
                 </p>
                 <p className="text-sm text-hana-black-500">
-                  {a.balance.toLocaleString()}원
+                  {a.balanceAmt.toLocaleString()}원
                 </p>
               </button>
             ))}
@@ -88,7 +94,7 @@ export default function StepAccountSelect({
 
       {isActive && (
         <button
-          onClick={() => onNext()}
+          onClick={onNext}
           disabled={!touched}
           className="mt-6 w-full h-[53px] rounded-xl text-white text-base font-medium transition-colors disabled:bg-gray-200 disabled:text-gray-400 bg-hana-ez-600 hover:bg-hana-green-700"
         >

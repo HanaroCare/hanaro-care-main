@@ -39,7 +39,7 @@ export type AdminRealAssetItem = {
 
 export async function getMyInfo(): Promise<MyInfo | null> {
   try {
-    return await serverFetch<MyInfo>('/api/admin/me');
+    return await serverFetch<MyInfo>('/api/users/me');
   } catch {
     return null;
   }
@@ -98,4 +98,30 @@ export async function enableAgentView(userId: number): Promise<string> {
       method: 'POST',
     },
   );
+}
+
+export async function runTrustBatch(date?: string): Promise<string> {
+  const query = date ? `?date=${date}` : '';
+  return serverFetch<string>(`/api/admin/asset/batch/trust${query}`, {
+    method: 'POST',
+  });
+}
+
+export async function runPensionBatch(date?: string): Promise<string> {
+  const query = date ? `?date=${date}` : '';
+  return serverFetch<string>(`/api/admin/asset/batch/pension${query}`, {
+    method: 'POST',
+  });
+}
+
+export async function runSimulationEnqueue(): Promise<string> {
+  return serverFetch<string>('/api/admin/asset/simulation/enqueue', {
+    method: 'POST',
+  });
+}
+
+export async function runSimulationBatchRun(): Promise<string> {
+  return serverFetch<string>('/api/admin/asset/simulation/batch-run', {
+    method: 'POST',
+  });
 }
