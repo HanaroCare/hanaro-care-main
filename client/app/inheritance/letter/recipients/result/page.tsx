@@ -35,6 +35,7 @@ export default async function InheritanceCompletePage({
   );
 
   const result = {
+    inheritDetailId: inheritDetailId,
     nickname: resolvedSearchParams.nickname || '가족',
     relationCode: currentSummary?.username || '가족',
     distRatio: currentSummary?.percent || 0,

@@ -1,16 +1,16 @@
 'use client';
 
-import { AlertCircle, User, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, User } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
-import { NavigationBar } from '@/components/navigation/NavigationBar';
-import { TabNavigation } from '@/components/navigation/TabNavigation';
 import {
   getPlanSummary,
-  InheritancePlanResponse,
+  type InheritancePlanResponse,
 } from '@/app/inheritance/actions/plan';
+import { NavigationBar } from '@/components/navigation/NavigationBar';
+import { TabNavigation } from '@/components/navigation/TabNavigation';
 import styles from './page.module.css';
 
 const COLORS = [
