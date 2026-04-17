@@ -176,8 +176,6 @@ export default function SimulatorPage() {
       });
       if (response) {
         localStorage.setItem(COMPLETION_KEY, 'true');
-        setHasResult(true);
-        setIsRecalculating(false);
         router.push('/asset/simulator/result' as Route);
       }
     } catch (error) {
