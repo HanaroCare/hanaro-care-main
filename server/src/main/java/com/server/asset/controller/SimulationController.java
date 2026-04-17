@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -47,10 +46,9 @@ public class SimulationController {
   @Operation(summary = "시뮬레이션 상세 조회", description = "가장 최근 시뮬레이션의 상세 내역(연령대별 지출 등)을 조회합니다.")
   @GetMapping("/detail")
   public ApiResponse<SimulationDetailResponse> getSimulationDetail(
-      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @ModelAttribute SimulationRequest request
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO
   ) {
     return ApiResponse.onSuccess(
-        simulationService.getSimulationDetail(subscriberDTO.getUserId(), request));
+        simulationService.getSimulationDetail(subscriberDTO.getUserId()));
   }
 }
