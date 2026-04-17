@@ -68,7 +68,7 @@ public class PensionForecastInternalDto {
 		private String modelVersion;
 
 		@Schema(description = "예측 시각", example = "2026-04-14T21:00:00")
-		private LocalDateTime predictedAt;
+		private String predictedAt;
 	}
 
 	@Getter
