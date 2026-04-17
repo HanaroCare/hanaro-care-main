@@ -6,7 +6,7 @@ import { useRef } from 'react';
 import LetterCard from '@/app/inheritance/components/letter/LetterCard';
 import LetterSummary from '@/app/inheritance/components/letter/LetterSummary';
 import DualActionFooter from '@/components/modules/DualActionFooter';
-import {LetterType} from "@/app/inheritance/letter/types";
+import { LetterType } from "@/app/inheritance/letter/types";
 
 interface LetterResultProps {
   result: {
@@ -35,7 +35,7 @@ export default function LetterResult({ result, method }: LetterResultProps) {
     };
 
     if (navigator.share) {
-      await navigator.share(shareData).catch(() => {});
+      await navigator.share(shareData).catch(() => { });
     } else {
       await navigator.clipboard.writeText(
         isLetter ? result.letterContent : result.voiceUrl,
@@ -72,7 +72,7 @@ export default function LetterResult({ result, method }: LetterResultProps) {
           recipientName={result.relationCode}
           message={result.letterContent}
           audioUrl={result.voiceUrl}
-          letterType={result.letterType}
+          letterType={result.letterType as LetterType}
         />
       </div>
 

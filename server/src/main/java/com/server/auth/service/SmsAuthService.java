@@ -8,13 +8,15 @@ import com.server.user.entity.TBUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.repository.UserRepository;
+import jakarta.annotation.PostConstruct;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -26,9 +28,26 @@ public class SmsAuthService {
   private static final DateTimeFormatter FMT =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Seoul"));
 
+  private static final String KEY_AUTH     = "sms:auth:";
+  private static final String KEY_VERIFIED = "sms:verified:";
+  private static final long   AUTH_TTL_MIN     = 3L;
+  private static final long   VERIFIED_TTL_MIN = 5L;
+
   private final SmsService smsService;
   private final UserRepository userRepository;
-  private final ConcurrentHashMap<String, PhoneAuthRecord> store = new ConcurrentHashMap<>();
+  private final StringRedisTemplate redisTemplate;
+
+  /** 애플리케이션 기동 시 Redis 연결 가능 여부를 즉시 확인한다. */
+  @PostConstruct
+  public void checkRedisConnection() {
+    try {
+      String pong = redisTemplate.getConnectionFactory()
+          .getConnection().ping();
+      log.info("[SmsAuthService] Redis 연결 확인 OK — PING={}", pong);
+    } catch (Exception e) {
+      log.error("[SmsAuthService] ★★★ Redis 연결 실패 ★★★ — 인증번호 저장 불가. 원인: {}", e.getMessage(), e);
+    }
+  }
 
   private static String normalize(String phone) {
     if (phone == null) return "";
@@ -44,12 +63,21 @@ public class SmsAuthService {
     String phone = normalize(rawPhone);
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));
 
-    boolean replaced = store.containsKey(phone);
-    store.put(phone, new PhoneAuthRecord(code));
+    // ① Redis에 먼저 저장 — 실패하면 SMS 발송하지 않음
+    boolean replaced = Boolean.TRUE.equals(redisTemplate.hasKey(KEY_AUTH + phone));
+    try {
+      redisTemplate.opsForValue().set(KEY_AUTH + phone, code, AUTH_TTL_MIN, TimeUnit.MINUTES);
+      log.info("[인증번호 Redis 저장 완료] key={} ttl={}min 이전레코드교체={}",
+          KEY_AUTH + maskPhone(phone), AUTH_TTL_MIN, replaced);
+    } catch (Exception e) {
+      log.error("[인증번호 Redis 저장 실패] key={} 원인={}", KEY_AUTH + maskPhone(phone), e.getMessage(), e);
+      throw new ApiException(ErrorStatus.SMS_SEND_FAILED);
+    }
 
     log.info("[인증번호 발송] rawPhone={} | normalizedKey={} | 서버시각={} | 이전레코드교체={}",
         maskPhone(rawPhone), phone, FMT.format(Instant.now()), replaced);
 
+    // ② Redis 저장 성공 후 SMS 발송
     smsService.send(phone, code);
   }
 
@@ -59,7 +87,13 @@ public class SmsAuthService {
 
     String phone = normalize(request.getUserPhone());
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));
-    store.put(phone, new PhoneAuthRecord(code));
+    try {
+      redisTemplate.opsForValue().set(KEY_AUTH + phone, code, AUTH_TTL_MIN, TimeUnit.MINUTES);
+      log.info("[비밀번호 찾기 Redis 저장 완료] key={}", KEY_AUTH + maskPhone(phone));
+    } catch (Exception e) {
+      log.error("[비밀번호 찾기 Redis 저장 실패] 원인={}", e.getMessage(), e);
+      throw new ApiException(ErrorStatus.SMS_SEND_FAILED);
+    }
     smsService.send(phone, code);
     log.info("[비밀번호 찾기 인증번호 발송] loginId={}, phone={}", request.getLoginId(), maskPhone(phone));
   }
@@ -81,7 +115,13 @@ public class SmsAuthService {
     }
 
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));
-    store.put(normalizedDb, new PhoneAuthRecord(code));
+    try {
+      redisTemplate.opsForValue().set(KEY_AUTH + normalizedDb, code, AUTH_TTL_MIN, TimeUnit.MINUTES);
+      log.info("[휴면 Redis 저장 완료] key={}", KEY_AUTH + maskPhone(normalizedDb));
+    } catch (Exception e) {
+      log.error("[휴면 Redis 저장 실패] 원인={}", e.getMessage(), e);
+      throw new ApiException(ErrorStatus.SMS_SEND_FAILED);
+    }
     smsService.send(normalizedDb, code);
     log.info("[휴면 계정 SMS 발송] loginId={} phone={}", request.getLoginId(), maskPhone(normalizedDb));
   }
@@ -89,45 +129,39 @@ public class SmsAuthService {
   public void verifySms(SmsVerifyRequestDTO request) {
     String rawPhone = request.getPhone();
     String phone = normalize(rawPhone);
+    String authKey = KEY_AUTH + phone;
 
     log.info("[인증 시도] rawPhone={} | normalizedKey={} | 서버시각={} | 레코드존재={}",
-        maskPhone(rawPhone), phone, FMT.format(Instant.now()), store.containsKey(phone));
+        maskPhone(rawPhone), phone, FMT.format(Instant.now()),
+        Boolean.TRUE.equals(redisTemplate.hasKey(authKey)));
 
-    PhoneAuthRecord existing = store.get(phone);
-    if (existing == null) {
-      log.warn("[인증 실패] 레코드 없음 - normalizedKey={} | store.keys={}", phone, store.keySet());
+    String storedCode = redisTemplate.opsForValue().get(authKey);
+    if (storedCode == null) {
+      log.warn("[인증 실패] 레코드 없음 - normalizedKey={}", phone);
       throw new ApiException(ErrorStatus.SMS_CODE_EXPIRED);
     }
 
-    PhoneAuthRecord updatedRecord = store.computeIfPresent(phone, (key, currentRecord) -> {
-      if (!currentRecord.isPendingValid()) {
-        log.warn("[인증 실패] 시간 만료 phone={}", maskPhone(phone));
-        throw new ApiException(ErrorStatus.SMS_CODE_EXPIRED);
-      }
-      if (!currentRecord.getCode().equals(request.getAuthCode())) {
-        log.warn("[인증 실패] 코드 불일치 phone={}", maskPhone(phone));
-        throw new ApiException(ErrorStatus.SMS_CODE_MISMATCH);
-      }
-      return currentRecord.markVerified();
-    });
-
-    if (updatedRecord == null) {
-      log.warn("[인증 실패] computeIfPresent null 반환 phone={}", maskPhone(phone));
-      throw new ApiException(ErrorStatus.SMS_CODE_EXPIRED);
+    if (!storedCode.equals(request.getAuthCode())) {
+      log.warn("[인증 실패] 코드 불일치 phone={}", maskPhone(phone));
+      throw new ApiException(ErrorStatus.SMS_CODE_MISMATCH);
     }
+
+    // 인증 완료 도장: sms:verified:{phone} (TTL 5분)
+    redisTemplate.opsForValue().set(KEY_VERIFIED + phone, "true", VERIFIED_TTL_MIN, TimeUnit.MINUTES);
+    redisTemplate.delete(authKey);
 
     log.info("[인증 완료] phone={}", maskPhone(phone));
   }
 
   public boolean isVerified(String phone) {
     String normalized = normalize(phone);
-    PhoneAuthRecord record = store.get(normalized);
-    return record != null && record.isVerifiedValid();
+    return Boolean.TRUE.equals(redisTemplate.hasKey(KEY_VERIFIED + normalized));
   }
 
   public void clearVerification(String phone) {
     String normalized = normalize(phone);
-    store.remove(normalized);
+    redisTemplate.delete(KEY_AUTH + normalized);
+    redisTemplate.delete(KEY_VERIFIED + normalized);
     log.debug("[인증 정보 삭제] phone={}", maskPhone(normalized));
   }
 

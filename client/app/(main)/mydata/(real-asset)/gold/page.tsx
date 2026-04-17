@@ -1,22 +1,45 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import FormInput from '@/components/baseelements/FormInput';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
 import CompleteStep from '@/components/modules/CompleteStep';
 import DualActionFooter from '@/components/modules/DualActionFooter';
 import PageHeading from '@/components/typography/PageHeading';
+import { getBannerStatus } from '@/app/asset/actions/notificationStatus';
 import LoadingStep from '../../components/LoadingStep';
+import { linkGold, type RealAssetLinkResult } from '../actions/realAsset';
 
-export default function GoldPage() {
+function formatAmtSync(amount: number): string {
+  const eok = Math.floor(amount / 100_000_000);
+  const man = Math.floor((amount % 100_000_000) / 10_000);
+  if (eok > 0 && man > 0) return `${eok}억 ${man.toLocaleString('ko-KR')}만원`;
+  if (eok > 0) return `${eok}억원`;
+  return `${man.toLocaleString('ko-KR')}만원`;
+}
+
+function GoldPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
+  const isAssetFlow = from === 'asset';
+
   const [weight, setWeight] = useState('');
   const [purity, setPurity] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isAllDone, setIsAllDone] = useState(false);
+  const [apiResult, setApiResult] = useState<RealAssetLinkResult | null>(null);
+  const [apiError, setApiError] = useState('');
+  const [userName, setUserName] = useState('사용자');
+
+  useEffect(() => {
+    getBannerStatus().then((s) => {
+      if (s.userName) setUserName(s.userName);
+    });
+  }, []);
 
   const weightNum = Number(weight);
   const purityNum = Number(purity);
@@ -27,6 +50,21 @@ export default function GoldPage() {
     purityNum > 0 &&
     purityNum <= 24;
 
+  const handleComplete = async () => {
+    setApiError('');
+    setIsLoading(true);
+    try {
+      const result = await linkGold({
+        asset_size: weightNum,
+        purity: `${purityNum}`,
+      });
+      setApiResult(result);
+    } catch {
+      setIsLoading(false);
+      setApiError('금 자산 연동 중 오류가 발생했어요. 다시 시도해주세요.');
+    }
+  };
+
   const handleLoadingComplete = () => {
     setIsLoading(false);
     setIsAllDone(true);
@@ -36,10 +74,12 @@ export default function GoldPage() {
     return (
       <CompleteStep
         footer={
-          <PrimaryButton
-            label="확인하기"
-            onClick={() => router.push('/asset')}
-          />
+          <div className="w-full px-6 pb-12">
+            <PrimaryButton
+              label="확인하기"
+              onClick={() => router.push('/asset?tab=gold')}
+            />
+          </div>
         }
       >
         <div className="flex flex-col items-center text-center">
@@ -49,6 +89,11 @@ export default function GoldPage() {
           <p className="mt-3 text-[1rem] text-muted-foreground">
             연동된 자산 정보는 내 자산 탭에서{'\n'}언제든지 확인할 수 있어요.
           </p>
+          {apiResult && (
+            <p className="mt-4 text-[1.125rem] font-semibold text-hana-teal-500">
+              평가액 {formatAmtSync(apiResult.evalAmt)}
+            </p>
+          )}
         </div>
       </CompleteStep>
     );
@@ -56,8 +101,8 @@ export default function GoldPage() {
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-[100] bg-[#F4FBFC]">
-        <LoadingStep onComplete={handleLoadingComplete} />
+      <div className="flex h-full flex-col">
+        <LoadingStep name={userName} onComplete={handleLoadingComplete} />
       </div>
     );
   }
@@ -67,7 +112,7 @@ export default function GoldPage() {
       <div className="flex h-full flex-col bg-background px-6 pt-6 pb-12">
         <div className="flex flex-1 flex-col">
           <div className="mb-10">
-            <ProgressBar step={6} total={6} />
+            <ProgressBar step={2} total={2} />
           </div>
           <div className="mb-10">
             <PageHeading>
@@ -88,25 +133,31 @@ export default function GoldPage() {
             <div className="flex flex-col gap-4 text-[15px]">
               <div className="flex justify-between">
                 <span className="text-hana-black-500">중량</span>
-                <span className="font-semibold text-hana-black-900">
-                  {weight}g
-                </span>
+                <span className="font-semibold text-hana-black-900">{weight}g</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-hana-black-500">함량 (순도)</span>
-                <span className="font-semibold text-hana-black-900">
-                  {purity}K
+                <span className="font-semibold text-hana-black-900">{purity}K</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-hana-black-500">예상 평가액</span>
+                <span className="font-bold text-hana-teal-500">
+                  {formatAmtSync(weightNum * 118500)}
                 </span>
               </div>
             </div>
           </div>
+
+          {apiError && (
+            <p className="mt-4 text-center text-[13px] text-red-500">{apiError}</p>
+          )}
         </div>
 
         <DualActionFooter
           leftLabel="다시 입력하기"
           rightLabel="완료"
           onLeftClick={() => setIsSubmitted(false)}
-          onRightClick={() => setIsLoading(true)}
+          onRightClick={handleComplete}
         />
       </div>
     );
@@ -115,7 +166,7 @@ export default function GoldPage() {
   return (
     <div className="flex h-full flex-col bg-background px-6 pt-6 pb-12">
       <div className="mb-10">
-        <ProgressBar step={6} total={6} />
+        <ProgressBar step={1} total={2} />
       </div>
       <PageHeading>
         <span className="text-hana-teal-500">금 중량 및 함량</span>을{'\n'}
@@ -159,9 +210,17 @@ export default function GoldPage() {
           label="나중에 연결하기"
           variant="secondary"
           className="bg-hana-silver-100 text-hana-black-500!"
-          onClick={() => router.push('/')}
+          onClick={() => router.push(isAssetFlow ? '/asset?tab=gold' : '/')}
         />
       </div>
     </div>
+  );
+}
+
+export default function GoldPage() {
+  return (
+    <Suspense>
+      <GoldPageContent />
+    </Suspense>
   );
 }
