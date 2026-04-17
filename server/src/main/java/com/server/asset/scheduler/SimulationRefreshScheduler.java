@@ -33,6 +33,14 @@ public class SimulationRefreshScheduler {
      */
     @Scheduled(cron = "0 0 3 * * *")
     public void runSimulationRefreshJob() {
+        triggerNow();
+    }
+
+    /**
+     * 자산 변동 이벤트(주택연금/신탁 가입 등) 발생 시 즉시 배치 Job을 실행합니다.
+     * 스케줄러의 정기 실행과 동일한 Job을 실행하며, runAt 파라미터로 매 실행을 고유하게 식별합니다.
+     */
+    public void triggerNow() {
         JobParameters params = new JobParametersBuilder()
                 .addString("runAt", LocalDateTime.now().toString())
                 .toJobParameters();
