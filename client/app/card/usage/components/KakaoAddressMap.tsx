@@ -40,7 +40,9 @@ export default function KakaoAddressMap({
                 level: 3,
               },
             );
-            new window.kakao.maps.Marker({ map, position: coords });
+            new window.kakao.maps.Marker({ map, 
+              position: coords,
+            title: address,});
           }
         },
       );
