@@ -62,7 +62,6 @@ class ProductRepositoryTest extends BaseRepositoryTest {
         assertThat(found).isPresent();
         assertThat(found.get().getProdCate()).isEqualTo(ProdCate.PENSION);
 
-        // 이 부분을 실제 데이터인 "하나 연금신탁"으로 수정!
         assertThat(found.get().getProdNm()).isEqualTo("하나 연금신탁");
     }
 
@@ -74,7 +73,6 @@ class ProductRepositoryTest extends BaseRepositoryTest {
         assertThat(found).isPresent();
         assertThat(found.get().getProdCate()).isEqualTo(ProdCate.TRUST);
 
-        // 이 부분도 실제 데이터인 "하나 유언대용신탁"으로 수정!
         assertThat(found.get().getProdNm()).isEqualTo("하나 유언대용신탁");
     }
 
