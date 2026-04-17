@@ -2,7 +2,7 @@
 
 import type { Route } from 'next';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { AlertBanner } from '@/components/modules/AlertBanner';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
@@ -54,7 +54,10 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
         }
     }, [queryTab]);
 
-    const realAssets = dashboardData?.realAssets || [];
+    const realAssets = useMemo(
+        () => dashboardData?.realAssets ?? [],
+        [dashboardData],
+    );
 
     const handleTabChange = (tabId: string) => {
         setActiveTab(tabId as TabId);
