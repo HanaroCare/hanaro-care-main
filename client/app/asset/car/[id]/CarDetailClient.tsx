@@ -29,9 +29,8 @@ export default function CarDetailClient({ assetData }: Props) {
       name={assetData.assetNm}
       subtitle={details}
       amount={assetData.amount}
-      priceChange={1500000}
-      changePercent={3.2}
-      changeColorClass="text-hana-blue-500"
+      priceChange={-1500000}
+      changePercent={-3.2}
       chart={{
         title: '중고차 시세 변화',
         subtitle: '최근 6개월 기준 (단위: 만원)',
