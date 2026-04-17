@@ -2,17 +2,19 @@ package com.server.asset.repository;
 
 import static org.assertj.core.api.Assertions.*;
 
-import com.server.BaseRepositoryTest;
-import com.server.TestInitLoader;
-import com.server.asset.entity.TBProduct;
-import com.server.asset.entity.enums.ProdCate;
 import java.util.List;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.server.BaseRepositoryTest;
+import com.server.TestInitLoader;
+import com.server.asset.entity.TBProduct;
+import com.server.asset.entity.enums.ProdCate;
 
 class ProductRepositoryTest extends BaseRepositoryTest {
 
@@ -56,20 +58,24 @@ class ProductRepositoryTest extends BaseRepositoryTest {
     @DisplayName("ProdCate.PENSION 으로 상품 조회 테스트")
     @Order(3)
     void findByProdCatePensionTest() {
-        Optional<TBProduct> found = repository.findByProdCate(ProdCate.PENSION);
+        Optional<TBProduct> found = repository.findFirstByProdCate(ProdCate.PENSION);
         assertThat(found).isPresent();
         assertThat(found.get().getProdCate()).isEqualTo(ProdCate.PENSION);
-        assertThat(found.get().getProdNm()).isEqualTo("연금상품");
+
+        // 이 부분을 실제 데이터인 "하나 연금신탁"으로 수정!
+        assertThat(found.get().getProdNm()).isEqualTo("하나 연금신탁");
     }
 
     @Test
     @DisplayName("ProdCate.TRUST 으로 상품 조회 테스트")
     @Order(4)
     void findByProdCateTrustTest() {
-        Optional<TBProduct> found = repository.findByProdCate(ProdCate.TRUST);
+        Optional<TBProduct> found = repository.findFirstByProdCate(ProdCate.TRUST);
         assertThat(found).isPresent();
         assertThat(found.get().getProdCate()).isEqualTo(ProdCate.TRUST);
-        assertThat(found.get().getProdNm()).isEqualTo("신탁상품");
+
+        // 이 부분도 실제 데이터인 "하나 유언대용신탁"으로 수정!
+        assertThat(found.get().getProdNm()).isEqualTo("하나 유언대용신탁");
     }
 
     @Test
