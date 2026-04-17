@@ -173,10 +173,15 @@ export async function getTrustSimulationSummary(): Promise<TrustSimulationSummar
 }
 
 export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
-  const startType = START_TYPE_MAP[form.startTiming ?? 'now'] ?? 'NOW';
-  const startDate = startType === 'CUSTOM' ? form.startDate : null;
+  const startTimingType = form.startTiming?.type ?? 'now';
+  const startType = START_TYPE_MAP[startTimingType] ?? 'NOW';
 
-  if (startType === 'CUSTOM' && !startDate) {
+  const startDate =
+    startTimingType === 'custom-date' && form.startTiming?.startDate
+      ? `${form.startTiming.startDate}T00:00:00`
+      : null;
+
+  if (startTimingType === 'custom-date' && !startDate) {
     throw new Error('Custom start date is required.');
   }
 
@@ -199,6 +204,8 @@ export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
     payoutSettings: payoutItems.length > 0 ? { items: payoutItems } : null,
     claimAgentId: form.selectedAgent ? Number(form.selectedAgent) : null,
   };
+
+  console.log('[saveTrustSimulation] body', body);
 
   await serverFetch<void>('/api/asset/trust', {
     method: 'POST',

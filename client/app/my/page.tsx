@@ -98,14 +98,20 @@ export default function MyHanaPage() {
               title="가족 관리"
               onClick={() => router.push('/my/family' as Route)}
             />
-            {/* TODO: 가족 보험 관리 기능 구현 시 연결 필요 */}
-            <MenuItem Icon={Shield} title="가족 보험 관리" disabled />
+            <MenuItem
+              Icon={Shield}
+              title="가족 보험 관리"
+              onClick={() => router.push('/my/insurance' as Route)}
+            />
 
             {userRole === 'parent' ? (
               /* --- 부모 전용 메뉴 --- */
               <>
-                {/* TODO: 후견인 등록 기능 구현 시 연결 필요 */}
-                <MenuItem Icon={UserPlus} title="후견인 등록" disabled />
+                <MenuItem
+                  Icon={UserPlus}
+                  title="후견인 등록"
+                  onClick={() => router.push('/my/guardian' as Route)}
+                />
 
                 {/* 내 미래 설계하기 (아코디언 슬라이드) */}
                 <div className="py-1">
@@ -143,16 +149,25 @@ export default function MyHanaPage() {
                             Icon={FileHeart}
                             title="연명의료 결정"
                             desc="사전연명의료의향서를 작성하세요"
+                            onClick={() =>
+                              router.push('/future/advance-directive' as Route)
+                            }
                           />
                           <SubMenuItem
                             Icon={Handshake}
                             title="새생명 나눔"
                             desc="생명을 나누세요"
+                            onClick={() =>
+                              router.push('/future/organ-donation' as Route)
+                            }
                           />
                           <SubMenuItem
                             Icon={Gift}
                             title="유산기부"
                             desc="당신의 이름이 희망이 됩니다"
+                            onClick={() =>
+                              router.push('/future/legacy-donation' as Route)
+                            }
                           />
                         </div>
                       </motion.div>
@@ -163,6 +178,7 @@ export default function MyHanaPage() {
                 {/* 하단 지원제도 배너 */}
                 <motion.div
                   whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/future/support' as Route)}
                   className="mt-8 flex cursor-pointer items-center justify-between rounded-2xl bg-hana-green-700 p-6 text-white shadow-md transition-all hover:brightness-105"
                 >
                   <div className="flex items-center space-x-4">
@@ -184,7 +200,6 @@ export default function MyHanaPage() {
             ) : (
               /* --- 자녀 전용 메뉴 --- */
               <>
-                {/* TODO: 부모님 편지 보기 기능 구현 시 연결 필요 */}
                 <MenuItem Icon={Mail} title="부모님 편지 보기" disabled />
               </>
             )}
@@ -239,13 +254,18 @@ function SubMenuItem({
   Icon,
   title,
   desc,
+  onClick,
 }: {
   Icon: LucideIcon;
   title: string;
   desc: string;
+  onClick?: () => void;
 }) {
   return (
-    <div className="group/sub flex cursor-pointer items-center justify-between">
+    <div
+      className="group/sub flex cursor-pointer items-center justify-between"
+      onClick={onClick}
+    >
       <div className="flex items-center space-x-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-white shadow-sm">
           <Icon className="h-5 w-5 text-hana-ez-600" />

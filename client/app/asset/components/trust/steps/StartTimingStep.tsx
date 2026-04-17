@@ -33,13 +33,22 @@ const options = [
 export default function StartTimingStep() {
   const router = useRouter();
   const { form, setStartTiming } = useTrustForm();
-  const [selected, setSelected] = useState<StartTimingValue | null>(
-    form.startTiming,
+  const [selected, setSelected] = useState<StartTimingValue['type'] | null>(
+    form.startTiming?.type ?? null,
+  );
+
+  const [selectedDate, setSelectedDate] = useState<string | null>(
+    form.startTiming?.startDate ?? null,
   );
 
   const handleNext = () => {
     if (!selected) return;
-    setStartTiming(selected);
+
+    setStartTiming({
+      type: selected,
+      startDate: selected === 'custom-date' ? selectedDate : null,
+    });
+
     router.push('/asset/trust/operation-type');
   };
 
@@ -50,7 +59,9 @@ export default function StartTimingStep() {
         <footer className="shrink-0 bg-white px-6 pt-10 pb-8">
           <PrimaryButton
             label="다음으로"
-            disabled={!selected}
+            disabled={
+              !selected || (selected === 'custom-date' && !selectedDate)
+            }
             onClick={handleNext}
           />
         </footer>
@@ -98,7 +109,6 @@ export default function StartTimingStep() {
                     ))}
                   </div>
                 </div>
-
                 {option.recommended && (
                   <span className="shrink-0 rounded-full bg-[#E9F8F9] px-3 py-1 font-medium text-[12px] text-hana-ez-600 leading-4.5 tracking-snug">
                     추천
@@ -108,6 +118,16 @@ export default function StartTimingStep() {
             </button>
           );
         })}
+        {selected === 'custom-date' && (
+          <div className="mt-4">
+            <input
+              type="date"
+              value={selectedDate ?? ''}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="w-full rounded-xl border px-4 py-3 text-sm"
+            />
+          </div>
+        )}
       </div>
     </TrustWizardStep>
   );
