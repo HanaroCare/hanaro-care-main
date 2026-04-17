@@ -10,10 +10,9 @@ type Props = {
   onNext: () => void;
 };
 
-// 백엔드 고정 순서와 일치시킵니다.
 const permissions = [
   {
-    id: 0, // 인덱스로 관리
+    id: 0,
     icon: Landmark,
     title: '재산 관리',
     desc: '은행, 부동산, 투자 업무 대리',
@@ -59,14 +58,10 @@ export default function Step3SelectPermissions({
   onChange,
   onNext,
 }: Props) {
-  // 핵심: 인덱스를 받아서 해당 위치의 boolean 값을 반전시킵니다.
   const toggle = (index: number) => {
-    // 1. 기존 boolean 배열 복사
     const nextPermissions = [...data.permissions];
-    // 2. 해당 인덱스 값 반전 (true -> false, false -> true)
     nextPermissions[index] = !nextPermissions[index];
 
-    // 3. 업데이트
     onChange({ permissions: nextPermissions });
   };
 
@@ -93,7 +88,6 @@ export default function Step3SelectPermissions({
         <div className="mt-6 space-y-3">
           {permissions.map(
             ({ icon: Icon, title, desc, color, iconColor }, index) => {
-              // data.permissions[0], [1]... 의 true/false 여부 확인
               const selected = data.permissions[index];
 
               return (

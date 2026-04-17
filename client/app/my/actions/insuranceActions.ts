@@ -7,7 +7,6 @@ import type {
   InsuranceListResponseDto,
 } from '../insurance/types';
 
-// 인증 헤더를 가져오는 서버 전용 유틸
 const getAuthHeader = async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get('ACCESS_TOKEN')?.value;
