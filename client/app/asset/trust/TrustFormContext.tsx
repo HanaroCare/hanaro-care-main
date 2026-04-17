@@ -2,7 +2,12 @@
 
 import { createContext, useContext, useMemo, useState } from 'react';
 
-export type StartTimingValue = 'now' | 'when-needed' | 'custom-date';
+export type StartTimingType = 'now' | 'when-needed' | 'custom-date';
+
+export type StartTimingValue = {
+  type: StartTimingType;
+  startDate: string | null;
+};
 export type OperationTypeValue = 'managed' | 'self';
 export type PayoutTypeValue = 'free' | 'pension';
 export type PayoutItemValue = 'hospital' | 'living';
@@ -13,15 +18,16 @@ export type PayoutAmounts = {
 };
 
 export type TrustFormState = {
-  selectedAssets: string[];
   principalAmount: number;
   startTiming: StartTimingValue | null;
-  startDate: string | null;
-  operationType: OperationTypeValue;
-  payoutType: PayoutTypeValue | null;
-  payoutItems: PayoutItemValue[];
-  payoutAmounts: PayoutAmounts;
-  selectedAgent: number | null;
+  operationType: string;
+  payoutType: string | null;
+  payoutItems: string[];
+  payoutAmounts: {
+    hospital: number;
+    living: number;
+  };
+  selectedAgent: string | null;
 };
 
 type TrustFormContextValue = {
