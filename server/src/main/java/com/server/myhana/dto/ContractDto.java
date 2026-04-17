@@ -32,6 +32,6 @@ public class ContractDto {
       example = "[true, true, false, true, false]"
   )
   @Builder.Default
-  private Boolean[] permission = new Boolean[5];
+  private boolean[] permission = new boolean[5];
 
 }

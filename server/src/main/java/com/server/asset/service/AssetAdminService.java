@@ -184,13 +184,9 @@ public class AssetAdminService {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
               @Override
               public void afterCommit() {
-                try {
-                  simulationService.rerunLatestSimulation(userId, last.getTargetAge(), last.getCareType());
-                  log.info("[주택연금 가입] 커밋 후 시뮬레이션 재실행 완료: userId={}", userId);
-                } catch (Exception e) {
-                  simulationRefreshService.enqueue(userId);
-                  log.warn("[주택연금 가입] 재실행 실패로 큐 등록: userId={}", userId, e);
-                }
+                // 커밋 완료 후 즉시 Redis 큐에 작업을 던지고 스레드를 해제합니다.
+                simulationRefreshService.enqueue(userId);
+                log.info("[주택연금 가입] 커밋 후 시뮬레이션 재실행 큐 등록 완료: userId={}", userId);
               }
             });
           });
