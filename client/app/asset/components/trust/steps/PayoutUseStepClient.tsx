@@ -13,6 +13,7 @@ import TrustWizardStep from '../TrustWizardStep';
 type Props = {
   hospitalAmount: number;
   livingAmount: number;
+  showCalculatorAlert?: boolean;
 };
 
 const options: {
@@ -32,12 +33,13 @@ const options: {
 export default function PayoutUseStepClient({
   hospitalAmount,
   livingAmount,
+  showCalculatorAlert = false,
 }: Props) {
   const router = useRouter();
   const { form, setPayoutItems } = useTrustForm();
 
   const [selectedItems, setSelectedItems] = useState<PayoutItemValue[]>(
-    form.payoutItems,
+    form.payoutItems ?? [],
   );
 
   const toggleItem = (id: PayoutItemValue) => {
@@ -52,10 +54,10 @@ export default function PayoutUseStepClient({
       if (item === 'living') return sum + livingAmount;
       return sum;
     }, 0);
-  }, [hospitalAmount, livingAmount, selectedItems]);
+  }, [selectedItems, hospitalAmount, livingAmount]);
 
   const handleNext = () => {
-    const amounts: Partial<PayoutAmounts> = {
+    const amounts: PayoutAmounts = {
       hospital: hospitalAmount,
       living: livingAmount,
     };
@@ -78,14 +80,22 @@ export default function PayoutUseStepClient({
       }
     >
       <div className="mt-12">
-        <p className="font-bold text-[22px] text-black leading-[1.45] tracking-tight">
+        <p className="font-bold text-[22px] leading-[1.45] tracking-tight text-black">
           신탁 자금을 어디에
           <br />
           사용할까요?
         </p>
       </div>
 
-      <div className="mt-10 flex flex-col gap-5">
+      {showCalculatorAlert && (
+        <div className="mt-10 rounded-[16px] border border-[#D7F0EC] bg-[#F3FBFA] px-4 py-3">
+          <p className="text-[14px] leading-5 font-medium text-hana-ez-600">
+            선택지에 병원비 계산기 결과가 반영되었습니다.
+          </p>
+        </div>
+      )}
+
+      <div className="mt-4 flex flex-col gap-5">
         {options.map((option) => {
           const isSelected = selectedItems.includes(option.id);
           const amount =
