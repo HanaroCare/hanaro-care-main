@@ -34,15 +34,15 @@ import org.springframework.transaction.annotation.Transactional;
 @Getter
 public class TestInitLoader implements ApplicationRunner {
 
-  @Autowired
-  private UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
-  @Autowired
-  private ProductRepository productRepository;
+    @Autowired
+    private ProductRepository productRepository;
 
-  private TBUser testUser;
-  private TBProduct pensionProduct;
-  private TBProduct trustProduct;
+    private TBUser testUser;
+    private TBProduct pensionProduct;
+    private TBProduct trustProduct;
 
   @Override
   @Transactional

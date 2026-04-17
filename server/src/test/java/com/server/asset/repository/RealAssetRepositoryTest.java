@@ -1,129 +1,128 @@
 package com.server.asset.repository;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import com.server.BaseRepositoryTest;
+import com.server.TestInitLoader;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.user.entity.TBUser;
-import com.server.user.enums.LoginMeans;
-import com.server.user.enums.UserStatus;
-import com.server.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
 
-@Rollback(true)
-@DisplayName("RealAssetRepository 테스트")
 class RealAssetRepositoryTest extends BaseRepositoryTest {
 
-	@Autowired
-	private RealAssetRepository realAssetRepository;
+    private static TBUser user;
+    private static Long savedRealAssetId;
 
-	@Autowired
-	private UserRepository userRepository;
+    @Autowired
+    private TestInitLoader initLoader;
 
-	private TBUser user;
-	private TBRealAsset realAsset1;
-	private TBRealAsset realAsset2;
+    @Autowired
+    private RealAssetRepository repository;
 
-	@BeforeEach
-	void setUp() {
-		user = userRepository.save(
-			TBUser.builder()
-				.loginId("real_asset_user")
-				.userNm("실물자산유저")
-				.userAge(50)
-				.userPhone("01022223333")
-				.userPwd("password")
-				.userStatusCd(UserStatus.ACTIVE)
-				.authMeansCd(LoginMeans.PASSWORD)
-				.isHanaCert(true)
-				.build()
-		);
+    @BeforeEach
+    void setUp() {
+        if (user == null)
+            user = initLoader.getTestUser();
+    }
 
-		realAsset1 = realAssetRepository.save(
-			TBRealAsset.builder()
-				.user(user)
-				.assetCateCd(RealAssetCategory.REAL_ESTATE)
-				.assetNm("강남아파트")
-				.evalAmt(new BigDecimal("1000000000"))
-				.addr("서울 강남구")
-				.assetSize(new BigDecimal("84.50"))
-				.assetDesc("첫번째 자산")
-				.build()
-		);
+    @Test
+    @DisplayName("부동산 실물자산 저장 테스트")
+    @Order(1)
+    void saveRealEstateTest() {
+        TBRealAsset saved = repository.save(TBRealAsset.builder()
+            .user(user)
+            .assetCateCd(RealAssetCategory.REAL_ESTATE)
+            .assetNm("서울 아파트")
+            .evalAmt(new BigDecimal("500000000.00"))
+            .addr("서울시 강남구 테헤란로 123")
+            .assetSize(new BigDecimal("84.50"))
+            .assetDesc("2023년 취득한 아파트")
+            .build());
 
-		realAsset2 = realAssetRepository.save(
-			TBRealAsset.builder()
-				.user(user)
-				.assetCateCd(RealAssetCategory.REAL_ESTATE)
-				.assetNm("서초오피스텔")
-				.evalAmt(new BigDecimal("600000000"))
-				.addr("서울 서초구")
-				.assetSize(new BigDecimal("59.10"))
-				.assetDesc("두번째 자산")
-				.build()
-		);
-	}
+        savedRealAssetId = saved.getRealAssetId();
+        assertThat(saved.getRealAssetId()).isNotNull();
+        assertThat(saved.getAssetCateCd()).isEqualTo(RealAssetCategory.REAL_ESTATE);
+        assertThat(saved.getAssetNm()).isEqualTo("서울 아파트");
+    }
 
-	@Test
-	@DisplayName("실물자산 ID와 사용자 ID로 조회")
-	void findByRealAssetIdAndUser_UserIdTest() {
-		// when
-		Optional<TBRealAsset> result =
-			realAssetRepository.findByRealAssetIdAndUser_UserId(realAsset1.getRealAssetId(), user.getUserId());
+    @Test
+    @DisplayName("realAssetId로 단건 조회 테스트")
+    @Order(2)
+    void findByRealAssetIdTest() {
+        Optional<TBRealAsset> found = repository.findByRealAssetId(savedRealAssetId);
+        assertThat(found).isPresent();
+        assertThat(found.get().getRealAssetId()).isEqualTo(savedRealAssetId);
+    }
 
-		// then
-		assertThat(result).isPresent();
-		assertThat(result.get().getAssetNm()).isEqualTo("강남아파트");
-	}
+    @Test
+    @DisplayName("realAssetId와 userId로 단건 조회 테스트")
+    @Order(3)
+    void findByRealAssetIdAndUserIdTest() {
+        Optional<TBRealAsset> found = repository.findByRealAssetIdAndUser_UserId(
+            savedRealAssetId, user.getUserId());
+        assertThat(found).isPresent();
+        assertThat(found.get().getUser().getUserId()).isEqualTo(user.getUserId());
+    }
 
-	@Test
-	@DisplayName("사용자 ID로 전체 실물자산 조회")
-	void findAllByUser_UserIdTest() {
-		// when
-		List<TBRealAsset> result = realAssetRepository.findAllByUser_UserId(user.getUserId());
+    @Test
+    @DisplayName("존재하지 않는 userId로 실물자산 조회 - 빈값 반환")
+    @Order(4)
+    void findByRealAssetIdAndUserIdNotFoundTest() {
+        Optional<TBRealAsset> found = repository.findByRealAssetIdAndUser_UserId(
+            savedRealAssetId, 999999L);
+        assertThat(found).isEmpty();
+    }
 
-		// then
-		assertThat(result).hasSize(2);
-	}
+    @Test
+    @DisplayName("userId로 전체 실물자산 조회 테스트")
+    @Order(5)
+    void findAllByUserIdTest() {
+        List<TBRealAsset> assets = repository.findAllByUser_UserId(user.getUserId());
+        assertThat(assets).isNotEmpty();
+    }
 
-	@Test
-	@DisplayName("실물자산 ID로 조회")
-	void findByRealAssetIdTest() {
-		// when
-		Optional<TBRealAsset> result = realAssetRepository.findByRealAssetId(realAsset1.getRealAssetId());
+    @Test
+    @DisplayName("userId와 카테고리로 실물자산 조회 테스트")
+    @Order(6)
+    void findAllByUserIdAndAssetCateCdTest() {
+        List<TBRealAsset> realEstates = repository.findAllByUser_UserIdAndAssetCateCd(
+            user.getUserId(), RealAssetCategory.REAL_ESTATE);
+        assertThat(realEstates).isNotEmpty();
+        assertThat(realEstates).allMatch(a -> a.getAssetCateCd() == RealAssetCategory.REAL_ESTATE);
+    }
 
-		// then
-		assertThat(result).isPresent();
-		assertThat(result.get().getRealAssetId()).isEqualTo(realAsset1.getRealAssetId());
-	}
+    @Test
+    @DisplayName("자동차 실물자산 저장 후 카테고리별 조회 테스트")
+    @Order(7)
+    void findAllByUserIdAndVehicleCategoryTest() {
+        repository.save(TBRealAsset.builder()
+            .user(user)
+            .assetCateCd(RealAssetCategory.VEHICLE)
+            .assetNm("제네시스 G80")
+            .evalAmt(new BigDecimal("60000000.00"))
+            .assetDesc("2022년 취득 차량")
+            .build());
 
-	@Test
-	@DisplayName("사용자 ID와 자산 카테고리로 전체 조회")
-	void findAllByUser_UserIdAndAssetCateCdTest() {
-		// when
-		List<TBRealAsset> result =
-			realAssetRepository.findAllByUser_UserIdAndAssetCateCd(user.getUserId(), RealAssetCategory.REAL_ESTATE);
+        List<TBRealAsset> vehicles = repository.findAllByUser_UserIdAndAssetCateCd(
+            user.getUserId(), RealAssetCategory.VEHICLE);
+        assertThat(vehicles).isNotEmpty();
+        assertThat(vehicles).allMatch(a -> a.getAssetCateCd() == RealAssetCategory.VEHICLE);
+    }
 
-		// then
-		assertThat(result).hasSize(2);
-	}
-
-	@Test
-	@DisplayName("존재하지 않는 실물자산 ID와 사용자 ID 조회 시 empty 반환")
-	void findByRealAssetIdAndUser_UserIdNotFoundTest() {
-		// when
-		Optional<TBRealAsset> result =
-			realAssetRepository.findByRealAssetIdAndUser_UserId(999999999L, user.getUserId());
-
-		// then
-		assertThat(result).isEmpty();
-	}
+    @Test
+    @DisplayName("존재하지 않는 카테고리로 조회 - 빈 리스트 반환")
+    @Order(8)
+    void findAllByUserIdAndGoldCategoryEmptyTest() {
+        List<TBRealAsset> golds = repository.findAllByUser_UserIdAndAssetCateCd(
+            user.getUserId(), RealAssetCategory.GOLD);
+        assertThat(golds).isEmpty();
+    }
 }

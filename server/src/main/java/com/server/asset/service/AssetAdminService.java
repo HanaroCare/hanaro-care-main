@@ -107,7 +107,7 @@ public class AssetAdminService {
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_SIMULATION_NOT_FOUND));
 
     TBProduct product = productRepository
-        .findByProdCate(ProdCate.TRUST)
+        .findFirstByProdCate(ProdCate.TRUST)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_FIXED_PRODUCT_NOT_FOUND));
 
     BigDecimal principal = TrustCalculator.defaultIfNull(simulation.getPrincipalAmount());
@@ -165,7 +165,7 @@ public class AssetAdminService {
       throw new ApiException(ErrorStatus._FORBIDDEN);
     }
 
-    TBProduct product = productRepository.findByProdCate(ProdCate.PENSION)
+    TBProduct product = productRepository.findFirstByProdCate(ProdCate.PENSION)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_PRODUCT_NOT_FOUND));
 
     try {
