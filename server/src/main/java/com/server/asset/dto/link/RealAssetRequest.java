@@ -1,5 +1,7 @@
 package com.server.asset.dto.link;
 
+import java.math.BigDecimal;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -23,7 +25,7 @@ public class RealAssetRequest {
 
 		@Schema(description = "면적 (㎡)", example = "84.5")
 		@JsonProperty("asset_size")
-		private Double assetSize;
+		private BigDecimal assetSize;
 
 		@Schema(description = "취득연도", example = "2021")
 		@JsonProperty("acquisition_year")
@@ -51,7 +53,7 @@ public class RealAssetRequest {
 	public static class GoldLinkRequest {
 		@Schema(description = "중량 (g)", example = "100.0")
 		@JsonProperty("asset_size")
-		private Double assetSize;
+		private BigDecimal assetSize;
 
 		@Schema(description = "금 함량 (24K, 18K 등)", example = "24K")
 		private String purity;

@@ -23,8 +23,8 @@ public class CardRegisterRequest {
   private String cardNm;
 
   @NotNull
-  @DecimalMax("600000")
-  @Schema(description = "월 한도 금액 (최대 60만원)", example = "400000")
+  @DecimalMax("2000000")
+  @Schema(description = "자동이체 목표 잔액 (최대 200만원)", example = "400000")
   private BigDecimal limitAmt;
 
   @Schema(description = "자동이체 금액", example = "400000")

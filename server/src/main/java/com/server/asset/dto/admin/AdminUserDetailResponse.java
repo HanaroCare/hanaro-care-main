@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AdminUserDetailResponse {
 
-	private Long userId;
+	private String userId;
 	private String userName;
 	private String loginId;
 	private String phoneNumber;
@@ -22,7 +22,7 @@ public class AdminUserDetailResponse {
 
 	public static AdminUserDetailResponse from(TBUser user) {
 		return AdminUserDetailResponse.builder()
-			.userId(user.getUserId())
+			.userId(String.valueOf(user.getUserId()))
 			.userName(user.getUserNm())
 			.loginId(user.getLoginId())
 			.phoneNumber(user.getUserPhone())

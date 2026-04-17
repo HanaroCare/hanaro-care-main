@@ -10,7 +10,7 @@ import lombok.Builder;
 @Schema(description = "금융 자산 상세 정보 응답")
 public record FinancialAssetResponse(
     @Schema(description = "계좌 ID", example = "2001")
-    Long accountId,
+    String accountId,
     
     @Schema(description = "자산 카테고리 코드", example = "CASH")
     AssetCategory assetCateCd,
