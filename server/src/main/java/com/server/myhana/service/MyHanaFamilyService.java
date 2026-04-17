@@ -65,9 +65,7 @@ public class MyHanaFamilyService {
     return result;
   }
 
-  /**
-   * 가족 초대용 링크 발급
-   */
+
   public String inviteFamily(Long grantorId, FamilyInviteRequest request) {
     userRepository.findById(grantorId)
         .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
@@ -78,9 +76,6 @@ public class MyHanaFamilyService {
     return String.format("%s/onboarding?token=%s", baseUrl, token);
   }
 
-  /**
-   * 보험 내역 열람 권한 관리
-   */
   @Transactional
   public void updateInsuranceViewPermission(Long grantorId, GrantInsuranceViewRequest request) {
     Long granteeId = request.getGranteeId();

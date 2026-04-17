@@ -17,17 +17,16 @@ import com.server.asset.repository.UserProdRepository;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -51,13 +50,15 @@ public class PensionStatusService {
 
 		int elapsedYear = calcElapsedYear(Math.max(0, paidMonths - 1));
 		PensionPayoutYearlyDto floorEntry = floorEntry(ctx.yearlyData(), elapsedYear);
-		BigDecimal currentMonthlyPayout = floorEntry.getMonthlyAmount();
+		BigDecimal currentMonthlyPayout = defaultIfNull(ctx.userProd().getMonthlyPayout());
+		if (currentMonthlyPayout.compareTo(BigDecimal.ZERO) <= 0) {
+			currentMonthlyPayout = floorEntry.getMonthlyAmount();
+		}
 
-		long extraMonths = Math.max(0, paidMonths - (long) (floorEntry.getYear() - 1) * 12);
-		BigDecimal currentCumulativeAmount =
-			calculateCumulativeAtMonth(ctx.yearlyData(), elapsedYear, extraMonths);
+		BigDecimal currentCumulativeAmount = defaultIfNull(ctx.userProd().getProfit());
 
 		List<ChartPoint> chartPoints = new ArrayList<>();
+
 		chartPoints.add(ChartPoint.builder()
 			.year(elapsedYear)
 			.monthlyAmount(currentMonthlyPayout)
@@ -115,7 +116,9 @@ public class PensionStatusService {
 				.build());
 
 			cursor = cursor.plusMonths(1);
-			cursor = cursor.withDayOfMonth(Math.min(PENSION_PAYOUT_DAY, cursor.lengthOfMonth()));
+			cursor = cursor.withDayOfMonth(
+				Math.min(PENSION_PAYOUT_DAY, cursor.lengthOfMonth())
+			);
 		}
 
 		return PensionPayoutHistoryResponse.builder()
@@ -129,38 +132,25 @@ public class PensionStatusService {
 	private record PensionContext(TBUserProd userProd, List<PensionPayoutYearlyDto> yearlyData) {}
 
 	private PensionContext loadContext(Long userId) {
-		TBUserProd userProd = findSubscribedProduct(userId);
-		TBPensionSimulation simulation = findSimulation(userProd);
-		List<PensionPayoutYearlyDto> yearlyData = resolveYearlyData(simulation, userProd);
-
-		return new PensionContext(userProd, yearlyData);
-	}
-
-	private TBUserProd findSubscribedProduct(Long userId) {
-		return userProdRepository
+		TBUserProd userProd = userProdRepository
 			.findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
 				userId,
 				ProdType.HOUSING_PENSION,
 				ProdStat.IN_PROGRESS
 			)
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_NOT_SUBSCRIBED));
-	}
 
-	private TBPensionSimulation findSimulation(TBUserProd userProd) {
-		return pensionSimulationRepository
+		TBPensionSimulation simulation = pensionSimulationRepository
 			.findByRealAsset_RealAssetId(userProd.getTargetAsset().getRealAssetId())
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND));
-	}
 
-	private List<PensionPayoutYearlyDto> resolveYearlyData(
-		TBPensionSimulation simulation,
-		TBUserProd userProd
-	) {
-		return deserializePlans(simulation.getPlansJson()).stream()
+		List<PensionPayoutYearlyDto> yearlyData = deserializePlans(simulation.getPlansJson()).stream()
 			.filter(p -> p.getType().equals(userProd.getPensionPayoutType().name()))
 			.findFirst()
 			.orElseThrow(() -> new ApiException(ErrorStatus.PENSION_SIMULATION_NOT_FOUND))
 			.getYearlyData();
+
+		return new PensionContext(userProd, yearlyData);
 	}
 
 	private LocalDate resolveBaseDate(TBUserProd userProd) {
@@ -170,11 +160,11 @@ public class PensionStatusService {
 		return userProd.getStartDate();
 	}
 
-	private long calcPaidMonths(LocalDate firstPayoutDate) {
-		if (firstPayoutDate == null || firstPayoutDate.isAfter(LocalDate.now())) {
+	private long calcPaidMonths(LocalDate baseDate) {
+		if (baseDate == null || baseDate.isAfter(LocalDate.now())) {
 			return 0;
 		}
-		return ChronoUnit.MONTHS.between(firstPayoutDate, LocalDate.now()) + 1;
+		return ChronoUnit.MONTHS.between(baseDate, LocalDate.now()) + 1;
 	}
 
 	private int calcElapsedYear(long totalMonths) {
@@ -192,25 +182,6 @@ public class PensionStatusService {
 		return floorEntry(yearlyData, year).getMonthlyAmount();
 	}
 
-	private BigDecimal calculateCumulativeAtMonth(
-		List<PensionPayoutYearlyDto> yearlyData,
-		int elapsedYear,
-		long extraMonths
-	) {
-		BigDecimal baseCumulative = BigDecimal.ZERO;
-
-		if (elapsedYear > 1) {
-			baseCumulative = yearlyData.stream()
-				.filter(d -> d.getYear() < elapsedYear)
-				.max(Comparator.comparingInt(PensionPayoutYearlyDto::getYear))
-				.map(PensionPayoutYearlyDto::getCumulativeAmount)
-				.orElse(BigDecimal.ZERO);
-		}
-
-		BigDecimal currentMonthly = resolveMonthlyAmount(yearlyData, elapsedYear);
-		return baseCumulative.add(currentMonthly.multiply(BigDecimal.valueOf(extraMonths)));
-	}
-
 	private List<PensionPayoutPlanDto> deserializePlans(String plansJson) {
 		try {
 			return objectMapper.readValue(plansJson, new TypeReference<>() {});
@@ -221,7 +192,9 @@ public class PensionStatusService {
 	}
 
 	private LocalDate resolveFirstPayoutDate(LocalDate baseDate) {
-		if (baseDate == null) return null;
+		if (baseDate == null) {
+			return null;
+		}
 
 		LocalDate payoutDate = baseDate.withDayOfMonth(
 			Math.min(PENSION_PAYOUT_DAY, baseDate.lengthOfMonth())
@@ -235,5 +208,9 @@ public class PensionStatusService {
 		}
 
 		return payoutDate;
+	}
+
+	private BigDecimal defaultIfNull(BigDecimal value) {
+		return value == null ? BigDecimal.ZERO : value;
 	}
 }

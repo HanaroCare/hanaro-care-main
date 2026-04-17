@@ -1,19 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
-import AudioPlayer from '@/app/inheritance/components/letter/AudioPlayer';
-import InheritanceMethodToggle from '@/app/inheritance/components/letter/InheritanceMethodToggle';
-import MessageInput from '@/app/inheritance/components/letter/MessageInput';
-import NicknameInput from '@/app/inheritance/components/letter/NicknameInput';
-import RecipientHeader from '@/app/inheritance/components/letter/RecipientHeader';
-import VoiceRecorderSheet from '@/app/inheritance/components/letter/VoiceRecorderSheet';
-import YearsInput from '@/app/inheritance/components/letter/YearsInput';
-import type { InheritanceMethod } from '@/app/inheritance/types';
-import PrimaryButton from '@/components/baseelements/PrimaryButton';
-
-import { submitInheritanceLetter } from '../../../actions/letter/inheritance';
-import { mockRecipients } from '../../data';
+import { useQuery } from '@tanstack/react-query';
+import { use } from 'react';
+import { getInheritanceInfo } from '@/app/inheritance/actions/letterActions';
+import Letter from '@/app/inheritance/components/letter/Letter';
+import { useLetter } from '@/app/inheritance/hooks/useLetter';
 
 export default function InheritanceWritePage({
   params,
@@ -22,103 +13,21 @@ export default function InheritanceWritePage({
 }) {
   const { inheritDetailId } = use(params);
 
-  const router = useRouter();
+  const { data: recipients, isLoading } = useQuery({
+    queryKey: ['inheritanceInfo'],
+    queryFn: () => getInheritanceInfo(),
+  });
 
-  const [nickname, setNickname] = useState('');
-  const [yearsLater, setYearsLater] = useState<number | null>(null);
-  const [method, setMethod] = useState<InheritanceMethod>('once');
-  const [message, setMessage] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showVoiceSheet, setShowVoiceSheet] = useState(false);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const letterHook = useLetter(inheritDetailId);
 
-  useEffect(() => {
-    return () => {
-      if (audioUrl) {
-        URL.revokeObjectURL(audioUrl);
-      }
-    };
-  }, [audioUrl]);
+  if (isLoading) return <div className="p-8 text-center">불러오는 중...</div>;
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    await submitInheritanceLetter({
-      recipientId: parseInt(inheritDetailId, 10),
-      nickname,
-      yearsLater,
-      method,
-      message,
-    });
-    // TODO: 백 연결시 formData로 오디오 업로드 및 audioUrl 받아오기
-    // 	if (audioBlob) {
-    //   const formData = new FormData();
-    //   formData.append("audio", audioBlob, "voice.mp3");
-    //   // 서버에 업로드
-    // }
-    setIsSubmitting(false);
-    router.push(`/inheritance/letter/recipients/result?method=${method}`);
-  };
-
-  const recipient =
-    mockRecipients.find(
-      (r: { id: number }) => r.id === parseInt(inheritDetailId, 10),
-    ) ?? mockRecipients[0];
-
-  return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <div className="flex min-h-screen flex-col">
-        {/* Form */}
-        <div className="flex flex-1 flex-col gap-7 pt-6">
-          <RecipientHeader recipient={recipient} onEdit={() => router.back()} />
-          <NicknameInput value={nickname} onChange={setNickname} />
-          <YearsInput value={yearsLater} onChange={setYearsLater} />
-          <InheritanceMethodToggle value={method} onChange={setMethod} />
-          {audioUrl ? (
-            <div>
-              <div className="flex w-full justify-center">
-                <AudioPlayer audioUrl={audioUrl} />
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  setAudioBlob(null);
-                  setAudioUrl(null);
-                }}
-                className="flex w-full items-center justify-end gap-1.5 pt-2 pr-4 text-gray-500 text-sm"
-              >
-                녹음 삭제하기
-              </button>
-            </div>
-          ) : (
-            <MessageInput
-              value={message}
-              onChange={setMessage}
-              onVoice={() => setShowVoiceSheet(true)}
-            />
-          )}
-          <PrimaryButton
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="mt-4"
-            label={isSubmitting ? '저장 중...' : '작성 완료'}
-          />
-        </div>
-      </div>
-      {showVoiceSheet && (
-        <VoiceRecorderSheet
-          onClose={() => setShowVoiceSheet(false)}
-          onSave={(blob) => {
-            if (audioUrl) {
-              URL.revokeObjectURL(audioUrl);
-            }
-            setAudioBlob(blob);
-            setAudioUrl(URL.createObjectURL(blob));
-            setShowVoiceSheet(false);
-          }}
-        />
-      )}
-    </div>
+  const recipient = recipients?.find(
+    (r) => String(r.inheritDetailId) === inheritDetailId,
   );
+
+  if (!recipient)
+    return <div className="p-8 text-center">대상을 찾을 수 없습니다.</div>;
+
+  return <Letter recipient={recipient} hook={letterHook} />;
 }

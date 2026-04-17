@@ -1,9 +1,9 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { myhanaApi } from '@/app/my/api/myApi';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { FamilySummaryDto, GuardianData } from '../types';
+import { getFamily } from '../../actions/guardianActions';
+import type { FamilySummaryDto, GuardianData } from '../types/types';
 
 type Props = {
   data: GuardianData;
@@ -32,7 +32,7 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
     refetch,
   } = useQuery({
     queryKey: ['familyList'],
-    queryFn: () => myhanaApi.getFamily(),
+    queryFn: () => getFamily(),
   });
 
   // 2. 가족 선택 시 실행될 함수 (컴포넌트 내부에 위치)
@@ -154,7 +154,7 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
 
       <PrimaryButton
         onClick={onNext}
-        disabled={!data.selectedPerson}
+        disabled={!data.selectedPerson || !data.relationship}
         className="mt-15 w-full"
         label={'다음'}
       />
