@@ -15,15 +15,11 @@ import com.server.asset.dto.link.AccountLinkResponse;
 import com.server.asset.entity.TBAccount;
 import com.server.asset.entity.TBRealAsset;
 import com.server.asset.entity.enums.AssetCategory;
-import java.math.BigDecimal;
-import java.util.List;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AssetMapper {
 
-  // 1. 금융 자산 목록 조회용
+  @Mapping(target = "accountId", expression = "java(String.valueOf(account.getAccountId()))")
   FinancialAssetResponse toFinancialAssetResponse(TBAccount account);
 
   List<FinancialAssetResponse> toFinancialAssetResponseList(List<TBAccount> accounts);
@@ -37,7 +33,7 @@ public interface AssetMapper {
 
   // 2. 실물 자산(부동산, 자동차, 금) 단건 상세 조회
   // 리스트 변환용으로 썼던 명칭을 그대로 사용하거나, 명확하게 단건용으로 정의합니다.
-  @Mapping(target = "assetId", source = "realAssetId")
+  @Mapping(target = "assetId", expression = "java(String.valueOf(asset.getRealAssetId()))")
   @Mapping(target = "amount", source = "evalAmt")
   @Mapping(target = "instNm", ignore = true)        // 실물자산엔 기관명 없음
   @Mapping(target = "monthlyPremAmt", ignore = true) // 실물자산엔 월납입금 없음
@@ -46,7 +42,7 @@ public interface AssetMapper {
   AssetDetailResponse toAssetDetailFromRealEntity(TBRealAsset asset);
 
   // 3. 금융 계좌 및 보험 단건 상세 조회
-  @Mapping(target = "assetId", source = "accountId")
+  @Mapping(target = "assetId", expression = "java(String.valueOf(account.getAccountId()))")
   @Mapping(target = "assetNm", source = "accountNm")
   @Mapping(target = "amount", source = "balanceAmt")
   @Mapping(target = "addr", ignore = true)           // 계좌엔 주소 없음
@@ -69,7 +65,7 @@ public interface AssetMapper {
         .build();
   }
 
-  @Mapping(target = "realAssetId", source = "realAssetId")
+  @Mapping(target = "realAssetId", expression = "java(String.valueOf(asset.getRealAssetId()))")
   @Mapping(target = "evalAmt", source = "evalAmt")
   RealAssetSummary toRealAssetSummary(TBRealAsset asset);
 

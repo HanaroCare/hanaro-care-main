@@ -12,8 +12,7 @@ import lombok.Builder;
 @Schema(description = "자산 상세 정보 공통 응답 (부동산/자동차/금/보험)")
 public record AssetDetailResponse(
     @Schema(description = "자산 ID", example = "1")
-    @JsonSerialize(using = ToStringSerializer.class)
-    Long assetId,
+    String assetId,
     
     @Schema(description = "자산 카테고리 코드", example = "REAL_ESTATE / VEHICLE / GOLD / INSURANCE")
     String assetCateCd,
