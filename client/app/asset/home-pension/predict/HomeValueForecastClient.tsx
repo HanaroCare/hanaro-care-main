@@ -242,7 +242,7 @@ export default function HomeValueForecastClient({ realAssetId }: Props) {
                           : 'bg-white text-[#6B7280]'
                       }`}
                     >
-                      {item.label}
+                      {item.label} 후
                     </button>
                   );
                 })}
