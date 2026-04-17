@@ -1,8 +1,10 @@
 package com.server.asset.dto.trust;
 
-import com.server.asset.entity.enums.TrustAccessLevel;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+
+import com.server.asset.entity.enums.TrustAccessLevel;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "부모별 신탁 권한 목록 응답")
 public record TrustGrantorResponse(
@@ -15,7 +17,7 @@ public record TrustGrantorResponse(
 	public record GrantorItem(
 
 		@Schema(description = "부모(grantor) userId", example = "1001")
-		Long grantorId,
+		String grantorId,
 
 		@Schema(description = "부모 이름", example = "홍길동")
 		String grantorName,

@@ -1,5 +1,12 @@
 package com.server.asset.service;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.IntStream;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.dto.trust.TrustAgentViewUpdateRequest;
 import com.server.asset.dto.trust.TrustGrantorResponse;
@@ -29,12 +36,8 @@ import com.server.user.entity.TBFamilyAuth;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.IntStream;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 신탁 설계 저장/조회, 가입 상품 조회/수정,
@@ -150,7 +153,7 @@ public class TrustService {
         .findAllByGrantee_UserId(granteeId)
         .stream()
         .map(auth -> new TrustGrantorResponse.GrantorItem(
-            auth.getGrantor().getUserId(),
+            String.valueOf(auth.getGrantor().getUserId()),
             auth.getGrantor().getUserNm(),
             auth.getRelationCd().name(),
             auth.getRelationCd().getDescription(),
@@ -336,7 +339,7 @@ public class TrustService {
         .orElse(null);
 
     return new TrustProductResponse.ClaimAgent(
-        claimAgent.getUserId(),
+        String.valueOf(claimAgent.getUserId()),
         claimAgent.getUserNm(),
         relation
     );

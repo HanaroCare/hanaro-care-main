@@ -9,6 +9,7 @@ db.properties
 secure/
 *.bak
 backup/
+src/test/resources/dummy-values-test.yaml
 
 # === Java & Gradle (빌드 결과물) ===
 .gradle/

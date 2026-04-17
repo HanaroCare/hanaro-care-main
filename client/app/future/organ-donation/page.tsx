@@ -38,7 +38,8 @@ export default function OrganDonationPage() {
         videoSubtitle="실제 장기 기증 절차"
         videoTitle="영상으로 알아보기"
         faqItems={faqItems}
-        consultHref={"/future/organ-donation/consult" as Route}
+        videoSrc="https://www.youtube.com/embed/YaSCigPmokU?playsinline=1&rel=0"
+        consultHref={"tel:02-2628-3602" as Route}
         applyHref={"/future/organ-donation/delivery" as Route}
         applyLabel="신청서 작성하기"
         onApplyClick={() => setShowPopup(true)}
