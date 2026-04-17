@@ -4,6 +4,7 @@ import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import CompleteStep from '@/components/modules/CompleteStep';
+import { updateInsurancePermission } from '../../../actions/familyActions';
 
 export default function Step4Done({
   insuranceCount,
@@ -12,42 +13,22 @@ export default function Step4Done({
 }) {
   const router = useRouter();
 
-  const handleFinish = () => {
-    // 임시 저장된 ID를 가져와서 기존 공유 배열에 추가
+  const handleFinish = async () => {
+    // 임시 저장된 ID를 가져와서 서버 API 호출
     const pendingIdStr = localStorage.getItem('pending_share_id');
     if (pendingIdStr) {
       const pendingId = Number(pendingIdStr);
-      const sharedDataStr = localStorage.getItem('shared_family_ids');
-      let sharedData: { id: number; insuranceCount: number }[] = [];
-
-      if (sharedDataStr) {
-        try {
-          const parsed = JSON.parse(sharedDataStr);
-          if (Array.isArray(parsed)) {
-            // 호환성을 위해 기존 number[] 형식 체크 및 변환
-            sharedData = parsed.map((item) =>
-              typeof item === 'number' ? { id: item, insuranceCount: 3 } : item,
-            );
-          }
-        } catch (e) {
-          console.warn(
-            'Failed to parse shared_family_ids from localStorage in Step4Done:',
-            e,
-          );
-        }
+      try {
+        await updateInsurancePermission({
+          granteeId: pendingId,
+          isInsView: true,
+        });
+        localStorage.removeItem('pending_share_id');
+      } catch (error) {
+        console.error('보험 공유 권한 저장 실패:', error);
+        alert('권한 저장에 실패했습니다. 다시 시도해주세요.');
+        return;
       }
-
-      const existingIndex = sharedData.findIndex(
-        (item) => item.id === pendingId,
-      );
-      if (existingIndex > -1) {
-        sharedData[existingIndex].insuranceCount = insuranceCount;
-      } else {
-        sharedData.push({ id: pendingId, insuranceCount });
-      }
-
-      localStorage.setItem('shared_family_ids', JSON.stringify(sharedData));
-      localStorage.removeItem('pending_share_id');
     }
     router.push('/my/family' as Route);
   };

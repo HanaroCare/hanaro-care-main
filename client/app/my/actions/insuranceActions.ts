@@ -17,11 +17,16 @@ const getAuthHeader = async () => {
   };
 };
 
+const BASE_URL =
+  process.env.SPRING_API_URL ??
+  process.env.API_URL ??
+  'http://localhost:8080';
+
 // 보험 목록 조회 (나 + 공유 허락한 유저)
 export async function getInsurances() {
   try {
     const response = await fetch(
-      `${process.env.API_URL}/api/myhana/insurances`,
+      `${BASE_URL}/api/myhana/insurances`,
       {
         method: 'GET',
         headers: await getAuthHeader(),
@@ -42,16 +47,14 @@ export async function getInsurances() {
 // 보험 상세 조회
 export async function getInsuranceDetail(insuranceId: string) {
   try {
-    // process.env.API_URL 대신 실제 서버 주소를 직접 넣어보세요 (예: http://localhost:8080)
-    const baseUrl = process.env.API_URL || 'http://localhost:8080'; 
-    const url = `${baseUrl}/api/myhana/insurances/${insuranceId}`;
+    const url = `${BASE_URL}/api/myhana/insurances/${insuranceId}`;
     
-    console.log("🚀 호출 주소:", url); // 서버 터미널에서 이 주소가 맞는지 꼭 확인!
+    console.log("🚀 호출 주소:", url);
 
     const response = await fetch(url, {
       method: 'GET',
       headers: await getAuthHeader(),
-      cache: 'no-store' // 상세 페이지는 항상 최신 정보를 가져오도록 설정
+      cache: 'no-store'
     });
 
     if (!response.ok) {
