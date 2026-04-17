@@ -8,8 +8,8 @@ cloud:
     s3:
       endpoint: http://localhost:4566
       bucket:
-        public: hanacare-public
-        private: hanacare-private
+        public: hanaro-public
+        private: hanaro-private
 
 voice:
   upload-dir: src/main/resources/static/voice
