@@ -4,10 +4,21 @@ import Header from '@/components/navigation/Header';
 import { InfoListCard } from '@/components/modules/InfoListCard';
 import { AssetChart } from '../../components/AssetChart';
 import { formatKoreanCurrency } from '../../utils/formatCurrency';
-import {AssetDetailResponse} from '../../utils/types';
+import { AssetDetailResponse } from '../../utils/types';
 
 interface Props {
     assetData: AssetDetailResponse | null;
+}
+
+type VehicleDesc = { brand?: string; model?: string; details?: string; car_number?: string };
+
+function parseVehicleDesc(desc: string | null | undefined): VehicleDesc {
+    if (!desc) return {};
+    try {
+        return JSON.parse(desc) as VehicleDesc;
+    } catch {
+        return {};
+    }
 }
 
 export default function CarDetailClient({ assetData }: Props) {
@@ -23,12 +34,19 @@ export default function CarDetailClient({ assetData }: Props) {
         );
     }
 
+    const parsed = parseVehicleDesc(assetData.assetDesc);
+    const brand = parsed.brand ?? '';
+    const model = parsed.model ?? '';
+    const detailParts = (parsed.details ?? '').split(' · ');
+    const regDt = detailParts[0] ?? '';
+    const mileage = detailParts[1] ?? '';
+    const carNumber = parsed.car_number ?? '정보 없음';
+    const subtitle = [[brand, model].filter(Boolean).join(' '), regDt].filter(Boolean).join(' · ');
+
     const carInfo = {
         priceChange: 1500000,
         changePercent: 3.2,
-        carNumber: '123가 4567',
         fuel: '가솔린',
-        details: assetData.assetDesc || '2022년식 · 32,000km',
     };
 
     const isDecrease = carInfo.priceChange < 0;
@@ -44,15 +62,15 @@ export default function CarDetailClient({ assetData }: Props) {
                         {assetData.assetNm}
                     </h2>
                     <p className="mt-1 text-[15px] text-hana-black-500">
-                        {carInfo.details}
+                        {subtitle}
                     </p>
                     <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
-              {formatKoreanCurrency(assetData.amount)}
-            </span>
+                        <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
+                            {formatKoreanCurrency(assetData.amount)}
+                        </span>
                         <span className="font-medium text-[15px] text-hana-blue-500">
-              {changeIcon} {formatKoreanCurrency(Math.abs(carInfo.priceChange))} ({Math.abs(carInfo.changePercent)}%)
-            </span>
+                            {changeIcon} {formatKoreanCurrency(Math.abs(carInfo.priceChange))} ({Math.abs(carInfo.changePercent)}%)
+                        </span>
                     </div>
                 </div>
 
@@ -79,8 +97,9 @@ export default function CarDetailClient({ assetData }: Props) {
                     title="차량 정보"
                     items={[
                         { label: '차량명', value: assetData.assetNm },
-                        { label: '차량번호', value: carInfo.carNumber },
-                        { label: '연식/주행', value: carInfo.details },
+                        { label: '차량번호', value: carNumber },
+                        { label: '연식', value: regDt || '정보 없음' },
+                        { label: '주행', value: mileage || '정보 없음' },
                         { label: '연료', value: carInfo.fuel },
                     ]}
                 />

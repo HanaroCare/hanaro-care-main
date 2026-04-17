@@ -45,7 +45,7 @@ export async function serverFetch<T>(
 ): Promise<T> {
   const cookieStore = await cookies();
   const token =
-    cookieStore.get('AUTH_TOKEN')?.value ??
+    cookieStore.get('ACCESS_TOKEN')?.value ??
     cookieStore.get('accessToken')?.value;
 
   const res = await fetch(`${SPRING_API_URL}${path}`, {

@@ -34,6 +34,12 @@ export async function getRealAssetDetail(
   return serverFetch<AssetDetailResponse>(`/api/asset/real-asset/${assetId}`);
 }
 
+export async function getInsuranceDetail(
+  assetId: string,
+): Promise<InsuranceAssetResponse> {
+  return serverFetch<InsuranceAssetResponse>(`/api/my/insurance/${assetId}`);
+}
+
 export async function getSimulationSummary(): Promise<
   | { ok: true; data: SimulationSummaryResponse }
   | { ok: false; reason: 'fetch_failed' }

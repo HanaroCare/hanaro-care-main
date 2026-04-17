@@ -16,6 +16,31 @@ import type { AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResp
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
+type HousingDesc = { housing_type?: string; acquisition_year?: number };
+type VehicleDesc = { brand?: string; model?: string; details?: string };
+
+function parseAssetDesc(cateCd: 'VEHICLE' | 'REAL_ESTATE', desc: string | null | undefined): string {
+    if (!desc) return '';
+    try {
+        const d = typeof desc === 'string' ? JSON.parse(desc) : desc;
+
+        if (cateCd === 'VEHICLE') {
+            const label = [d.brand, d.model].filter(Boolean).join(' ');
+            const regDt = d.details?.split(' · ')[0] ?? '';
+            return [label, regDt].filter(Boolean).join(' · ');
+        }
+        if (cateCd === 'REAL_ESTATE') {
+            const parts: string[] = [];
+            if (d.acquisition_year) parts.push(`${d.acquisition_year}년 취득`);
+            if (d.housing_type) parts.push(d.housing_type);
+            return parts.join(' · ');
+        }
+    } catch {
+        return typeof desc === 'string' && !desc.includes('{') ? desc : '';
+    }
+    return '';
+}
+
 interface SummaryItem {
     type: 'total' | 'property' | 'insurance' | 'car' | 'gold';
     amount: string;
@@ -60,7 +85,6 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
         router.replace(`/asset?tab=${tabId}`, { scroll: false });
     };
 
-    // 상단 헤더 요약 데이터 계산
     const summaryData = useMemo<Record<TabId, SummaryItem>>(() => {
         const getRealSum = (cate: string) =>
             realAssets
@@ -78,7 +102,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 type: 'property',
                 amount: formatKoreanCurrency(getRealSum('REAL_ESTATE')),
                 buttonLabel: '부동산 연동하기',
-                href: '/asset/housing' as Route,
+                href: '/mydata/house?from=asset' as Route,
             },
             insurance: {
                 type: 'insurance',
@@ -87,20 +111,20 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         .filter(a => a.assetCateCd === 'INSURANCE')
                         .reduce((sum, a) => sum + (a.balanceAmt ?? 0), 0)
                 ),
-                buttonLabel: '보험 연동하기',
-                href: '/asset/insurance' as Route,
+                buttonLabel: '',
+                href: '' as Route,
             },
             car: {
                 type: 'car',
                 amount: formatKoreanCurrency(getRealSum('VEHICLE')),
                 buttonLabel: '자동차 연동하기',
-                href: '/asset/car' as Route,
+                href: '/mydata/car?from=asset' as Route,
             },
             gold: {
                 type: 'gold',
                 amount: formatKoreanCurrency(getRealSum('GOLD')),
                 buttonLabel: '금 연동하기',
-                href: '/asset/gold' as Route,
+                href: '/mydata/gold' as Route,
             },
         };
     }, [dashboardData, financialAssets, realAssets]);
@@ -125,32 +149,31 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                     </>
                 );
             case 'realestate':
-                return realAssets.filter(a => a.assetCateCd === 'REAL_ESTATE').map(asset => (
+                return realAssets.filter(a => a.assetCateCd === 'REAL_ESTATE').map((asset, index) => (
                     <AssetDetailCard
-                        key={asset.realAssetId}
+                        key={`REAL_ESTATE-${asset.realAssetId}-${index}`}
                         type="property"
                         title={asset.assetNm}
-                        subtitle={`${asset.assetSize}㎡ · ${asset.addr}`}
+                        subtitle={parseAssetDesc('REAL_ESTATE', asset.assetDesc)}
                         value={formatKoreanCurrency(asset.evalAmt ?? 0)}
-                        href={`/asset/housing/${asset.realAssetId}` as Route} // ID 기반 경로로 수정
+                        href={`/asset/housing/${asset.realAssetId}` as Route}
                     />
                 ));
-
             case 'insurance':
                 return (
                     <div className="mt-4 flex w-full flex-col items-center gap-6">
                         <AlertBanner message="보험대리청구인으로 지정되셨나요?" actionText="인증하기" variant="warning" />
                         {insuranceAssets.length > 0 ? (
-                            insuranceAssets.map(asset => (
+                            insuranceAssets.map((asset, index) => (
                                 <AssetDetailCard
-                                    key={asset.assetId}
+                                    key={`INSURANCE-${asset.assetId}-${index}`}
                                     type="insurance"
                                     iconType="hana-bank"
                                     company={asset.instNm}
                                     insuranceName={asset.assetNm}
                                     monthlyPremium={`월 ${formatKoreanCurrency(asset.monthlyPremAmt || 0)}`}
                                     status="normal"
-                                    href={`/asset/insurance/${asset.assetId}` as Route} // 보험 상세 ID 경로
+                                    href={`/my/insurance/${asset.assetId}` as Route}
                                 />
                             ))
                         ) : (
@@ -159,27 +182,28 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                     </div>
                 );
             case 'car':
-                return realAssets.filter(a => a.assetCateCd === 'VEHICLE').map(asset => (
+                return realAssets.filter(a => a.assetCateCd === 'VEHICLE').map((asset, index) => (
                     <AssetDetailCard
-                        key={asset.realAssetId}
+                        key={`VEHICLE-${asset.realAssetId}-${index}`}
                         type="car"
                         title={asset.assetNm}
-                        subtitle={asset.assetDesc || ''}
+                        subtitle={parseAssetDesc('VEHICLE', asset.assetDesc)}
                         value={formatKoreanCurrency(asset.evalAmt ?? 0)}
-                        href={`/asset/car/${asset.realAssetId}` as Route} // ID 기반 경로로 수정
+                        href={`/asset/car/${asset.realAssetId}` as Route}
                     />
                 ));
             case 'gold':
-                return realAssets.filter(a => a.assetCateCd === 'GOLD').map(asset => (
+                return realAssets.filter(a => a.assetCateCd === 'GOLD').map((asset, index) => (
                     <AssetDetailCard
-                        key={asset.realAssetId}
+                        key={`GOLD-${asset.realAssetId}-${index}`}
                         type="gold"
                         title={asset.assetNm}
                         subtitle="금 현물"
-                        value={formatKoreanCurrency(asset.evalAmt ?? 0)} // RealAssetSummary 타입에 맞게 evalAmt 사용
-                        href={`/asset/gold/${asset.realAssetId}` as Route} // ID 기반 경로로 수정
+                        value={formatKoreanCurrency(asset.evalAmt ?? 0)}
+                        href={`/asset/gold/${asset.realAssetId}` as Route}
                     />
                 ));
+
             default: return null;
         }
     };
@@ -192,7 +216,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             </div>
             <main className="flex flex-col items-center gap-6 px-6 pb-24">
                 {renderTabContent()}
-                {activeTab !== 'asset' && (
+                {activeTab !== 'asset' && currentSummary.buttonLabel && (
                     <div className="mt-4 w-full">
                         <PrimaryButton
                             label={currentSummary.buttonLabel}

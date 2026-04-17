@@ -58,7 +58,7 @@ function NewPasswordContent() {
               입력해 주세요
             </h2>
             <p className="mt-[0.75rem] text-[0.875rem] text-muted-foreground">
-              6~8자 영문 포함하여 입력해주세요.
+              8자~16자 영문 포함하여 입력해주세요.
             </p>
           </div>
 
@@ -90,7 +90,7 @@ function NewPasswordContent() {
               />
               {password.length > 0 && !isPasswordSecure && (
                 <p className="ml-[0.2rem] text-[0.75rem] text-hana-red-500">
-                  6~8자 영문 포함하여 입력해주세요.
+                  8자~16자 영문 포함하여 입력해주세요.
                 </p>
               )}
             </div>

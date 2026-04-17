@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getBannerStatus } from '@/app/asset/actions/notificationStatus';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import CompleteStep from '@/components/modules/CompleteStep';
 import AgencySelectStep from '../components/AgencySelectStep';
@@ -18,19 +19,24 @@ export default function MyDataConnectPage() {
   const router = useRouter();
   const [step, setStep] = useState<Step>('consent');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [userName, setUserName] = useState('사용자');
+
+  useEffect(() => {
+    getBannerStatus().then((s) => {
+      if (s.userName) setUserName(s.userName);
+    });
+  }, []);
 
   const handleConsentNext = () => setStep('intro');
 
   const handleCustomSelectMode = () => setStep('select');
 
-  // 전체 연결: 모든 계좌 ID를 가져와 isLinked=true 로 일괄 처리
   const handleIntroConfirm = async () => {
     const accounts = await getConnectableAssets();
     await updateAssetLinkStatus(accounts.map((a) => a.accountId));
     setStep('loading');
   };
 
-  // 선택 연결: AgencySelectStep 에서 선택된 ID만 연동 처리
   const handleAgencySelectComplete = async (selectedIds: string[]) => {
     await updateAssetLinkStatus(selectedIds);
     setStep('loading');
@@ -64,6 +70,7 @@ export default function MyDataConnectPage() {
               {step === 'consent' && <ConsentStep onNext={handleConsentNext} />}
               {step === 'intro' && (
                 <IntroStep
+                  name={userName}
                   onConfirm={handleIntroConfirm}
                   onCustomMode={handleCustomSelectMode}
                 />
@@ -72,7 +79,7 @@ export default function MyDataConnectPage() {
                 <AgencySelectStep onNext={handleAgencySelectComplete} />
               )}
               {step === 'loading' && (
-                <LoadingStep onComplete={handleLoadingComplete} />
+                <LoadingStep name={userName} onComplete={handleLoadingComplete} />
               )}
               {step === 'complete' && (
                 <CompleteStep

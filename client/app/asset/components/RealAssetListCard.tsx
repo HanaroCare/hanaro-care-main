@@ -5,7 +5,45 @@ import { Car, ChevronRight, Coins, Home, Link2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, XAxis, YAxis } from "recharts";
 import { formatKoreanCurrency } from "../utils/formatCurrency";
-import type { RealAssetSummary } from "../utils/types";
+import type { RealAssetCategory, RealAssetSummary } from "../utils/types";
+
+// ─── assetDesc JSON 파서 ──────────────────────────────────────────────────────
+
+type HousingDesc = { housing_type?: string; acquisition_year?: number; has_loan?: boolean };
+type VehicleDesc = { brand?: string; model?: string; details?: string };
+type GoldDesc    = { purity?: string; weight_g?: string };
+
+function parseRealAssetDesc(
+  cateCd: RealAssetCategory,
+  assetDesc: string | null | undefined,
+): string {
+  if (!assetDesc) return '';
+  try {
+    if (cateCd === 'REAL_ESTATE') {
+      const d = JSON.parse(assetDesc) as HousingDesc;
+      const parts: string[] = [];
+      if (d.acquisition_year) parts.push(`${d.acquisition_year}년 취득`);
+      if (d.housing_type)     parts.push(d.housing_type);
+      return parts.join(' · ');
+    }
+    if (cateCd === 'VEHICLE') {
+      const d = JSON.parse(assetDesc) as VehicleDesc;
+      const label = [d.brand, d.model].filter(Boolean).join(' ');
+      const regDt  = d.details?.split(' · ')[0] ?? '';
+      return [label, regDt].filter(Boolean).join(' · ');
+    }
+    if (cateCd === 'GOLD') {
+      const d = JSON.parse(assetDesc) as GoldDesc;
+      const parts: string[] = [];
+      if (d.weight_g) parts.push(`${d.weight_g}g`);
+      if (d.purity)   parts.push(`${d.purity}K 순도`);
+      return parts.join(' · ');
+    }
+  } catch {
+    // JSON 파싱 실패 시 빈 문자열 반환
+  }
+  return '';
+}
 
 const ASSET_ICON_MAP = {
 	REAL_ESTATE: Home,
@@ -153,15 +191,7 @@ export function RealAssetCard({ data }: RealAssetCardProps) {
 
 									<div className="mt-1 flex items-center justify-between">
 										<span className="text-[11px] text-hana-black-500">
-											{asset.assetCateCd === "REAL_ESTATE" && (asset.assetSize ?? 0) > 0
-												? `${asset.assetSize}㎡ · `
-												: ""}
-											{asset.assetCateCd === "GOLD" &&
-											(asset.assetSize ?? 0) > 0 &&
-											!asset.assetNm.includes(`${asset.assetSize}g`)
-												? `${asset.assetSize}g · `
-												: ""}
-											{asset.assetDesc}
+											{parseRealAssetDesc(asset.assetCateCd, asset.assetDesc)}
 										</span>
 									</div>
 								</div>
