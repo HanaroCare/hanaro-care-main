@@ -7,8 +7,14 @@ import { useEffect, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ShareSheet from '@/components/modules/ShareSheet';
 import Header from '@/components/navigation/Header';
+import {
+  getFamilyMembers,
+  updateInsurancePermission,
+  inviteFamily,
+} from '../actions/familyActions';
+import type { FamilyMemberResponse } from './types';
 
-// --- 임시 데이터 및 인터페이스 ---
+// --- 인터페이스 ---
 interface FamilyMember {
   id: number;
   lastName: string;
@@ -22,50 +28,32 @@ interface FamilyMember {
   textColor: string; // Tailwind text class
 }
 
-// 모든 가족 초기값 '공유 안함'으로 설정
-const initialFamilyMembers: FamilyMember[] = [
-  {
-    id: 1,
-    lastName: '권',
-    name: '권하나',
-    relationship: '본인',
-    phone: '010-1234-5678',
-    isMe: true,
-    isSharing: false,
-    circleColor: 'bg-hana-green-100',
-    textColor: 'text-hana-green-700',
-  },
-  {
-    id: 2,
-    lastName: '김',
-    name: '김영웅',
-    relationship: '배우자',
-    phone: '010-5678-1234',
-    isSharing: false,
-    circleColor: 'bg-hana-green-100',
-    textColor: 'text-hana-green-700',
-  },
-  {
-    id: 3,
-    lastName: '김',
-    name: '김유진',
-    relationship: '자녀',
-    phone: '010-9876-5432',
-    isSharing: false,
+const getColors = (relation: string) => {
+  if (relation === '본인' || relation === '배우자') {
+    return {
+      circleColor: 'bg-hana-green-100',
+      textColor: 'text-hana-green-700',
+    };
+  }
+  return {
     circleColor: 'bg-hana-yellow-100',
     textColor: 'text-hana-yellow-700',
-  },
-  {
-    id: 4,
-    lastName: '김',
-    name: '김생명',
-    relationship: '자녀',
-    phone: '010-2468-1357',
-    isSharing: false,
-    circleColor: 'bg-hana-yellow-100',
-    textColor: 'text-hana-yellow-700',
-  },
-];
+  };
+};
+
+const mapResponseToFamilyMember = (res: FamilyMemberResponse): FamilyMember => {
+  const colors = getColors(res.relation);
+  return {
+    id: res.userId,
+    lastName: res.name.charAt(0),
+    name: res.name,
+    relationship: res.relation,
+    phone: res.phone,
+    isMe: res.isMe,
+    isSharing: res.isSharing,
+    ...colors,
+  };
+};
 
 // --- 하위 컴포넌트 ---
 
@@ -322,42 +310,29 @@ const BottomSheet = ({
 
 export default function FamilyManagementPage() {
   const router = useRouter();
-  const [members, setMembers] = useState<FamilyMember[]>(initialFamilyMembers);
+  const [members, setMembers] = useState<FamilyMember[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
+  const [inviteToken, setInviteToken] = useState<string>('');
 
-  // 공유 완료 상태 복구
-  useEffect(() => {
-    const sharedDataStr = localStorage.getItem('shared_family_ids');
-    if (sharedDataStr) {
-      try {
-        const sharedData = JSON.parse(sharedDataStr);
-        if (Array.isArray(sharedData)) {
-          setMembers((prev) =>
-            prev.map((m) => {
-              const sharedItem = sharedData.find((item: any) =>
-                typeof item === 'number' ? item === m.id : item.id === m.id,
-              );
-              if (sharedItem) {
-                return {
-                  ...m,
-                  isSharing: true,
-                  sharingInsuranceCount:
-                    typeof sharedItem === 'number'
-                      ? 3
-                      : sharedItem.insuranceCount,
-                };
-              }
-              return m;
-            }),
-          );
-        }
-      } catch (e) {
-        console.warn('Failed to parse shared_family_ids from localStorage:', e);
-      }
+  // 데이터 로드
+  const loadFamilyMembers = async () => {
+    try {
+      setLoading(true);
+      const data = await getFamilyMembers();
+      setMembers(data.map(mapResponseToFamilyMember));
+    } catch (error) {
+      console.error('가족 목록을 불러오는데 실패했습니다:', error);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
+    loadFamilyMembers();
   }, []);
 
   const sharingCount = members.filter((m) => m.isSharing).length;
@@ -368,40 +343,24 @@ export default function FamilyManagementPage() {
       setPendingToggleId(id);
       setIsConfirmOpen(true);
     } else {
-      // 공유 시작 로직 (필요 시 구현)
       setIsBottomSheetOpen(true);
     }
   };
 
-  const confirmToggleOff = () => {
+  const confirmToggleOff = async () => {
     if (pendingToggleId) {
-      setMembers((prev) =>
-        prev.map((m) =>
-          m.id === pendingToggleId
-            ? { ...m, isSharing: false, sharingInsuranceCount: 0 }
-            : m,
-        ),
-      );
-
-      const sharedDataStr = localStorage.getItem('shared_family_ids');
-      if (sharedDataStr) {
-        try {
-          const sharedData = JSON.parse(sharedDataStr);
-          if (Array.isArray(sharedData)) {
-            const newData = sharedData.filter((item: any) =>
-              typeof item === 'number'
-                ? item !== pendingToggleId
-                : item.id !== pendingToggleId,
-            );
-            localStorage.setItem('shared_family_ids', JSON.stringify(newData));
-          }
-        } catch (e) {
-          console.warn('Failed to parse shared_family_ids for toggle off:', e);
-        }
+      try {
+        await updateInsurancePermission({
+          granteeId: pendingToggleId,
+          isInsView: false,
+        });
+        await loadFamilyMembers(); // 최신 데이터로 갱신
+        setIsConfirmOpen(false);
+        setPendingToggleId(null);
+      } catch (error) {
+        console.error('보험 공유 중단 실패:', error);
+        alert('보험 공유 중단에 실패했습니다.');
       }
-
-      setIsConfirmOpen(false);
-      setPendingToggleId(null);
     }
   };
 
@@ -410,6 +369,28 @@ export default function FamilyManagementPage() {
     router.push('/my/family/share' as Route);
     setIsBottomSheetOpen(false);
   };
+
+  const handleAddFamily = async () => {
+    try {
+      // 서버에서 초대 토큰 생성
+      const token = await inviteFamily({});
+      // 실제 배포 시에는 도메인을 포함한 전체 URL을 구성해야 함
+      const inviteUrl = `${window.location.origin}/onboarding?token=${token}`;
+      setInviteToken(inviteUrl);
+      setIsAddSheetOpen(true);
+    } catch (error) {
+      console.error('초대 링크 생성 실패:', error);
+      alert('초대 링크를 생성하지 못했습니다.');
+    }
+  };
+
+  if (loading && members.length === 0) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-hana-ez-600 border-t-transparent"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-shell bg-[#F9F9F9]">
@@ -425,7 +406,7 @@ export default function FamilyManagementPage() {
           <Stats
             registeredCount={members.length}
             sharingCount={sharingCount}
-            requestedCount={5}
+            requestedCount={0}
           />
 
           <div className="mb-8">
@@ -433,7 +414,7 @@ export default function FamilyManagementPage() {
               label="가족 추가하기"
               variant="secondary"
               icon={<PlusCircle className="h-5 w-5" />}
-              onClick={() => setIsAddSheetOpen(true)}
+              onClick={handleAddFamily}
             />
           </div>
 
@@ -479,7 +460,8 @@ export default function FamilyManagementPage() {
 
         {isAddSheetOpen && (
           <ShareSheet
-            title="가족 추가하기"
+            title="가족 초대하기"
+            shareUrl={inviteToken}
             onClose={() => setIsAddSheetOpen(false)}
           />
         )}
