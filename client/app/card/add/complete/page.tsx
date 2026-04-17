@@ -1,46 +1,56 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { CheckCircle } from "lucide-react";
-import CardView from "../../components/CardView";
+import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Route } from "next";
 import Header from "@/components/navigation/Header";
+import CompleteStep from "@/components/modules/CompleteStep";
+import CardView from "../../components/CardView";
+import PrimaryButton from "@/components/baseelements/PrimaryButton";
 
-export default function CardIssueCompletePage() {
+function CardIssueCompleteContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const designId = searchParams.get("designId") ?? "1";
+  const designCd = String.fromCharCode(64 + Number(designId));
 
   return (
-    <div className="relative min-h-screen bg-white">
-      {/* 헤더 */}
+    <div className="min-h-screen bg-white">
       <Header title="카드 발급" />
-
-      {/* 완료 */}
-      <div className="flex flex-col items-center justify-center mt-24">
-        <CheckCircle size={67} color="#008485" strokeWidth={2.5} />
-        <p className="mt-6 text-2xl font-semibold text-hana-black-800 text-center">
+      <CompleteStep
+        className="pt-10 !min-h-[calc(100dvh-65px)]"
+        footer={
+          <>
+            <button
+              onClick={() => router.push("/card/add" as Route)}
+              className="w-full h-[53px] rounded-xl border-2 border-border-gray text-[#99A1AF] text-base font-medium"
+            >
+              + 카드 추가하기
+            </button>
+            <PrimaryButton
+              label="홈으로 돌아가기"
+              onClick={() => router.push("/card" as Route)}
+              fullWidth={true}
+            />
+          </>
+        }
+      >
+        <h2 className="text-[1.75rem] font-bold text-gray-900 mb-3 leading-tight tracking-tight">
           신청이 완료되었습니다.
+        </h2>
+        <p className="text-[1.125rem] text-gray-500 mb-8 leading-relaxed">
+          카드가 발급되었어요
         </p>
-      </div>
-
-      {/* 카드 미리보기 */}
-      <div className="flex justify-center mt-12">
-        <CardView cardNm="요양보호사1 카드" />
-      </div>
-
-      {/* 버튼 */}
-      <div className="absolute bottom-8 left-0 right-0 px-6 flex flex-col gap-3">
-        <button
-          onClick={() => router.push("/card/add")}
-          className="w-full h-[53px] rounded-xl border-2 border-border-gray text-[#99A1AF] text-base font-medium"
-        >
-          + 카드 추가하기
-        </button>
-        <button
-          onClick={() => router.push("/card")}
-          className="w-full h-[53px] rounded-xl bg-hana-ez-600 text-white text-base font-medium hover:bg-hana-green-700 transition-colors"
-        >
-          홈으로 돌아가기
-        </button>
-      </div>
+        <CardView cardNm="발급 완료" designCd={designCd} />
+      </CompleteStep>
     </div>
+  );
+}
+
+export default function CardIssueCompletePage() {
+  return (
+    <Suspense>
+      <CardIssueCompleteContent />
+    </Suspense>
   );
 }

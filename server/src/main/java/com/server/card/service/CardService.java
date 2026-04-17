@@ -19,7 +19,10 @@ import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBFamilyAuth;
 import com.server.user.repository.FamilyAuthRepository;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,7 +38,7 @@ public class CardService {
 
   @Transactional
   public TBCard registerCard(Long userId, CardRegisterRequest request) {
-    if (request.getLimitAmt().compareTo(new BigDecimal("600000")) > 0) {
+    if (request.getLimitAmt().compareTo(new BigDecimal("2000000")) > 0) {
       // 600000 초과
       throw new ApiException(ErrorStatus.CARD_LIMIT_EXCEEDED);
     }
@@ -63,11 +66,19 @@ public class CardService {
     if (request.getFamilyAuthIds() != null && !request.getFamilyAuthIds().isEmpty()) {
       List<com.server.user.entity.TBFamilyAuth> familyAuths = familyAuthRepository.findAllById(
           request.getFamilyAuthIds());
+
+      List<com.server.user.entity.TBFamilyAuth> newAuths = new ArrayList<>();
       for (com.server.user.entity.TBFamilyAuth auth : familyAuths) {
-        auth.setIsCardView(true);
-        auth.setCard(savedCard);
+        com.server.user.entity.TBFamilyAuth newAuth = com.server.user.entity.TBFamilyAuth.builder()
+            .grantor(auth.getGrantor())
+            .grantee(auth.getGrantee())
+            .relationCd(auth.getRelationCd())
+            .isCardView(true)
+            .card(savedCard)
+            .build();
+        newAuths.add(newAuth);
       }
-      familyAuthRepository.saveAll(familyAuths);
+      familyAuthRepository.saveAll(newAuths);
     }
 
     return savedCard;
@@ -140,29 +151,41 @@ public class CardService {
   public List<FamilyMemberResponse> getFamilyMembers(Long userId) {
     return familyAuthRepository.findAllByGrantor_UserId(userId)
         .stream()
+        .collect(Collectors.toMap(
+            auth -> auth.getGrantee().getUserId(),  // granteeId 기준 중복 제거
+            auth -> auth,
+            (existing, replacement) -> existing  // 중복이면 첫 번째 유지
+        ))
+        .values()
+        .stream()
         .map(FamilyMemberResponse::from)
         .toList();
   }
 
   @Transactional(readOnly = true)
   public List<CardRegisterResponse> getMyCards(Long userId) {
-    List<TBFamilyAuth> grantorCards = familyAuthRepository.findAllByGrantor_UserIdAndIsCardViewTrue(
-        userId);
-    List<TBFamilyAuth> granteeCards = familyAuthRepository.findAllByGrantee_UserIdAndIsCardViewTrue(
-        userId);
+    Map<Long, TBCard> cardMap = new java.util.LinkedHashMap<>();
 
-    List<TBCard> cards = new java.util.ArrayList<>();
-    grantorCards.stream().map(TBFamilyAuth::getCard).filter(c -> c != null).forEach(cards::add);
-    granteeCards.stream().map(TBFamilyAuth::getCard).filter(c -> c != null).forEach(cards::add);
+    // 1. 본인이 발급한 카드 (account 기준)
+    cardRepository.findAllByAccount_User_UserId(userId)
+        .forEach(c -> cardMap.put(c.getCardId(), c));
 
-    return cards.stream()
+    // 2. FamilyAuth 기반 카드
+    familyAuthRepository.findAllByGrantor_UserIdAndIsCardViewTrue(userId)
+        .stream().map(TBFamilyAuth::getCard).filter(c -> c != null)
+        .forEach(c -> cardMap.put(c.getCardId(), c));
+    familyAuthRepository.findAllByGrantee_UserIdAndIsCardViewTrue(userId)
+        .stream().map(TBFamilyAuth::getCard).filter(c -> c != null)
+        .forEach(c -> cardMap.put(c.getCardId(), c));
+
+    return cardMap.values().stream()
         .map(CardRegisterResponse::from)
         .toList();
   }
 
   @Transactional
   public void chargeCard(Long userId, CardChargeRequest request) {
-    TBCard card = cardRepository.findById(request.getCardId())
+    TBCard card = cardRepository.findById(Long.parseLong(request.getCardId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
 
     // 카드 권한 검증
@@ -245,5 +268,12 @@ public class CardService {
     if (!hasAccess) {
       throw new ApiException(ErrorStatus.CARD_FORBIDDEN);
     }
+  }
+
+  @Transactional(readOnly = true)
+  public CardUsageResponse getCardUsage(Long userId, Long usageId) {
+    TBCardUsage usage = cardUsageRepository.findById(usageId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
+    return CardUsageResponse.from(usage);
   }
 }
