@@ -41,8 +41,7 @@ VALUES
     -- 3. 이영희: 휴면 계정 예시 (7개월 전 활동)
     (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
      '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER',
-     DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH), NULL),
-
+     '2025-09-17 00:00:00', '2025-09-17 00:00:00', NULL),
     -- 4. 박관리: 관리자 계정
     (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
      '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW(), NULL),
@@ -69,9 +68,8 @@ VALUES
 
     -- 10. 고하나: 비밀번호 변경 1년 경과 (시연 시 비밀번호 변경 팝업 노출용)
     (1010, 'oldUser', '고하나', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
-     '01099998888', 50, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(),
-     DATE_SUB(NOW(), INTERVAL 12 MONTH), NULL);
-
+     '01099998888', 50, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER',
+     NOW(), '2025-04-17 00:00:00', NULL);
 -- ========================
 -- TB_PRODUCT
 -- ========================

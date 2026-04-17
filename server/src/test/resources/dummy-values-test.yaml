@@ -1,8 +1,11 @@
-
 jwt:
   secret: dGhpcy1pcy1hLXZlcnktc3Ryb25nLXNlY3JldC1rZXktZm9yLWhhbmFyby1jYXJlLW1haW4tc2VydmVyLTM0Cg==
   access-expiration: 604800000
   refresh-expiration: 604800000
+
+encrypt:
+  aes:
+    key: "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
 
 external:
   gemini:
