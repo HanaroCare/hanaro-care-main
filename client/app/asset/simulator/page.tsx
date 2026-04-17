@@ -265,7 +265,7 @@ export default function SimulatorPage() {
                   <SimulatorSummaryCard data={summaryData} />
                   <PrimaryButton
                     label="다시 계산하기"
-                    variant="secondary"
+                    variant="third"
                     onClick={() => setIsRecalculating(true)}
                   />
 
