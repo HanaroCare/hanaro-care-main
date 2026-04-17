@@ -171,7 +171,7 @@ export default async function Home() {
       )}
 
       <AssetDashboard data={assetData} />
-      {hasLinkedMyData && (
+      {hasLinkedMyData && hasCompletedSimulation && (
           <MedicalBudgetCard
               data={simulationData}
               totalFinancialAmt={assetData?.totalFinancialAmt ?? 0}
