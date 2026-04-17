@@ -1,16 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import DayPicker from "./DayPicker";
 
 interface StepLimitSliderProps {
   value: number;
   onChange: (val: number) => void;
   onNext: () => void;
   isActive: boolean;
+  onPayDayChange: (day: number) => void;
 }
 
-const MIN = 100000;
-const MAX = 600000;
+const MIN = 0;
+const MAX = 2000000;
 const STEP = 10000;
 
 export default function StepLimitSlider({
@@ -18,12 +20,18 @@ export default function StepLimitSlider({
   onChange,
   onNext,
   isActive,
+  onPayDayChange,
 }: StepLimitSliderProps) {
   const [touched, setTouched] = useState(false);
   const [bounce, setBounce] = useState(false);
 
   const isMax = value >= MAX;
   const percent = Math.min(((value - MIN) / (MAX - MIN)) * 100, 100);
+  const [payDay, setPayDay] = useState<number | null>(15);
+
+  useEffect(() => {
+    onPayDayChange(15);
+  }, []);
 
   const handleChange = (val: number) => {
     if (val > MAX) {
@@ -57,13 +65,13 @@ export default function StepLimitSlider({
       `}</style>
 
       <h2 className="text-lg font-semibold leading-[30px] tracking-snug text-black whitespace-pre-line">
-        {"월 충전 한도를\n정해주세요"}
+        {"자동이체 금액을\n정해주세요"}
       </h2>
 
       <div className={`mt-8 ${bounce ? "bounce" : ""}`}>
         <div className="flex justify-between mb-2">
           <span className="text-sm font-medium text-hana-black-700">
-            월 충전 한도
+            월 자동이체 금액
           </span>
           <span className="text-sm font-medium text-hana-green-700">
             {(value / 10000).toFixed(0)}만원
@@ -100,7 +108,7 @@ export default function StepLimitSlider({
 
         {isMax ? (
           <p className="text-xs text-hana-green-700 mt-2 font-medium">
-            월 60만원까지 충전할 수 있어요
+            월 200만원까지 채울 수 있어요
           </p>
         ) : (
           <p className="text-xs text-hana-green-700 mt-2 font-medium">
@@ -109,10 +117,26 @@ export default function StepLimitSlider({
         )}
       </div>
 
+      <div className="mt-6">
+        <p className="text-sm font-medium text-hana-black-700 mb-3">
+          자동이체일
+        </p>
+        <DayPicker
+          value={payDay}
+          onChange={(day) => {
+            setPayDay(day);
+            onPayDayChange(day);
+          }}
+          disabled={!isActive}
+        />
+      </div>
+
       {isActive && (
         <button
-          onClick={onNext}
-          disabled={!touched}
+          onClick={async () => {
+            await onNext();
+          }}
+          disabled={!touched || payDay === null}
           className="mt-6 w-full h-[53px] rounded-xl text-white text-base font-medium transition-colors disabled:bg-gray-200 disabled:text-gray-400 bg-hana-ez-600 hover:bg-hana-green-700"
         >
           다음

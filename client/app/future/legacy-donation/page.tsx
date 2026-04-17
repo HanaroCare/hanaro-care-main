@@ -42,7 +42,8 @@ export default function LegacyDonationPage() {
       <div className="flex flex-col pb-[40px] pt-[65px]">
         {/* 상단 배너 */}
         <div
-          className="mx-[25px] mt-[18px] rounded-2xl px-[25px] py-[20px] relative overflow-hidden"
+          onClick={() => router.push("/future/legacy-donation/consult" as Route)}
+          className="mx-[25px] mt-[18px] rounded-2xl px-[25px] py-[20px] relative overflow-hidden cursor-pointer"
           style={{
             background: "linear-gradient(90deg, #008585 0%, #02A3AC 100%)",
             minHeight: "157px",
@@ -166,7 +167,10 @@ export default function LegacyDonationPage() {
               </div>
             ))}
           </div>
-          <button className="flex flex-row items-center gap-[4px] mt-[14px]">
+          <button
+            onClick={() => router.push("/future/legacy-donation/consult" as Route)}
+            className="flex flex-row items-center gap-[4px] mt-[14px]"
+          >
             <span className="font-medium text-[13px] leading-[20px] text-white">
               자세히 알아보기
             </span>

@@ -29,6 +29,9 @@ out/
 # === VS Code ===
 .vscode/
 
+# === Claude Code ===
+.claude/settings.local.json
+
 # [OS/IDE Misc]
 **/Thumbs.db
 **/*.log

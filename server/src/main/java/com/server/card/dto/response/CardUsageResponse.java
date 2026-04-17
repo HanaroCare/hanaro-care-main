@@ -35,8 +35,13 @@ public class CardUsageResponse {
   @Schema(description = "결제 일시")
   private LocalDateTime createdAt;
 
+  @Schema(description = "카드 ID")
+  private String cardId;
+
+
   public static CardUsageResponse from(TBCardUsage usage) {
     return CardUsageResponse.builder()
+        .cardId(String.valueOf(usage.getCard().getCardId()))
         .cardUsageId(String.valueOf(usage.getCardUsageId()))
         .usageNm(usage.getUsageNm())
         .usageLoc(usage.getUsageLoc())

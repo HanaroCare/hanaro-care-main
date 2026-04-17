@@ -8,7 +8,11 @@ export default function AdvanceDirectiveCompletePage() {
   return (
     <>
       <Header title="연명의료 결정" />
-      <CompletePage confirmHref={"/future/advance-directive" as Route} />
+      <CompletePage
+        confirmHref={"/future/advance-directive" as Route}
+        documentDownloadSrc="/images/future/img_medicalIntent_doc_n.png"
+        registerHref="https://www.lst.go.kr/addt/composableorgan.do"
+      />
     </>
   );
 }
