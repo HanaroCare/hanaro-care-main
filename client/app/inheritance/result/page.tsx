@@ -1,13 +1,16 @@
 'use client';
 
-import { AlertCircle, User, Loader2 } from 'lucide-react';
+import { AlertCircle, Loader2, User } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
+import {
+  getPlanSummary,
+  type InheritancePlanResponse,
+} from '@/app/inheritance/actions/plan';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
-import { getPlanSummary, InheritancePlanResponse } from '@/app/inheritance/actions/plan';
 import styles from './page.module.css';
 
 const COLORS = [
@@ -34,7 +37,9 @@ export default function InheritanceResultPage() {
   const [loading, setLoading] = useState(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [activeTab, setActiveTab] = useState('inheritance');
-  const [planData, setPlanData] = useState<InheritancePlanResponse | null>(null);
+  const [planData, setPlanData] = useState<InheritancePlanResponse | null>(
+    null,
+  );
 
   const handleTabChange = (tabId: string) => {
     if (tabId === 'asset') {
@@ -86,13 +91,13 @@ export default function InheritanceResultPage() {
         distributedAmt: h.distributedAmt / 100000000, // 억원 단위
         legalPercentage,
         forcedPercentage,
-        hasLetter: h.hasLetter
+        hasLetter: h.hasLetter,
       };
     });
   }, [planData]);
 
   const resultData = useMemo(
-    () => displayHeirs.map(h => ({ name: h.name, value: h.percentage })),
+    () => displayHeirs.map((h) => ({ name: h.name, value: h.percentage })),
     [displayHeirs],
   );
 
@@ -152,9 +157,7 @@ export default function InheritanceResultPage() {
                       {resultData.map((entry, index) => (
                         <Cell
                           key={`cell-${entry.name}`}
-                          fill={
-                            COLORS[index % COLORS.length]
-                          }
+                          fill={COLORS[index % COLORS.length]}
                           stroke="none"
                         />
                       ))}
@@ -199,7 +202,9 @@ export default function InheritanceResultPage() {
                       className={styles.legendColor}
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span>{heir.name} ( {heir.percentage}% )</span>
+                    <span>
+                      {heir.name} ( {heir.percentage}% )
+                    </span>
                   </div>
                 ))}
               </div>
@@ -224,27 +229,42 @@ export default function InheritanceResultPage() {
                       <div
                         className={`${styles.statusBadge} ${diff >= 0 ? styles.statusPositive : styles.statusNegative}`}
                       >
-                        유류분보다 {diff >= 0 ? '+' : ''}{diff.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}만원
+                        유류분보다 {diff >= 0 ? '+' : ''}
+                        {diff.toLocaleString('ko-KR', {
+                          maximumFractionDigits: 0,
+                        })}
+                        만원
                       </div>
                     </div>
                     <div className={styles.memberDetails}>
                       <div className={styles.detailRow}>
-                        <span className={styles.detailLabel}>내가 정한 금액</span>
+                        <span className={styles.detailLabel}>
+                          내가 정한 금액
+                        </span>
                         <span className={styles.highlightValue}>
                           {myAmount.toFixed(2)}억원
                         </span>
                       </div>
                       <div className={styles.detailRow}>
                         <span className={styles.detailLabel}>법정상속분</span>
-                        <span className={styles.legalValue}>{legalAmount.toFixed(2)}억원</span>
+                        <span className={styles.legalValue}>
+                          {legalAmount.toFixed(2)}억원
+                        </span>
                       </div>
                       <div className={styles.detailRow}>
                         <span className={styles.detailLabel}>유류분</span>
-                        <span className={styles.forcedValue}>{forcedAmount.toFixed(2)}억원</span>
+                        <span className={styles.forcedValue}>
+                          {forcedAmount.toFixed(2)}억원
+                        </span>
                       </div>
                     </div>
-                    <Link href={`/inheritance/letter/recipients/${heir.id}`} className={styles.letterLink}>
-                      {heir.hasLetter ? '작성된 편지 보기 >' : '상속편지 남기기 >'}
+                    <Link
+                      href={`/inheritance/letter/recipients/${heir.id}`}
+                      className={styles.letterLink}
+                    >
+                      {heir.hasLetter
+                        ? '작성된 편지 보기 >'
+                        : '상속편지 남기기 >'}
                     </Link>
                   </div>
                 );

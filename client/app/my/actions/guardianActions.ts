@@ -52,7 +52,5 @@ export async function getContractBlob(dto: ContractDto) {
 
   if (!response.ok) throw new Error('계약서 생성에 실패했습니다.');
 
-  // 클라이언트로 바이너리 데이터를 넘기기 위해 arrayBuffer로 변환
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer).toString('base64'); // 클라이언트로 전달 가능한 형태로 변환
+  return await response.blob();
 }

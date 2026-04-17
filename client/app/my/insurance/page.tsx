@@ -1,32 +1,27 @@
-'use client';
-
-import { useQuery } from '@tanstack/react-query';
 import { getInsurances } from '../actions/insuranceActions';
 import InsuranceList from './components/InsuranceList';
 
-export default function MyFamilyInsurancePage() {
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ['familyInsurances'],
-    queryFn: () => getInsurances(),
-  });
+export default async function MyFamilyInsurancePage() {
+  try {
+    const data = await getInsurances();
 
-  if (isLoading)
+    if (!data) {
+      return (
+        <div className="py-20 text-center text-red-400">데이터가 없습니다.</div>
+      );
+    }
+
     return (
-      <div className="py-20 text-center text-gray-400">
-        정보를 불러오는 중...
-      </div>
+      <InsuranceList
+        initialInsurances={data.insurances}
+        initialIsInsAgent={data.isInsAgent}
+      />
     );
-  if (isError || !data)
+  } catch (error) {
     return (
       <div className="py-20 text-center text-red-400">
         데이터 로드에 실패했습니다.
       </div>
     );
-
-  return (
-    <InsuranceList
-      initialInsurances={data.insurances}
-      initialIsInsAgent={data.isInsAgent}
-    />
-  );
+  }
 }
