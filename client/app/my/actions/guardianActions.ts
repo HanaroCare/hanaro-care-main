@@ -6,7 +6,7 @@ import type { ContractDto, FamilySummaryDto } from '../guardian/types/types';
 
 const getAuthHeader = async () => {
   const cookieStore = await cookies();
-  const token = cookieStore.get('AUTH_TOKEN')?.value;
+  const token = cookieStore.get('ACCESS_TOKEN')?.value;
   return {
     Authorization: token ? `Bearer ${token}` : '',
   };

@@ -14,7 +14,6 @@ type Props = {
   goTo: (step: number) => void;
 };
 
-// 권한 인덱스별 이름 매핑 (요약 화면용)
 const PERMISSION_NAMES = [
   '재산 관리',
   '의료 결정',
@@ -40,21 +39,16 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
     fetchUser();
   }, []);
 
-  // 1. 데이터 요약 표시용 가공
-
   const guardianName = data.selectedPerson?.name || '-';
-  // true인 권한들만 필터링해서 텍스트로 결합
   const selectedPermissionLabels = data.permissions
     .map((checked, i) => (checked ? PERMISSION_NAMES[i] : null))
     .filter(Boolean)
     .join(', ');
 
-  // 2. 계약서 생성 및 다운로드 함수
   const handleGenerateContract = async () => {
     try {
       setIsDownloading(true);
 
-      // 백엔드 ContractDto 규격에 맞게 조립
       const blob = await getContractBlob({
         guardianName: guardianName,
         guardianRelation: data.relationship,
@@ -70,7 +64,6 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
 
       URL.revokeObjectURL(url);
 
-      // 다운로드 완료 후 다음 단계로 이동
       onNext();
     } catch (error) {
       console.error('계약서 생성 실패:', error);

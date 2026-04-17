@@ -24,7 +24,6 @@ function Avatar({ name }: { name: string }) {
 }
 
 export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
-  // 1. 백엔드에서 가족 목록 가져오기
   const {
     data: familyList,
     isLoading,
@@ -35,7 +34,6 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
     queryFn: () => getFamily(),
   });
 
-  // 2. 가족 선택 시 실행될 함수 (컴포넌트 내부에 위치)
   const handleSelect = (person: FamilySummaryDto) => {
     onChange({
       selectedPerson: person,

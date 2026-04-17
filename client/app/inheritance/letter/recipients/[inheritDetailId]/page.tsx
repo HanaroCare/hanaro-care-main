@@ -1,34 +1,19 @@
-'use client';
-
-import { useQuery } from '@tanstack/react-query';
-import { use } from 'react';
 import { getInheritanceInfo } from '@/app/inheritance/actions/letterActions';
-import Letter from '@/app/inheritance/components/letter/Letter';
-import { useLetter } from '@/app/inheritance/hooks/useLetter';
-import {InheritanceSummaryDto} from "@/app/inheritance/letter/types";
+import InheritanceWriteClient from './InheritanceWriteClient';
 
-export default function InheritanceWritePage({
+export default async function InheritanceWritePage({
   params,
 }: {
-  params: Promise<{ inheritDetailId: string }>;
+  params: { inheritDetailId: string };
 }) {
-  const { inheritDetailId } = use(params);
+  const { inheritDetailId } = await params;
 
-  const { data: recipients, isLoading } = useQuery({
-    queryKey: ['inheritanceInfo'],
-    queryFn: () => getInheritanceInfo(),
-  });
+  const recipients = await getInheritanceInfo();
 
-  const letterHook = useLetter(inheritDetailId);
-
-  if (isLoading) return <div className="p-8 text-center">불러오는 중...</div>;
-
-  const recipient = recipients?.find(
-    (r:InheritanceSummaryDto) => String(r.inheritDetailId) === inheritDetailId,
+  return (
+    <InheritanceWriteClient
+      inheritDetailId={inheritDetailId}
+      recipients={recipients}
+    />
   );
-
-  if (!recipient)
-    return <div className="p-8 text-center">대상을 찾을 수 없습니다.</div>;
-
-  return <Letter recipient={recipient} hook={letterHook} />;
 }

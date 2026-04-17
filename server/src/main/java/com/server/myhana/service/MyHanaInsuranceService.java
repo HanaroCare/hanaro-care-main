@@ -29,6 +29,8 @@ public class MyHanaInsuranceService {
   public List<InsuranceDto> getInsurances(Long userId) {
     List<TBAccount> account = accountRepository.findByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
+    System.out.println(userId);
+    System.out.println(account);
 
     List<TBFamilyAuth> family = familyAuthRepository.findAllByGrantee_UserIdAndIsInsView(userId,
         true);
@@ -44,7 +46,7 @@ public class MyHanaInsuranceService {
 
     return accounts.stream()
         .map(a -> InsuranceDto.builder()
-            .accountId(a.getAccountId())
+            .accountId(String.valueOf(a.getAccountId()))
             .instNm(a.getInstNm())
             .accountNm(a.getAccountNm())
             .monthlyPremAmt(a.getMonthlyPremAmt())

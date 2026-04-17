@@ -75,7 +75,7 @@ export async function signup(data: {
       const body = await res.json().catch(() => ({}));
       if (body.token) {
         const jar = await cookies();
-        jar.set("AUTH_TOKEN", body.token, {
+        jar.set("ACCESS_TOKEN", body.token, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",

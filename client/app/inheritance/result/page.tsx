@@ -1,13 +1,12 @@
 'use client';
 
-import { AlertCircle, User, Loader2 } from 'lucide-react';
+import { AlertCircle, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
-import { getPlanSummary, InheritancePlanResponse } from '@/app/inheritance/actions/plan';
 import styles from './page.module.css';
 
 const COLORS = [
@@ -18,85 +17,78 @@ const COLORS = [
   'var(--color-chart-4)',
 ];
 
-interface DisplayHeir {
+interface SavedHeir {
   id: number;
   name: string;
-  relation: string;
   percentage: number;
-  distributedAmt: number;
   legalPercentage: number;
   forcedPercentage: number;
-  hasLetter: boolean;
 }
 
 export default function InheritanceResultPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [activeTab, setActiveTab] = useState('inheritance');
-  const [planData, setPlanData] = useState<InheritancePlanResponse | null>(null);
+  const [heirs, setHeirs] = useState<SavedHeir[]>([]);
 
   const handleTabChange = (tabId: string) => {
     if (tabId === 'asset') {
       router.push('/asset/simulator');
     } else if (tabId === 'inheritance') {
-      router.push('/inheritance/result');
+      const isInheritanceCompleted =
+        localStorage.getItem('inheritance_completed') === 'true';
+      router.push(
+        isInheritanceCompleted ? '/inheritance/result' : '/inheritance/intro',
+      );
     }
   };
 
   useEffect(() => {
-    async function loadPlan() {
-      try {
-        const data = await getPlanSummary();
-        setPlanData(data);
-      } catch (error) {
-        console.error('Failed to load plan summary:', error);
-        // 계획이 없는 경우 인트로로 이동하거나 처리
-        router.push('/inheritance/intro');
-      } finally {
-        setLoading(false);
-      }
+    localStorage.setItem('inheritance_completed', 'true');
+    const savedHeirs = localStorage.getItem('inheritance_heirs');
+    if (savedHeirs) {
+      setHeirs(JSON.parse(savedHeirs));
+    } else {
+      // Default if none exists
+      setHeirs([
+        {
+          id: 1,
+          name: '배우자',
+          percentage: 30,
+          legalPercentage: 33,
+          forcedPercentage: 16,
+        },
+        {
+          id: 2,
+          name: '자녀1',
+          percentage: 30,
+          legalPercentage: 22,
+          forcedPercentage: 11,
+        },
+        {
+          id: 3,
+          name: '자녀2',
+          percentage: 20,
+          legalPercentage: 22,
+          forcedPercentage: 11,
+        },
+        {
+          id: 4,
+          name: '자녀3',
+          percentage: 20,
+          legalPercentage: 22,
+          forcedPercentage: 11,
+        },
+      ]);
     }
-    loadPlan();
-  }, [router]);
-
-  // 서버 데이터를 화면 표시용 데이터로 변환 및 법정분 계산
-  const displayHeirs = useMemo(() => {
-    if (!planData) return [];
-
-    let totalParts = 0;
-    planData.heirs.forEach((h) => {
-      if (h.relation === 'SPOUSE') totalParts += 1.5;
-      else totalParts += 1.0;
-    });
-
-    return planData.heirs.map((h) => {
-      let part = 1.0;
-      if (h.relation === 'SPOUSE') part = 1.5;
-
-      const legalShareRatio = totalParts > 0 ? part / totalParts : 0;
-      const legalPercentage = Math.round(legalShareRatio * 100);
-      const forcedPercentage = Math.round((legalShareRatio / 2) * 100);
-
-      return {
-        id: h.inheritDetailId,
-        name: h.heirName,
-        relation: h.relation,
-        percentage: h.distRatio,
-        distributedAmt: h.distributedAmt / 100000000, // 억원 단위
-        legalPercentage,
-        forcedPercentage,
-        hasLetter: h.hasLetter
-      };
-    });
-  }, [planData]);
+  }, []);
 
   const resultData = useMemo(
-    () => displayHeirs.map(h => ({ name: h.name, value: h.percentage })),
-    [displayHeirs],
+    () => heirs.map((h) => ({ name: h.name, value: h.percentage })),
+    [heirs],
   );
 
-  const totalAsset = planData ? planData.totalInheritAmt / 100000000 : 0;
+  const totalAsset = 13.4;
 
   const openResetModal = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -104,17 +96,10 @@ export default function InheritanceResultPage() {
   };
 
   const confirmReset = () => {
-    // 서버 데이터는 유지하되 UI 상에서 다시 설계를 유도
-    router.push('/inheritance/plan/new');
+    localStorage.removeItem('inheritance_completed');
+    localStorage.removeItem('inheritance_heirs');
+    router.push('/inheritance');
   };
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--color-hana-ez-600)]" />
-      </div>
-    );
-  }
 
   return (
     <div className="app-shell bg-white">
@@ -152,9 +137,7 @@ export default function InheritanceResultPage() {
                       {resultData.map((entry, index) => (
                         <Cell
                           key={`cell-${entry.name}`}
-                          fill={
-                            COLORS[index % COLORS.length]
-                          }
+                          fill={COLORS[index % COLORS.length]}
                           stroke="none"
                         />
                       ))}
@@ -193,24 +176,26 @@ export default function InheritanceResultPage() {
               </div>
 
               <div className={styles.legendGrid}>
-                {displayHeirs.map((heir, index) => (
+                {heirs.map((heir, index) => (
                   <div key={heir.id} className={styles.legendItem}>
                     <span
                       className={styles.legendColor}
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span>{heir.name} ( {heir.percentage}% )</span>
+                    <span>
+                      {heir.name} ( {heir.percentage}% )
+                    </span>
                   </div>
                 ))}
               </div>
             </section>
 
             <div className={styles.memberList}>
-              {displayHeirs.map((heir) => {
-                const myAmount = heir.distributedAmt;
+              {heirs.map((heir) => {
+                const myAmount = totalAsset * (heir.percentage / 100);
                 const forcedAmount = totalAsset * (heir.forcedPercentage / 100);
                 const legalAmount = totalAsset * (heir.legalPercentage / 100);
-                const diff = (myAmount - forcedAmount) * 10000; // 만원 단위
+                const diff = (myAmount - forcedAmount) * 10000; // in ten thousand KRW
 
                 return (
                   <div key={heir.id} className={styles.memberCard}>
@@ -224,27 +209,37 @@ export default function InheritanceResultPage() {
                       <div
                         className={`${styles.statusBadge} ${diff >= 0 ? styles.statusPositive : styles.statusNegative}`}
                       >
-                        유류분보다 {diff >= 0 ? '+' : ''}{diff.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}만원
+                        유류분보다 {diff >= 0 ? '+' : ''}
+                        {diff.toLocaleString('ko-KR', {
+                          maximumFractionDigits: 0,
+                        })}
+                        만원
                       </div>
                     </div>
                     <div className={styles.memberDetails}>
                       <div className={styles.detailRow}>
-                        <span className={styles.detailLabel}>내가 정한 금액</span>
+                        <span className={styles.detailLabel}>
+                          내가 정한 금액
+                        </span>
                         <span className={styles.highlightValue}>
                           {myAmount.toFixed(2)}억원
                         </span>
                       </div>
                       <div className={styles.detailRow}>
                         <span className={styles.detailLabel}>법정상속분</span>
-                        <span className={styles.legalValue}>{legalAmount.toFixed(2)}억원</span>
+                        <span className={styles.legalValue}>
+                          {legalAmount.toFixed(2)}억원
+                        </span>
                       </div>
                       <div className={styles.detailRow}>
                         <span className={styles.detailLabel}>유류분</span>
-                        <span className={styles.forcedValue}>{forcedAmount.toFixed(2)}억원</span>
+                        <span className={styles.forcedValue}>
+                          {forcedAmount.toFixed(2)}억원
+                        </span>
                       </div>
                     </div>
-                    <Link href={`/inheritance/letter/recipients/${heir.id}`} className={styles.letterLink}>
-                      {heir.hasLetter ? '작성된 편지 보기 >' : '상속편지 남기기 >'}
+                    <Link href="#" className={styles.letterLink}>
+                      상속편지 남기기 &gt;
                     </Link>
                   </div>
                 );

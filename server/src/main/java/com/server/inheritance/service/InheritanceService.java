@@ -45,7 +45,6 @@ public class InheritanceService {
   private final UserRepository userRepository;
 
   public InheritanceContextDTO getInheritanceContext(Long userId) {
-    // AssetService의 대시보드 데이터를 호출
     AssetDashboardResponse dashboard = assetService.getAssetDashboard(userId);
 
     // 상속 화면용 Summary DTO로 변환하여 반환 (car, card 제외)

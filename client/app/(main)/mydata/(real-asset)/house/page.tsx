@@ -1,12 +1,13 @@
 'use client';
 
 import { Check } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Suspense, useState } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
 import PageDescription from '@/components/typography/PageDescription';
 import PageHeading from '@/components/typography/PageHeading';
+
 interface CheckItemProps {
   label: string;
   checked: boolean;
@@ -21,17 +22,20 @@ function CheckItem({ label, checked, onChange }: CheckItemProps) {
       className="flex w-full cursor-pointer items-center gap-4 rounded-xl border border-border-gray bg-white p-5 shadow-sm transition-all active:scale-[0.98]"
     >
       <div
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${checked ? 'bg-hana-teal-400' : 'bg-hana-silver-100'
-          }`}
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
+          checked ? 'bg-hana-teal-400' : 'bg-hana-silver-100'
+        }`}
       >
         <Check
-          className={`h-5 w-5 transition-opacity ${checked ? 'text-white opacity-100' : 'text-hana-black-500 opacity-0'
-            }`}
+          className={`h-5 w-5 transition-opacity ${
+            checked ? 'text-white opacity-100' : 'text-hana-black-500 opacity-0'
+          }`}
         />
       </div>
       <span
-        className={`text-left font-medium text-[17px] transition-colors ${checked ? 'text-hana-black-700' : 'text-hana-black-500'
-          }`}
+        className={`text-left font-medium text-[17px] transition-colors ${
+          checked ? 'text-hana-black-700' : 'text-hana-black-500'
+        }`}
       >
         {label}
       </span>
@@ -39,8 +43,13 @@ function CheckItem({ label, checked, onChange }: CheckItemProps) {
   );
 }
 
-export default function HouseMyDataPage() {
+function HousePageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('from');
+
+  const isAssetFlow = from === 'asset';
+  const total = isAssetFlow ? 3 : 6;
 
   const checkList = [
     '보유 주택 정보 (종류, 면적, 소재지)',
@@ -61,7 +70,7 @@ export default function HouseMyDataPage() {
   return (
     <div className="flex h-full flex-col px-6 pt-6 pb-12">
       <div className="mb-10">
-        <ProgressBar step={1} total={6} />
+        <ProgressBar step={1} total={total} />
       </div>
 
       <div className="mb-10">
@@ -89,15 +98,29 @@ export default function HouseMyDataPage() {
       <div className="mt-auto flex flex-col gap-3">
         <PrimaryButton
           label="다음으로"
-          onClick={() => router.push('/mydata/house/detail')}
+          onClick={() =>
+            router.push(
+              isAssetFlow
+                ? '/mydata/house/detail?from=asset'
+                : '/mydata/house/detail',
+            )
+          }
         />
         <PrimaryButton
           label="나중에 연결하기"
           variant="secondary"
           className="bg-hana-silver-100 text-hana-black-500!"
-          onClick={() => router.push('/')}
+          onClick={() => router.push(isAssetFlow ? '/asset?tab=realestate' : '/mydata/main')}
         />
       </div>
     </div>
+  );
+}
+
+export default function HouseMyDataPage() {
+  return (
+    <Suspense>
+      <HousePageContent />
+    </Suspense>
   );
 }

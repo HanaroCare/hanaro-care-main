@@ -9,14 +9,14 @@ import { createLetterFormData } from '@/app/inheritance/utils/createLetterFormDa
 export function useLetter(inheritDetailId: string) {
   const router = useRouter();
 
-  // Form States
+  // Form
   const [nickname, setNickname] = useState('');
   const [yearsLater, setYearsLater] = useState<number | null>(null);
   const [method, setMethod] = useState<InheritanceMethod>('once');
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Voice States
+  // Voice
   const [showVoiceSheet, setShowVoiceSheet] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);

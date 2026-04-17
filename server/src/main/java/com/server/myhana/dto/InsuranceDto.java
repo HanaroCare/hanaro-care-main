@@ -14,7 +14,7 @@ import lombok.Setter;
 @Builder
 public class InsuranceDto {
 
-  private Long accountId;
+  private String accountId;
   private String instNm;
   private String accountNm;
   private BigDecimal monthlyPremAmt;

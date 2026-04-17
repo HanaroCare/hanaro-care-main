@@ -11,7 +11,6 @@ export const useKakaoMap = (
   const [locationLabel, setLocationLabel] = useState('위치 확인 중...');
   const [loading, setLoading] = useState(true);
 
-  // 지도 초기화 및 공증인 검색
   // biome-ignore lint/correctness/useExhaustiveDependencies: 마운트 시 한 번만 실행
   useEffect(() => {
     const appKey = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
@@ -63,7 +62,6 @@ export const useKakaoMap = (
     };
   }, []);
 
-  // 선택된 사무소로 지도 이동
   useEffect(() => {
     if (selectedIdx === null || !mapInstanceRef.current) return;
     const notary = notaries[selectedIdx];

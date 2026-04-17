@@ -37,7 +37,6 @@ function GuardianContent() {
   );
 }
 
-// useSearchParams를 사용하므로 Suspense로 감싸는 것이 Next.js 권장사항입니다.
 export default function GuardianPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>

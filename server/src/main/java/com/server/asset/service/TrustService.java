@@ -77,7 +77,17 @@ public class TrustService {
     TBTrustSimulation simulation = trustRepository.findByUser_UserId(userId)
         .orElse(TBTrustSimulation.builder().user(user).build());
 
-    trustMapper.updateSimulation(request, claimAgent, simulation, trustMapperHelper);    trustRepository.save(simulation);
+    trustMapper.updateSimulation(request, claimAgent, simulation, trustMapperHelper);
+    if (claimAgent != null) {
+      TBFamilyAuth familyAuth = familyAuthRepository
+          .findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+          .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
+
+      familyAuth.setIsProxyClaim(true);
+      familyAuth.setIsTrustView(true);
+    }
+
+    trustRepository.save(simulation);
   }
 
   //로그인 사용자의 신탁 설계 요약 결과를 반환
