@@ -1,6 +1,12 @@
 'use client';
 
-import { Building2, Search, ShieldCheck, UserRound } from 'lucide-react';
+import {
+  Building2,
+  Search,
+  Settings2,
+  ShieldCheck,
+  UserRound,
+} from 'lucide-react';
 import { useMemo, useState, useTransition } from 'react';
 import {
   type AdminRealAssetItem,
@@ -9,6 +15,10 @@ import {
   enableAgentView,
   getAdminUserAssets,
   getAdminUserDetail,
+  runPensionBatch,
+  runSimulationBatchRun,
+  runSimulationEnqueue,
+  runTrustBatch,
   searchAdminUsers,
   subscribePensionProduct,
   subscribeTrustProduct,
@@ -102,6 +112,19 @@ export default function DevAdminClient() {
     null,
   );
 
+  const [trustBatchResult, setTrustBatchResult] = useState<ResultState>({
+    status: 'idle',
+    message: '',
+  });
+  const [pensionBatchResult, setPensionBatchResult] = useState<ResultState>({
+    status: 'idle',
+    message: '',
+  });
+  const [simulationEnqueueResult, setSimulationEnqueueResult] =
+    useState<ResultState>({ status: 'idle', message: '' });
+  const [simulationBatchResult, setSimulationBatchResult] =
+    useState<ResultState>({ status: 'idle', message: '' });
+
   const handleSearch = () => {
     const q = keyword.trim();
 
@@ -163,7 +186,7 @@ export default function DevAdminClient() {
     if (!selectedUser) {
       setTrustResult({
         status: 'error',
-        message: '사용자를 먼저 선택해주세요.',
+        message: '고객님을 먼저 선택해주세요.',
       });
       return;
     }
@@ -220,7 +243,7 @@ export default function DevAdminClient() {
     if (!selectedUser) {
       setAgentResult({
         status: 'error',
-        message: '사용자를 먼저 선택해주세요.',
+        message: '고객님을 먼저 선택해주세요.',
       });
       return;
     }
@@ -250,6 +273,77 @@ export default function DevAdminClient() {
     [realAssets, selectedRealAssetId],
   );
 
+  const handleRunTrustBatch = () => {
+    setTrustBatchResult({ status: 'idle', message: '' });
+
+    startTransition(async () => {
+      try {
+        const message = await runTrustBatch(batchDate || undefined);
+        setTrustBatchResult({
+          status: 'success',
+          message,
+        });
+      } catch (e) {
+        setTrustBatchResult({
+          status: 'error',
+          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+        });
+      }
+    });
+  };
+
+  const handleRunPensionBatch = () => {
+    setPensionBatchResult({ status: 'idle', message: '' });
+
+    startTransition(async () => {
+      try {
+        const message = await runPensionBatch(batchDate || undefined);
+        setPensionBatchResult({
+          status: 'success',
+          message,
+        });
+      } catch (e) {
+        setPensionBatchResult({
+          status: 'error',
+          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+        });
+      }
+    });
+  };
+
+  const handleRunSimulationEnqueue = () => {
+    setSimulationEnqueueResult({ status: 'idle', message: '' });
+    startTransition(async () => {
+      try {
+        const message = await runSimulationEnqueue();
+        setSimulationEnqueueResult({ status: 'success', message });
+      } catch (e) {
+        setSimulationEnqueueResult({
+          status: 'error',
+          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+        });
+      }
+    });
+  };
+
+  const handleRunSimulationBatchRun = () => {
+    setSimulationBatchResult({ status: 'idle', message: '' });
+    startTransition(async () => {
+      try {
+        const message = await runSimulationBatchRun();
+        setSimulationBatchResult({ status: 'success', message });
+      } catch (e) {
+        setSimulationBatchResult({
+          status: 'error',
+          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+        });
+      }
+    });
+  };
+
+  const [opsOpen, setOpsOpen] = useState(false);
+  const [batchDate, setBatchDate] = useState('');
+
   return (
     <div className="min-h-screen bg-[#F3F4F6] px-4 py-8">
       <div className="mx-auto max-w-5xl">
@@ -259,11 +353,8 @@ export default function DevAdminClient() {
               <ShieldCheck size={22} />
             </div>
             <div>
-              <p className="text-[24px] font-bold leading-8">
-                관리자 테스트 패널
-              </p>
-              <p className="mt-1 text-[14px] text-white/70">
-                사용자 검색, 자산 조회, 신탁/주택연금 가입, 대리인 권한 부여
+              <p className="text-[24px] font-bold leading-11">
+                상담 지원 및 관리
               </p>
             </div>
           </div>
@@ -272,7 +363,7 @@ export default function DevAdminClient() {
         <div className="grid gap-4 lg:grid-cols-[1.1fr_1.4fr]">
           <div className="space-y-4">
             <SectionCard
-              title="사용자 검색"
+              title="고객 검색"
               description="이름, 로그인 아이디, 전화번호 등으로 사용자를 검색합니다."
             >
               <div className="flex gap-2">
@@ -321,11 +412,8 @@ export default function DevAdminClient() {
                             <p className="text-[14px] font-semibold text-[#111827]">
                               {user.userName}
                             </p>
-                            <p className="mt-1 text-[12px] text-[#6A7282]">
-                              userId: {user.userId} · loginId: {user.loginId}
-                            </p>
-                            <p className="mt-1 text-[12px] text-[#6A7282]">
-                              {user.phoneNumber ?? '-'}
+                            <p className="mt-2 text-[13px] text-[#6A7282]">
+                              연락처 {user.phoneNumber ?? '-'}
                             </p>
                           </div>
                           <span className="rounded-full bg-[#EEF2FF] px-2.5 py-1 text-[11px] font-semibold text-[#4F46E5]">
@@ -342,13 +430,13 @@ export default function DevAdminClient() {
 
           <div className="space-y-4">
             <SectionCard
-              title="선택한 사용자"
-              description="현재 선택된 사용자 정보와 연동된 부동산 자산을 확인합니다."
+              title="고객 정보"
+              description="현재 선택된 고객 정보와 연동된 부동산 자산을 확인합니다."
             >
               {isLoadingDetail ? (
-                <EmptyBox text="사용자 정보를 불러오는 중입니다." />
+                <EmptyBox text="고객 정보를 불러오는 중입니다." />
               ) : !selectedUser ? (
-                <EmptyBox text="왼쪽에서 사용자를 먼저 선택해주세요." />
+                <EmptyBox text="위쪽에서 고객님을 먼저 선택해주세요." />
               ) : (
                 <>
                   <div className="rounded-2xl bg-[#F9FAFB] p-4">
@@ -361,12 +449,7 @@ export default function DevAdminClient() {
                           {selectedUser.userName}
                         </p>
                         <p className="mt-1 text-[13px] text-[#6A7282]">
-                          userId: {selectedUser.userId} · loginId:{' '}
-                          {selectedUser.loginId}
-                        </p>
-                        <p className="mt-1 text-[13px] text-[#6A7282]">
-                          {selectedUser.phoneNumber ?? '-'} ·{' '}
-                          {selectedUser.userRole}
+                          연락처 {selectedUser.phoneNumber ?? '-'}
                         </p>
                       </div>
                     </div>
@@ -406,13 +489,10 @@ export default function DevAdminClient() {
                                   <p className="text-[14px] font-semibold text-[#111827]">
                                     {asset.assetNm}
                                   </p>
-                                  <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
-                                    realAssetId: {asset.realAssetId}
-                                  </p>
-                                  <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
+                                  <p className="mt-1 text-[14px] leading-5 text-[#6A7282]">
                                     {asset.addr ?? '-'}
                                   </p>
-                                  <p className="mt-1 text-[12px] leading-5 text-[#6A7282]">
+                                  <p className="mt-1 text-[14px] leading-5 text-[#6A7282]">
                                     평가금액 {formatWon(asset.evalAmt)}
                                   </p>
                                 </div>
@@ -428,19 +508,19 @@ export default function DevAdminClient() {
             </SectionCard>
 
             <SectionCard
-              title="관리 액션"
-              description="선택한 사용자 기준으로 테스트 액션을 실행합니다."
+              title="고객 관리"
+              description="선택한 고객님을 기준으로 상품 가입 및 권한 처리를 실행합니다."
             >
               {!selectedUser ? (
-                <EmptyBox text="사용자를 선택한 뒤 액션을 실행할 수 있습니다." />
+                <EmptyBox text="고객님을 선택한 뒤 액션을 실행할 수 있습니다." />
               ) : (
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-[#E5E7EB] p-4">
                     <p className="text-[14px] font-semibold text-[#111827]">
                       신탁 상품 가입
                     </p>
-                    <p className="mt-1 text-[12px] text-[#6A7282]">
-                      저장된 신탁 설계 조건을 바탕으로 상품 가입 처리
+                    <p className="mt-1 text-[13px] text-[#6A7282]">
+                      저장된 신탁 설계 조건을 바탕으로 상품 가입
                     </p>
                     <button
                       type="button"
@@ -457,8 +537,8 @@ export default function DevAdminClient() {
                     <p className="text-[14px] font-semibold text-[#111827]">
                       주택연금 상품 가입
                     </p>
-                    <p className="mt-1 text-[12px] text-[#6A7282]">
-                      선택한 부동산 자산 기준으로 주택연금 가입 처리
+                    <p className="mt-1 text-[14px] text-[#6A7282]">
+                      선택한 부동산 자산 기준으로 주택연금 가입
                     </p>
                     <div className="mt-3 rounded-xl bg-[#F9FAFB] px-4 py-3 text-[13px] text-[#4B5563]">
                       선택 자산:{' '}
@@ -481,7 +561,7 @@ export default function DevAdminClient() {
                     <p className="text-[14px] font-semibold text-[#111827]">
                       대리인 신탁 열람 권한 허용
                     </p>
-                    <p className="mt-1 text-[12px] text-[#6A7282]">
+                    <p className="mt-1 text-[14px] text-[#6A7282]">
                       가입 중인 신탁 상품의 대리인 열람 권한 허용
                     </p>
                     <button
@@ -493,6 +573,101 @@ export default function DevAdminClient() {
                       열람 권한 허용
                     </button>
                     <ResultBanner result={agentResult} />
+                  </div>
+                </div>
+              )}
+            </SectionCard>
+
+            <SectionCard
+              title="운영 도구"
+              description="배치 실행은 일반 상담 처리와 분리된 영역에서 수행합니다."
+            >
+              <button
+                type="button"
+                onClick={() => setOpsOpen((prev) => !prev)}
+                className="flex w-full items-center justify-between rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-left text-[14px] font-semibold text-[#111827]"
+              >
+                <span>{opsOpen ? '운영 도구 접기' : '운영 도구 열기'}</span>
+                <Settings2 size={16} />
+              </button>
+
+              {opsOpen && (
+                <div className="mt-4 space-y-4">
+                  <input
+                    type="date"
+                    value={batchDate}
+                    onChange={(e) => setBatchDate(e.target.value)}
+                    className="w-full rounded-xl border border-[#E5E7EB] bg-white px-4 py-3 text-[14px] outline-none focus:border-hana-ez-600"
+                  />
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                      <p className="text-[14px] font-semibold text-[#111827]">
+                        신탁 일배치 수동 실행
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRunTrustBatch}
+                        disabled={isPending}
+                        className="mt-3 w-full rounded-xl bg-[#374151] py-3 text-[14px] font-semibold text-white disabled:opacity-40"
+                      >
+                        신탁 배치 실행
+                      </button>
+                      <ResultBanner result={trustBatchResult} />
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                      <p className="text-[14px] font-semibold text-[#111827]">
+                        주택연금 월배치 수동 실행
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRunPensionBatch}
+                        disabled={isPending}
+                        className="mt-3 w-full rounded-xl bg-[#374151] py-3 text-[14px] font-semibold text-white disabled:opacity-40"
+                      >
+                        주택연금 배치 실행
+                      </button>
+                      <ResultBanner result={pensionBatchResult} />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                      <p className="text-[14px] font-semibold text-[#111827]">
+                        시뮬레이션 큐 등록
+                      </p>
+                      <p className="mt-1 text-[12px] text-[#6A7282]">
+                        전체 사용자 시뮬레이션을 큐에 등록합니다.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRunSimulationEnqueue}
+                        disabled={isPending}
+                        className="mt-3 w-full rounded-xl bg-[#374151] py-3 text-[14px] font-semibold text-white disabled:opacity-40"
+                      >
+                        Enqueue 실행
+                      </button>
+                      <ResultBanner result={simulationEnqueueResult} />
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                      <p className="text-[14px] font-semibold text-[#111827]">
+                        시뮬레이션 배치 실행
+                      </p>
+                      <p className="mt-1 text-[12px] text-[#6A7282]">
+                        큐에 등록된 시뮬레이션을 일괄 처리합니다.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRunSimulationBatchRun}
+                        disabled={isPending}
+                        className="mt-3 w-full rounded-xl bg-[#374151] py-3 text-[14px] font-semibold text-white disabled:opacity-40"
+                      >
+                        Batch Run 실행
+                      </button>
+                      <ResultBanner result={simulationBatchResult} />
+                    </div>
                   </div>
                 </div>
               )}

@@ -5,8 +5,10 @@ import { useEffect, useState } from 'react';
 
 export default function LoadingStep({
   onComplete,
+  name,
 }: {
   onComplete: () => void;
+  name?: string;
 }) {
   const [progress, setProgress] = useState(0);
 
@@ -36,7 +38,7 @@ export default function LoadingStep({
   }, [onComplete]);
 
   return (
-    <div className="relative flex flex-1 flex-col overflow-hidden bg-[#F4FBFC] px-[1.5rem] pt-[4rem]">
+    <div className="relative flex h-full flex-col overflow-hidden bg-[#F4FBFC] px-[1.5rem] pt-[4rem]">
       <motion.div
         className="absolute right-0 bottom-0 left-0 bg-primary/5"
         initial={{ height: '0%' }}
@@ -50,9 +52,9 @@ export default function LoadingStep({
           animate={{ opacity: 1, y: 0 }}
           className="font-bold text-[1.5rem] text-foreground leading-tight tracking-tight"
         >
-          하나님의 정보를
+          {name || '사용자'}님의 자산을
           <br />
-          불러오고 있어요
+          연결 중입니다
         </motion.h2>
 
         <motion.div

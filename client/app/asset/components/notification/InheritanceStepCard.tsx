@@ -24,7 +24,7 @@ const STEP_BUTTON: Record<
   InheritanceStep,
   { label: string; href: Route<string> }
 > = {
-  1: { label: '자산 등록하러 가기', href: '/asset' },
+  1: { label: '자산 등록하러 가기', href: '/mydata/connect' },
   2: { label: '상속 설계하러 가기', href: '/inheritance/plan' },
   3: { label: '신탁 연결 하러가기', href: '/asset/trust' },
 };

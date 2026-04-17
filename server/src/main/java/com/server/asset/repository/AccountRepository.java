@@ -12,13 +12,8 @@ import org.springframework.data.repository.query.Param;
 public interface AccountRepository extends JpaRepository<TBAccount, Long> {
 
   List<TBAccount> findByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCateCd);
-  @Query("""
-          SELECT a.assetCateCd, SUM(a.balanceAmt)
-          FROM TBAccount a
-          WHERE a.user.userId = :userId
-          GROUP BY a.assetCateCd
-      """)
-  List<Object[]> findBalanceSumGroupByCategoryByUserId(@Param("userId") Long userId);
+
+  List<TBAccount> findByUser_UserIdAndAssetCateCdIn(Long userId, List<AssetCategory> categories);
 
   @Query("""
           SELECT SUM(a.balanceAmt)
@@ -26,8 +21,6 @@ public interface AccountRepository extends JpaRepository<TBAccount, Long> {
           WHERE a.user.userId = :userId
       """)
   BigDecimal findTotalBalanceByUserId(@Param("userId") Long userId);
-
-  List<TBAccount> findAllByUser_UserIdAndAssetCateCd(Long userId, AssetCategory assetCategory);
 
   Optional<TBAccount> findByAccountIdAndAssetCateCd(Long insuranceId, AssetCategory assetCategory);
 

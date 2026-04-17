@@ -5,16 +5,19 @@ import { useRouter } from 'next/navigation';
 import { useRef } from 'react';
 import LetterCard from '@/app/inheritance/components/letter/LetterCard';
 import LetterSummary from '@/app/inheritance/components/letter/LetterSummary';
+import type { LetterType } from '@/app/inheritance/letter/types';
 import DualActionFooter from '@/components/modules/DualActionFooter';
+import { deleteLetter } from '../../actions/letterActions';
 
 interface LetterResultProps {
   result: {
+    inheritDetailId: string;
     nickname: string;
     relationCode: string;
     distRatio: number;
     deliverAfterYears: number;
     totalAmount: number;
-    letterType: string;
+    letterType: LetterType;
     letterContent: string;
     voiceUrl: string;
   };
@@ -71,11 +74,13 @@ export default function LetterResult({ result, method }: LetterResultProps) {
           recipientName={result.relationCode}
           message={result.letterContent}
           audioUrl={result.voiceUrl}
-          letterType={result.letterType}
+          letterType={result.letterType as LetterType}
         />
       </div>
 
       <LetterSummary
+        message={result.letterContent}
+        audioUrl={result.voiceUrl}
         relationCode={result.relationCode}
         distRatio={result.distRatio}
         deliverAfterYears={result.deliverAfterYears}
@@ -83,13 +88,20 @@ export default function LetterResult({ result, method }: LetterResultProps) {
         amount={result.totalAmount}
         inheritanceMethod={method}
         onImageSave={handleImageSave}
-        onShare={handleShare}
       />
 
       <DualActionFooter
-        leftLabel="추가 작성"
+        leftLabel="삭제"
         rightLabel="완료"
-        onLeftClick={() => router.push('/inheritance/letter/recipients')}
+        onLeftClick={async () => {
+          try {
+            await deleteLetter(result.inheritDetailId);
+            router.push('/inheritance/letter?deleted=true');
+          } catch (e) {
+            console.error(e);
+            alert('삭제 실패');
+          }
+        }}
         onRightClick={() => router.push('/inheritance')}
         className="-mx-6.25 flex w-[calc(100%+3.125rem)] gap-3 bg-white px-6.25!"
       />

@@ -1,12 +1,10 @@
 package com.server.common.response.code.status;
 
-import org.springframework.http.HttpStatus;
-
 import com.server.common.response.code.BaseErrorCode;
 import com.server.common.response.code.ErrorReasonDTO;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
@@ -21,9 +19,9 @@ public enum ErrorStatus implements BaseErrorCode {
   AUTH_DUPLICATE_USERNAME(HttpStatus.CONFLICT, "AUTH_002", "이미 사용 중인 아이디입니다."),
   AUTH_CERT_REQUIRED(HttpStatus.FORBIDDEN, "AUTH_003", "하나 인증이 완료된 사용자만 간편 로그인을 사용할 수 있습니다."),
   AUTH_SIMPLE_NOT_REGISTERED(HttpStatus.NOT_FOUND, "AUTH_004", "등록된 인증 정보가 없습니다."),
-  AUTH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH_005", "유효하지 않은 토큰입니다."),
-  AUTH_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_006", "토큰이 만료되었습니다."),
-  AUTH_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH_007", "토큰이 일치하지 않습니다. 다시 로그인하세요."),
+  ACCESS_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "AUTH_005", "유효하지 않은 토큰입니다."),
+  ACCESS_TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "AUTH_006", "토큰이 만료되었습니다."),
+  ACCESS_TOKEN_MISMATCH(HttpStatus.UNAUTHORIZED, "AUTH_007", "토큰이 일치하지 않습니다. 다시 로그인하세요."),
   AUTH_ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "AUTH_008", "이용이 정지된 계정입니다. 고객센터에 문의해주세요."),
   AUTH_ACCOUNT_DORMANT(HttpStatus.FORBIDDEN, "AUTH_009", "휴면 계정입니다. 본인인증을 통해 계정을 복구해 주세요."),
   AUTH_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH_001", "아이디 또는 비밀번호가 일치하지 않습니다."),

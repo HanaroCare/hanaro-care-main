@@ -118,14 +118,18 @@ public class BannerStatusService {
             .build();
     }
 
-    // ─── 이번달 연금 수령 정보 ───
-    // TBAccount(PENSION).payDay == 오늘 날짜인 계좌만
-    // name = instNm, amount = payAmt
     private PensionInfo resolvePension(Long userId) {
         int today = LocalDate.now().getDayOfMonth();
 
+        List<AssetCategory> pensionFamily = List.of(
+            AssetCategory.PENSION,
+            AssetCategory.PENSION_NATIONAL,
+            AssetCategory.PENSION_RETIRE,
+            AssetCategory.PENSION_PERSONAL
+        );
+
         List<TBAccount> todayPayAccounts =
-            accountRepository.findByUser_UserIdAndAssetCateCd(userId, AssetCategory.PENSION)
+            accountRepository.findByUser_UserIdAndAssetCateCdIn(userId, pensionFamily)
                 .stream()
                 .filter(a -> a.getPayDay() != null && a.getPayDay() == today)
                 .filter(a -> a.getPayAmt() != null)

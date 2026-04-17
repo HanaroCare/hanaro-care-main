@@ -44,7 +44,7 @@
 
 .pageTitle {
   font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   color: var(--color-hana-black-900);
   line-height: 1.4;
   margin-bottom: 32px;
@@ -52,10 +52,11 @@
 
 .card {
   background: var(--background);
-  border: 1px solid var(--border);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
   padding: 24px;
   margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .cardLabel {
@@ -96,16 +97,18 @@
 .itemValue {
   font-size: 14px;
   color: var(--color-hana-black-900);
+  font-weight: var(--font-weight-medium);
 }
 
 .highlightValue {
   color: var(--color-hana-ez-600);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
 }
 
 .footer {
-  padding: 24px;
-  margin-top: auto;
+  padding: 16px 24px 24px;
+  background: var(--background);
+  border-top: 1px solid var(--color-hana-silver-100);
 }
 
 .nextBtn {
@@ -116,8 +119,13 @@
   height: 53px;
   background: var(--color-hana-ez-600);
   color: #fff;
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
   text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.nextBtn:active {
+  opacity: 0.8;
 }

@@ -3,7 +3,7 @@ type PrimaryButtonProps = {
   disabled?: boolean;
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
-  variant?: 'primary' | 'secondary' | 'disabled';
+  variant?: 'primary' | 'secondary' | 'disabled' | 'warning';
   fullWidth?: boolean;
   className?: string;
   icon?: React.ReactNode;
@@ -27,7 +27,9 @@ export default function PrimaryButton({
       ? 'bg-hana-ez-600 text-white'
       : resolvedVariant === 'secondary'
         ? 'bg-[#E9F8F9] text-hana-ez-600'
-        : 'bg-[#F3F4F6] text-[#9CA3AF]';
+        : resolvedVariant === 'disabled'
+          ? 'bg-[#F3F4F6] text-[#9CA3AF]'
+          : 'bg-hana-red-500 text-white';
 
   return (
     <button
@@ -35,7 +37,7 @@ export default function PrimaryButton({
       disabled={isDisabled}
       onClick={onClick}
       className={`
-        ${fullWidth ? 'w-full' : ''} h-14 rounded-[10px] text-[17px] ${variantClass} font-semibold transition flex items-center justify-center gap-2 ${className}
+        ${fullWidth ? 'w-full' : ''} h-14 rounded-[10px] text-[17px] ${variantClass} flex items-center justify-center gap-2 font-semibold transition ${className}
       `}
     >
       {icon && <span className="shrink-0">{icon}</span>}

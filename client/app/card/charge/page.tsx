@@ -1,27 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronDown } from "lucide-react";
+import { Suspense, useState, useRef, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 import { Route } from "next";
 import Header from "@/components/navigation/Header";
-
-const CARDS = [
-  {
-    id: 1,
-    cardNm: "김복자 요양사의 카드",
-    accountNm: "하나은행 123-123456-12345",
-    balance: 1454927,
-    limitAmt: 600000,
-  },
-  {
-    id: 2,
-    cardNm: "한금순 요양사의 카드",
-    accountNm: "하나은행 987-654321-98765",
-    balance: 820000,
-    limitAmt: 600000,
-  },
-];
+import {
+  getCardAccounts,
+  chargeCard,
+  getMyCards,
+  Account,
+} from "../actions/card";
+import { CardData } from "../hooks/useCard";
 
 const QUICK_AMOUNTS = [
   { label: "1만", value: 10000 },
@@ -29,16 +19,39 @@ const QUICK_AMOUNTS = [
   { label: "10만", value: 100000 },
 ];
 
-export default function CardChargePage() {
+const SINGLE_LIMIT = 600000;
+
+function CardChargeContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const cardId = searchParams.get("cardId") ?? "";
+
   const [amount, setAmount] = useState("");
-  const [selectedCard, setSelectedCard] = useState(CARDS[0]);
-  const [showCardSelect, setShowCardSelect] = useState(false);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
+    null,
+  );
+  const [showAccountSelect, setShowAccountSelect] = useState(false);
   const [shake, setShake] = useState(false);
-  const amountRef = useRef<HTMLDivElement>(null);
 
   const numericAmount = Number(amount || "0");
-  const isOverLimit = numericAmount > selectedCard.limitAmt;
+  const isOverLimit = numericAmount > SINGLE_LIMIT;
+  const selectedAccount = accounts.find(
+    (a) => a.accountId === selectedAccountId,
+  );
+  const [currentCard, setCurrentCard] = useState<CardData | null>(null);
+
+  useEffect(() => {
+    Promise.all([getCardAccounts(), getMyCards()]).then(
+      ([accountData, cardList]) => {
+        setAccounts(accountData);
+        if (accountData.length > 0)
+          setSelectedAccountId(accountData[0].accountId);
+        const found = cardList.find((c) => c.cardId === cardId) ?? null;
+        setCurrentCard(found);
+      },
+    );
+  }, [cardId]);
 
   const triggerShake = () => {
     setShake(true);
@@ -51,8 +64,8 @@ export default function CardChargePage() {
       return;
     }
     const next = amount + val;
-    if (Number(next) > selectedCard.limitAmt) {
-      setAmount(next); // 일단 넣고
+    if (Number(next) > SINGLE_LIMIT) {
+      setAmount(next);
       triggerShake();
       return;
     }
@@ -61,10 +74,20 @@ export default function CardChargePage() {
 
   const handleQuick = (val: number) => {
     const next = numericAmount + val;
-    setAmount(String(next)); // 일단 넣고
-    if (next > selectedCard.limitAmt) {
-      triggerShake();
-    }
+    setAmount(String(next));
+    if (next > SINGLE_LIMIT) triggerShake();
+  };
+
+  const handleConfirm = async () => {
+    if (!selectedAccountId || !amount || isOverLimit) return;
+    await chargeCard({
+      cardId: cardId, // Number() 제거
+      chargeAmt: numericAmount,
+      accountId: selectedAccountId,
+    });
+    router.push(
+      `/card/charge/complete?cardNm=${encodeURIComponent(selectedAccount?.instNm ?? "")}&amount=${encodeURIComponent(amount)}` as Route,
+    );
   };
 
   const formatted = numericAmount ? numericAmount.toLocaleString() : "";
@@ -82,21 +105,18 @@ export default function CardChargePage() {
         .shake { animation: shake 0.5s ease; }
       `}</style>
 
-      {/* 헤더 */}
       <Header title="카드 관리" />
 
-      {/* 카드명 */}
       <div className="px-6 mt-8">
         <p className="text-xl font-medium text-hana-black-900 tracking-tight">
-          {selectedCard.cardNm}으로
+          {currentCard?.cardNm ?? "카드"}로 충전하기
         </p>
       </div>
 
       {/* 금액 표시 */}
       <div className="px-6 mt-6">
-        <p className="text-sm text-hana-black-500 mb-2">얼마를 보낼까요?</p>
+        <p className="text-sm text-hana-black-500 mb-2">얼마를 충전할까요?</p>
         <div
-          ref={amountRef}
           className={`border-b-2 pb-2 ${shake ? "shake" : ""} ${isOverLimit ? "border-hana-red-500" : "border-hana-black-900"}`}
         >
           <p
@@ -107,60 +127,58 @@ export default function CardChargePage() {
         </div>
         {isOverLimit && (
           <p className="text-xs text-hana-red-500 mt-1">
-            현재 한도는 {selectedCard.limitAmt.toLocaleString()}원입니다
+            1회 최대 {SINGLE_LIMIT.toLocaleString()}원까지 충전할 수 있어요
           </p>
         )}
       </div>
 
-      {/* 출금 계좌 */}
+      {/* 충전 계좌 선택 */}
       <div className="px-6 mt-6 relative">
         <button
-          onClick={() => setShowCardSelect(!showCardSelect)}
+          onClick={() => setShowAccountSelect(!showAccountSelect)}
           className="flex items-center justify-between w-full h-[76px] px-4 border border-[#E3E5E8] rounded-xl bg-white"
         >
           <div className="text-left">
             <p className="text-sm font-medium tracking-tight text-hana-black-500">
-              {selectedCard.accountNm}
+              {selectedAccount
+                ? `${selectedAccount.instNm} ${selectedAccount.accountNum}`
+                : "계좌 선택"}
             </p>
             <p className="text-sm font-medium tracking-tight text-hana-black-800 mt-1">
-              {selectedCard.balance.toLocaleString()}원
+              {selectedAccount
+                ? `${selectedAccount.balanceAmt.toLocaleString()}원`
+                : ""}
             </p>
           </div>
           <ChevronDown
             size={16}
             color="#E5E5E5"
             className={
-              showCardSelect
+              showAccountSelect
                 ? "rotate-180 transition-transform"
                 : "transition-transform"
             }
           />
         </button>
 
-        {showCardSelect && (
+        {showAccountSelect && (
           <div className="absolute left-6 right-6 bg-white border border-[#E3E5E8] rounded-xl shadow-lg z-10 mt-1">
-            {CARDS.map((c) => (
+            {accounts.map((a) => (
               <button
-                key={c.id}
+                key={a.accountId}
                 onClick={() => {
-                  setSelectedCard(c);
-                  setShowCardSelect(false);
-                  setAmount("");
+                  setSelectedAccountId(a.accountId);
+                  setShowAccountSelect(false);
                 }}
-                className={`w-full px-4 py-3 text-left flex justify-between items-center hover:bg-hana-silver-50 ${
-                  selectedCard.id === c.id ? "bg-hana-green-50" : ""
-                }`}
+                className={`w-full px-4 py-3 text-left flex justify-between items-center hover:bg-hana-silver-50 ${selectedAccountId === a.accountId ? "bg-hana-green-50" : ""}`}
               >
                 <div>
                   <p className="text-sm font-medium text-hana-black-800">
-                    {c.cardNm}
-                  </p>
-                  <p className="text-xs text-hana-black-500 mt-0.5">
-                    {c.accountNm}
+                    {a.instNm} {a.accountNum}
                   </p>
                 </div>
                 <p className="text-sm font-medium text-hana-black-800">
-                  {c.balance.toLocaleString()}원
+                  {a.balanceAmt.toLocaleString()}원
                 </p>
               </button>
             ))}
@@ -168,7 +186,7 @@ export default function CardChargePage() {
         )}
       </div>
 
-      {/* 빠른 금액 선택 */}
+      {/* 빠른 금액 */}
       <div className="flex justify-center gap-3 mt-4">
         {QUICK_AMOUNTS.map((q) => (
           <button
@@ -181,32 +199,24 @@ export default function CardChargePage() {
         ))}
       </div>
 
-      {/* 키패드 영역 */}
+      {/* 키패드 */}
       <div className="mt-auto bg-hana-silver-100 pt-4">
-        {/* 확인 버튼 */}
         <div className="px-6 pb-4">
           <button
             disabled={!amount || amount === "0" || isOverLimit}
-            onClick={() => {
-              const url = `/card/charge/complete?cardNm=${encodeURIComponent(selectedCard.cardNm)}&amount=${encodeURIComponent(amount)}`;
-              router.push(url as Route);
-            }}
+            onClick={handleConfirm}
             className="w-full h-[53px] rounded-xl bg-hana-ez-600 text-white text-base font-medium disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
           >
             확인
           </button>
         </div>
-
-        {/* 번호 키패드 */}
         <div className="grid grid-cols-3 gap-2 px-4 pb-6">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "delete"].map(
             (key, i) => (
               <button
                 key={i}
                 onClick={() => key && handleKeypad(key)}
-                className={`h-[60px] flex items-center justify-center text-xl font-semibold text-hana-black-900 rounded-xl ${
-                  key === "" ? "" : "bg-white active:bg-hana-silver-50"
-                }`}
+                className={`h-[60px] flex items-center justify-center text-xl font-semibold text-hana-black-900 rounded-xl ${key === "" ? "" : "bg-white active:bg-hana-silver-50"}`}
               >
                 {key === "delete" ? (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -247,5 +257,13 @@ export default function CardChargePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function CardChargePage() {
+  return (
+    <Suspense>
+      <CardChargeContent />
+    </Suspense>
   );
 }

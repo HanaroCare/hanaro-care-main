@@ -1,11 +1,15 @@
 package com.server.asset.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.server.asset.dto.dashboard.AssetChartPointDTO;
 import com.server.asset.dto.dashboard.AssetDashboardResponse;
 import com.server.asset.dto.dashboard.AssetDashboardResponse.FinancialAssetSummary;
 import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
@@ -36,44 +40,27 @@ public class AssetService {
 
 	@CheckUser(key = "#userId")
 	public AssetDashboardResponse getAssetDashboard(Long userId) {
-		// 1. 마이데이터 연결 여부 (IS_LINKED = true 인 계좌가 하나라도 있으면 연결됨)
 		boolean isMyDataLinked = accountRepository.existsByUser_UserIdAndIsLinkedTrue(userId);
 
-		// 2. 금융 자산 총액 조회 (연동된 계좌만 합산)
 		BigDecimal totalFinancialAmt = accountRepository.findTotalBalanceByUserIdAndIsLinkedTrue(userId);
 		totalFinancialAmt = (totalFinancialAmt != null) ? totalFinancialAmt : BigDecimal.ZERO;
 
-		// 3. 금융 자산 카테고리별 합계 (연동된 계좌만 그룹화)
 		List<FinancialAssetSummary> financialAssets = assetMapper.toFinancialAssetSummaryList(
 			accountRepository.findBalanceSumGroupByCategoryByUserIdAndIsLinkedTrue(userId)
 		);
 
-		// 4. 실물 자산 상세 리스트 (TB_REAL_ASSET에 해당 유저 데이터 없으면 빈 리스트)
 		List<RealAssetSummary> realAssets = assetMapper.toRealAssetSummaryListFromEntity(
 			realAssetRepository.findAllByUser_UserId(userId)
 		);
 
-		return AssetDashboardResponse.builder()
-			.isMyDataLinked(isMyDataLinked)
-			.totalFinancialAmt(totalFinancialAmt)
-			.financialAssets(financialAssets)
-			.realAssets(realAssets)
-			.build();
+		return assetMapper.toAssetDashboardResponse(
+			isMyDataLinked,
+			totalFinancialAmt,
+			financialAssets,
+			realAssets
+		);
 	}
 
-  @Transactional
-  @CheckUser(key = "#userId")
-  public void updateAssetLinkStatus(Long userId, List<Long> accountIds) {
-    List<TBAccount> userAccounts = accountRepository.findAllByUser_UserId(
-        userId);
-
-    userAccounts.forEach(account -> {
-      boolean isLinked = accountIds.contains(account.getAccountId());
-      account.setIsLinked(isLinked);
-    });
-
-    simulationRefreshService.enqueue(userId);
-  }
 
   @CheckUser(key = "#userId")
   public List<FinancialAssetResponse> getFinancialAssets(Long userId) {
@@ -92,9 +79,45 @@ public class AssetService {
 
 	@CheckUser(key = "#userId")
 	public List<AssetDetailResponse> getInsuranceAssets(Long userId) {
-		// 기존 findByUser_UserIdAndAssetCateCd 대신 연동 여부(IsLinkedTrue)를 체크하는 메서드 호출
 		return assetMapper.toAssetDetailListFromAccount(
 			accountRepository.findByUser_UserIdAndAssetCateCdAndIsLinkedTrue(userId, AssetCategory.INSURANCE)
 		);
 	}
+
+  @CheckUser(key = "#userId")
+  public List<AssetChartPointDTO> getAssetChart(Long userId) {
+    BigDecimal currentTotal = accountRepository.findTotalBalanceByUserIdAndIsLinkedTrue(userId);
+    double currentAmt = (currentTotal != null ? currentTotal.doubleValue() : 0.0) / 100_000_000.0;
+
+    LocalDate now = LocalDate.now();
+    Random random = new Random();
+    List<AssetChartPointDTO> result = new ArrayList<>();
+
+    // 과거 5개월: 현재값 기준 ±3% 랜덤
+    for (int i = 5; i >= 1; i--) {
+      LocalDate past = now.minusMonths(i);
+      double factor = 0.97 + random.nextDouble() * 0.06; // 0.97 ~ 1.03
+      double value = Math.round(currentAmt * factor * 10.0) / 10.0;
+      result.add(new AssetChartPointDTO(past.getMonthValue() + "월", value));
+    }
+    // 현재 달: 실제 DB 값
+    double currentRounded = Math.round(currentAmt * 10.0) / 10.0;
+    result.add(new AssetChartPointDTO(now.getMonthValue() + "월", currentRounded));
+
+    return result;
+  }
+
+  @Transactional
+  @CheckUser(key = "#userId")
+  public void updateAssetLinkStatus(Long userId, List<Long> accountIds) {
+    List<TBAccount> userAccounts = accountRepository.findAllByUser_UserId(
+        userId);
+
+    userAccounts.forEach(account -> {
+      boolean isLinked = accountIds.contains(account.getAccountId());
+      account.setIsLinked(isLinked);
+    });
+
+    simulationRefreshService.enqueue(userId);
+  }
 }

@@ -9,10 +9,6 @@ import { getSimulationDetail } from '@/app/asset/actions/simulation';
 import { SimulationDetailApiResponse } from '@/app/asset/utils/types';
 import {AlertBanner} from "@/components/modules/AlertBanner";
 
-const ALLOWED_CARE_TYPES = ['CENTER', 'HOME', 'HOSPITAL', 'PREMIUM'];
-const DEFAULT_AGE = 85;
-const DEFAULT_CARE_TYPE = 'HOME';
-
 export default function SimulationDetailPage() {
   const router = useRouter();
   const [data, setData] = useState<SimulationDetailApiResponse | null>(null);
@@ -21,25 +17,9 @@ export default function SimulationDetailPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
 
-    // 1. targetAge 파싱 및 검증 (NaN 체크 후 fallback 85)
-    const rawAge = localStorage.getItem('simulation_target_age');
-    const parsedAge = parseInt(rawAge || String(DEFAULT_AGE), 10);
-    const sanitizedAge = isNaN(parsedAge) ? DEFAULT_AGE : parsedAge;
-
-    // 2. careType 검증 (화이트리스트 체크 후 fallback 'CENTER')
-    const rawCareType = localStorage.getItem('simulation_care_type');
-    const sanitizedCareType = (rawCareType && ALLOWED_CARE_TYPES.includes(rawCareType))
-        ? rawCareType
-        : DEFAULT_CARE_TYPE;
-
     const fetchData = async () => {
       try {
-        // 검증된(Sanitized) 값을 사용하여 API 호출
-        const result = await getSimulationDetail({
-          target_age: sanitizedAge,
-          care_type: sanitizedCareType
-        });
-
+        const result = await getSimulationDetail();
         if (result) {
           setData(result);
         }
@@ -57,8 +37,27 @@ export default function SimulationDetailPage() {
     return <div className="min-h-screen bg-white" />;
   }
 
-  const ageSegments = data?.age_segments ?? [];
-  const trendData = ageSegments.map(seg => ({
+  if (!data) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-white px-6 text-center">
+        <p className="text-[16px] font-semibold text-hana-black-900">
+          시뮬레이션 결과가 없어요
+        </p>
+        <p className="text-[13px] text-hana-black-500">
+          먼저 시뮬레이션을 실행해 주세요.
+        </p>
+        <button
+          onClick={() => router.push('/asset/simulator')}
+          className="mt-2 rounded-full bg-hana-green-500 px-6 py-3 text-[14px] font-semibold text-white"
+        >
+          시뮬레이션 하러 가기
+        </button>
+      </div>
+    );
+  }
+
+  const ageSegments = data.age_segments;
+  const trendData = ageSegments.map((seg) => ({
     age: seg.range,
     expense: Math.floor(Number(seg.expense) / 10000),
   }));
