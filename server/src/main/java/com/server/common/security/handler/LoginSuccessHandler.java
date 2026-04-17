@@ -70,7 +70,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
   private static final long PASSWORD_EXPIRY_DAYS = 180L;
 
   private boolean isPasswordExpired(LocalDateTime pwdChangedAt) {
-    if (pwdChangedAt == null) return true;
+    // null 은 신규 가입 직후 상태 — 만료로 판정하지 않음
+    if (pwdChangedAt == null) return false;
     return pwdChangedAt.isBefore(LocalDateTime.now().minusDays(PASSWORD_EXPIRY_DAYS));
   }
 

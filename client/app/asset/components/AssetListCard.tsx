@@ -32,8 +32,8 @@ export function AssetListCard({ data }: { data: FinancialAssetResponse[] }) {
 	return (
 		<div className="w-81.25 rounded-3xl border-[0.5px] border-border-gray bg-white p-5 shadow-sm">
 			<div className="flex flex-col gap-6">
-				{data.map((item) => (
-					<div key={item.accountId} className="flex items-center justify-between">
+				{data.map((item, index) => (
+					<div key={`${item.assetCateCd}-${item.accountId}-${index}`} className="flex items-center justify-between">
 						<div className="flex items-center gap-3">
 							<div className={`flex size-8 shrink-0 items-center justify-center rounded-[10px] ${ICON_STYLES[item.assetCateCd] || "bg-hana-teal-100"}`}>
 								<Image

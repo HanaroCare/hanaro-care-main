@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 
 const getAuthHeader = async () => ({
-  Authorization: `Bearer ${(await cookies()).get('AUTH_TOKEN')?.value}`,
+  Authorization: `Bearer ${(await cookies()).get('ACCESS_TOKEN')?.value}`,
 });
 
 // 상속비율 및 가족 조회

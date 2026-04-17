@@ -40,6 +40,12 @@ export async function getRealAssetDetail(
 }
 
 
+// export async function getInsuranceDetail(
+//   assetId: string,
+// ): Promise<InsuranceAssetResponse> {
+//   return serverFetch<InsuranceAssetResponse>(`/api/my/insurance/${assetId}`);
+// }
+
 export async function getSimulationSummary(): Promise<
     | { ok: true; data: SimulationSummaryResponse }
     | { ok: false; reason: 'fetch_failed' | 'not_found' }

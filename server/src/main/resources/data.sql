@@ -30,16 +30,48 @@ INSERT INTO TB_USER (USER_ID, LOGIN_ID, USER_NM, USER_PWD, USER_PHONE, USER_AGE,
                      IS_HANA_CERT, USER_STAT_CD, AUTH_MEANS_CD, USER_ROLE, LAST_LOGIN_AT,
                      PWD_CHANGED_AT, USER_ADDR)
 VALUES
-    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', '2026-04-17 11:30:00', '2026-04-17 11:30:00', '서울특별시 강남구 역삼동 123-45'),
-    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2', '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', '2026-04-17 11:30:00', '2026-04-17 11:30:00', NULL),
-    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER', '2025-09-17 09:00:00', '2025-09-17 09:00:00', NULL),
-    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', '2026-04-17 11:30:00', '2026-04-17 11:30:00', NULL),
-    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', '2026-04-17 11:30:00', '2026-04-17 11:30:00', '서울특별시 마포구 공덕동 456-78'),
-    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', '2026-04-17 11:30:00', '2026-04-17 11:30:00', NULL),
-    (1007, 'Tsid', '하나테스터', '$2a$12$BYTWmmP4M2n/t2Fb/L.QnOejBuoHqILdK1syQ1rk62sfWBKtam9Ji', '01012345678', 30, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', '2026-04-17 11:30:00', '2026-04-17 11:30:00', NULL),
-    (1008, 'TsidZ', '패턴Z테스터', '$2a$12$1Sk8P7kehKkY933ANOAj1.AC52WVGH2/SB54gyil1Go.SMIm7IJKm', '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', '2026-04-17 11:30:00', '2026-04-17 11:30:00', NULL),
-    (1009, 'TsidL', '패턴L테스터', '$2a$12$heAv.jDZ5PHLQ.fupN2e.uRIbjWd7o7PfYiTSkc5XFyDvXd7/jQ7q', '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', '2026-04-17 11:30:00', '2026-04-17 11:30:00', NULL),
-    (1010, 'oldUser', '고하나', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su', '01099998888', 50, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', '2026-04-17 11:30:00', '2025-04-17 09:00:00', NULL);
+    -- 1. 홍길동: 일반 비밀번호 유저
+    (1001, 'hong123', '홍길동', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01011112222', 65, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(), '서울특별시 강남구 역삼동 123-45'),
+
+    -- 2. 김철수: 간편 비밀번호 유저
+    (1002, 'chulsoo7', '김철수', '$2a$12$sjg9Nyjde9D6CuiqmfOHpOHv5Ep7SLXt4bwnTl7.5uLSaUxs1rGM2',
+     '01022223333', 40, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL),
+
+    -- 3. 이영희: 휴면 계정 예시 (7개월 전 활동)
+    (1003, 'younghee9', '이영희', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01033334444', 63, 0, 'DORMANT', 'PASSWORD', 'ROLE_USER',
+     DATE_SUB(NOW(), INTERVAL 7 MONTH), DATE_SUB(NOW(), INTERVAL 7 MONTH), NULL),
+
+    -- 4. 박관리: 관리자 계정
+    (1004, 'testUser', '박관리', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01055556666', 35, 0, 'ACTIVE', 'PASSWORD', 'ROLE_ADMIN', NOW(), NOW(), NULL),
+
+    -- 5. 정순자: 시뮬레이션 테스트용 부모 유저
+    (1005, 'jung8', '정순자', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01066667777', 68, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(), '서울특별시 마포구 공덕동 456-78'),
+
+    -- 6. 정민준: 시뮬레이션 테스트용 자녀 유저
+    (1006, 'minjun9', '정민준', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01077778888', 38, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL),
+
+    -- 7. 하나테스터: 간편비밀번호(654321) 테스트 유저
+    (1007, 'Tsid', '하나테스터', '$2a$12$BYTWmmP4M2n/t2Fb/L.QnOejBuoHqILdK1syQ1rk62sfWBKtam9Ji',
+     '01012345678', 30, 1, 'ACTIVE', 'SIMPLE_PASSWORD', 'ROLE_USER', NOW(), NOW(), NULL),
+
+    -- 8. 패턴Z테스터: 패턴(Z모양) 테스트 유저
+    (1008, 'TsidZ', '패턴Z테스터', '$2a$12$1Sk8P7kehKkY933ANOAj1.AC52WVGH2/SB54gyil1Go.SMIm7IJKm',
+     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW(), NULL),
+
+    -- 9. 패턴L테스터: 패턴(ㄴ모양) 테스트 유저
+    (1009, 'TsidL', '패턴L테스터', '$2a$12$heAv.jDZ5PHLQ.fupN2e.uRIbjWd7o7PfYiTSkc5XFyDvXd7/jQ7q',
+     '01012345678', 30, 1, 'ACTIVE', 'PATTERN', 'ROLE_USER', NOW(), NOW(), NULL),
+
+    -- 10. 고하나: 비밀번호 변경 1년 경과 (시연 시 비밀번호 변경 팝업 노출용)
+    (1010, 'oldUser', '고하나', '$2a$12$ki4mfDlCBGUZLbiPDXIsCu.TVymeZGMU7BmQeEjdUXkq21CHws2Su',
+     '01099998888', 50, 0, 'ACTIVE', 'PASSWORD', 'ROLE_USER', NOW(),
+     DATE_SUB(NOW(), INTERVAL 12 MONTH), NULL);
+
 -- ========================
 -- TB_PRODUCT
 -- ========================
@@ -306,8 +338,7 @@ VALUES
            "detail": { "living": 900000, "medical": 1200000, "care": 500000 }
          }
        ],
-       "ai_opinion": "국민연금이 연동되지 않아 정확한 수령액을 파악할 수 없습니다. 연금을 연동하시면 더 정확한 분석이 가능합니다. 현재 통계 기반 추정 시 80세 이후 월 약 145만원이 부족할 것으로 예측됩니다.",
-       "is_linked": false
+       "ai_opinion": "현재 연금 수령액만으로도 계획하신 재가 요양 생활비를 충분히 충당 가능합니다. 여유 자산은 신탁을 통해 관리하시는 것을 추천합니다."
      }');
 
 -- ========================
