@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class SimulationResponse {
 
     @JsonProperty("simulation_id")
-    private Long simulationId;
+    private String simulationId;
 
     private SimulationSummary summary;
 

@@ -1,15 +1,17 @@
 package com.server.asset.dto.link;
 
-import com.server.asset.entity.enums.AssetCategory;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.math.BigDecimal;
+
+import com.server.asset.entity.enums.AssetCategory;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
 @Builder
 @Schema(description = "마이데이터 연동 가능 계좌 응답")
 public record AccountLinkResponse(
 
-    @Schema(description = "계좌 ID (JS Long 정밀도 손실 방지를 위해 String 직렬화)", example = "691274982960660480")
+    @Schema(description = "계좌 ID", example = "691274982960660480")
     String accountId,
 
     @Schema(description = "기관명", example = "하나은행")
