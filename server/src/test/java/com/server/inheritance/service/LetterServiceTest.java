@@ -8,22 +8,28 @@ import static org.mockito.Mockito.mock;
 
 import com.server.common.exception.ApiException;
 import com.server.common.s3.StorageService;
+import com.server.inheritance.dto.InheritanceSummaryDto;
 import com.server.inheritance.dto.LetterRequestDto;
 import com.server.inheritance.dto.LetterResponseDto;
 import com.server.inheritance.entity.TBInheritDetail;
 import com.server.inheritance.entity.TBInheritLetter;
+import com.server.inheritance.entity.TBInheritPlan;
 import com.server.inheritance.enums.LetterType;
 import com.server.inheritance.repository.InheritDetailRepository;
 import com.server.inheritance.repository.InheritLetterRepository;
 import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.user.entity.TBUser;
 import com.server.user.repository.FamilyAuthRepository;
+import java.io.ByteArrayInputStream;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(MockitoExtension.class)
@@ -46,6 +52,47 @@ class LetterServiceTest {
 
   @Mock
   private StorageService storageService;
+
+  @Test
+  void getInheritanceInfo_success() {
+
+    // given
+    Long userId = 1L;
+
+    TBInheritPlan plan = mock(TBInheritPlan.class);
+    given(plan.getId()).willReturn(10L);
+
+    given(inheritPlanRepository.findByUser_UserId(userId))
+        .willReturn(Optional.of(plan));
+
+    TBInheritDetail detail = mock(TBInheritDetail.class);
+    TBUser user = mock(TBUser.class);
+
+    given(detail.getInheritDetailId()).willReturn(100L);
+    given(detail.getDistRatio()).willReturn(new BigDecimal("0.5"));
+
+    given(user.getUserId()).willReturn(userId);
+    given(user.getUserNm()).willReturn("홍길동");
+
+    given(detail.getUser()).willReturn(user);
+    given(detail.getInheritPlan()).willReturn(plan);
+
+    given(inheritDetailRepository.findAllByInheritPlan_Id(10L))
+        .willReturn(List.of(detail));
+
+    given(plan.getTotalInheritAmt())
+        .willReturn(new BigDecimal("1000000"));
+
+    // when
+    List<InheritanceSummaryDto> result = letterService.getInheritanceInfo(userId);
+
+    // then
+    assertThat(result).hasSize(1);
+    assertThat(result.get(0).getUserId()).isEqualTo(userId);
+    assertThat(result.get(0).getUsername()).isEqualTo("홍길동");
+    assertThat(result.get(0).getAmt()).isEqualTo(500000L); // 1000000 * 0.5
+  }
+
 
   @Test
   void sendLetter_success() throws Exception {
@@ -180,5 +227,52 @@ class LetterServiceTest {
         letterService.getLetter(userId, inheritDetailId);
 
     assertThat(result.getLetterCont()).isEqualTo("hi");
+  }
+
+  @Test
+  void save_voiceFile_success() throws Exception {
+
+    // given
+    MultipartFile file = mock(MultipartFile.class);
+
+    given(file.getInputStream())
+        .willReturn(new ByteArrayInputStream("test audio".getBytes()));
+
+    ReflectionTestUtils.setField(letterService, "uploadDir", "build/test-upload");
+
+    String result = letterService.save(file);
+
+    assertThat(result).endsWith(".webm");
+    assertThat(result).isNotBlank();
+  }
+
+  @Test
+  void deleteLetter_success() {
+
+    Long userId = 1L;
+    Long inheritDetailId = 10L;
+
+    TBUser receiver = mock(TBUser.class);
+    given(receiver.getUserId()).willReturn(2L);
+
+    TBInheritDetail detail = mock(TBInheritDetail.class);
+    given(detail.getUser()).willReturn(receiver);
+
+    given(inheritDetailRepository.findById(inheritDetailId))
+        .willReturn(Optional.of(detail));
+
+    given(familyAuthRepository
+        .existsByGrantor_UserIdAndGrantee_UserId(userId, 2L))
+        .willReturn(true);
+
+    TBInheritLetter letter = mock(TBInheritLetter.class);
+    given(letter.getLetterId()).willReturn(99L);
+
+    given(letterRepository
+        .findByInheritDetail_InheritDetailId(inheritDetailId))
+        .willReturn(Optional.of(letter));
+
+    Long result = letterService.deleteLetter(userId, inheritDetailId);
+    assertThat(result).isEqualTo(99L);
   }
 }
