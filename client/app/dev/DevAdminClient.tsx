@@ -16,6 +16,8 @@ import {
   getAdminUserAssets,
   getAdminUserDetail,
   runPensionBatch,
+  runSimulationBatchRun,
+  runSimulationEnqueue,
   runTrustBatch,
   searchAdminUsers,
   subscribePensionProduct,
@@ -118,6 +120,10 @@ export default function DevAdminClient() {
     status: 'idle',
     message: '',
   });
+  const [simulationEnqueueResult, setSimulationEnqueueResult] =
+    useState<ResultState>({ status: 'idle', message: '' });
+  const [simulationBatchResult, setSimulationBatchResult] =
+    useState<ResultState>({ status: 'idle', message: '' });
 
   const handleSearch = () => {
     const q = keyword.trim();
@@ -298,6 +304,36 @@ export default function DevAdminClient() {
         });
       } catch (e) {
         setPensionBatchResult({
+          status: 'error',
+          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+        });
+      }
+    });
+  };
+
+  const handleRunSimulationEnqueue = () => {
+    setSimulationEnqueueResult({ status: 'idle', message: '' });
+    startTransition(async () => {
+      try {
+        const message = await runSimulationEnqueue();
+        setSimulationEnqueueResult({ status: 'success', message });
+      } catch (e) {
+        setSimulationEnqueueResult({
+          status: 'error',
+          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+        });
+      }
+    });
+  };
+
+  const handleRunSimulationBatchRun = () => {
+    setSimulationBatchResult({ status: 'idle', message: '' });
+    startTransition(async () => {
+      try {
+        const message = await runSimulationBatchRun();
+        setSimulationBatchResult({ status: 'success', message });
+      } catch (e) {
+        setSimulationBatchResult({
           status: 'error',
           message: `실패: ${e instanceof Error ? e.message : String(e)}`,
         });
@@ -593,6 +629,44 @@ export default function DevAdminClient() {
                         주택연금 배치 실행
                       </button>
                       <ResultBanner result={pensionBatchResult} />
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                      <p className="text-[14px] font-semibold text-[#111827]">
+                        시뮬레이션 큐 등록
+                      </p>
+                      <p className="mt-1 text-[12px] text-[#6A7282]">
+                        전체 사용자 시뮬레이션을 큐에 등록합니다.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRunSimulationEnqueue}
+                        disabled={isPending}
+                        className="mt-3 w-full rounded-xl bg-[#374151] py-3 text-[14px] font-semibold text-white disabled:opacity-40"
+                      >
+                        Enqueue 실행
+                      </button>
+                      <ResultBanner result={simulationEnqueueResult} />
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                      <p className="text-[14px] font-semibold text-[#111827]">
+                        시뮬레이션 배치 실행
+                      </p>
+                      <p className="mt-1 text-[12px] text-[#6A7282]">
+                        큐에 등록된 시뮬레이션을 일괄 처리합니다.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleRunSimulationBatchRun}
+                        disabled={isPending}
+                        className="mt-3 w-full rounded-xl bg-[#374151] py-3 text-[14px] font-semibold text-white disabled:opacity-40"
+                      >
+                        Batch Run 실행
+                      </button>
+                      <ResultBanner result={simulationBatchResult} />
                     </div>
                   </div>
                 </div>
