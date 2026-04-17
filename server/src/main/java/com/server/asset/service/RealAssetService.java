@@ -1,5 +1,12 @@
 package com.server.asset.service;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.dto.link.RealAssetLinkResponse;
@@ -10,13 +17,9 @@ import com.server.asset.repository.RealAssetRepository;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.repository.UserRepository;
-import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -90,8 +93,7 @@ public class RealAssetService {
         .user(userRepository.getReferenceById(userId))
         .assetNm(profile.assetNm())
         .addr(request.getAddr())
-        .assetSize(request.getAssetSize() != null
-            ? BigDecimal.valueOf(request.getAssetSize()) : null)
+        .assetSize(request.getAssetSize())
         .evalAmt(profile.evalAmt())
         .assetCateCd(RealAssetCategory.REAL_ESTATE)
         .assetDesc(toJson(extraInfo))
@@ -102,13 +104,12 @@ public class RealAssetService {
         userId, savedId, profile.evalAmt());
 
     return RealAssetLinkResponse.builder()
-        .realAssetId(savedId)
+        .realAssetId(String.valueOf(savedId))
         .assetNm(profile.assetNm())
         .evalAmt(profile.evalAmt())
         .build();
   }
 
-  // 차량
   public RealAssetLinkResponse linkVehicle(Long userId,
       RealAssetRequest.VehicleLinkRequest request, boolean hanaCertYn) {
 
@@ -138,7 +139,7 @@ public class RealAssetService {
         userId, savedId, profile.assetNm());
 
     return RealAssetLinkResponse.builder()
-        .realAssetId(savedId)
+        .realAssetId(String.valueOf(savedId))
         .assetNm(profile.assetNm())
         .evalAmt(profile.evalAmt())
         .brand(profile.brand())
@@ -150,7 +151,7 @@ public class RealAssetService {
   public RealAssetLinkResponse linkGold(Long userId,
       RealAssetRequest.GoldLinkRequest request, boolean hanaCertYn) {
 
-    BigDecimal weight = BigDecimal.valueOf(request.getAssetSize());
+    BigDecimal weight = request.getAssetSize();
     BigDecimal evalAmt = GOLD_PRICE_PER_GRAM.multiply(weight);
 
     if (hanaCertYn) {
@@ -179,7 +180,7 @@ public class RealAssetService {
         userId, savedId, evalAmt);
 
     return RealAssetLinkResponse.builder()
-        .realAssetId(savedId)
+        .realAssetId(String.valueOf(savedId))
         .assetNm(assetNm)
         .evalAmt(evalAmt)
         .build();

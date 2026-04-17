@@ -66,7 +66,7 @@ public record TrustProductResponse(
 	public record ClaimAgent(
 
 		@Schema(description = "대리인 userId", example = "1002")
-		Long userId,
+		String userId,
 
 		@Schema(description = "대리인 이름", example = "권하나")
 		String userName,
