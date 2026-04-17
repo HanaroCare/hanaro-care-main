@@ -32,8 +32,20 @@ type ActiveBanner =
 export default async function Home() {
   const [assetData, simulationResult, bannerStatus] = await Promise.all([
     getAssetDashboard().catch(() => null),
-    getSimulationSummary(),
-    getBannerStatus(),
+    getSimulationSummary().catch(() => ({
+      ok: false as const,
+      reason: 'fetch_failed' as const
+    })),
+    getBannerStatus().catch(() => ({
+      userName: '',
+      hasCompletedSimulation: false,
+      hasInheritancePlan: false,
+      hasHousingPension: false,
+      hasTrustProduct: false,
+      housingPensionProduct: null,
+      medicalBill: null,
+      pension: null,
+    })),
   ]);
 
   const simulationData = simulationResult.ok ? simulationResult.data : null;

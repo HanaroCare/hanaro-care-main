@@ -31,6 +31,7 @@ public class ContractDto {
       description = "후견인 권한 (재산 관리, 의료 결정, 요양 시설 계약, 계약 체결, 법적 대리 순서, true=○ false=□)",
       example = "[true, true, false, true, false]"
   )
-  private boolean[] permission = new boolean[5];
+  @Builder.Default
+  private Boolean[] permission = new Boolean[5];
 
 }

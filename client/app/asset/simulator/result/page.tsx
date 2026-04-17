@@ -150,7 +150,7 @@ export default function SimulatorResultPage() {
             ) : (
                 <PrimaryButton
                     label="부족한 자금 해결하러 가기 >"
-                    onClick={() => router.push('/asset/housing')}
+                    onClick={() => router.push('/asset/home-pension')}
                     className="mt-1 bg-hana-red-500 text-white shadow-sm active:bg-hana-red-600"
                 />
             )}
