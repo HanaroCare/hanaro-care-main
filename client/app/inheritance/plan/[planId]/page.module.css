@@ -1,26 +1,18 @@
-/* 하나은행 아이덴티티 컬러를 변수로 활용 */
-:root {
-  --hana-green: var(--color-hana-ez-600);
-  --hana-dark: #333333;
-  --hana-gray: #94A3B8;
-  --hana-bg: #F9FEFF;
-}
-
 .page {
   width: 100%;
   max-width: 375px;
   margin: 0 auto;
-  height: 100dvh; /* 전체 화면 높이 고정 */
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: hidden; /* 컨테이너 자체는 스크롤 불가 */
-  background-color: #fff;
+  overflow: hidden;
+  background-color: var(--background);
 }
 
 .scrollArea {
-  flex: 1; /* 남은 공간을 다 차지 */
-  overflow-y: auto; /* 여기서만 스크롤 발생 */
+  flex: 1;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -29,9 +21,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: #fff;
-  flex-shrink: 0; /* 헤더는 줄어들지 않음 */
-  border-bottom: 1px solid #F1F5F9;
+  background: var(--background);
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--color-hana-silver-100);
 }
 
 .headerBtn {
@@ -40,13 +32,13 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  color: var(--hana-dark);
+  color: var(--color-hana-black-900);
 }
 
 .headerTitle {
   font-size: 18px;
-  font-weight: 600;
-  color: var(--hana-dark);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hana-black-900);
 }
 
 .container {
@@ -55,11 +47,12 @@
 }
 
 .pageTitle {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   line-height: 1.4;
   white-space: pre-wrap;
   margin-bottom: 24px;
+  color: var(--color-hana-black-900);
 }
 
 .chartImageContainer {
@@ -69,9 +62,9 @@
 }
 
 .summaryCard {
-  background: var(--hana-bg);
-  border: 1px solid #E8F4F5;
-  border-radius: 24px;
+  background: var(--color-hana-ez-50);
+  border: 1px solid var(--color-hana-ez-100);
+  border-radius: var(--radius-2xl);
   padding: 24px;
   margin-bottom: 24px;
 }
@@ -80,15 +73,15 @@
   display: flex;
   justify-content: space-between;
   font-size: 16px;
-  color: var(--hana-dark);
+  color: var(--color-hana-black-800);
 }
 
 .ratioHighlight {
-  color: var(--hana-green);
-  font-weight: 700;
+  color: var(--color-hana-ez-600);
+  font-weight: var(--font-weight-bold);
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #E8F4F5;
+  border-top: 1px solid var(--color-hana-ez-100);
 }
 
 .ratioValue {
@@ -103,18 +96,26 @@
 
 .heirCard {
   display: flex;
+  align-items: center;
+  border: 1px solid var(--color-hana-silver-100);
+  border-radius: 20px;
+  transition: all 0.2s;
+  overflow: hidden;
+  background-color: var(--background);
+}
+
+.heirContent {
+  flex: 1;
+  display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px;
-  border: 1px solid #F1F5F9;
-  border-radius: 20px;
-  transition: all 0.2s;
   cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.heirCard:active {
-  background-color: #F8FAFC;
-  transform: scale(0.98);
+.heirContent:active {
+  background-color: var(--color-hana-silver-50);
 }
 
 .heirInfo {
@@ -123,14 +124,64 @@
   gap: 12px;
 }
 
+.heirActions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border-left: 1px solid var(--color-hana-silver-100);
+  align-self: stretch;
+  justify-content: center;
+  background-color: var(--background);
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.actionBtn:active {
+  opacity: 0.5;
+}
+
+.editBtn {
+  color: var(--color-hana-ez-600);
+}
+
+.deleteBtn {
+  color: var(--color-hana-red-500);
+}
+
+.separator {
+  width: 16px;
+  height: 1px;
+  background-color: var(--color-hana-silver-100);
+  margin: 2px 0;
+}
+
 .heirIcon {
-  font-size: 20px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--color-hana-ez-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .heirName {
   font-size: 16px;
-  font-weight: 600;
-  color: var(--hana-dark);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hana-black-900);
 }
 
 .heirDetails {
@@ -139,17 +190,154 @@
 
 .heirPercentage {
   font-size: 18px;
-  font-weight: 700;
-  color: var(--hana-green);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hana-ez-600);
 }
 
 .heirAmount {
   font-size: 13px;
-  color: var(--hana-gray);
+  color: var(--color-hana-black-500);
   margin-top: 2px;
 }
 
-/* ✅ 중앙 팝업 스타일링 */
+.addHeirBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 16px;
+  border: 1px dashed var(--color-hana-black-500);
+  border-radius: 20px;
+  background-color: transparent;
+  color: var(--color-hana-black-500);
+  font-size: 16px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 12px;
+}
+
+.addHeirBtn:active {
+  background-color: var(--color-hana-silver-50);
+  transform: scale(0.98);
+}
+
+.bottomSheetContent {
+  padding-bottom: 20px;
+}
+
+.bottomSheetTitle {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hana-black-900);
+  margin-bottom: 32px;
+}
+
+.inputGroup {
+  margin-bottom: 24px;
+}
+
+.inputLabel {
+  display: block;
+  font-size: 14px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hana-black-900);
+  margin-bottom: 12px;
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  border: none;
+  border-bottom: 1px solid var(--color-hana-silver-100);
+  outline: none;
+  transition: border-color 0.2s;
+  background: transparent;
+}
+
+.textInput:focus {
+  border-bottom-color: var(--color-hana-ez-600);
+}
+
+.relationshipGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.relBtn {
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--color-hana-silver-100);
+  background-color: var(--background);
+  font-size: 14px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-hana-black-500);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activeRel {
+  border-color: var(--color-hana-ez-600);
+  background-color: var(--color-hana-ez-50);
+  color: var(--color-hana-ez-600);
+  font-weight: var(--font-weight-bold);
+}
+
+.modalInputContainer {
+  padding: 20px 0;
+}
+
+.inputHeader {
+  margin-bottom: 20px;
+}
+
+.percentageInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 2px solid var(--color-hana-silver-100);
+  width: fit-content;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+
+.percentageInputWrapper:focus-within {
+  border-bottom-color: var(--color-hana-ez-600);
+}
+
+.percentageInput {
+  width: 80px;
+  border: none;
+  background: transparent;
+  font-size: 48px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hana-black-900);
+  text-align: right;
+  outline: none;
+  padding: 10px 0;
+}
+
+.percentageInput::-webkit-outer-spin-button,
+.percentageInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.percentageInput[type=number] {
+  -moz-appearance: textfield;
+}
+
+.percentSymbol {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-hana-black-900);
+  margin-left: 4px;
+}
+
 .overlay {
   position: fixed;
   inset: 0;
@@ -163,7 +351,7 @@
 }
 
 .modal {
-  background: white;
+  background: var(--background);
   width: 100%;
   max-width: 327px;
   border-radius: 28px;
@@ -182,107 +370,41 @@
 
 .modalTitle {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: var(--font-weight-bold);
   text-align: center;
-  color: var(--hana-dark);
+  color: var(--color-hana-black-900);
   line-height: 1.4;
 }
 
-.modalSliderContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.sliderHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sliderHeader span:first-child {
-  font-size: 14px;
-  color: var(--hana-gray);
-}
-
-.sliderValue {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--hana-green);
-}
-
-.slider {
-  width: 100%;
-  appearance: none;
-  height: 8px;
-  border-radius: 10px;
-  outline: none;
-  cursor: pointer;
-}
-
-.slider::-webkit-slider-thumb {
-  appearance: none;
-  width: 28px;
-  height: 28px;
-  background: #fff;
-  border: 3px solid var(--hana-green);
-  border-radius: 50%;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-}
-
-.modalFooter {
-  display: flex;
-  gap: 12px;
-}
-
-.cancelBtn, .confirmBtn {
-  flex: 1;
-  padding: 16px;
-  border-radius: 16px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.cancelBtn {
-  background-color: #F1F5F9;
-  color: var(--hana-gray);
-  border: none;
-}
-
-.confirmBtn {
-  background-color: var(--hana-green);
-  color: white;
-  border: none;
-}
-
-.confirmBtn:active {
-  transform: scale(0.98);
-  filter: brightness(0.9);
-}
-
 .footer {
-  flex-shrink: 0; /* 푸터(버튼) 영역 고정 */
-  padding: 20px 24px 40px;
-  background: #fff;
-  border-top: 1px solid #F1F5F9;
+  flex-shrink: 0;
+  padding: 16px 24px 24px;
+  background: var(--background);
+  border-top: 1px solid var(--color-hana-silver-100);
 }
 
 .nextBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
-  padding: 18px;
-  border-radius: 18px;
-  font-size: 18px;
-  font-weight: 700;
-  background-color: var(--hana-green);
+  height: 53px;
+  background-color: var(--color-hana-ez-600);
   color: white;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   border: none;
-  transition: all 0.3s;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.nextBtn:active:not(:disabled) {
+  opacity: 0.8;
 }
 
 .nextBtn:disabled {
-  background-color: #E2E8F0;
-  color: var(--hana-gray);
+  background-color: var(--color-hana-silver-100);
+  color: var(--color-hana-black-500);
   cursor: not-allowed;
 }

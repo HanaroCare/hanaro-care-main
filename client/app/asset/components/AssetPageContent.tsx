@@ -12,7 +12,8 @@ import { AssetDetailCard } from './AssetDetailCard';
 import { AssetListCard } from './AssetListCard';
 import { AssetSummaryHeader } from './AssetSummaryHeader';
 import { formatKoreanCurrency } from '../utils/formatCurrency';
-import type { AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse } from '../utils/types';
+import type { AssetChartPoint, AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse } from '../utils/types';
+import Image from "next/image";
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
@@ -35,12 +36,13 @@ interface Props {
     dashboardData: AssetDashboardResponse | null;
     financialAssets: FinancialAssetResponse[];
     insuranceAssets: InsuranceAssetResponse[];
+    chartData: AssetChartPoint[];
 }
 
 const isValidTab = (tab: string | null): tab is TabId =>
     tab !== null && ['asset', 'realestate', 'insurance', 'car', 'gold'].includes(tab);
 
-export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets }: Props) {
+export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets, chartData }: Props) {
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -53,7 +55,10 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
         }
     }, [queryTab]);
 
-    const realAssets = dashboardData?.realAssets || [];
+    const realAssets = useMemo(
+        () => dashboardData?.realAssets ?? [],
+        [dashboardData],
+    );
 
     const handleTabChange = (tabId: string) => {
         setActiveTab(tabId as TabId);
@@ -78,7 +83,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 type: 'property',
                 amount: formatKoreanCurrency(getRealSum('REAL_ESTATE')),
                 buttonLabel: '부동산 연동하기',
-                href: '/asset/housing' as Route,
+                href: '/mydata/house' as Route,
             },
             insurance: {
                 type: 'insurance',
@@ -88,42 +93,55 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         .reduce((sum, a) => sum + (a.balanceAmt ?? 0), 0)
                 ),
                 buttonLabel: '보험 연동하기',
-                href: '/asset/insurance' as Route,
+                href: '/mydata/connect' as Route,
             },
             car: {
                 type: 'car',
                 amount: formatKoreanCurrency(getRealSum('VEHICLE')),
                 buttonLabel: '자동차 연동하기',
-                href: '/asset/car' as Route,
+                href: '/mydata/car' as Route,
             },
             gold: {
                 type: 'gold',
                 amount: formatKoreanCurrency(getRealSum('GOLD')),
                 buttonLabel: '금 연동하기',
-                href: '/asset/gold' as Route,
+                href: '/mydata/gold' as Route,
             },
         };
     }, [dashboardData, financialAssets, realAssets]);
 
     const currentSummary = summaryData[activeTab];
 
-    const renderTabContent = () => {
+    const tabContent = useMemo(() => {
         switch (activeTab) {
-            case 'asset':
+            case 'asset': {
+                const chartPoints = chartData.map(p => ({ name: p.month, value: p.value }));
+                const values = chartPoints.map(p => p.value);
+                const minVal = values.length > 0 ? Math.min(...values) : 0;
+                const maxVal = values.length > 0 ? Math.max(...values) : 1;
+                const domainMin = Math.max(0, Math.floor((minVal - 0.5) * 2) / 2);
+                                const domainMax = Math.max(
+                                        domainMin + 0.5,
+                                        Math.ceil((maxVal + 0.5) * 2) / 2
+                                    );
+                                const tickCount = 5;
+                                const step = (domainMax - domainMin) / (tickCount - 1);
+                               const ticks = Array.from({ length: tickCount }, (_, i) =>
+                                        Math.round((domainMin + step * i) * 10) / 10
+                                    );
                 return (
                     <>
                         <AssetListCard data={financialAssets.filter(a => a.assetCateCd !== 'INSURANCE')} />
-                        <AssetChart
-                            title="6개월 자산 변화"
-                            data={[
-                                { name: '7월', value: 11.8 }, { name: '8월', value: 12.1 },
-                                { name: '9월', value: 11.5 }, { name: '10월', value: 12.3 },
-                                { name: '11월', value: 12.6 }, { name: '12월', value: 12.8 },
-                            ]}
-                            config={{ type: 'bar', domain: [11, 13.5], ticks: [11, 11.5, 12, 12.5, 13] }}
-                        />
+                        {chartPoints.length > 0 && (
+                            <AssetChart
+                                title="6개월 자산 변화"
+                                data={chartPoints}
+                                config={{ type: 'bar', domain: [domainMin, domainMax], ticks }}
+                            />
+                        )}
                     </>
                 );
+            }
             case 'realestate':
                 return realAssets.filter(a => a.assetCateCd === 'REAL_ESTATE').map(asset => (
                     <AssetDetailCard
@@ -139,7 +157,6 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             case 'insurance':
                 return (
                     <div className="mt-4 flex w-full flex-col items-center gap-6">
-                        <AlertBanner message="보험대리청구인으로 지정되셨나요?" actionText="인증하기" variant="warning" />
                         {insuranceAssets.length > 0 ? (
                             insuranceAssets.map(asset => (
                                 <AssetDetailCard
@@ -150,7 +167,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                                     insuranceName={asset.assetNm}
                                     monthlyPremium={`월 ${formatKoreanCurrency(asset.monthlyPremAmt || 0)}`}
                                     status="normal"
-                                    href={`/asset/insurance/${asset.assetId}` as Route} // 보험 상세 ID 경로
+                                    href={`my/insurance/${asset.assetId}` as Route} // 보험 상세 ID 경로
                                 />
                             ))
                         ) : (
@@ -182,7 +199,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 ));
             default: return null;
         }
-    };
+    }, [activeTab, realAssets, financialAssets, insuranceAssets, chartData]);
 
     return (
         <div className="flex min-h-screen flex-col bg-white">
@@ -191,7 +208,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 <AssetSummaryHeader type={currentSummary.type} amount={currentSummary.amount} />
             </div>
             <main className="flex flex-col items-center gap-6 px-6 pb-24">
-                {renderTabContent()}
+                {tabContent}
                 {activeTab !== 'asset' && (
                     <div className="mt-4 w-full">
                         <PrimaryButton

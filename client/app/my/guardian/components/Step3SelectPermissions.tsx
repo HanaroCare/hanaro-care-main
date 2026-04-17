@@ -2,16 +2,18 @@
 
 import { FileText, HeartPulse, Home, Landmark, Shield } from 'lucide-react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
-import type { GuardianData } from '../types/types';
+import {GuardianData} from "@/app/my/guardian/types/types";
 
 type Props = {
   data: GuardianData;
   onChange: (data: Partial<GuardianData>) => void;
   onNext: () => void;
 };
+
+// 백엔드 고정 순서와 일치시킵니다.
 const permissions = [
   {
-    id: '재산관리',
+    id: 0, // 인덱스로 관리
     icon: Landmark,
     title: '재산 관리',
     desc: '은행, 부동산, 투자 업무 대리',
@@ -19,7 +21,7 @@ const permissions = [
     iconColor: 'text-red-400',
   },
   {
-    id: '의료결정',
+    id: 1,
     icon: HeartPulse,
     title: '의료 결정',
     desc: '입원·수술·치료 방법 결정 대리',
@@ -27,7 +29,7 @@ const permissions = [
     iconColor: 'text-amber-400',
   },
   {
-    id: '요양시설계약',
+    id: 2,
     icon: Home,
     title: '요양 시설 계약',
     desc: '요양원·복지시설 입소 계약',
@@ -35,7 +37,7 @@ const permissions = [
     iconColor: 'text-blue-400',
   },
   {
-    id: '계약체결',
+    id: 3,
     icon: FileText,
     title: '계약 체결',
     desc: '각종 서비스·물품 구매 계약',
@@ -43,7 +45,7 @@ const permissions = [
     iconColor: 'text-purple-400',
   },
   {
-    id: '법적대리',
+    id: 4,
     icon: Shield,
     title: '법적 대리',
     desc: '소송, 행정 업무 법적 대리',
@@ -57,12 +59,15 @@ export default function Step3SelectPermissions({
   onChange,
   onNext,
 }: Props) {
-  const toggle = (id: string) => {
-    const current = data.permissions;
-    const next = current.includes(id)
-      ? current.filter((p) => p !== id)
-      : [...current, id];
-    onChange({ permissions: next });
+  // 핵심: 인덱스를 받아서 해당 위치의 boolean 값을 반전시킵니다.
+  const toggle = (index: number) => {
+    // 1. 기존 boolean 배열 복사
+    const nextPermissions = [...data.permissions];
+    // 2. 해당 인덱스 값 반전 (true -> false, false -> true)
+    nextPermissions[index] = !nextPermissions[index];
+
+    // 3. 업데이트
+    onChange({ permissions: nextPermissions });
   };
 
   return (
@@ -87,13 +92,15 @@ export default function Step3SelectPermissions({
         {/* Permission list */}
         <div className="mt-6 space-y-3">
           {permissions.map(
-            ({ id, icon: Icon, title, desc, color, iconColor }) => {
-              const selected = data.permissions.includes(id);
+            ({ icon: Icon, title, desc, color, iconColor }, index) => {
+              // data.permissions[0], [1]... 의 true/false 여부 확인
+              const selected = data.permissions[index];
+
               return (
                 <button
                   type="button"
-                  key={id}
-                  onClick={() => toggle(id)}
+                  key={title}
+                  onClick={() => toggle(index)} // 인덱스 전달
                   className={`flex w-full items-center gap-4 rounded-2xl border px-4 py-4 transition-all ${
                     selected
                       ? 'border-hana-ez-600 bg-teal-50'

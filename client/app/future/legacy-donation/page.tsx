@@ -1,36 +1,36 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { ChevronRight } from "lucide-react";
-import { Route } from "next";
-import Header from "@/components/navigation/Header";
+import { ChevronRight } from 'lucide-react';
+import { Route } from 'next';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/navigation/Header';
 
 const stats = [
-  { value: "2,847명", label: "기부자 수" },
-  { value: "156억원", label: "누적 기부액" },
-  { value: "98.2%", label: "유언 실행률" },
+  { value: '2,847명', label: '기부자 수' },
+  { value: '156억원', label: '누적 기부액' },
+  { value: '98.2%', label: '유언 실행률' },
 ];
 
 const howToSteps = [
   {
     step: 1,
-    title: "기부 의사 결정",
-    desc: "소중한 자산을 사회에 환원하기로 마음먹어요",
+    title: '기부 의사 결정',
+    desc: '소중한 자산을 사회에 환원하기로 마음먹어요',
   },
-  { step: 2, title: "단체 선택", desc: "기부하고 싶은 단체나 기관을 선택해요" },
+  { step: 2, title: '단체 선택', desc: '기부하고 싶은 단체나 기관을 선택해요' },
   {
     step: 3,
-    title: "유언장 작성",
-    desc: "공증인 사무소 / 법무사 사무소 방문하여 법률적으로 공증된 유언장을 작성해요",
+    title: '유언장 작성',
+    desc: '공증인 사무소 / 법무사 사무소 방문하여 법률적으로 공증된 유언장을 작성해요',
   },
   {
     step: 4,
-    title: "유언 집행",
-    desc: "유언 집행인이 유언 내용대로 기부를 실행해요",
+    title: '유언 집행',
+    desc: '유언 집행인이 유언 내용대로 기부를 실행해요',
   },
 ];
 
-const tags = ["법무 검토", "절차 처리 동행 서비스", "세제 혜택"];
+const tags = ['법무 검토', '절차 처리 동행 서비스', '세제 혜택'];
 
 export default function LegacyDonationPage() {
   const router = useRouter();
@@ -45,8 +45,8 @@ export default function LegacyDonationPage() {
           onClick={() => router.push("/future/legacy-donation/consult" as Route)}
           className="mx-[25px] mt-[18px] rounded-2xl px-[25px] py-[20px] relative overflow-hidden cursor-pointer"
           style={{
-            background: "linear-gradient(90deg, #008585 0%, #02A3AC 100%)",
-            minHeight: "157px",
+            background: 'linear-gradient(90deg, #008585 0%, #02A3AC 100%)',
+            minHeight: '157px',
           }}
         >
           {/* 태그 */}
@@ -67,7 +67,7 @@ export default function LegacyDonationPage() {
           </div>
           <p
             className="font-normal text-[13px] leading-[20px] mt-[8px]"
-            style={{ color: "rgba(255,255,255,0.7)" }}
+            style={{ color: 'rgba(255,255,255,0.7)' }}
           >
             소중한 자산이 더 나은 세상을 만듭니다
           </p>
@@ -100,7 +100,7 @@ export default function LegacyDonationPage() {
             <div
               key={stat.label}
               className="flex-1 flex flex-col items-center justify-center py-[12px] rounded-xl"
-              style={{ backgroundColor: "rgba(0,133,133,0.05)" }}
+              style={{ backgroundColor: 'rgba(0,133,133,0.05)' }}
             >
               <span className="font-bold text-[16px] leading-[24px] text-[#F04452]">
                 {stat.value}
@@ -145,8 +145,8 @@ export default function LegacyDonationPage() {
         <div
           className="mx-[25px] mt-[40px] rounded-2xl px-[20px] py-[20px]"
           style={{
-            background: "linear-gradient(90deg, #008585 0%, #02A3AC 100%)",
-            minHeight: "141px",
+            background: 'linear-gradient(90deg, #008585 0%, #02A3AC 100%)',
+            minHeight: '141px',
           }}
         >
           <p className="font-bold text-[15px] leading-[22px] text-white">
@@ -160,7 +160,7 @@ export default function LegacyDonationPage() {
               >
                 <span
                   className="font-normal text-[11px] leading-[16px]"
-                  style={{ color: "rgba(255,255,255,0.9)" }}
+                  style={{ color: 'rgba(255,255,255,0.9)' }}
                 >
                   {tag}
                 </span>
@@ -182,10 +182,10 @@ export default function LegacyDonationPage() {
         <div className="mx-[25px] mt-[40px]">
           <button
             onClick={() =>
-              router.push("/future/legacy-donation/consult" as Route)
+              router.push('/future/legacy-donation/consult' as Route)
             }
             className="w-full h-[53px] rounded-[10px] font-medium text-[16px] text-white"
-            style={{ backgroundColor: "#01A5AC" }}
+            style={{ backgroundColor: '#01A5AC' }}
           >
             상담 예약하기
           </button>

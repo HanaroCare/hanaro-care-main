@@ -1,4 +1,4 @@
-# === DB & Security  ===
+# === DB & Security ===
 server/mysql/
 **/#innodb_redo/
 **/#ib_redo*
@@ -13,8 +13,8 @@ backup/
 
 # === Java & Gradle (빌드 결과물) ===
 .gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
+server/build/
+!server/gradle/wrapper/gradle-wrapper.jar
 bin/
 out/
 *.jar
@@ -35,9 +35,6 @@ out/
 # [OS/IDE Misc]
 **/Thumbs.db
 **/*.log
-
-# MySQL data files
-server/mysql/
 
 # === OS & Etc ===
 .DS_Store

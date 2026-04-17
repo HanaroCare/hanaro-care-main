@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.server.asset.dto.dashboard.AssetChartPointDTO;
 import com.server.asset.dto.dashboard.AssetDashboardResponse;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
@@ -45,24 +46,6 @@ public class AssetController {
 		@AuthenticationPrincipal SubscriberDTO subscriberDTO
 	) {
 		return ApiResponse.onSuccess(assetService.getFinancialAssets(subscriberDTO.getUserId()));
-	}
-
-	@Operation(
-		summary = "금융 자산 연동 상태 변경",
-		description = "선택한 금융 계좌들의 연동 여부를 업데이트합니다.",
-		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-			content = @Content(
-				examples = @ExampleObject(value = "[2011, 2014]")
-			)
-		)
-	)
-	@PatchMapping("/financial/link")
-	public ApiResponse<String> updateAssetLinkStatus(
-		@AuthenticationPrincipal SubscriberDTO subscriberDTO,
-		@RequestBody List<Long> accountIds
-	) {
-		assetService.updateAssetLinkStatus(subscriberDTO.getUserId(), accountIds);
-		return ApiResponse.onSuccess("자산 연동 설정이 변경되었습니다.");
 	}
 
 	@Operation(summary = "실물 자산 상세 조회 (부동산, 자동차, 금)", description = "ID를 통해 특정 실물 자산의 상세 정보를 조회합니다.")
@@ -113,4 +96,31 @@ public class AssetController {
 	) {
 		return ApiResponse.onSuccess(assetService.getInsuranceAssets(subscriberDTO.getUserId()));
 	}
+
+	@Operation(summary = "6개월 자산 변화 차트 조회", description = "현재 달은 실제 DB 값, 과거 5개월은 ±3% 랜덤 가짜 데이터를 반환합니다.")
+	@GetMapping("/chart")
+	public ApiResponse<List<AssetChartPointDTO>> getAssetChart(
+		@AuthenticationPrincipal SubscriberDTO subscriberDTO
+	) {
+		return ApiResponse.onSuccess(assetService.getAssetChart(subscriberDTO.getUserId()));
+	}
+
+	@Operation(
+		summary = "금융 자산 연동 상태 변경",
+		description = "선택한 금융 계좌들의 연동 여부를 업데이트합니다.",
+		requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+			content = @Content(
+				examples = @ExampleObject(value = "[2011, 2014]")
+			)
+		)
+	)
+	@PatchMapping("/link")
+	public ApiResponse<String> updateAssetLinkStatus(
+		@AuthenticationPrincipal SubscriberDTO subscriberDTO,
+		@RequestBody List<Long> accountIds
+	) {
+		assetService.updateAssetLinkStatus(subscriberDTO.getUserId(), accountIds);
+		return ApiResponse.onSuccess("자산 연동 설정이 변경되었습니다.");
+	}
+
 }

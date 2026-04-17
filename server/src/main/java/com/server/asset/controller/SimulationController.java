@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
+import com.server.asset.dto.simulation.SimulationRequest;
 import com.server.asset.dto.simulation.SimulationResponse;
 import com.server.asset.dto.simulation.SimulationSummaryResponse;
 import com.server.asset.service.SimulationService;
@@ -44,12 +44,11 @@ public class SimulationController {
         return ApiResponse.onSuccess(simulationService.getSimulationSummary(subscriberDTO.getUserId()));
     }
 
-    @Operation(summary = "시뮬레이션 상세 조회", description = "특정 조건의 시뮬레이션 상세 내역(연령대별 지출 등)을 조회합니다.")
-    @PostMapping("/detail")
+    @Operation(summary = "시뮬레이션 상세 조회", description = "가장 최근 시뮬레이션의 상세 내역(연령대별 지출 등)을 조회합니다.")
+    @GetMapping("/detail")
     public ApiResponse<SimulationDetailResponse> getSimulationDetail(
-        @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-        @RequestBody SimulationRequest request
+        @AuthenticationPrincipal SubscriberDTO subscriberDTO
     ) {
-        return ApiResponse.onSuccess(simulationService.getSimulationDetail(subscriberDTO.getUserId(), request));
+        return ApiResponse.onSuccess(simulationService.getSimulationDetail(subscriberDTO.getUserId()));
     }
 }

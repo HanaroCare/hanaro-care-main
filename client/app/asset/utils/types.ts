@@ -1,10 +1,19 @@
 /**
  * ─── 자산(Asset) 도메인 ───
  */
-export type AssetCategory = 'CASH' | 'PENSION' | 'CARD' | 'INSURANCE' | 'STOCK';
+export type AssetCategory =
+    | 'CASH'
+    | 'PENSION_NATIONAL'
+    | 'PENSION_RETIRE'
+    | 'PENSION_PERSONAL'
+    | 'PENSION'
+    | 'CARD'
+    | 'INSURANCE'
+    | 'STOCK';
 export type RealAssetCategory = 'REAL_ESTATE' | 'VEHICLE' | 'GOLD';
 
 export interface AssetDashboardResponse {
+    isMyDataLinked: boolean;
     totalFinancialAmt: number;
     financialAssets: FinancialAssetSummary[];
     realAssets: RealAssetSummary[];
@@ -67,6 +76,11 @@ export interface AssetDetailResponse {
     updatedAt: string;
 }
 
+export interface AssetChartPoint {
+    month: string;
+    value: number; // 억 단위
+}
+
 /**
  * ─── 시뮬레이션(Simulation) 도메인 ───
  */
@@ -109,6 +123,7 @@ export interface AgeSegmentApiResponse {
 }
 
 export interface SimulationSummaryApiResponse {
+    targetAge: number;
     isSufficient: boolean;
     shortageAmt: number;
     livingCost: number;
@@ -116,6 +131,7 @@ export interface SimulationSummaryApiResponse {
     careCost: number;
     age_segments: AgeSegmentApiResponse[];
     ai_opinion: string;
+    housing_pension_monthly_payout?: number;
 }
 
 export interface IncomeDetailsApiResponse {

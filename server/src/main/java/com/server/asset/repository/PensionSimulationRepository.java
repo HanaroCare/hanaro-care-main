@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface PensionSimulationRepository extends JpaRepository<TBPensionSimulation, Long> {
 
 	Optional<TBPensionSimulation> findByRealAsset_RealAssetId(Long realAssetId);
+	boolean existsByRealAsset_User_UserId(Long userId);
 }

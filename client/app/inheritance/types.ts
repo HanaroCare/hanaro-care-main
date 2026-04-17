@@ -3,7 +3,7 @@ export type InheritanceMethod = 'once' | 'divided';
 export interface Recipient {
   id: number;
   name: string;
-  percentage: number;
+  ratio: number;
   amount: number;
 }
 

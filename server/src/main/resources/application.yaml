@@ -36,6 +36,12 @@ spring:
     init:
       mode: always
 
+  batch:
+    job:
+      enabled: false
+    jdbc:
+      initialize-schema: never
+
   web:
     resources:
       add-mappings: false
@@ -66,3 +72,8 @@ logging:
   level:
     com.server: debug
     org.hibernate.SQL: info
+
+voice:
+  upload-dir: ${VOICE_UPLOAD_DIR}
+  base-url: ${VOICE_BASE_URL}
+  voice-storage-path: ${VOICE_STORAGE_PATH}

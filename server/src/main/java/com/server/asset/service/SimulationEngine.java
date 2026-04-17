@@ -28,8 +28,8 @@ public class SimulationEngine {
     private final BokjiroClient bokjiroClient;
 
     private static final BigDecimal AVG_WAGE_GROWTH = new BigDecimal("2.9"); // 2.9%
-    private static final BigDecimal SENIOR_MEDICAL_COST_YEAR = new BigDecimal("6000000");
-    private static final BigDecimal MEDICAL_INFLATION = new BigDecimal("4.5"); // 4.5%
+    private static final BigDecimal SENIOR_MEDICAL_COST_YEAR = new BigDecimal("1200000"); // 개인부담 기준 월 10만원 × 12
+    private static final BigDecimal MEDICAL_INFLATION = new BigDecimal("3.0"); // 3.0%
 
     public SimulationDetailResponse run(AIAnalysisInput input) {
         // 1. 연금 추정 결과(금액 + 연동여부) 가져오기
@@ -41,7 +41,10 @@ public class SimulationEngine {
             false  // 지출 데이터 기반이므로 true
         );
 
-        BigDecimal estimatedPension = pensionResult.getAmount();
+        // 국민연금 + 주택연금 월수령액을 합산하여 AI/룰 양쪽에 동일하게 반영
+        BigDecimal housingPayout = input.getHousingPensionMonthlyPayout() != null
+            ? input.getHousingPensionMonthlyPayout() : BigDecimal.ZERO;
+        BigDecimal estimatedPension = pensionResult.getAmount().add(housingPayout);
         boolean isLinked = pensionResult.isLinked();
 
         List<String> welfareServices = fetchWelfareServices(input.getUserAddr());
@@ -74,10 +77,11 @@ public class SimulationEngine {
         AIAnalysisInput input, BigDecimal pension, boolean isLinked) {
 
         BigDecimal careCostBase = switch (input.getCareType()) {
-            case HOME -> new BigDecimal("600000");
-            case CENTER -> new BigDecimal("1800000");
-            case HOSPITAL -> new BigDecimal("2500000");
-            default -> new BigDecimal("1000000");
+            case HOME -> new BigDecimal("350000");
+            case CENTER -> new BigDecimal("900000");
+            case HOSPITAL -> new BigDecimal("1800000");
+            case PREMIUM -> new BigDecimal("5000000");
+            default -> new BigDecimal("900000");
         };
 
         BigDecimal monthlyMedicalBase = SENIOR_MEDICAL_COST_YEAR.divide(
@@ -93,6 +97,14 @@ public class SimulationEngine {
         int targetAge = Math.max(currentAge + 1, input.getTargetAge());
         int startAge = Math.max(65, (currentAge / 5) * 5);
 
+        // 퇴직연금 + 개인연금 잔액을 시뮬레이션 기간 전체에 걸쳐 월할 분배
+        BigDecimal totalPrivatePensionBalance = input.getRetirementPensionBalance()
+            .add(input.getPersonalPensionBalance());
+        int remainingMonths = Math.max(1, (targetAge - currentAge) * 12);
+        BigDecimal baseMonthlyPrivatePension = totalPrivatePensionBalance.compareTo(BigDecimal.ZERO) > 0
+            ? totalPrivatePensionBalance.divide(new BigDecimal(remainingMonths), 0, RoundingMode.HALF_UP)
+            : BigDecimal.ZERO;
+
         List<SimulationDetailResponse.AgeSegment> segments = new ArrayList<>();
 
         // 복리 계산을 위한 성장률 정의 (1 + r)
@@ -105,8 +117,19 @@ public class SimulationEngine {
 
             int yearsFromNow = Math.max(0, segStart - currentAge);
 
-            BigDecimal segRetirement = (segStart < 75) ? new BigDecimal("1200000") :
-                (segStart < 80) ? new BigDecimal("600000") : BigDecimal.ZERO;
+            // 연동 데이터 있으면 실제 잔액 기반, 없으면 통계 추정치
+            BigDecimal segRetirement;
+            if (baseMonthlyPrivatePension.compareTo(BigDecimal.ZERO) > 0) {
+                // 퇴직연금은 시간이 지날수록 소진: 75세 이후 50%, 80세 이후 0
+                double drawdownFactor = segStart < 75 ? 1.0 : segStart < 80 ? 0.5 : 0.0;
+                segRetirement = baseMonthlyPrivatePension
+                    .multiply(BigDecimal.valueOf(drawdownFactor))
+                    .setScale(0, RoundingMode.HALF_UP);
+            } else {
+                // 연동 없음: 통계 기반 추정치
+                segRetirement = (segStart < 75) ? new BigDecimal("1200000") :
+                    (segStart < 80) ? new BigDecimal("600000") : BigDecimal.ZERO;
+            }
             BigDecimal segIncome = pension.add(segRetirement).add(localSubsidy);
 
             BigDecimal livingFactor = BigDecimal.valueOf(Math.pow(wageGrowthRate, yearsFromNow));
@@ -114,11 +137,14 @@ public class SimulationEngine {
             if (segStart >= 80) segLiving = segLiving.multiply(new BigDecimal("0.8")).setScale(0, RoundingMode.HALF_UP);
 
             BigDecimal medicalFactor = BigDecimal.valueOf(Math.pow(medicalGrowthRate, yearsFromNow));
-            if (segStart >= 75) medicalFactor = medicalFactor.multiply(new BigDecimal("1.5"));
+            if (segStart >= 90) medicalFactor = medicalFactor.multiply(new BigDecimal("5.0"));
+            else if (segStart >= 85) medicalFactor = medicalFactor.multiply(new BigDecimal("3.5"));
+            else if (segStart >= 80) medicalFactor = medicalFactor.multiply(new BigDecimal("2.0"));
+            else if (segStart >= 75) medicalFactor = medicalFactor.multiply(new BigDecimal("1.3"));
             BigDecimal segMedical = monthlyMedicalBase.multiply(medicalFactor).setScale(0, RoundingMode.HALF_UP);
 
             BigDecimal segCare = (segStart < 75) ? BigDecimal.ZERO :
-                (segStart < 82) ? careCostBase.multiply(new BigDecimal("0.5")).setScale(0, RoundingMode.HALF_UP) :
+                (segStart < 85) ? careCostBase.multiply(new BigDecimal("0.5")).setScale(0, RoundingMode.HALF_UP) :
                     careCostBase;
 
             BigDecimal segExpense = segLiving.add(segMedical).add(segCare);

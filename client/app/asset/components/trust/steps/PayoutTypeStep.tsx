@@ -3,7 +3,10 @@
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { useTrustForm } from '@/app/asset/trust/TrustFormContext';
+import {
+  type PayoutTypeValue,
+  useTrustForm,
+} from '@/app/asset/trust/TrustFormContext';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import TrustChoiceStep from '../TrustChoiceStep';
 import TrustWizardStep from '../TrustWizardStep';
@@ -21,12 +24,14 @@ const options = [
     title: '연금형',
     desc: '연금 형태로 받기',
   },
-];
+] as const;
 
 export default function PayoutTypeStep() {
   const router = useRouter();
   const { form, setPayoutType } = useTrustForm();
-  const [selected, setSelected] = useState<string | null>(form.payoutType);
+  const [selected, setSelected] = useState<PayoutTypeValue | null>(
+    form.payoutType,
+  );
 
   const handleNext = () => {
     if (!selected) return;
@@ -57,7 +62,7 @@ export default function PayoutTypeStep() {
         }
         options={options}
         selected={selected}
-        onSelect={setSelected}
+        onSelect={(id) => setSelected(id as PayoutTypeValue)}
       />
     </TrustWizardStep>
   );
