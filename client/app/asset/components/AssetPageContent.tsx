@@ -12,18 +12,20 @@ import { AssetDetailCard } from './AssetDetailCard';
 import { AssetListCard } from './AssetListCard';
 import { AssetSummaryHeader } from './AssetSummaryHeader';
 import { formatKoreanCurrency } from '../utils/formatCurrency';
-import type { AssetDashboardResponse, FinancialAssetResponse, InsuranceAssetResponse } from '../utils/types';
+import type {
+    AssetChartPoint,
+    AssetDashboardResponse,
+    FinancialAssetResponse,
+    InsuranceAssetResponse
+} from '../utils/types';
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
-type HousingDesc = { housing_type?: string; acquisition_year?: number };
-type VehicleDesc = { brand?: string; model?: string; details?: string };
-
+// 첫 번째 코드의 상세 데이터 파싱 로직
 function parseAssetDesc(cateCd: 'VEHICLE' | 'REAL_ESTATE', desc: string | null | undefined): string {
     if (!desc) return '';
     try {
         const d = typeof desc === 'string' ? JSON.parse(desc) : desc;
-
         if (cateCd === 'VEHICLE') {
             const label = [d.brand, d.model].filter(Boolean).join(' ');
             const regDt = d.details?.split(' · ')[0] ?? '';
@@ -60,15 +62,15 @@ interface Props {
     dashboardData: AssetDashboardResponse | null;
     financialAssets: FinancialAssetResponse[];
     insuranceAssets: InsuranceAssetResponse[];
+    chartData: AssetChartPoint[]; // API 연동 데이터
 }
 
 const isValidTab = (tab: string | null): tab is TabId =>
     tab !== null && ['asset', 'realestate', 'insurance', 'car', 'gold'].includes(tab);
 
-export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets }: Props) {
+export default function AssetPageContent({ dashboardData, financialAssets, insuranceAssets, chartData }: Props) {
     const searchParams = useSearchParams();
     const router = useRouter();
-
     const queryTab = searchParams.get('tab');
     const [activeTab, setActiveTab] = useState<TabId>('asset');
 
@@ -78,7 +80,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
         }
     }, [queryTab]);
 
-    const realAssets = dashboardData?.realAssets || [];
+    const realAssets = useMemo(() => dashboardData?.realAssets ?? [], [dashboardData]);
 
     const handleTabChange = (tabId: string) => {
         setActiveTab(tabId as TabId);
@@ -131,30 +133,43 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
 
     const currentSummary = summaryData[activeTab];
 
-    const renderTabContent = () => {
+    const tabContent = useMemo(() => {
         switch (activeTab) {
-            case 'asset':
+            case 'asset': {
+                // 두 번째 코드의 동적 차트 계산 로직 적용
+                const chartPoints = chartData.map(p => ({ name: p.month, value: p.value }));
+                const values = chartPoints.map(p => p.value);
+                const minVal = values.length > 0 ? Math.min(...values) : 0;
+                const maxVal = values.length > 0 ? Math.max(...values) : 1;
+
+                const domainMin = Math.max(0, Math.floor((minVal - 0.5) * 2) / 2);
+                const domainMax = Math.max(domainMin + 0.5, Math.ceil((maxVal + 0.5) * 2) / 2);
+                const tickCount = 5;
+                const step = (domainMax - domainMin) / (tickCount - 1);
+                const ticks = Array.from({ length: tickCount }, (_, i) =>
+                    Math.round((domainMin + step * i) * 10) / 10
+                );
+
                 return (
                     <>
                         <AssetListCard data={financialAssets.filter(a => a.assetCateCd !== 'INSURANCE')} />
-                        <AssetChart
-                            title="6개월 자산 변화"
-                            data={[
-                                { name: '7월', value: 11.8 }, { name: '8월', value: 12.1 },
-                                { name: '9월', value: 11.5 }, { name: '10월', value: 12.3 },
-                                { name: '11월', value: 12.6 }, { name: '12월', value: 12.8 },
-                            ]}
-                            config={{ type: 'bar', domain: [11, 13.5], ticks: [11, 11.5, 12, 12.5, 13] }}
-                        />
+                        {chartPoints.length > 0 && (
+                            <AssetChart
+                                title="6개월 자산 변화"
+                                data={chartPoints}
+                                config={{ type: 'bar', domain: [domainMin, domainMax], ticks }}
+                            />
+                        )}
                     </>
                 );
+            }
             case 'realestate':
                 return realAssets.filter(a => a.assetCateCd === 'REAL_ESTATE').map((asset, index) => (
                     <AssetDetailCard
                         key={`REAL_ESTATE-${asset.realAssetId}-${index}`}
                         type="property"
                         title={asset.assetNm}
-                        subtitle={parseAssetDesc('REAL_ESTATE', asset.assetDesc)}
+                        subtitle={parseAssetDesc('REAL_ESTATE', asset.assetDesc) || `${asset.assetSize}㎡ · ${asset.addr}`}
                         value={formatKoreanCurrency(asset.evalAmt ?? 0)}
                         href={`/asset/housing/${asset.realAssetId}` as Route}
                     />
@@ -187,7 +202,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         key={`VEHICLE-${asset.realAssetId}-${index}`}
                         type="car"
                         title={asset.assetNm}
-                        subtitle={parseAssetDesc('VEHICLE', asset.assetDesc)}
+                        subtitle={parseAssetDesc('VEHICLE', asset.assetDesc) || (asset.assetDesc ?? '')}
                         value={formatKoreanCurrency(asset.evalAmt ?? 0)}
                         href={`/asset/car/${asset.realAssetId}` as Route}
                     />
@@ -203,10 +218,9 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         href={`/asset/gold/${asset.realAssetId}` as Route}
                     />
                 ));
-
             default: return null;
         }
-    };
+    }, [activeTab, realAssets, financialAssets, insuranceAssets, chartData]);
 
     return (
         <div className="flex min-h-screen flex-col bg-white">
@@ -215,7 +229,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 <AssetSummaryHeader type={currentSummary.type} amount={currentSummary.amount} />
             </div>
             <main className="flex flex-col items-center gap-6 px-6 pb-24">
-                {renderTabContent()}
+                {tabContent}
                 {activeTab !== 'asset' && currentSummary.buttonLabel && (
                     <div className="mt-4 w-full">
                         <PrimaryButton

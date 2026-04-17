@@ -23,7 +23,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
@@ -75,7 +74,7 @@ public class MyDataService {
       boolean linked = selectedAccountIds.contains(accountIdStr);
       account.setIsLinked(linked);
     });
-    
+
     try {
       simulationService.createDefaultSimulationForUser(userId);
       simulationRefreshService.enqueue(userId);
@@ -92,11 +91,11 @@ public class MyDataService {
   }
 
   private List<TBAccount> buildRandomAccounts(TBUser user) {
-    int age = resolveAge(user); // 연령 확인
-
+    int age = resolveAge(user);
     final long minAmt;
     final long maxAmt;
 
+    // 연령대별 자산 규모 설정
     if (age < 40) {
       minAmt = 100_000_000L;
       maxAmt = 500_000_000L;
@@ -110,31 +109,30 @@ public class MyDataService {
 
     List<ProductTemplate> selected = new ArrayList<>();
 
+    addProductIfNotNull(selected, pickOne(POOL_CASH));
+    addProductIfNotNull(selected, pickOne(POOL_CARD));
+    addProductIfNotNull(selected, pickOne(POOL_STOCK));
+    addProductIfNotNull(selected, pickOne(POOL_INSURANCE));
+    addProductIfNotNull(selected, pickOne(POOL_PENSION));
+
     if (age < 30) {
-      selected.add(pickOne(POOL_CASH));
-      selected.add(pickOne(POOL_CARD));
-      selected.add(pickOne(POOL_STOCK));
+      // 청년층은 현금성 자산이나 주식 하나 더 추가할 확률
       if (RANDOM.nextBoolean()) {
-        selected.add(pickOne(RANDOM.nextBoolean() ? POOL_INSURANCE : POOL_PENSION));
+        selected.add(pickOne(RANDOM.nextBoolean() ? POOL_CASH : POOL_STOCK));
       }
     } else if (age < 50) {
-      selected.add(pickOne(POOL_CASH));
-      selected.add(pickOne(POOL_CARD));
-      selected.add(pickOne(POOL_STOCK));
+      // 중장년층은 연금이나 보험 하나 더 추가할 확률
       if (RANDOM.nextBoolean()) {
-        selected.add(pickOne(POOL_INSURANCE));
+        selected.add(pickOne(RANDOM.nextBoolean() ? POOL_PENSION : POOL_INSURANCE));
+      }
+    } else {
+      // 고령층은 현금이나 연금 위주로 추가
+      if (RANDOM.nextBoolean()) {
+        selected.add(pickOne(POOL_CASH));
       }
       if (RANDOM.nextBoolean()) {
         selected.add(pickOne(POOL_PENSION));
       }
-    } else {
-      selected.add(pickOne(POOL_CASH));
-      selected.add(pickOne(POOL_INSURANCE));
-      selected.add(pickOne(POOL_PENSION));
-      List<ProductTemplate> extras = new ArrayList<>(
-          List.of(pickOne(POOL_CARD), pickOne(POOL_STOCK)));
-      Collections.shuffle(extras);
-      selected.addAll(extras.subList(0, 1 + RANDOM.nextInt(2)));
     }
 
     return selected.stream()
@@ -202,6 +200,17 @@ public class MyDataService {
   }
 
   private ProductTemplate pickOne(List<ProductTemplate> pool) {
+
+    if (pool == null || pool.isEmpty()) {
+      return null;
+    }
+
     return pool.get(RANDOM.nextInt(pool.size()));
+  }
+
+  private void addProductIfNotNull(List<ProductTemplate> list, ProductTemplate item) {
+    if (item != null) {
+      list.add(item);
+    }
   }
 }

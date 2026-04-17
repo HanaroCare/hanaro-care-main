@@ -81,12 +81,13 @@ export default function MyDataConnectPage() {
               {step === 'loading' && (
                 <LoadingStep name={userName} onComplete={handleLoadingComplete} />
               )}
+
               {step === 'complete' && (
                 <CompleteStep
                   footer={
                     <PrimaryButton
                       label="확인하기"
-                      onClick={() => router.push('/')}
+                      onClick={() => router.push('/asset')}
                     />
                   }
                 >

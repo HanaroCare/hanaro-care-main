@@ -3,14 +3,13 @@
 import Header from '@/components/navigation/Header';
 import { InfoListCard } from '@/components/modules/InfoListCard';
 import { AssetChart } from '../../components/AssetChart';
+import { AssetDetailLayout } from '../../components/AssetDetailLayout';
 import { formatKoreanCurrency } from '../../utils/formatCurrency';
-import { AssetDetailResponse } from "@/app/asset/utils/types";
+import type { AssetDetailResponse } from '@/app/asset/utils/types';
 
 interface Props {
     assetData: AssetDetailResponse | null;
 }
-
-// ─── 공통 JSON 파서 ───────────────────────────────────────────────────────────
 
 type GoldDesc = { purity?: string; weight_g?: string; price_per_gram?: string };
 
@@ -36,14 +35,13 @@ export default function GoldDetailClient({ assetData }: Props) {
         );
     }
 
-    // assetDesc JSON 파싱
-    const desc        = safeJsonParse<GoldDesc>(assetData.assetDesc);
-    const purity      = desc.purity ?? '';
-    const weightG     = desc.weight_g ?? (assetData.assetSize ? String(assetData.assetSize) : '');
+    const desc = safeJsonParse<GoldDesc>(assetData.assetDesc);
+    const purity = desc.purity ?? '';
+    const weightG = desc.weight_g ?? (assetData.assetSize ? String(assetData.assetSize) : '');
     const pricePerGram = desc.price_per_gram
         ? `${Number(desc.price_per_gram).toLocaleString('ko-KR')}원/g`
         : '118,500원/g';
-    const itemNm      = purity ? `금 현물 (${purity}K)` : assetData.assetNm;
+    const itemNm = purity ? `금 현물 (${purity}K)` : assetData.assetNm;
     const weightLabel = weightG ? `${weightG}g` : '정보 없음';
 
     const goldInfo = {
@@ -65,12 +63,12 @@ export default function GoldDetailClient({ assetData }: Props) {
                         중량: {weightLabel}
                     </p>
                     <div className="mt-4 flex items-baseline gap-2">
-            <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
-              {formatKoreanCurrency(assetData.amount)}
-            </span>
+                        <span className="font-bold text-[28px] text-hana-black-900 tracking-tight">
+                            {formatKoreanCurrency(assetData.amount)}
+                        </span>
                         <span className="font-medium text-[15px] text-hana-red-500">
-              ▲ {formatKoreanCurrency(goldInfo.priceChange)} ({goldInfo.changePercent}%)
-            </span>
+                            ▲ {formatKoreanCurrency(goldInfo.priceChange)} ({goldInfo.changePercent}%)
+                        </span>
                     </div>
                 </div>
 
@@ -96,8 +94,8 @@ export default function GoldDetailClient({ assetData }: Props) {
                 <InfoListCard
                     title="보유 정보"
                     items={[
-                        { label: '품목명',   value: itemNm },
-                        { label: '보유량',   value: weightLabel },
+                        { label: '품목명', value: itemNm },
+                        { label: '보유량', value: weightLabel },
                         { label: '현재 시세', value: pricePerGram },
                         { label: '보관장소', value: goldInfo.location },
                     ]}

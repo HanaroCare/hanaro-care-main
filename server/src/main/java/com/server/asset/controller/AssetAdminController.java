@@ -1,16 +1,29 @@
 package com.server.asset.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.JobParameters;
+import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.server.asset.dto.admin.AdminRealAssetResponse;
 import com.server.asset.dto.admin.AdminUserDetailResponse;
 import com.server.asset.dto.admin.AdminUserSearchResponse;
 import com.server.asset.service.AssetAdminService;
+import com.server.asset.service.SimulationRefreshService;
 import com.server.asset.service.TrustDailyBatchService;
 import com.server.asset.service.pension.PensionMonthlyBatchService;
 import com.server.common.response.ApiResponse;
@@ -22,9 +35,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.List;
-
+@Slf4j
 @RestController
 @RequestMapping("/api/admin/asset")
 @RequiredArgsConstructor
@@ -33,6 +46,11 @@ import java.util.List;
 public class AssetAdminController {
 
 	private final AssetAdminService trustAdminService;
+	private final SimulationRefreshService simulationRefreshService;
+	private final JobLauncher jobLauncher;
+
+	@Qualifier("simulationRefreshJob")
+	private final Job simulationRefreshJob;
 	private final PensionMonthlyBatchService pensionMonthlyBatchService;
 	private final TrustDailyBatchService trustDailyBatchService;
 
@@ -88,6 +106,36 @@ public class AssetAdminController {
 	) {
 		Long userProdId = trustAdminService.subscribePensionProduct(userId, realAssetId);
 		return ApiResponse.onSuccess(userProdId);
+	}
+
+	@PostMapping("/simulation/enqueue")
+	@Operation(
+		summary = "시뮬레이션 재실행 큐 등록 (관리자)",
+		description = "지정한 userId를 Redis 큐에 등록합니다. /simulation/batch-run과 함께 사용하세요."
+	)
+	public ApiResponse<String> enqueueSimulation(@RequestParam Long userId) {
+		simulationRefreshService.enqueue(userId);
+		return ApiResponse.onSuccess("userId=" + userId + " 큐 등록 완료");
+	}
+
+	@PostMapping("/simulation/batch-run")
+	@Operation(
+		summary = "시뮬레이션 재실행 배치 즉시 실행 (관리자)",
+		description = "Redis 큐에 쌓인 userId에 대해 시뮬레이션 재실행 배치 Job을 즉시 실행합니다."
+	)
+	public ApiResponse<String> runSimulationBatch() {
+		JobParameters params = new JobParametersBuilder()
+			.addString("runAt", LocalDateTime.now().toString())
+			.toJobParameters();
+		try {
+			jobLauncher.run(simulationRefreshJob, params);
+			log.info("[Admin] 시뮬레이션 재실행 배치 수동 실행 완료");
+			return ApiResponse.onSuccess("배치 실행 완료");
+		} catch (Exception e) {
+			log.error("[Admin] 배치 실행 실패", e);
+
+			return ApiResponse.onFailure("COMMON500", "배치 실행 실패: " + e.getMessage(), null);
+		}
 	}
 
 	@PostMapping("/trust/agent-view")

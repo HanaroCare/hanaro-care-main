@@ -108,8 +108,8 @@ export default function InheritanceGuidePage() {
 
         <footer className="shrink-0 border-gray-100 border-t bg-white p-6 pb-10">
           <Link
-            href="/inheritance/plan/1"
-            className="w-full h-14 rounded-[10px] bg-hana-ez-600 text-white text-[17px] font-semibold transition flex items-center justify-center gap-2"
+            href="/inheritance/plan"
+            className="w-full h-14 rounded-[10px] bg-[var(--color-hana-ez-600)] text-white text-[17px] font-semibold transition flex items-center justify-center gap-2"
           >
             확인했습니다
           </Link>

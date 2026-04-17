@@ -1,5 +1,12 @@
 package com.server.asset.mapper;
 
+import java.math.BigDecimal;
+import java.util.List;
+
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+
+import com.server.asset.dto.dashboard.AssetDashboardResponse;
 import com.server.asset.dto.dashboard.AssetDashboardResponse.FinancialAssetSummary;
 import com.server.asset.dto.dashboard.AssetDashboardResponse.RealAssetSummary;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
@@ -66,7 +73,17 @@ public interface AssetMapper {
   @Mapping(target = "evalAmt", source = "evalAmt")
   RealAssetSummary toRealAssetSummary(TBRealAsset asset);
 
-  List<RealAssetSummary> toRealAssetSummaryListFromEntity(List<TBRealAsset> assets);
+    List<RealAssetSummary> toRealAssetSummaryListFromEntity(List<TBRealAsset> assets);
+    List<FinancialAssetSummary> toFinancialAssetSummaryList(List<Object[]> rows);
 
-  List<FinancialAssetSummary> toFinancialAssetSummaryList(List<Object[]> rows);
+    @Mapping(target = "isMyDataLinked", source = "isMyDataLinked")
+    @Mapping(target = "totalFinancialAmt", source = "totalFinancialAmt")
+    @Mapping(target = "financialAssets", source = "financialAssets")
+    @Mapping(target = "realAssets", source = "realAssets")
+    AssetDashboardResponse toAssetDashboardResponse(
+        boolean isMyDataLinked,
+        BigDecimal totalFinancialAmt,
+        List<FinancialAssetSummary> financialAssets,
+        List<RealAssetSummary> realAssets
+    );
 }

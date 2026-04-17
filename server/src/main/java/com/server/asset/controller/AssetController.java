@@ -1,5 +1,6 @@
 package com.server.asset.controller;
 
+import com.server.asset.dto.dashboard.AssetChartPointDTO;
 import com.server.asset.dto.dashboard.AssetDashboardResponse;
 import com.server.asset.dto.dashboard.AssetDetailResponse;
 import com.server.asset.dto.dashboard.FinancialAssetResponse;
@@ -16,12 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "자산 대시보드 API")
 @RestController
@@ -40,7 +36,7 @@ public class AssetController {
     return ApiResponse.onSuccess(assetService.getAssetDashboard(subscriberDTO.getUserId()));
   }
 
-  @Operation(summary = "금융 자산 전체 목록 조회", description = "로그인한 사용자의 전체 금융 계좌 목록을 상세히 조회합니다.")
+  @Operation(summary = "금융 자산 전체 목록 조회")
   @GetMapping("/financial")
   public ApiResponse<List<FinancialAssetResponse>> getFinancialAssets(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO
@@ -48,7 +44,7 @@ public class AssetController {
     return ApiResponse.onSuccess(assetService.getFinancialAssets(subscriberDTO.getUserId()));
   }
 
-  @Operation(summary = "실물 자산 상세 조회 (부동산, 자동차, 금)", description = "ID를 통해 특정 실물 자산의 상세 정보를 조회합니다.")
+  @Operation(summary = "실물 자산 상세 조회 (부동산, 자동차, 금)")
   @GetMapping("/real-asset/{realAssetId}")
   public ApiResponse<AssetDetailResponse> getRealAssetDetail(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO,
@@ -98,11 +94,15 @@ public class AssetController {
     return ApiResponse.onSuccess(assetService.getInsuranceAssets(subscriberDTO.getUserId()));
   }
 
+  @Operation(summary = "6개월 자산 변화 차트 조회")
+  @GetMapping("/chart")
+  public ApiResponse<List<AssetChartPointDTO>> getAssetChart(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO
+  ) {
+    return ApiResponse.onSuccess(assetService.getAssetChart(subscriberDTO.getUserId()));
+  }
 
-  @Operation(
-      summary = "마이데이터 연동 가능 계좌 목록 조회",
-      description = "전체 계좌 목록(isLinked 포함)을 반환합니다. 계좌가 없으면 나이 기반 가상 데이터를 자동 생성합니다."
-  )
+  @Operation(summary = "마이데이터 연동 가능 계좌 목록 조회")
   @GetMapping("/link")
   public ApiResponse<List<AccountLinkResponse>> getConnectableAssets(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO
@@ -114,7 +114,6 @@ public class AssetController {
 
   @Operation(
       summary = "마이데이터 연동 상태 변경",
-      description = "선택된 계좌 ID 목록을 받아 해당 계좌는 isLinked=true, 나머지는 isLinked=false로 변경합니다.",
       requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
           content = @Content(examples = @ExampleObject(value = "[\"691274982960660480\", \"691274982960660481\"]"))
       )

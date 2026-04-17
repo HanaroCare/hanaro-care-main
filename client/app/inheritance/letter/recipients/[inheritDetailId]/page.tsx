@@ -5,6 +5,7 @@ import { use } from 'react';
 import { getInheritanceInfo } from '@/app/inheritance/actions/letterActions';
 import Letter from '@/app/inheritance/components/letter/Letter';
 import { useLetter } from '@/app/inheritance/hooks/useLetter';
+import {InheritanceSummaryDto} from "@/app/inheritance/letter/types";
 
 export default function InheritanceWritePage({
   params,
@@ -23,7 +24,7 @@ export default function InheritanceWritePage({
   if (isLoading) return <div className="p-8 text-center">불러오는 중...</div>;
 
   const recipient = recipients?.find(
-    (r) => String(r.inheritDetailId) === inheritDetailId,
+    (r:InheritanceSummaryDto) => String(r.inheritDetailId) === inheritDetailId,
   );
 
   if (!recipient)

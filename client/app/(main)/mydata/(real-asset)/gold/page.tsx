@@ -121,7 +121,7 @@ function GoldPageContent() {
             </PageHeading>
           </div>
 
-          <div className="rounded-[20px] border border-border-gray bg-white p-6 shadow-sm">
+          <div className="rounded-4xl border border-border-gray bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between border-border-gray border-b pb-4">
               <span className="font-bold text-[18px] text-hana-black-900">
                 보유 금 자산
@@ -210,7 +210,7 @@ function GoldPageContent() {
           label="나중에 연결하기"
           variant="secondary"
           className="bg-hana-silver-100 text-hana-black-500!"
-          onClick={() => router.push(isAssetFlow ? '/asset?tab=gold' : '/mydata/main')}
+          onClick={() => router.push(isAssetFlow ? '/asset?tab=gold' : '/')}
         />
       </div>
     </div>
