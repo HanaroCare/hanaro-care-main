@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "상속 API", description = "상속 관련 API")
 @RestController
@@ -45,7 +43,7 @@ public class LetterController {
   // 상속 편지 생성
   @Operation(summary = "상속 편지 생성", description = "상속 편지를 작성합니다.")
   @PostMapping(value = "/letter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  ApiResponse<LetterResponseDto> sendLetter(
+  public ApiResponse<LetterResponseDto> sendLetter(
       @AuthenticationPrincipal SubscriberDTO user,
       @Valid @ModelAttribute @ParameterObject LetterRequestDto dto
   ) throws IOException {
@@ -56,7 +54,7 @@ public class LetterController {
   // 상속 편지 조회
   @Operation(summary = "상속 편지 조회", description = "상속 편지를 조회합니다.")
   @GetMapping("/letter/{inheritDetailId}")
-  ApiResponse<LetterResponseDto> getLetter(@AuthenticationPrincipal SubscriberDTO user,
+  public ApiResponse<LetterResponseDto> getLetter(@AuthenticationPrincipal SubscriberDTO user,
       @Parameter(description = "가족 상세 ID", example = "1") @PathVariable String inheritDetailId) {
     LetterResponseDto letter = service.getLetter(user.getUserId(), Long.parseLong(inheritDetailId));
     return ApiResponse.onSuccess(letter);
@@ -65,7 +63,7 @@ public class LetterController {
   // 상속 편지 삭제
   @Operation(summary = "상속 편지 삭제", description = "상속 편지를 삭제합니다.")
   @DeleteMapping("/letter/{inheritDetailId}")
-  ApiResponse deleteLetter(@AuthenticationPrincipal SubscriberDTO user,
+  public ApiResponse<String> deleteLetter(@AuthenticationPrincipal SubscriberDTO user,
       @Parameter(description = "가족 상세 ID", example = "1") @PathVariable String inheritDetailId) {
     return ApiResponse.onSuccess(service.deleteLetter(user.getUserId(), Long.parseLong(inheritDetailId)));
   }

@@ -60,7 +60,7 @@ public class LetterService {
         .percent(i.getDistRatio())
         .amt(i.getInheritPlan().getTotalInheritAmt()
             .multiply(i.getDistRatio())
-            .setScale(0, java.math.RoundingMode.HALF_UP)
+            .divide(java.math.BigDecimal.valueOf(100), 0, java.math.RoundingMode.HALF_UP)
             .longValue()).build()).toList();
   }
 
@@ -119,11 +119,13 @@ public class LetterService {
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
-    Long receivedId = detail.getUser().getUserId();
-
-    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
-      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+    if (detail.getUser() != null) {
+      Long receivedId = detail.getUser().getUserId();
+      if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
+        throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+      }
     }
+
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
     String voiceUrl = "";
@@ -153,10 +155,11 @@ public class LetterService {
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
-    Long receivedId = detail.getUser().getUserId();
-
-    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
-      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+    if (detail.getUser() != null) {
+      Long receivedId = detail.getUser().getUserId();
+      if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
+        throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+      }
     }
 
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(

@@ -338,7 +338,7 @@ class CardControllerTest {
         @DisplayName("계좌 목록 조회 성공 - 200 OK, 리스트 반환")
         void success() throws Exception {
             AccountListResponse account = AccountListResponse.builder()
-                    .accountId(ACCOUNT_ID).instNm("하나은행")
+                    .accountId(String.valueOf(ACCOUNT_ID)).instNm("하나은행")
                     .accountNum("123-456-789").balanceAmt(new BigDecimal("500000"))
                     .build();
             when(cardService.getCashAccounts(USER_ID)).thenReturn(List.of(account));
@@ -346,7 +346,7 @@ class CardControllerTest {
             mockMvc.perform(get("/api/cards/accounts"))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isSuccess").value(true))
-                    .andExpect(jsonPath("$.result[0].accountId").value(ACCOUNT_ID))
+                    .andExpect(jsonPath("$.result[0].accountId").value(String.valueOf(ACCOUNT_ID)))
                     .andExpect(jsonPath("$.result[0].instNm").value("하나은행"));
 
             verify(cardService).getCashAccounts(USER_ID);

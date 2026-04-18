@@ -120,7 +120,7 @@ class CardServiceTest {
     private CardRegisterRequest registerRequest(BigDecimal limitAmt, BigDecimal autoTransAmt,
             List<Long> familyAuthIds) {
         CardRegisterRequest req = new CardRegisterRequest();
-        ReflectionTestUtils.setField(req, "accountId", ACCOUNT_ID);
+        ReflectionTestUtils.setField(req, "accountId", String.valueOf(ACCOUNT_ID));
         ReflectionTestUtils.setField(req, "cardNm", "내 카드");
         ReflectionTestUtils.setField(req, "limitAmt", limitAmt);
         ReflectionTestUtils.setField(req, "autoTransAmt", autoTransAmt);
@@ -132,7 +132,7 @@ class CardServiceTest {
 
     private CardUpdateRequest updateRequest(Integer payDay) {
         CardUpdateRequest req = new CardUpdateRequest();
-        ReflectionTestUtils.setField(req, "accountId", ACCOUNT_ID);
+        ReflectionTestUtils.setField(req, "accountId", String.valueOf(ACCOUNT_ID));
         ReflectionTestUtils.setField(req, "autoTransAmt", new BigDecimal("100000"));
         ReflectionTestUtils.setField(req, "payDay", payDay);
         return req;
@@ -141,7 +141,7 @@ class CardServiceTest {
     private CardChargeRequest chargeRequest(BigDecimal amount) {
         CardChargeRequest req = new CardChargeRequest();
         ReflectionTestUtils.setField(req, "cardId", String.valueOf(CARD_ID));
-        ReflectionTestUtils.setField(req, "accountId", ACCOUNT_ID);
+        ReflectionTestUtils.setField(req, "accountId", String.valueOf(ACCOUNT_ID));
         ReflectionTestUtils.setField(req, "chargeAmt", amount);
         return req;
     }
@@ -713,7 +713,7 @@ class CardServiceTest {
 
             CardChargeRequest req = new CardChargeRequest();
             ReflectionTestUtils.setField(req, "cardId", String.valueOf(CARD_ID));
-            ReflectionTestUtils.setField(req, "accountId", 20L);
+            ReflectionTestUtils.setField(req, "accountId", String.valueOf(20L));
             ReflectionTestUtils.setField(req, "chargeAmt", new BigDecimal("30000"));
 
             when(accountRepository.findById(20L)).thenReturn(Optional.of(familyAccount));
@@ -828,3 +828,4 @@ class CardServiceTest {
         }
     }
 }
+
