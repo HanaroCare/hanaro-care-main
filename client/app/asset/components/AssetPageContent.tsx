@@ -18,10 +18,10 @@ import type {
     FinancialAssetResponse,
     InsuranceAssetResponse
 } from '../utils/types';
+import {Phone} from "lucide-react";
 
 type TabId = 'asset' | 'realestate' | 'insurance' | 'car' | 'gold';
 
-// 첫 번째 코드의 상세 데이터 파싱 로직
 function parseAssetDesc(cateCd: 'VEHICLE' | 'REAL_ESTATE', desc: string | null | undefined): string {
     if (!desc) return '';
     try {
@@ -42,6 +42,27 @@ function parseAssetDesc(cateCd: 'VEHICLE' | 'REAL_ESTATE', desc: string | null |
     }
     return '';
 }
+
+const INSURANCE_CONTACTS: Record<string, string> = {
+    "삼성화재": "1588-5114",
+    "현대해상": "1588-5656",
+    "DB손해보험": "1588-0100",
+    "KB손해보험": "1544-0114",
+    "한화손해보험": "1566-8000",
+    "하나손해보험": "1566-3000",
+    "메리츠화재": "1566-7711",
+    "교보생명": "1588-1001",
+    "한화생명": "1588-6363",
+    "삼성생명": "1588-3114",
+    "신한라이프": "1588-5580",
+    "흥국화재": "1688-1688",
+    "하나생명": "1688-1688",
+};
+
+const getInsurancePhone = (instNm: string) => {
+    const entry = Object.entries(INSURANCE_CONTACTS).find(([name]) => instNm.includes(name));
+    return entry ? entry[1] : null;
+};
 
 interface SummaryItem {
     type: 'total' | 'property' | 'insurance' | 'car' | 'gold';
@@ -177,20 +198,42 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             case 'insurance':
                 return (
                     <div className="mt-4 flex w-full flex-col items-center gap-6">
-                        <AlertBanner message="보험대리청구인으로 지정되셨나요?" actionText="인증하기" variant="warning" />
+                        <AlertBanner
+                            message="보험대리청구인을 지정하셨나요?"
+                            actionText="인증하기"
+                            variant="warning"
+                        />
+
                         {insuranceAssets.length > 0 ? (
-                            insuranceAssets.map((asset, index) => (
-                                <AssetDetailCard
-                                    key={`INSURANCE-${asset.assetId}-${index}`}
-                                    type="insurance"
-                                    iconType="hana-bank"
-                                    company={asset.instNm}
-                                    insuranceName={asset.assetNm}
-                                    monthlyPremium={`월 ${formatKoreanCurrency(asset.monthlyPremAmt || 0)}`}
-                                    status="normal"
-                                    href={`/my/insurance/${asset.assetId}` as Route}
-                                />
-                            ))
+                            insuranceAssets.map((asset, index) => {
+                                const phone = getInsurancePhone(asset.instNm);
+
+                                return (
+                                    <div key={`INSURANCE-WRAP-${asset.assetId}-${index}`} className="relative w-full">
+                                        <AssetDetailCard
+                                            type="insurance"
+                                            iconType="hana-bank"
+                                            company={asset.instNm}
+                                            insuranceName={asset.assetNm}
+                                            monthlyPremium={`월 ${formatKoreanCurrency(asset.monthlyPremAmt || 0)}`}
+                                            status="normal"
+                                            href={`/my/insurance/${asset.assetId}` as Route}
+                                        />
+
+                                        {phone && (
+                                            <div className="mt-2 flex justify-end px-2">
+                                                <a
+                                                    href={`tel:${phone}`}
+                                                    className="flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-1.5 text-[12px] font-medium text-gray-600 transition-colors hover:bg-gray-100 active:bg-gray-200 border border-gray-100"
+                                                >
+                                                    <Phone size={12} className="text-hana-teal-500" />
+                                                    <span>지정청구 문의  {phone}</span>
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })
                         ) : (
                             <div className="py-20 text-gray-400">등록된 보험이 없습니다.</div>
                         )}
