@@ -1,5 +1,3 @@
-
-
 import { getInheritanceContext } from '@/app/inheritance/actions/plan';
 import InheritancePlanDetailClient from './InheritancePlanDetailClient';
 
