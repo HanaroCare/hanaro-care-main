@@ -82,7 +82,7 @@ export default function SimulationDetailPage() {
                     variant="note" // 노란색 계열로 '주의' 환기
                     message="연동되지 않은 정보가 있어 부정확해요"
                     actionText="연동"
-                    onActionAction={() => router.push('/asset/link')} // 연동 페이지 경로로 수정
+                    onActionAction={() => router.push('/mydata/connect')} // 연동 페이지 경로로 수정
                 />
               </div>
           )}

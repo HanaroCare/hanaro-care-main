@@ -39,10 +39,6 @@ import com.server.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
-/**
- * 신탁 설계 저장/조회, 가입 상품 조회/수정,
- * 가족(부모) 기준 신탁 권한 및 조회 기능을 처리하는 서비스
- */
 @Service
 @RequiredArgsConstructor
 public class TrustService {
@@ -68,7 +64,6 @@ public class TrustService {
   private final ObjectMapper objectMapper;
   private final TrustMapperHelper trustMapperHelper;
 
-  // 신탁 설계 조건을 저장하거나 기존 데이터를 수정
   @CheckUser(key = "#userId")
   @Transactional
   public void saveSimulation(Long userId, TrustSimulationSaveRequest request) {
@@ -81,6 +76,7 @@ public class TrustService {
         .orElse(TBTrustSimulation.builder().user(user).build());
 
     trustMapper.updateSimulation(request, claimAgent, simulation, trustMapperHelper);
+
     if (claimAgent != null) {
       TBFamilyAuth familyAuth = familyAuthRepository
           .findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
@@ -93,7 +89,6 @@ public class TrustService {
     trustRepository.save(simulation);
   }
 
-  //로그인 사용자의 신탁 설계 요약 결과를 반환
   @CheckUser(key = "#userId")
   @Transactional(readOnly = true)
   public SimulationDetailDto getSimulationSummary(Long userId) {
@@ -105,7 +100,6 @@ public class TrustService {
     );
   }
 
-  //로그인 사용자의 신탁 설계 상세 결과와 차트 비교 데이터를 반환
   @CheckUser(key = "#userId")
   @Transactional(readOnly = true)
   public TrustSimulationResultResponse getSimulationDetail(Long userId) {
@@ -136,7 +130,6 @@ public class TrustService {
     return new TrustSimulationResultResponse(selectedDetail, amountResults);
   }
 
-  //로그인 사용자의 가입 신탁상품 운용 현황을 반환한다.
   @CheckUser(key = "#userId")
   @Transactional(readOnly = true)
   public TrustProductResponse getProduct(Long userId) {
@@ -144,8 +137,6 @@ public class TrustService {
     return toProductResponse(userProd);
   }
 
-  // 부모별 신탁 권한 목록을 반환한다.
-  // 권한이 없는 부모도 NONE으로 포함한다.
   @CheckUser(key = "#granteeId")
   @Transactional(readOnly = true)
   public TrustGrantorResponse getFamilyGrantors(Long granteeId) {
@@ -164,8 +155,6 @@ public class TrustService {
     return new TrustGrantorResponse(items);
   }
 
-  //자녀/가족이 부모의 신탁 설계 요약 결과를 조회한다.
-  // 열람 권한이 없는 경우 예외를 발생시킨다.
   @CheckUser(key = "#granteeId")
   @Transactional(readOnly = true)
   public SimulationDetailDto getFamilySimulationSummary(Long granteeId, Long grantorId) {
@@ -179,7 +168,6 @@ public class TrustService {
     );
   }
 
-  //자녀/가족이 부모의 가입 신탁상품 운용 현황을 조회
   @CheckUser(key = "#granteeId")
   @Transactional(readOnly = true)
   public TrustProductResponse getFamilyProduct(Long granteeId, Long grantorId) {
@@ -188,7 +176,6 @@ public class TrustService {
     return toProductResponse(userProd);
   }
 
-  // 부모 신탁에 대한 열람 권한 보유 여부를 검증
   @CheckUser(key = "#granteeId")
   @Transactional(readOnly = true)
   public void validateTrustViewAccess(Long granteeId, Long grantorId) {
@@ -201,7 +188,6 @@ public class TrustService {
     }
   }
 
-  // 가입 신탁상품의 자금 집행 설정을 수정
   @CheckUser(key = "#userId")
   @Transactional
   public void updatePayoutSettings(Long userId, TrustPayoutSettingsUpdateRequest request) {
@@ -214,7 +200,6 @@ public class TrustService {
     }
   }
 
-  // 지급청구대리인의 신탁 열람 권한을 수정
   @CheckUser(key = "#userId")
   @Transactional
   public void updateAgentView(Long userId, TrustAgentViewUpdateRequest request) {
@@ -246,21 +231,19 @@ public class TrustService {
     boolean isProxy = Boolean.TRUE.equals(auth.getIsProxyClaim());
 
     if (isProxy && canView) {
-      return TrustAccessLevel.READ_WRITE; // 대리인 + 읽기 가능
+      return TrustAccessLevel.READ_WRITE;
     }
     if (isProxy) {
-      return TrustAccessLevel.PROXY_ONLY; // 대리인 + 읽기 불가
+      return TrustAccessLevel.PROXY_ONLY;
     }
     return TrustAccessLevel.NONE;
   }
 
-  // 사용자 ID로 사용자를 조회한다.
   private TBUser getUser(Long userId) {
     return userRepository.findById(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_USER_NOT_FOUND));
   }
 
-  // 대리인 ID가 있으면 대리인 사용자를 조회
   private TBUser getClaimAgent(Long claimAgentId) {
     if (claimAgentId == null) {
       return null;
@@ -269,13 +252,11 @@ public class TrustService {
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_CLAIM_AGENT_NOT_FOUND));
   }
 
-  // 사용자 기준 신탁 설계 정보를 조회
   private TBTrustSimulation getSimulation(Long userId) {
     return trustRepository.findByUser_UserId(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_SIMULATION_NOT_FOUND));
   }
 
-  // 사용자의 진행 중인 신탁상품 1건을 조회
   private TBUserProd getInProgressTrustProduct(Long userId) {
     return userProdRepository
         .findFirstByUser_UserIdAndProduct_ProdCateAndProdStatOrderByCreatedAtDesc(
@@ -285,7 +266,6 @@ public class TrustService {
         )
         .orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
   }
-
 
   private TrustProductResponse toProductResponse(TBUserProd userProd) {
     BigDecimal principalAmount = TrustCalculator.defaultIfNull(userProd.getPrincipalAmount());
@@ -325,7 +305,6 @@ public class TrustService {
     );
   }
 
-
   private TrustProductResponse.ClaimAgent mapClaimAgent(TBUserProd userProd) {
     if (userProd.getClaimAgent() == null) {
       return null;
@@ -344,7 +323,6 @@ public class TrustService {
         relation
     );
   }
-
 
   private TrustPayoutSettingsDto parsePayoutSettings(String json) {
     try {

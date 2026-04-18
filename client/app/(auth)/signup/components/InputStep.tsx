@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { validatePhone, validateUsername } from "../utils/validators";
+import { validatePhone, validateUsername, validateName } from "../utils/validators";
 
 interface InputStepProps {
   question: string;
@@ -53,6 +53,14 @@ export default function InputStep({
         setError("아이디는 4~12자의 영문 소문자와 숫자 조합이어야 합니다.");
         return;
       }
+      if (question.includes("이름") && !validateName(value)) {
+        setError("이름은 2글자 이상 20자 이하로 입력해주세요.");
+        return;
+      }
+      if ((question.includes("나이") || type === "number") && Number(value) > 120) {
+        setError("120세까지만 입력 가능합니다.");
+        return;
+      }
       setError("");
       onSubmitRef.current();
     }
@@ -66,6 +74,10 @@ export default function InputStep({
     else if (question.includes("아이디")) val = val.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 12);
     else if (question.includes("이름")) val = val.replace(/[^a-zA-Zㄱ-ㅎㅏ-ㅣ가-힣]/g, "");
     else if (question.includes("나이") || type === "number") val = val.replace(/[^0-9]/g, "").slice(0, 3);
+
+    if ((question.includes("나이") || type === "number") && val !== "" && Number(val) > 120) {
+      setError("120세까지만 입력 가능합니다.");
+    }
 
     onChange(val);
 

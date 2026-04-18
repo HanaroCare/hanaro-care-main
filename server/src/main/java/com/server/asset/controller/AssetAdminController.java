@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.server.asset.dto.admin.AdminChildFamilyResponse;
 import com.server.asset.dto.admin.AdminRealAssetResponse;
 import com.server.asset.dto.admin.AdminUserDetailResponse;
 import com.server.asset.dto.admin.AdminUserSearchResponse;
@@ -138,6 +139,19 @@ public class AssetAdminController {
 		}
 	}
 
+	@PostMapping("/trust/claim-agent")
+	@Operation(
+		summary = "신탁 지급청구대리인 지정/변경 (관리자)",
+		description = "지정한 유저의 신탁 상품에 지급청구대리인을 지정하거나 변경합니다."
+	)
+	public ApiResponse<String> updateClaimAgent(
+		@Parameter(description = "대상 유저 ID", required = true) @RequestParam Long userId,
+		@Parameter(description = "대리인으로 지정할 유저 ID", required = true) @RequestParam Long agentUserId
+	) {
+		trustAdminService.updateClaimAgent(userId, agentUserId);
+		return ApiResponse.onSuccess("지급청구대리인 지정 완료");
+	}
+
 	@PostMapping("/trust/agent-view")
 	@Operation(
 		summary = "대리인 신탁 열람 권한 허용 (관리자)",
@@ -186,6 +200,18 @@ public class AssetAdminController {
 		@PathVariable Long userId
 	) {
 		return ApiResponse.onSuccess(trustAdminService.getUserDetail(userId));
+	}
+
+	@GetMapping("/users/{userId}/children")
+	@Operation(
+		summary = "관리자 사용자 자녀 가족 조회",
+		description = "선택한 사용자의 자녀(CHILD) 가족 목록을 조회합니다. 지급청구대리인 지정 시 사용합니다."
+	)
+	public ApiResponse<List<AdminChildFamilyResponse>> getUserChildren(
+		@Parameter(description = "조회 대상 유저 ID", required = true)
+		@PathVariable Long userId
+	) {
+		return ApiResponse.onSuccess(trustAdminService.getChildFamilyMembers(userId));
 	}
 
 	@GetMapping("/users/{userId}/real-assets")

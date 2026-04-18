@@ -83,4 +83,8 @@ public class TBAssetSimulation extends BaseCreatedEntity {
   @Column(name = "AGE_RANGE_DETAILS", nullable = false, columnDefinition = "JSON")
   private String ageRangeDetails;
 
+  @Column(name = "IS_DEFAULT", nullable = false)
+  @Builder.Default
+  private Boolean isDefault = false;
+
 }

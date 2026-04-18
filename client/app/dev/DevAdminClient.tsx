@@ -9,11 +9,13 @@ import {
 } from 'lucide-react';
 import { useMemo, useState, useTransition } from 'react';
 import {
+  type AdminChildFamilyItem,
   type AdminRealAssetItem,
   type AdminUserDetail,
   type AdminUserSearchItem,
   enableAgentView,
   getAdminUserAssets,
+  getAdminUserChildren,
   getAdminUserDetail,
   runPensionBatch,
   runSimulationBatchRun,
@@ -22,12 +24,18 @@ import {
   searchAdminUsers,
   subscribePensionProduct,
   subscribeTrustProduct,
+  updateClaimAgent,
 } from './actions/admin';
 
 type ResultState = {
   status: 'idle' | 'success' | 'error';
   message: string;
 };
+
+function extractErrorMessage(e: unknown): string {
+  const raw = e instanceof Error ? e.message : String(e);
+  return raw.replace(/^\[[^\]]+\]\s*/, '');
+}
 
 function SectionCard({
   title,
@@ -77,9 +85,13 @@ function EmptyBox({ text }: { text: string }) {
   );
 }
 
-function formatWon(value: number | null | undefined) {
+function formatEvalAmt(value: number | null | undefined) {
   if (typeof value !== 'number') return '-';
-  return `${value.toLocaleString()}원`;
+  const eok = Math.floor(value / 100_000_000);
+  const cheonMan = Math.floor((value % 100_000_000) / 10_000_000);
+  if (eok > 0 && cheonMan > 0) return `${eok}억 ${cheonMan}천만원`;
+  if (eok > 0) return `${eok}억원`;
+  return `${cheonMan}천만원`;
 }
 
 export default function DevAdminClient() {
@@ -108,7 +120,16 @@ export default function DevAdminClient() {
     message: '',
   });
 
-  const [selectedRealAssetId, setSelectedRealAssetId] = useState<number | null>(
+  const [claimAgentResult, setClaimAgentResult] = useState<ResultState>({
+    status: 'idle',
+    message: '',
+  });
+  const [childMembers, setChildMembers] = useState<AdminChildFamilyItem[]>([]);
+  const [selectedAgentUserId, setSelectedAgentUserId] = useState<string | null>(
+    null,
+  );
+
+  const [selectedRealAssetId, setSelectedRealAssetId] = useState<string | null>(
     null,
   );
 
@@ -124,6 +145,9 @@ export default function DevAdminClient() {
     useState<ResultState>({ status: 'idle', message: '' });
   const [simulationBatchResult, setSimulationBatchResult] =
     useState<ResultState>({ status: 'idle', message: '' });
+
+  const [opsOpen, setOpsOpen] = useState(false);
+  const [batchDate, setBatchDate] = useState('');
 
   const handleSearch = () => {
     const q = keyword.trim();
@@ -145,7 +169,7 @@ export default function DevAdminClient() {
       try {
         const result = await searchAdminUsers(q);
         setSearchResult(result);
-      } catch (e) {
+      } catch {
         setSearchResult([]);
       } finally {
         setIsSearching(false);
@@ -153,10 +177,13 @@ export default function DevAdminClient() {
     });
   };
 
-  const handleSelectUser = (userId: number) => {
+  const handleSelectUser = (userId: string) => {
     setSelectedUser(null);
     setRealAssets([]);
     setSelectedRealAssetId(null);
+    setChildMembers([]);
+    setSelectedAgentUserId(null);
+    setClaimAgentResult({ status: 'idle', message: '' });
     setTrustResult({ status: 'idle', message: '' });
     setPensionResult({ status: 'idle', message: '' });
     setAgentResult({ status: 'idle', message: '' });
@@ -164,18 +191,21 @@ export default function DevAdminClient() {
 
     startTransition(async () => {
       try {
-        const [user, assets] = await Promise.all([
+        const [user, assets, children] = await Promise.all([
           getAdminUserDetail(userId),
           getAdminUserAssets(userId),
+          getAdminUserChildren(userId),
         ]);
 
         setSelectedUser(user);
         setRealAssets(assets);
         setSelectedRealAssetId(assets[0]?.realAssetId ?? null);
-      } catch (e) {
+        setChildMembers(children);
+      } catch {
         setSelectedUser(null);
         setRealAssets([]);
         setSelectedRealAssetId(null);
+        setChildMembers([]);
       } finally {
         setIsLoadingDetail(false);
       }
@@ -195,15 +225,15 @@ export default function DevAdminClient() {
 
     startTransition(async () => {
       try {
-        const { userProdId } = await subscribeTrustProduct(selectedUser.userId);
+        await subscribeTrustProduct(selectedUser.userId);
         setTrustResult({
           status: 'success',
-          message: `신탁 상품 가입 완료 — userProdId: ${userProdId}`,
+          message: '신탁 상품 가입 완료',
         });
       } catch (e) {
         setTrustResult({
           status: 'error',
-          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+          message: `실패: ${extractErrorMessage(e)}`,
         });
       }
     });
@@ -222,18 +252,42 @@ export default function DevAdminClient() {
 
     startTransition(async () => {
       try {
-        const userProdId = await subscribePensionProduct(
-          selectedUser.userId,
-          selectedRealAssetId,
-        );
+        await subscribePensionProduct(selectedUser.userId, selectedRealAssetId);
         setPensionResult({
           status: 'success',
-          message: `주택연금 상품 가입 완료 — userProdId: ${userProdId}`,
+          message: '주택연금 상품 가입 완료',
         });
       } catch (e) {
         setPensionResult({
           status: 'error',
-          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+          message: `실패: ${extractErrorMessage(e)}`,
+        });
+      }
+    });
+  };
+
+  const handleUpdateClaimAgent = () => {
+    if (!selectedUser || !selectedAgentUserId) {
+      setClaimAgentResult({
+        status: 'error',
+        message: '고객님과 대리인을 모두 선택해주세요.',
+      });
+      return;
+    }
+
+    setClaimAgentResult({ status: 'idle', message: '' });
+
+    startTransition(async () => {
+      try {
+        await updateClaimAgent(selectedUser.userId, selectedAgentUserId);
+        setClaimAgentResult({
+          status: 'success',
+          message: '지급청구대리인 지정 완료',
+        });
+      } catch (e) {
+        setClaimAgentResult({
+          status: 'error',
+          message: `실패: ${extractErrorMessage(e)}`,
         });
       }
     });
@@ -260,7 +314,7 @@ export default function DevAdminClient() {
       } catch (e) {
         setAgentResult({
           status: 'error',
-          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+          message: `실패: ${extractErrorMessage(e)}`,
         });
       }
     });
@@ -286,7 +340,7 @@ export default function DevAdminClient() {
       } catch (e) {
         setTrustBatchResult({
           status: 'error',
-          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+          message: `실패: ${extractErrorMessage(e)}`,
         });
       }
     });
@@ -305,7 +359,7 @@ export default function DevAdminClient() {
       } catch (e) {
         setPensionBatchResult({
           status: 'error',
-          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+          message: `실패: ${extractErrorMessage(e)}`,
         });
       }
     });
@@ -313,6 +367,7 @@ export default function DevAdminClient() {
 
   const handleRunSimulationEnqueue = () => {
     setSimulationEnqueueResult({ status: 'idle', message: '' });
+
     startTransition(async () => {
       try {
         const message = await runSimulationEnqueue();
@@ -320,7 +375,7 @@ export default function DevAdminClient() {
       } catch (e) {
         setSimulationEnqueueResult({
           status: 'error',
-          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+          message: `실패: ${extractErrorMessage(e)}`,
         });
       }
     });
@@ -328,6 +383,7 @@ export default function DevAdminClient() {
 
   const handleRunSimulationBatchRun = () => {
     setSimulationBatchResult({ status: 'idle', message: '' });
+
     startTransition(async () => {
       try {
         const message = await runSimulationBatchRun();
@@ -335,14 +391,11 @@ export default function DevAdminClient() {
       } catch (e) {
         setSimulationBatchResult({
           status: 'error',
-          message: `실패: ${e instanceof Error ? e.message : String(e)}`,
+          message: `실패: ${extractErrorMessage(e)}`,
         });
       }
     });
   };
-
-  const [opsOpen, setOpsOpen] = useState(false);
-  const [batchDate, setBatchDate] = useState('');
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] px-4 py-8">
@@ -493,7 +546,7 @@ export default function DevAdminClient() {
                                     {asset.addr ?? '-'}
                                   </p>
                                   <p className="mt-1 text-[14px] leading-5 text-[#6A7282]">
-                                    평가금액 {formatWon(asset.evalAmt)}
+                                    평가금액 {formatEvalAmt(asset.evalAmt)}
                                   </p>
                                 </div>
                               </div>
@@ -555,6 +608,51 @@ export default function DevAdminClient() {
                       주택연금 상품 가입
                     </button>
                     <ResultBanner result={pensionResult} />
+                  </div>
+
+                  <div className="rounded-2xl border border-[#E5E7EB] p-4">
+                    <p className="text-[14px] font-semibold text-[#111827]">
+                      지급청구대리인 지정 / 변경
+                    </p>
+                    <p className="mt-1 text-[13px] text-[#6A7282]">
+                      자녀 중 1명을 지급청구대리인으로 지정합니다
+                    </p>
+                    <div className="mt-3">
+                      {childMembers.length === 0 ? (
+                        <EmptyBox text="등록된 자녀 가족이 없습니다." />
+                      ) : (
+                        <div className="flex flex-col gap-1">
+                          {childMembers.map((child) => (
+                            <button
+                              key={child.userId}
+                              type="button"
+                              onClick={() =>
+                                setSelectedAgentUserId(child.userId)
+                              }
+                              className={`rounded-xl border px-3 py-2.5 text-left text-[13px] transition ${
+                                selectedAgentUserId === child.userId
+                                  ? 'border-hana-ez-600 bg-[#F9FFFE] font-semibold'
+                                  : 'border-[#E5E7EB] bg-white'
+                              }`}
+                            >
+                              {child.userName}
+                              <span className="ml-2 text-[#9CA3AF]">
+                                {child.phoneNumber ?? ''}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleUpdateClaimAgent}
+                      disabled={isPending || !selectedAgentUserId}
+                      className="mt-3 w-full rounded-xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white disabled:opacity-40"
+                    >
+                      대리인 지정
+                    </button>
+                    <ResultBanner result={claimAgentResult} />
                   </div>
 
                   <div className="rounded-2xl border border-[#E5E7EB] p-4">

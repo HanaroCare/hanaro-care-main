@@ -15,6 +15,16 @@ export type SimulationSummaryResponse = {
   livingCost: number;
   medicalCost: number;
   careCost: number;
+  age_segments?: {
+    range: string;
+    income: number;
+    expense: number;
+    detail: {
+      living: number;
+      medical: number;
+      care: number;
+    };
+  }[];
 };
 
 export async function getAssetDashboard(): Promise<AssetDashboardResponse> {

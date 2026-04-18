@@ -55,7 +55,7 @@ public class PensionController {
 	@Operation(
 		summary = "AI 기반 주택 가격 예측",
 		description = """
-          Gemini AI를 활용하여 특정 부동산 자산의 향후 시나리오별 가격을 예측합니다.
+          Chatgpt AI를 활용하여 특정 부동산 자산의 향후 시나리오별 가격을 예측합니다.
           
           - **expectedPrice**: 각 시나리오 확률을 반영한 가중 평균값입니다.
           - **scenarios**: 낙관(4%), 중립(2%), 비관(0%) 시나리오별 결과입니다.
@@ -82,7 +82,7 @@ public class PensionController {
                  ],
                  "recommendedScenario": "BASE",
                  "recommendedReason": "지역 학군 수요와 매수 심리를 고려할 때 완만한 상승세가 예상됩니다.",
-                 "modelVersion": "gemini-2.0-flash",
+                 "modelVersion": "gpt-4o",
                  "predictedAt": "2026-04-15T10:00:00"
                }
              }
