@@ -393,19 +393,27 @@ export default function FamilyManagementPage() {
   };
 
   const confirmToggleOff = async () => {
-    if (pendingToggleId) {
-      try {
-        await updateInsurancePermission({
-          granteeId: pendingToggleId,
-          isInsView: false,
-        });
-        await loadFamilyMembers(); // 최신 데이터로 갱신
-        setIsConfirmOpen(false);
-        setPendingToggleId(null);
-      } catch (error) {
-        console.error('보험 공유 중단 실패:', error);
-        alert('보험 공유 중단에 실패했습니다.');
-      }
+    if (!pendingToggleId) {
+      console.error("중단할 가족 ID가 없습니다.");
+      return;
+    }
+
+    try {
+      console.log(`보험 공유 중단 시도: ID ${pendingToggleId}`);
+
+      await updateInsurancePermission({
+        granteeId: pendingToggleId,
+        isInsView: false,
+      });
+
+      await loadFamilyMembers(); // 목록 새로고침
+      setIsConfirmOpen(false);
+      setPendingToggleId(null);
+
+      console.log("보험 공유 중단 완료");
+    } catch (error) {
+      // 3. 실패 시 구체적인 에러 확인
+      alert('보험 공유 중단에 실패했습니다. 잠시 후 다시 시도해 주세요.');
     }
   };
 
