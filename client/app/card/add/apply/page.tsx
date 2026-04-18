@@ -18,6 +18,7 @@ function CardIssueContent() {
   const designId = searchParams.get("designId") ?? "1";
   const {
     currentStep,
+    setCurrentStep,
     visibleSteps,
     showModal,
     setShowModal,
@@ -46,48 +47,68 @@ function CardIssueContent() {
         <div ref={topRef} />
 
         {visibleSteps.includes("familyShare") && (
-          <StepFamilyShare
-            shareAll={formData.familyShareAll}
-            members={formData.familyMembers}
-            onToggleAll={toggleAllMembers}
-            onToggleMember={(id, val) =>
-              updateFormData({
-                familyMembers: formData.familyMembers.map((m) =>
-                  m.id === id ? { ...m, shareEnabled: val } : m,
-                ),
-              })
-            }
-            onNext={nextStep}
-            isActive={currentStep === "familyShare"}
-          />
+          <div
+            className={`transition-opacity duration-300 ${currentStep !== "familyShare" ? "opacity-40 hover:opacity-100 cursor-pointer" : ""}`}
+            onClick={() => currentStep !== "familyShare" && setCurrentStep("familyShare")}
+          >
+            <StepFamilyShare
+              shareAll={formData.familyShareAll}
+              members={formData.familyMembers}
+              onToggleAll={toggleAllMembers}
+              onToggleMember={(id, val) =>
+                updateFormData({
+                  familyMembers: formData.familyMembers.map((m) =>
+                    m.id === id ? { ...m, shareEnabled: val } : m,
+                  ),
+                })
+              }
+              onNext={nextStep}
+              isActive={currentStep === "familyShare"}
+            />
+          </div>
         )}
 
         {visibleSteps.includes("cardName") && (
-          <StepCardName
-            value={formData.cardNm}
-            onChange={(val) => updateFormData({ cardNm: val })}
-            onNext={nextStep}
-            isActive={currentStep === "cardName"}
-          />
+          <div
+            className={`transition-opacity duration-300 ${currentStep !== "cardName" ? "opacity-40 hover:opacity-100 cursor-pointer" : ""}`}
+            onClick={() => currentStep !== "cardName" && setCurrentStep("cardName")}
+          >
+            <StepCardName
+              value={formData.cardNm}
+              onChange={(val) => updateFormData({ cardNm: val })}
+              onNext={nextStep}
+              isActive={currentStep === "cardName"}
+            />
+          </div>
         )}
 
         {visibleSteps.includes("account") && (
-          <StepAccountSelect
-            value={formData.accountId}
-            onChange={(accountId: number) => updateFormData({ accountId })}
-            onNext={nextStep}
-            isActive={currentStep === "account"}
-          />
+          <div
+            className={`transition-opacity duration-300 ${currentStep !== "account" ? "opacity-40 hover:opacity-100 cursor-pointer" : ""}`}
+            onClick={() => currentStep !== "account" && setCurrentStep("account")}
+          >
+            <StepAccountSelect
+              value={formData.accountId}
+              onChange={(accountId: number) => updateFormData({ accountId })}
+              onNext={nextStep}
+              isActive={currentStep === "account"}
+            />
+          </div>
         )}
 
         {visibleSteps.includes("limit") && (
-          <StepLimitSlider
-            value={formData.limitAmt}
-            onChange={(val) => updateFormData({ limitAmt: val })}
-            onNext={nextStep}
-            isActive={currentStep === "limit"}
-            onPayDayChange={(day) => updateFormData({ payDay: day })} // 추가
-          />
+          <div
+            className={`transition-opacity duration-300 ${currentStep !== "limit" ? "opacity-40 hover:opacity-100 cursor-pointer" : ""}`}
+            onClick={() => currentStep !== "limit" && setCurrentStep("limit")}
+          >
+            <StepLimitSlider
+              value={formData.limitAmt}
+              onChange={(val) => updateFormData({ limitAmt: val })}
+              onNext={nextStep}
+              isActive={currentStep === "limit"}
+              onPayDayChange={(day) => updateFormData({ payDay: day })}
+            />
+          </div>
         )}
       </div>
 

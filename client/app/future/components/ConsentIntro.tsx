@@ -3,6 +3,8 @@
 import { Play, Phone, FileText, Info } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Route } from "next";
+import { useState } from "react";
+import PhonePopup from "./PhonePopup";
 
 interface FaqItem {
   question: string;
@@ -31,14 +33,26 @@ export default function ConsentIntro({
   onApplyClick,
 }: ConsentIntroProps) {
   const router = useRouter();
+  const [showPhonePopup, setShowPhonePopup] = useState(false);
+
+  const isPhoneHref = String(consultHref).startsWith("tel:");
+  const phoneNumber = isPhoneHref ? String(consultHref).replace("tel:", "") : "";
+
+  const handleConsultClick = () => {
+    if (isPhoneHref) {
+      setShowPhonePopup(true);
+    } else {
+      router.push(consultHref);
+    }
+  };
 
   return (
-    <div className="relative w-full min-h-screen bg-white flex flex-col">
+    <div className="w-full bg-white flex flex-col">
       {/* 스크롤 컨테이너 */}
-      <div className="flex flex-col flex-1 overflow-y-auto pb-[85px] pt-[65px]">
+      <div className="flex flex-col flex-1 overflow-y-auto pb-[24px]">
         {/* 동영상 배너 */}
         {videoSrc ? (
-          <div className="mx-[25px] mt-[38px] rounded-2xl overflow-hidden" style={{ aspectRatio: "16/9" }}>
+          <div className="mx-[25px] mt-[20px] rounded-2xl overflow-hidden" style={{ aspectRatio: "16/9" }}>
             <iframe
               src={videoSrc}
               className="w-full h-full"
@@ -48,7 +62,7 @@ export default function ConsentIntro({
           </div>
         ) : (
           <div
-            className="mx-[25px] mt-[38px] h-[180px] rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer"
+            className="mx-[25px] mt-[20px] h-[180px] rounded-2xl flex flex-col items-center justify-center gap-3 cursor-pointer"
             style={{
               background: "linear-gradient(135deg, #244242 0%, #173636 100%)",
             }}
@@ -86,31 +100,39 @@ export default function ConsentIntro({
             </div>
           ))}
         </div>
+
+        {/* 버튼 */}
+        <div className="flex flex-row gap-[7px] mx-[25px] mt-[20px]">
+          <button
+            onClick={handleConsultClick}
+            className="flex flex-row items-center justify-center gap-2 flex-1 h-[53px] rounded-[10px]"
+            style={{ backgroundColor: "#E9F8F9" }}
+          >
+            <Phone size={16} color="#008485" />
+            <span className="font-semibold text-[14px] leading-[20px] tracking-[-0.15px] text-[#008485]">
+              전화 상담하기
+            </span>
+          </button>
+          <button
+            onClick={() => router.push(applyHref)}
+            className="flex flex-row items-center justify-center gap-2 flex-1 h-[53px] rounded-[10px]"
+            style={{ backgroundColor: "#01A5AC" }}
+          >
+            <FileText size={16} color="white" />
+            <span className="font-semibold text-[14px] leading-[24px] text-white">
+              {applyLabel}
+            </span>
+          </button>
+        </div>
       </div>
 
-      {/* 하단 버튼 */}
-      <div className="absolute bottom-0 left-0 right-0 flex flex-row gap-[7px] px-[25px] pb-[16px] bg-white">
-        <button
-          onClick={() => router.push(consultHref)}
-          className="flex flex-row items-center justify-center gap-2 flex-1 h-[53px] rounded-[10px]"
-          style={{ backgroundColor: "#E9F8F9" }}
-        >
-          <Phone size={16} color="#008485" />
-          <span className="font-semibold text-[14px] leading-[20px] tracking-[-0.15px] text-[#008485]">
-            전화 상담하기
-          </span>
-        </button>
-        <button
-          onClick={() => router.push(applyHref)}
-          className="flex flex-row items-center justify-center gap-2 flex-1 h-[53px] rounded-[10px]"
-          style={{ backgroundColor: "#01A5AC" }}
-        >
-          <FileText size={16} color="white" />
-          <span className="font-semibold text-[14px] leading-[24px] text-white">
-            {applyLabel}
-          </span>
-        </button>
-      </div>
+      {showPhonePopup && (
+        <PhonePopup
+          phone={phoneNumber}
+          name="전화 상담"
+          onClose={() => setShowPhonePopup(false)}
+        />
+      )}
     </div>
   );
 }

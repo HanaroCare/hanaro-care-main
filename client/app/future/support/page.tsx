@@ -67,7 +67,7 @@ export default function SupportPage() {
 
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
-      <Header title="나를 위한 제도" />
+      <Header title="나를 위한 제도" onBack={() => router.push("/my" as Route)} />
 
       <div className="pt-[65px]">
         {/* 탭 */}

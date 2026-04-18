@@ -3,6 +3,8 @@ import { Suspense } from "react";
 import { getMyCards, getCardUsages, getCardBalance } from "./actions/card";
 import CardDashboardScreen from "./components/CardDashboardScreen";
 
+export const dynamic = "force-dynamic";
+
 export default async function CardPage() {
   const cards = await getMyCards().catch(() => []);
 
