@@ -228,7 +228,7 @@ export default function SimulatorPage() {
             activeTab={activeTab}
             onTabChange={(id) => {
               setActiveTab(id);
-              if (id === 'inheritance') router.push('/inheritance/intro');
+              if (id === 'inheritance') router.push('/inheritance');
             }}
           />
           {parentAccessLevel !== 'NONE' && (

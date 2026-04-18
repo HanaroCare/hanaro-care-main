@@ -1,26 +1,19 @@
-'use client';
+import { redirect } from 'next/navigation';
+import { getPlanSummary } from './actions/plan';
 
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+export default async function InheritancePage() {
+  let hasPlan = false;
 
-export default function InheritancePage() {
-  const router = useRouter();
+  try {
+    await getPlanSummary();
+    hasPlan = true;
+  } catch {
+    hasPlan = false;
+  }
 
-  useEffect(() => {
-    const isCompleted = localStorage.getItem('inheritance_completed');
-
-    if (isCompleted === 'true') {
-      router.replace('/inheritance/result');
-    } else {
-      router.replace('/inheritance/intro');
-    }
-  }, [router]);
-
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="animate-pulse font-medium text-hana-ez-600">
-        상속 설계 설정을 확인 중입니다...
-      </div>
-    </div>
-  );
+  if (hasPlan) {
+    redirect('/inheritance/result');
+  } else {
+    redirect('/inheritance/intro');
+  }
 }
