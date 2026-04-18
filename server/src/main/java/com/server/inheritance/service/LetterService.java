@@ -54,8 +54,8 @@ public class LetterService {
         plan.getId());
 
     return inheritDetails.stream().map(i -> InheritanceSummaryDto.builder()
-        .inheritDetailId(i.getInheritDetailId())
-        .userId(i.getUser().getUserId())
+        .inheritDetailId(String.valueOf(i.getInheritDetailId()))
+        .userId(String.valueOf(i.getUser().getUserId()))
         .username(i.getUser().getUserNm())
         .percent(i.getDistRatio())
         .amt(i.getInheritPlan().getTotalInheritAmt()
@@ -68,7 +68,7 @@ public class LetterService {
   @CheckUser(key = "#userId")
   public LetterResponseDto sendLetter(Long userId, LetterRequestDto dto, MultipartFile voice)
       throws IOException {
-    TBInheritDetail detail = inheritDetailRepository.findById(dto.getInheritDetailId())
+    TBInheritDetail detail = inheritDetailRepository.findById(Long.parseLong(dto.getInheritDetailId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
     if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId,
@@ -76,7 +76,7 @@ public class LetterService {
       throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
     }
 
-    if (letterRepository.findByInheritDetail_InheritDetailId(dto.getInheritDetailId())
+    if (letterRepository.findByInheritDetail_InheritDetailId(Long.parseLong(dto.getInheritDetailId()))
         .isPresent()) {
       throw new ApiException(ErrorStatus.LETTER_ALREADY_EXISTS);
     }
@@ -146,7 +146,7 @@ public class LetterService {
 
   @Transactional
   @CheckUser(key = "#userId")
-  public Long deleteLetter(Long userId, Long inheritDetailId) {
+  public String deleteLetter(Long userId, Long inheritDetailId) {
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
@@ -161,7 +161,7 @@ public class LetterService {
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
     detail.setInheritLetter(null);
-    return letter.getLetterId();
+    return String.valueOf(letter.getLetterId());
   }
 }
 

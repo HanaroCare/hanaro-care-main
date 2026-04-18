@@ -1,5 +1,5 @@
 export interface FamilyMemberResponse {
-  userId: number;
+  userId: string;
   name: string;
   phone: string;
   relation: string;
@@ -12,6 +12,6 @@ export interface FamilyInviteRequest {
 }
 
 export interface GrantInsuranceViewRequest {
-  granteeId: number;
+  granteeId: string;
   isInsView: boolean;
 }

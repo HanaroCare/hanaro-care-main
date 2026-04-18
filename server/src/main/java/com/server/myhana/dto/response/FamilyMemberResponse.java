@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class FamilyMemberResponse {
     @Schema(description = "사용자 고유 식별자", example = "1001")
-    private Long userId;
+    private String userId;
     @Schema(description = "사용자 이름", example = "권하나")
     private String name;
     @Schema(description = "휴대폰 번호", example = "010-1234-5678")

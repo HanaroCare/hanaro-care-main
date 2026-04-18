@@ -13,15 +13,25 @@ const BASE_URL =
 export async function getInheritanceInfo() {
   const response = await fetch(`${BASE_URL}/api/inheritance`, {
     headers: await getAuthHeader(),
+    cache: 'no-store', 
   });
 
-  if (!response.ok) throw new Error('상속 정보를 불러오지 못했습니다.');
+  if (response.status === 404) {
+    console.warn('[getInheritanceInfo] 상속 설계 정보가 존재하지 않습니다.');
+    return null; 
+  }
+
+  if (!response.ok) {
+    throw new Error('상속 정보를 불러오지 못했습니다.');
+  }
+
   const data = await response.json();
-  return data;
+
+  return data.isSuccess ? data.data : null;
 }
 
 // 상속 편지 조회
-export async function getLetter(inheritDetailId: string | number) {
+export async function getLetter(inheritDetailId: string) {
   const response = await fetch(
     `${BASE_URL}/api/inheritance/letter/${inheritDetailId}`,
     { headers: await getAuthHeader() },
@@ -42,7 +52,7 @@ export async function sendLetter(formData: FormData) {
 }
 
 // 상속 편지 삭제
-export async function deleteLetter(inheritDetailId: string | number) {
+export async function deleteLetter(inheritDetailId: string) {
   const response = await fetch(
     `${BASE_URL}/api/inheritance/letter/${inheritDetailId}`,
     {

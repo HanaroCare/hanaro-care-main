@@ -91,11 +91,11 @@ public class PensionController {
 	})
 	public ResponseEntity<ApiResponse<PensionForecastResponse>> getForecast(
 		@AuthenticationPrincipal SubscriberDTO loginUser,
-		@Parameter(description = "예측할 부동산 자산 ID") @PathVariable Long realAssetId,
+		@Parameter(description = "예측할 부동산 자산 ID") @PathVariable String realAssetId,
 		@Parameter(description = "예측 기간 (5, 10, 20년)") @RequestParam(defaultValue = "5") Integer periodYears
 	) {
 		PensionForecastResponse result =
-			pensionForecastService.getForecast(loginUser.getUserId(), realAssetId, periodYears);
+			pensionForecastService.getForecast(loginUser.getUserId(), Long.parseLong(realAssetId), periodYears);
 		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 
@@ -108,10 +108,10 @@ public class PensionController {
 	)
 	public ResponseEntity<ApiResponse<PensionPayoutComparisonResponse>> getPayoutComparison(
 		@AuthenticationPrincipal SubscriberDTO loginUser,
-		@PathVariable Long realAssetId
+		@PathVariable String realAssetId
 	) {
 		PensionPayoutComparisonResponse result =
-			pensionPayoutService.compare(loginUser.getUserId(), realAssetId);
+			pensionPayoutService.compare(loginUser.getUserId(), Long.parseLong(realAssetId));
 		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 
@@ -122,10 +122,10 @@ public class PensionController {
 	)
 	public ResponseEntity<ApiResponse<PensionSimulationSummaryResponse>> getPayoutSummary(
 		@AuthenticationPrincipal SubscriberDTO loginUser,
-		@PathVariable Long realAssetId
+		@PathVariable String realAssetId
 	) {
 		PensionSimulationSummaryResponse result =
-			pensionPayoutService.getSummary(loginUser.getUserId(), realAssetId);
+			pensionPayoutService.getSummary(loginUser.getUserId(), Long.parseLong(realAssetId));
 		return ResponseEntity.ok(ApiResponse.onSuccess(result));
 	}
 }

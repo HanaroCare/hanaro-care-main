@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { getMyInfo } from '../../dev/actions/admin';
 
 export interface HeirDistribution {
-  heirUserId: number | null;
+  heirUserId: string | null;
   heirName: string;
   relation: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
   distRatio: number;
@@ -16,12 +16,12 @@ export interface InheritancePlanRequest {
 }
 
 export interface InheritancePlanResponse {
-  planId: number;
+  planId: string;
   totalInheritAmt: number;
   estiTaxAmt: number;
   heirs: {
-    inheritDetailId: number;
-    heirUserId: number | null;
+    inheritDetailId: string;
+    heirUserId: string | null;
     heirName: string;
     relation: string;
     distRatio: number;
@@ -40,7 +40,7 @@ export interface InheritanceContext {
     totalAsset: number;
   };
   familyMembers: {
-    userId: number;
+    userId: string;
     name: string;
     relation: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
   }[];
@@ -76,23 +76,28 @@ export async function getPlanSummary() {
   }
 }
 
-/**
- * 상속 설계 플랜을 서버에 저장합니다.
- * @param data 상속 비율 데이터
- */
 export async function submitInheritancePlan(data: InheritancePlanRequest) {
   try {
     const user = await getMyInfo();
     if (!user) throw new Error('Unauthorized: User info not found');
 
-    // 데이터 정제: null인 필드를 서버 사양에 맞춰 처리 (필요시)
     const sanitizedDistributions = data.distributions.map(d => ({
       ...d,
-      heirUserId: d.heirUserId || null // undefined 방지
+      distRatio: Math.round(Number(d.distRatio) * 10000) / 10000,
+      heirUserId: d.heirUserId || null 
     }));
 
+    const totalCurrent = sanitizedDistributions.reduce((sum, d) => sum + d.distRatio, 0);
+    const diff = 1.0 - totalCurrent; 
+
+    if (Math.abs(diff) > 0 && Math.abs(diff) < 0.01) {
+      sanitizedDistributions[sanitizedDistributions.length - 1].distRatio += diff;
+    }
+
     const payload = { distributions: sanitizedDistributions };
-    console.log('[submitInheritancePlan] Sending payload:', JSON.stringify(payload, null, 2));
+    
+    console.log('[Payload Check]', payload.distributions.map(d => d.distRatio));
+    console.log('[Sum Check]', payload.distributions.reduce((s, d) => s + d.distRatio, 0));
 
     const result = await serverFetch<InheritancePlanResponse>(`/api/inheritance/plan/${user.userId}`, {
       method: 'POST',

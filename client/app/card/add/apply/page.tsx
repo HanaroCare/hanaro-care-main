@@ -89,7 +89,7 @@ function CardIssueContent() {
           >
             <StepAccountSelect
               value={formData.accountId}
-              onChange={(accountId: number) => updateFormData({ accountId })}
+              onChange={(accountId: string) => updateFormData({ accountId })}
               onNext={nextStep}
               isActive={currentStep === "account"}
             />

@@ -101,9 +101,9 @@ public class CardController {
   @PatchMapping("/{cardId}/settings")
   public ApiResponse<CardUpdateResponse> updateCard(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @PathVariable Long cardId,
+      @PathVariable String cardId,
       @Valid @RequestBody CardUpdateRequest request) {
-    TBCard card = cardService.updateCard(subscriberDTO.getUserId(), cardId, request);
+    TBCard card = cardService.updateCard(subscriberDTO.getUserId(), Long.parseLong(cardId), request);
     return ApiResponse.onSuccess(CardUpdateResponse.from(card));
   }
 
@@ -114,8 +114,8 @@ public class CardController {
   @PatchMapping("/{cardId}/cancel")
   public ApiResponse<Void> cancelCard(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @PathVariable Long cardId) {
-    cardService.cancelCard(subscriberDTO.getUserId(), cardId);
+      @PathVariable String cardId) {
+    cardService.cancelCard(subscriberDTO.getUserId(), Long.parseLong(cardId));
     return ApiResponse.onSuccess(null);
   }
 
@@ -136,8 +136,8 @@ public class CardController {
   @GetMapping("/{cardId}/usages")
   public ApiResponse<List<CardUsageResponse>> getCardUsages(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @PathVariable Long cardId) {
-    return ApiResponse.onSuccess(cardService.getCardUsages(subscriberDTO.getUserId(), cardId));
+      @PathVariable String cardId) {
+    return ApiResponse.onSuccess(cardService.getCardUsages(subscriberDTO.getUserId(), Long.parseLong(cardId)));
   }
 
   @Operation(
@@ -179,14 +179,14 @@ public class CardController {
   @GetMapping("/{cardId}/balance")
   public ApiResponse<BigDecimal> getCardBalance(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @PathVariable Long cardId) {
-    return ApiResponse.onSuccess(cardService.getCardBalance(subscriberDTO.getUserId(), cardId));
+      @PathVariable String cardId) {
+    return ApiResponse.onSuccess(cardService.getCardBalance(subscriberDTO.getUserId(), Long.parseLong(cardId)));
   }
 
   @GetMapping("/usages/{usageId}")
   public ApiResponse<CardUsageResponse> getCardUsage(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @PathVariable Long usageId) {
-    return ApiResponse.onSuccess(cardService.getCardUsage(subscriberDTO.getUserId(), usageId));
+      @PathVariable String usageId) {
+    return ApiResponse.onSuccess(cardService.getCardUsage(subscriberDTO.getUserId(), Long.parseLong(usageId)));
   }
 }

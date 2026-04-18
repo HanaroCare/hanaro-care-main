@@ -21,7 +21,7 @@ const STEP_ORDER: Step[] = [
 ];
 
 export interface FamilyMember {
-  id: number;
+  id: string;
   name: string;
   initial: string;
   relation: string;
@@ -30,7 +30,7 @@ export interface FamilyMember {
 
 export interface IssueFormData {
   limitAmt: number;
-  accountId: number | null;
+  accountId: string | null;
   cardNm: string;
   familyShareAll: boolean;
   familyMembers: FamilyMember[];
@@ -58,7 +58,7 @@ export function useIssueSteps(designId: string) {
       setFormData((prev) => ({
         ...prev,
         familyMembers: data.map((m) => ({
-          id: Number(m.familyAuthId), // familyAuthId가 카드 발급 시 필요
+          id: m.familyAuthId, // familyAuthId가 카드 발급 시 필요
           name: m.userNm,
           initial: m.userNm?.[0] ?? "?",
           relation: m.relationCd,

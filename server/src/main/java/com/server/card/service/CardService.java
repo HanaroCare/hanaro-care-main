@@ -44,7 +44,7 @@ public class CardService {
       throw new ApiException(ErrorStatus.CARD_LIMIT_EXCEEDED);
     }
 
-    TBAccount account = accountRepository.findById(request.getAccountId())
+    TBAccount account = accountRepository.findById(Long.parseLong(request.getAccountId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
 
     // 본인 계좌인지 검증
@@ -75,8 +75,10 @@ public class CardService {
     familyAuthRepository.save(selfAuth);
 
     if (request.getFamilyAuthIds() != null && !request.getFamilyAuthIds().isEmpty()) {
-      List<TBFamilyAuth> familyAuths = familyAuthRepository.findAllById(
-          request.getFamilyAuthIds());
+      List<Long> familyAuthLongIds = request.getFamilyAuthIds().stream()
+          .map(Long::parseLong)
+          .toList();
+      List<TBFamilyAuth> familyAuths = familyAuthRepository.findAllById(familyAuthLongIds);
 
       // ✅ grantor+grantee 조합으로 중복 제거
       Map<String, TBFamilyAuth> deduped = new java.util.LinkedHashMap<>();
@@ -97,24 +99,6 @@ public class CardService {
       familyAuthRepository.saveAll(newAuths);
     }
 
-    if (request.getFamilyAuthIds() != null && !request.getFamilyAuthIds().isEmpty()) {
-      List<com.server.user.entity.TBFamilyAuth> familyAuths = familyAuthRepository.findAllById(
-          request.getFamilyAuthIds());
-
-      List<com.server.user.entity.TBFamilyAuth> newAuths = new ArrayList<>();
-      for (com.server.user.entity.TBFamilyAuth auth : familyAuths) {
-        com.server.user.entity.TBFamilyAuth newAuth = com.server.user.entity.TBFamilyAuth.builder()
-            .grantor(auth.getGrantor())
-            .grantee(auth.getGrantee())
-            .relationCd(auth.getRelationCd())
-            .isCardView(true)
-            .card(savedCard)
-            .build();
-        newAuths.add(newAuth);
-      }
-      familyAuthRepository.saveAll(newAuths);
-    }
-
     return savedCard;
   }
 
@@ -127,7 +111,7 @@ public class CardService {
     // 카드 권한 검증
     validateCardAccess(userId, card);
 
-    TBAccount account = accountRepository.findById(request.getAccountId())
+    TBAccount account = accountRepository.findById(Long.parseLong(request.getAccountId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
 
     // 1. 본인 계좌 검증
@@ -236,7 +220,7 @@ public class CardService {
       throw new ApiException(ErrorStatus.CARD_BALANCE_EXCEEDED);
     }
 
-    TBAccount account = accountRepository.findById(request.getAccountId())
+    TBAccount account = accountRepository.findById(Long.parseLong(request.getAccountId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
 
     // 1. 본인 계좌 검증

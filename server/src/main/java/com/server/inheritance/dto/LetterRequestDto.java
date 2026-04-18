@@ -20,7 +20,7 @@ public class LetterRequestDto {
 
   @NotNull(message = "상속 상세 ID는 필수입니다.")
   @Schema(description = "상속 상세 ID", example = "3")
-  private Long inheritDetailId;
+  private String inheritDetailId;
 
   @NotNull(message = "편지 타입은 필수입니다.")
   @Schema(description = "편지 타입", example = "WRITING")

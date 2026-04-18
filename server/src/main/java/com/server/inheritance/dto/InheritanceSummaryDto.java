@@ -14,8 +14,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class InheritanceSummaryDto {
 
-  private Long inheritDetailId;
-  private Long userId;
+  private String inheritDetailId;
+  private String userId;
   private String username;
   private BigDecimal percent;
   private Long amt;

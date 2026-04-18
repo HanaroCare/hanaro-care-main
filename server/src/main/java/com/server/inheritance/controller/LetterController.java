@@ -58,8 +58,8 @@ public class LetterController {
   @Operation(summary = "상속 편지 조회", description = "상속 편지를 조회합니다.")
   @GetMapping("/letter/{inheritDetailId}")
   ApiResponse<LetterResponseDto> getLetter(@AuthenticationPrincipal SubscriberDTO user,
-      @Parameter(description = "가족 상세 ID", example = "1") @PathVariable Long inheritDetailId) {
-    LetterResponseDto letter = service.getLetter(user.getUserId(), inheritDetailId);
+      @Parameter(description = "가족 상세 ID", example = "1") @PathVariable String inheritDetailId) {
+    LetterResponseDto letter = service.getLetter(user.getUserId(), Long.parseLong(inheritDetailId));
     return ApiResponse.onSuccess(letter);
   }
 
@@ -67,8 +67,8 @@ public class LetterController {
   @Operation(summary = "상속 편지 삭제", description = "상속 편지를 삭제합니다.")
   @DeleteMapping("/letter/{inheritDetailId}")
   ApiResponse deleteLetter(@AuthenticationPrincipal SubscriberDTO user,
-      @Parameter(description = "가족 상세 ID", example = "1") @PathVariable Long inheritDetailId) {
-    return ApiResponse.onSuccess(service.deleteLetter(user.getUserId(), inheritDetailId));
+      @Parameter(description = "가족 상세 ID", example = "1") @PathVariable String inheritDetailId) {
+    return ApiResponse.onSuccess(service.deleteLetter(user.getUserId(), Long.parseLong(inheritDetailId)));
   }
 
 }

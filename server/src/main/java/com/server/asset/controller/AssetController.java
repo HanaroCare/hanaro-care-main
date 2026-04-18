@@ -48,10 +48,10 @@ public class AssetController {
   @GetMapping("/real-asset/{realAssetId}")
   public ApiResponse<AssetDetailResponse> getRealAssetDetail(
       @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @PathVariable Long realAssetId
+      @PathVariable String realAssetId
   ) {
     return ApiResponse.onSuccess(
-        assetService.getRealAssetDetail(subscriberDTO.getUserId(), realAssetId));
+        assetService.getRealAssetDetail(subscriberDTO.getUserId(), Long.parseLong(realAssetId)));
   }
 
   @Operation(summary = "보험 상세 목록 조회")

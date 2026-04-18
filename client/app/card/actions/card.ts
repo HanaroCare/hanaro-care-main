@@ -16,7 +16,7 @@ export async function getCardBalance(cardId: string): Promise<number> {
 }
 
 export interface Account {
-  accountId: number;
+  accountId: string;
   instNm: string;
   accountNum: string;
   balanceAmt: number;
@@ -24,7 +24,7 @@ export interface Account {
 
 export interface CardUpdateRequest {
   autoTransAmt: number;
-  accountId: number;
+  accountId: string;
   payDay: number;
 }
 
@@ -54,9 +54,9 @@ export async function getCardById(cardId: string): Promise<CardData | null> {
 }
 
 export interface ChargeRequest {
-  cardId: string; // number → string
+  cardId: string;
   chargeAmt: number;
-  accountId: number;
+  accountId: string;
 }
 
 export async function chargeCard(data: ChargeRequest): Promise<void> {
@@ -74,12 +74,12 @@ export interface FamilyMemberResponse {
 }
 
 export interface RegisterCardRequest {
-  accountId: number;
+  accountId: string;
   cardNm: string;
   limitAmt: number;
   autoTransAmt: number;
   designCd: string;
-  familyAuthIds: number[];
+  familyAuthIds: string[];
   payDay: number;
 }
 

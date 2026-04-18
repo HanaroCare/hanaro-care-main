@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LetterDTO {
-    private Long letterId;
-    private Long inheritDetailId;
+    private String letterId;
+    private String inheritDetailId;
     private LetterType letterType;
     private String content;
     private String voiceUrl;

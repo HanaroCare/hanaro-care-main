@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 public class InsuranceShareRequest {
-  private Long granteeId;
+  private String granteeId;
   private List<Long> insuranceIds;
 }

@@ -20,14 +20,14 @@ public class CardUpdateResponse {
   private BigDecimal limitAmt;
 
   @Schema(description = "충전 계좌 ID", example = "2001")
-  private Long accountId;
+  private String accountId;
 
   public static CardUpdateResponse from(TBCard card) {
     return CardUpdateResponse.builder()
         .cardId(String.valueOf(card.getCardId()))
         .cardNm(card.getCardNm())
         .limitAmt(card.getLimitAmt())
-        .accountId(card.getAccount().getAccountId())
+        .accountId(String.valueOf(card.getAccount().getAccountId()))
         .build();
   }
 }

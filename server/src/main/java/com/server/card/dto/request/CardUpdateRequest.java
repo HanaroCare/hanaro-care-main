@@ -18,7 +18,7 @@ public class CardUpdateRequest {
 
   @NotNull
   @Schema(description = "충전 계좌 ID", example = "2001")
-  private Long accountId;
+  private String accountId;
 
   @Min(1)
   @Max(28)

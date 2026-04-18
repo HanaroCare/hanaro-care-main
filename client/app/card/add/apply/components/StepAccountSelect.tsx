@@ -5,8 +5,8 @@ import { ChevronDown } from "lucide-react";
 import { getCardAccounts, Account } from "../../../actions/card";
 
 interface StepAccountSelectProps {
-  value: number | null;
-  onChange: (accountId: number) => void;
+  value: string | null;
+  onChange: (accountId: string) => void;
   onNext: () => void;
   isActive: boolean;
 }
@@ -18,7 +18,7 @@ export default function StepAccountSelect({
   isActive,
 }: StepAccountSelectProps) {
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
     value,
   );
   const [showDropdown, setShowDropdown] = useState(false);

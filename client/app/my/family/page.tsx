@@ -15,7 +15,7 @@ import {
 import type { FamilyMemberResponse } from './types';
 
 interface FamilyMember {
-  id: number;
+  id: string;
   lastName: string;
   name: string;
   relationship: string;
@@ -123,7 +123,7 @@ const FamilyCard = ({
                       onToggleSharing,
                     }: {
   member: FamilyMember;
-  onToggleSharing: (id: number, currentStatus: boolean) => void;
+  onToggleSharing: (id: string, currentStatus: boolean) => void;
 }) => {
   return (
       <div className="group mb-4 overflow-hidden rounded-[20px] bg-white shadow-[0_8px_20px_rgba(0,0,0,0.03)] border border-hana-silver-50">
@@ -291,9 +291,9 @@ const BottomSheet = ({
   isOpen: boolean;
   onClose: () => void;
   nonSharingMembers: FamilyMember[];
-  onRequestShare: (id: number) => void;
+  onRequestShare: (id: string) => void;
 }) => {
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isOpen) setSelectedId(null);
@@ -360,7 +360,7 @@ export default function FamilyManagementPage() {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isAddSheetOpen, setIsAddSheetOpen] = useState(false);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
-  const [pendingToggleId, setPendingToggleId] = useState<number | null>(null);
+  const [pendingToggleId, setPendingToggleId] = useState<string | null>(null);
   const [inviteToken, setInviteToken] = useState<string>('');
 
   // 데이터 로드
@@ -383,7 +383,7 @@ export default function FamilyManagementPage() {
   const sharingCount = members.filter((m) => m.isSharing).length;
   const nonSharingMembers = members.filter((m) => !m.isMe && !m.isSharing);
 
-  const handleToggleSharing = (id: number, currentStatus: boolean) => {
+  const handleToggleSharing = (id: string, currentStatus: boolean) => {
     if (currentStatus) {
       setPendingToggleId(id);
       setIsConfirmOpen(true);
@@ -417,8 +417,8 @@ export default function FamilyManagementPage() {
     }
   };
 
-  const handleRequestShare = (selectedId: number) => {
-    localStorage.setItem('pending_share_id', String(selectedId));
+  const handleRequestShare = (selectedId: string) => {
+    localStorage.setItem('pending_share_id', selectedId);
     router.push('/my/family/share' as Route);
     setIsBottomSheetOpen(false);
   };

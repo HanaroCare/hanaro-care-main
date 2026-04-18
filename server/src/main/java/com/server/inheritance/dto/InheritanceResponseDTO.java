@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InheritanceResponseDTO {
-    private Long planId;
+    private String planId;
     private BigDecimal totalInheritAmt;
     private BigDecimal estiTaxAmt;
     private List<HeirSummaryDTO> heirs;
@@ -23,8 +23,8 @@ public class InheritanceResponseDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class HeirSummaryDTO {
-        private Long inheritDetailId;
-        private Long heirUserId;
+        private String inheritDetailId;
+        private String heirUserId;
         private String heirName;
         private FamilyRelation relation;
         private Double distRatio;
@@ -32,6 +32,6 @@ public class InheritanceResponseDTO {
         private Double minLegalRatio;    // 유류분 비율 (법정상속분의 0.5)
         private BigDecimal minLegalAmt; // 유류분 금액
         private Boolean hasLetter;
-        private Long letterId;
+        private String letterId;
     }
 }
