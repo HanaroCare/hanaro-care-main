@@ -66,7 +66,7 @@ export default function CardUsageClient({ usagesPerCard }: Props) {
 
   return (
     <div className="relative min-h-screen bg-white">
-      <Header title="카드 지출 내역" />
+      <Header title="카드 입출금 내역" />
 
       <div className="px-6 mt-6">
         <p className="text-sm text-[#6A7282]">{periodLabel}</p>
@@ -142,9 +142,15 @@ export default function CardUsageClient({ usagesPerCard }: Props) {
                               </div>
                           </div>
                           <p
-                              className={`text-base font-semibold ${u.abnmlYn === "Y" ? "text-hana-red-500" : "text-hana-black-900"}`}
+                              className={`text-base font-semibold ${
+                                u.abnmlYn === "Y"
+                                  ? "text-hana-red-500"
+                                  : u.usageTypeCd === "CHARGE"
+                                  ? "text-hana-green-700"
+                                  : "text-hana-black-900"
+                              }`}
                           >
-                              {u.usageAmt.toLocaleString()}원
+                              {u.usageTypeCd === "CHARGE" ? "+" : "-"}{u.usageAmt.toLocaleString()}원
                           </p>
                       </button>
                   ))}
