@@ -23,7 +23,6 @@ export default function InsuranceDetail({ detail }: InsuranceDetailViewProps) {
       return (detail as any)[row.key] ?? '-';
     }
   };
-  console.log(detail)
   return (
     <div className="-mx-6.25 min-h-full bg-gray-50 px-6.25 pt-2 pb-83">
       <div className="mt-12 mb-5 rounded-2xl bg-white p-5 py-7 shadow-sm">
