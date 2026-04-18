@@ -136,7 +136,7 @@ export default function StepLimitSlider({
           onClick={async () => {
             await onNext();
           }}
-          disabled={!touched || payDay === null}
+          disabled={false}
           className="mt-6 w-full h-[53px] rounded-xl text-white text-base font-medium transition-colors disabled:bg-gray-200 disabled:text-gray-400 bg-hana-ez-600 hover:bg-hana-green-700"
         >
           다음

@@ -3,6 +3,7 @@
 import Header from "@/components/navigation/Header";
 import ConsentIntro from "@/app/future/components/ConsentIntro";
 import { Route } from "next";
+import { useRouter } from "next/navigation";
 
 const faqItems = [
   {
@@ -23,9 +24,10 @@ const faqItems = [
 ];
 
 export default function AdvanceDirectivePage() {
+  const router = useRouter();
   return (
     <>
-      <Header title="연명의료 결정" />
+      <Header title="연명의료 결정" onBack={() => router.push("/my" as Route)} />
       <ConsentIntro
         videoSubtitle="동영상으로 이해하는"
         videoTitle="사전연명의료의향서"

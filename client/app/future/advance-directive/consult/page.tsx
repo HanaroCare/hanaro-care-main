@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import InstitutionCard from "../../components/InstitutionCard";
+import PhonePopup from "../../components/PhonePopup";
 import Header from "@/components/navigation/Header";
 
 const institutions = [
@@ -35,22 +35,17 @@ const institutions = [
 ];
 
 export default function ConsultPage() {
-  const router = useRouter();
   const [search, setSearch] = useState("");
+  const [popupPhone, setPopupPhone] = useState<{ phone: string; name: string } | null>(null);
+
   const filtered = institutions.filter(
     (item) => item.name.includes(search) || item.address.includes(search),
   );
 
-  const handleCall = (phone: string) => {
-    window.location.href = `tel:${phone}`;
-  };
-
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
-      {/* 헤더 */}
       <Header title="연명의료 결정" />
 
-      {/* 검색창 */}
       <div className="mx-[27px] mt-[51px]">
         <div className="flex flex-row items-center gap-[5px] h-[50px] px-[17px] border border-[#E3E5E8] rounded-[10px] bg-white">
           <Search size={15} color="#D1D5DB" />
@@ -66,22 +61,28 @@ export default function ConsultPage() {
         </div>
       </div>
 
-      {/* 목록 타이틀 */}
       <span className="mx-[25px] mt-[49px] font-medium text-[18px] leading-[20px] text-[#535C6A]">
         사전연명의료의향서 등록기관
       </span>
 
-      {/* 기관 목록 */}
       <div className="flex flex-col gap-[15px] mx-[25px] mt-[18px]">
         {filtered.map((item) => (
           <InstitutionCard
             key={item.name}
             name={item.name}
             address={item.address}
-            onCall={() => handleCall(item.phone)}
+            onCall={() => setPopupPhone({ phone: item.phone, name: item.name })}
           />
         ))}
       </div>
+
+      {popupPhone && (
+        <PhonePopup
+          phone={popupPhone.phone}
+          name={popupPhone.name}
+          onClose={() => setPopupPhone(null)}
+        />
+      )}
     </div>
   );
 }

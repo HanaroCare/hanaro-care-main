@@ -117,7 +117,7 @@ export default function CardDashboardScreen({
 
   return (
     <div className="relative w-[375px] min-h-screen bg-white">
-      <Header title="돌봄지갑 관리" />
+      <Header title="돌봄지갑 관리" onBack={() => router.push("/" as Route)} />
       {/* 카드 영역 */}
       <div
         className="absolute left-6 top-[82px] bg-[#F6F7F8]/50 rounded-[30px] pb-6 overflow-hidden"
@@ -213,7 +213,7 @@ export default function CardDashboardScreen({
         {/* 카드 이름 & 잔액 */}
         {!isAddSlide && (
           <>
-            <p className="text-center text-xl font-semibold tracking-tight text-hana-black-800 mt-3">
+            <p className="text-center text-xl font-semibold tracking-tight text-hana-black-800 mt-3 px-6 truncate">
               {currentCard!.cardNm}
             </p>
             <div className="flex items-center justify-between px-6 mt-3">
