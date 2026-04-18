@@ -3,7 +3,6 @@ package com.server.myhana.controller;
 import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.myhana.dto.ContractDto;
-import com.server.myhana.dto.FamilyMemberResponse;
 import com.server.myhana.dto.FamilySummaryDto;
 import com.server.myhana.service.MyHanaInheritanceService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,14 +28,6 @@ public class MyHanaGuardianController {
 
   private final MyHanaInheritanceService myHanaInheritanceService;
 
-
-  // 사용자 조회
-  @Operation(summary = "후견인 가족 조회", description = "후견인으로 선택할 가족을 조회합니다.")
-  @GetMapping("/me")
-  ApiResponse<FamilyMemberResponse> getMe(@AuthenticationPrincipal SubscriberDTO user) {
-    myHanaInheritanceService.getMe(user);
-    return ApiResponse.onSuccess(result);
-  }
 
   // 가족 조회
   @Operation(summary = "후견인 가족 조회", description = "후견인으로 선택할 가족을 조회합니다.")
