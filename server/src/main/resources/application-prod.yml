@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    # 포트가 3366이므로 주소 뒤에 :3366을 꼭 붙여주세요!
+    url: jdbc:mysql://hanarodb.c7skmkwg270b.ap-northeast-2.rds.amazonaws.com:3366/hanacare?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: hanaro123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # [주의] 운영 서버이므로 절대 'create'를 쓰지 마세요. 'update' 또는 'none' 권장!
+      ddl-auto: update
+    show-sql: false # 운영 로그가 너무 지저분해지지 않게 false로 둡니다.
+
+  sql:
+    init:
+      mode: never # 운영 서버 시작 시 SQL 스크립트가 자동 실행되지 않게 차단

@@ -1,3 +1,24 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://hanacare-test.c7skmkwg270b.ap-northeast-2.rds.amazonaws.com:3306/hanacare-test?serverTimezone=Asia/Seoul
+    username: admin
+    password: hanaro1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  sql:
+    init:
+      mode: always
+
 cloud:
   aws:
     credentials:

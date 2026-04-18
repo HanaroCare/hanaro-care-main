@@ -10,6 +10,12 @@ secure/
 *.bak
 backup/
 *.sock
+# 보안 관련 파일 무시
+security.yaml
+application-prod.yml
+application-local.yml
+.env
+.env.local
 
 # === Java & Gradle (빌드 결과물) ===
 .gradle/
