@@ -86,17 +86,11 @@ public class TBAccount extends BaseEntity {
   @Column(name = "MONTHLY_PREM_AMT", precision = 13, scale = 2)
   private BigDecimal monthlyPremAmt;
 
-  // @Builder.Default: 빌더 사용 시 기본값 true
-  // @PrePersist: 기본 생성자로 만들어진 인스턴스도 null 방지
   @Builder.Default
   @Column(name = "IS_LINKED", nullable = false)
   private Boolean isLinked = true;
 
-  /**
-   * JPA persist 직전 isLinked가 null이면 true로 초기화한다.
-   * Lombok @Builder.Default는 Builder 경로에서만 동작하므로
-   * new TBAccount() 경로의 null을 방어한다.
-   */
+
   @PrePersist
   protected void prePersist() {
     if (this.isLinked == null) {

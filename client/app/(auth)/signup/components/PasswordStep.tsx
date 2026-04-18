@@ -63,7 +63,7 @@ export default function PasswordStep({ isActive, onComplete, isLoading = false, 
           <input
             type="password"
             value={pw}
-            onChange={(e) => { setPw(e.target.value); setError(""); }}
+            onChange={(e) => { setPw(e.target.value.trimEnd()); setError(""); }}
             onKeyDown={(e) => handleKeyDown(e, "pw")}
             disabled={!isActive || isLoading}
             placeholder="비밀번호 입력"
@@ -74,7 +74,7 @@ export default function PasswordStep({ isActive, onComplete, isLoading = false, 
             ref={confirmRef}
             type="password"
             value={confirm}
-            onChange={(e) => { setConfirm(e.target.value); setError(""); }}
+            onChange={(e) => { setConfirm(e.target.value.trimEnd()); setError(""); }}
             onKeyDown={(e) => handleKeyDown(e, "confirm")}
             disabled={!isActive || pw.length < 8 || isLoading}
             placeholder="비밀번호 확인"

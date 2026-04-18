@@ -6,7 +6,7 @@ type PageProps = {
 
 export default async function Page({ searchParams }: PageProps) {
   const params = await searchParams;
-  const realAssetId = Number(params.id);
+  const realAssetId = params.id ?? '';
 
   return <HomePensionResultClient realAssetId={realAssetId} />;
 }

@@ -124,7 +124,7 @@ export default function PayoutUseStepClient({
                   isSelected ? 'text-hana-ez-600' : 'text-[#1F2937]'
                 }`}
               >
-                월 {amount.toLocaleString()}원
+                월 {Math.round(amount / 10000).toLocaleString()}만원
               </p>
             </button>
           );
@@ -138,7 +138,7 @@ export default function PayoutUseStepClient({
               월 집행 합계
             </span>
             <span className="text-[22px] leading-8 font-bold tracking-tight text-hana-ez-600">
-              {totalAmount.toLocaleString()}원
+              {Math.round(totalAmount / 10000).toLocaleString()}만원
             </span>
           </div>
         </div>

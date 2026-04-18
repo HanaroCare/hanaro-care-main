@@ -7,9 +7,16 @@ export const validatePassword = (password: string): boolean => {
 };
 
 export const validatePasswordMatch = (password: string, confirmPassword: string): boolean => {
-  return password !== "" && password === confirmPassword;
+  const trimmedPw = password.trim();
+  const trimmedConfirm = confirmPassword.trim();
+  return trimmedPw !== "" && trimmedPw === trimmedConfirm;
 };
 
 export const validateUsername = (username: string): boolean => {
   return /^[a-z][a-z0-9]{3,11}$/.test(username);
+};
+
+export const validateName = (name: string): boolean => {
+  const trimmed = name.trim();
+  return trimmed.length >= 2 && trimmed.length <= 20;
 };

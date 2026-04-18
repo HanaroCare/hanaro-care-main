@@ -82,7 +82,7 @@ export default function SimulationDetailPage() {
                     variant="note" // 노란색 계열로 '주의' 환기
                     message="연동되지 않은 정보가 있어 부정확해요"
                     actionText="연동"
-                    onActionAction={() => router.push('/asset/link')} // 연동 페이지 경로로 수정
+                    onActionAction={() => router.push('/mydata/connect')}
                 />
               </div>
           )}
@@ -94,13 +94,13 @@ export default function SimulationDetailPage() {
           </section>
           <section className="flex flex-col gap-4.5">
             <h2 className="font-bold text-[17px] text-hana-black-900 tracking-tight">
-              연령대별 수입 · 지출 내역
+              연령대별 월평균 수입·지출 추이
             </h2>
             <SimulationExpenseAccordion items={ageSegments} />
           </section>
           {data?.ai_opinion && (
-              <div className="mt-4 rounded-4xl border border-hana-silver-100 bg-white p-6 shadow-sm">
-                <p className="whitespace-pre-wrap break-keep text-[14px] text-hana-black-500 leading-relaxed">
+              <div className="mt-4 rounded-xl bg-white p-4 shadow-sm">
+                <p className="whitespace-pre-wrap break-keep text-[12px] text-hana-black-500 leading-relaxed">
                   {data.ai_opinion}
                 </p>
               </div>

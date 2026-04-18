@@ -36,7 +36,7 @@ export function NotificationCardWrapper({
 				type="button"
 				onClick={() => setIsVisible(false)}
 				aria-label="알림 카드 닫기"
-				className="absolute top-4 right-4 z-10 flex size-6 items-center justify-center rounded-full bg-white/50 outline-none backdrop-blur-sm transition-colors hover:bg-white"
+				className="absolute top-4 right-4 z-20 flex size-6 items-center justify-center rounded-full bg-white/50 outline-none backdrop-blur-sm transition-colors hover:bg-white"
 			>
 				<X size={12} className="text-hana-black-500" />
 			</button>

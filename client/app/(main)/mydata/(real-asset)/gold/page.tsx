@@ -10,6 +10,7 @@ import DualActionFooter from '@/components/modules/DualActionFooter';
 import PageHeading from '@/components/typography/PageHeading';
 import { getBannerStatus } from '@/app/asset/actions/notificationStatus';
 import LoadingStep from '../../components/LoadingStep';
+import UnifiedLoadingStep from '../../components/UnifiedLoadingStep';
 import { linkGold, type RealAssetLinkResult } from '../actions/realAsset';
 
 function formatAmtSync(amount: number): string {
@@ -25,6 +26,10 @@ function GoldPageContent() {
   const searchParams = useSearchParams();
   const from = searchParams.get('from');
   const isAssetFlow = from === 'asset';
+  // mydata 전체 플로우: 금은 5~6번째 단계 (car 4~5에서 이어짐)
+  const formStep    = isAssetFlow ? 1 : 5;
+  const confirmStep = isAssetFlow ? 2 : 6;
+  const totalSteps  = isAssetFlow ? 2 : 6;
 
   const [weight, setWeight] = useState('');
   const [purity, setPurity] = useState('');
@@ -65,10 +70,7 @@ function GoldPageContent() {
     }
   };
 
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-    setIsAllDone(true);
-  };
+  const handleLoadingComplete = () => { setIsLoading(false); setIsAllDone(true); };
 
   if (isAllDone) {
     return (
@@ -102,7 +104,11 @@ function GoldPageContent() {
   if (isLoading) {
     return (
       <div className="flex h-full flex-col">
-        <LoadingStep name={userName} onComplete={handleLoadingComplete} />
+        {isAssetFlow ? (
+          <LoadingStep assetType="gold" onComplete={handleLoadingComplete} />
+        ) : (
+          <UnifiedLoadingStep name={userName} onComplete={handleLoadingComplete} />
+        )}
       </div>
     );
   }
@@ -112,7 +118,7 @@ function GoldPageContent() {
       <div className="flex h-full flex-col bg-background px-6 pt-6 pb-12">
         <div className="flex flex-1 flex-col">
           <div className="mb-10">
-            <ProgressBar step={2} total={2} />
+            <ProgressBar step={confirmStep} total={totalSteps} />
           </div>
           <div className="mb-10">
             <PageHeading>
@@ -166,7 +172,7 @@ function GoldPageContent() {
   return (
     <div className="flex h-full flex-col bg-background px-6 pt-6 pb-12">
       <div className="mb-10">
-        <ProgressBar step={1} total={2} />
+        <ProgressBar step={formStep} total={totalSteps} />
       </div>
       <PageHeading>
         <span className="text-hana-teal-500">금 중량 및 함량</span>을{'\n'}
@@ -210,7 +216,7 @@ function GoldPageContent() {
           label="나중에 연결하기"
           variant="secondary"
           className="bg-hana-silver-100 text-hana-black-500!"
-          onClick={() => router.push(isAssetFlow ? '/asset?tab=gold' : '/')}
+          onClick={() => router.push(isAssetFlow ? '/asset?tab=gold' : '/asset?tab=car')}
         />
       </div>
     </div>

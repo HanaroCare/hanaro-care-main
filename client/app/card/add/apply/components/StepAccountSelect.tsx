@@ -95,7 +95,7 @@ export default function StepAccountSelect({
       {isActive && (
         <button
           onClick={onNext}
-          disabled={!touched}
+          disabled={false}
           className="mt-6 w-full h-[53px] rounded-xl text-white text-base font-medium transition-colors disabled:bg-gray-200 disabled:text-gray-400 bg-hana-ez-600 hover:bg-hana-green-700"
         >
           다음

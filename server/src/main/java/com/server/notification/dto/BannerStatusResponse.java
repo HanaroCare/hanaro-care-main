@@ -41,6 +41,15 @@ public class BannerStatusResponse {
      */
     private final PensionInfo pension;
 
+    /** 초대 링크를 통해 가입한 미인증 유저 여부 */
+    private final boolean isInvitedUser;
+
+    /** 이상 거래(ABNML_YN=Y)가 있는 카드 ID 목록. 없으면 빈 리스트 */
+    private final List<Long> abnormalCardIds;
+
+    /** 카드가 1개일 때 이동할 가장 최근 이상 거래 USAGE_ID. 없으면 null */
+    private final Long firstAbnormalUsageId;
+
     @Getter
     @Builder
     public static class HousingPensionProductInfo {

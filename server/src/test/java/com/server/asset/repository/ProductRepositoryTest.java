@@ -1,6 +1,7 @@
 package com.server.asset.repository;
 
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +14,8 @@ import com.server.BaseRepositoryTest;
 import com.server.TestInitLoader;
 import com.server.asset.entity.TBProduct;
 import com.server.asset.entity.enums.ProdCate;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class ProductRepositoryTest extends BaseRepositoryTest {
 

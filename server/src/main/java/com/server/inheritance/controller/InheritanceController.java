@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/apis/inheritance") // 테스트 용도로 api -> apis
+@RequestMapping("/api/inheritance")
 @RequiredArgsConstructor
 public class InheritanceController {
 

@@ -11,6 +11,8 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -50,5 +52,6 @@ public class TBSharedInsurance extends BaseEntity {
   @JoinColumn(name = "ACCOUNT_ID", referencedColumnName = "ACCOUNT_ID",
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_SharedInsurance_accountId_Account"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBAccount insurance;
 }

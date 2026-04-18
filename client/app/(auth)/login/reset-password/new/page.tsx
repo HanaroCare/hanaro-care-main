@@ -84,7 +84,7 @@ function NewPasswordContent() {
                 value={password}
                 autoComplete="new-password"
                 onChange={(e) => {
-                  setPassword(e.target.value);
+                  setPassword(e.target.value.trimEnd());
                   if (apiError) setApiError("");
                 }}
               />
@@ -104,7 +104,7 @@ function NewPasswordContent() {
                 value={confirmPassword}
                 autoComplete="new-password"
                 onChange={(e) => {
-                  setConfirmPassword(e.target.value);
+                  setConfirmPassword(e.target.value.trimEnd());
                   if (apiError) setApiError("");
                 }}
               />

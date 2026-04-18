@@ -64,13 +64,14 @@ function CarPageContent() {
   };
 
   const handleComplete = () => {
+    if (!isAssetFlow) {
+      router.push('/mydata/gold');
+      return;
+    }
     setIsLoading(true);
   };
 
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-    setIsAllDone(true);
-  };
+  const handleLoadingComplete = () => { setIsLoading(false); setIsAllDone(true); };
 
   if (isAllDone) {
     return (
@@ -104,7 +105,7 @@ function CarPageContent() {
   if (isLoading) {
     return (
       <div className="flex h-full flex-col">
-        <LoadingStep name={userName} onComplete={handleLoadingComplete} />
+        <LoadingStep assetType="car" onComplete={handleLoadingComplete} />
       </div>
     );
   }
@@ -203,7 +204,7 @@ function CarPageContent() {
           label="나중에 연결하기"
           variant="secondary"
           className="bg-hana-silver-100 text-hana-black-500!"
-          onClick={() => router.push(isAssetFlow ? '/asset?tab=car' : '/mydata/main')}
+          onClick={() => router.push(isAssetFlow ? '/asset?tab=car' : '/asset?tab=realestate')}
         />
       </div>
     </div>

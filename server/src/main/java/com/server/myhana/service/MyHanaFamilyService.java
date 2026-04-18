@@ -1,8 +1,17 @@
 package com.server.myhana.service;
 
+import com.server.asset.entity.TBAccount;
+import com.server.asset.entity.enums.AssetCategory;
+import com.server.asset.repository.AccountRepository;
+import com.server.card.entity.TBCard;
+import com.server.card.entity.TBCardUsage;
+import com.server.card.entity.TBCardUsage.UsageType;
+import com.server.card.repository.CardRepository;
+import com.server.card.repository.CardUsageRepository;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.common.security.JwtUtil;
+import com.server.myhana.dto.request.FamilyAcceptRequest;
 import com.server.myhana.dto.request.FamilyInviteRequest;
 import com.server.myhana.dto.request.GrantInsuranceViewRequest;
 import com.server.myhana.dto.response.FamilyMemberResponse;
@@ -11,8 +20,10 @@ import com.server.user.entity.TBUser;
 import com.server.user.enums.FamilyRelation;
 import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,18 +36,17 @@ public class MyHanaFamilyService {
 
   private final FamilyAuthRepository familyAuthRepository;
   private final UserRepository userRepository;
+  private final AccountRepository accountRepository;
+  private final CardRepository cardRepository;
+  private final CardUsageRepository cardUsageRepository;
   private final JwtUtil jwtUtil;
 
-  /**
-   * 가족 목록 조회 (본인 포함)
-   */
   public List<FamilyMemberResponse> getFamilyMembers(Long userId) {
     TBUser user = userRepository.findById(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
 
     List<FamilyMemberResponse> result = new ArrayList<>();
 
-    // 1. 본인 추가
     result.add(FamilyMemberResponse.builder()
         .userId(user.getUserId())
         .name(user.getUserNm())
@@ -46,7 +56,6 @@ public class MyHanaFamilyService {
         .isMe(true)
         .build());
 
-    // 2. 가족 목록 조회
     List<TBFamilyAuth> familyAuths = familyAuthRepository.findAllByGrantorUserId(userId);
 
     List<FamilyMemberResponse> families = familyAuths.stream()
@@ -65,15 +74,11 @@ public class MyHanaFamilyService {
     return result;
   }
 
-
   public String inviteFamily(Long grantorId, FamilyInviteRequest request) {
     userRepository.findById(grantorId)
         .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
 
-    String token = jwtUtil.createInviteToken(grantorId);
-    // 프론트엔드 URL (추후 설정 파일로 분리 가능)
-    String baseUrl = "http://localhost:3000";
-    return String.format("%s/onboarding?token=%s", baseUrl, token);
+    return jwtUtil.createInviteToken(grantorId);
   }
 
   @Transactional
@@ -85,6 +90,87 @@ public class MyHanaFamilyService {
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
     familyAuth.setIsInsView(request.getIsInsView());
+  }
+
+  @Transactional
+  public void acceptFamilyInvite(Long granteeId, FamilyAcceptRequest request) {
+    Map<String, Object> info = jwtUtil.getInfoFromInviteToken(request.getInviteToken());
+    Long grantorId = (Long) info.get("grantorId");
+
+    if (grantorId == null || grantorId.equals(granteeId)) {
+      throw new ApiException(ErrorStatus._BAD_REQUEST);
+    }
+
+    if (familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)) {
+      return;
+    }
+
+    TBUser grantor = userRepository.findById(grantorId)
+        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+    TBUser grantee = userRepository.findById(granteeId)
+        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+
+    // 1. 부모(grantor)의 카드 계좌 조회 — 없으면 첫 번째 계좌 사용
+    TBAccount cardAccount = accountRepository
+        .findByUser_UserIdAndAssetCateCd(grantorId, AssetCategory.CARD)
+        .stream().findFirst()
+        .orElseGet(() -> accountRepository.findAllByUser_UserId(grantorId)
+            .stream().findFirst()
+            .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST)));
+
+    // 2. 자식(grantee) 명의 요양보호사 카드 생성
+    TBCard card = cardRepository.save(TBCard.builder()
+        .cardNm("A::" + grantee.getUserNm() + " 요양보호사 간병비 카드")
+        .account(cardAccount)
+        .limitAmt(new BigDecimal("1500000"))
+        .balanceAmt(new BigDecimal("320000"))
+        .autoTransAmt(BigDecimal.ZERO)
+        .payDay(15)
+        .isUse(true)
+        .build());
+
+    // 3. 샘플 카드 이용 내역 일괄 생성
+    cardUsageRepository.saveAll(buildSampleUsages(card, grantor.getUserNm()));
+
+    // 4. 가족 인증 등록 (GRANTOR=부모, GRANTEE=자식)
+    familyAuthRepository.save(TBFamilyAuth.builder()
+        .grantor(grantor)
+        .grantee(grantee)
+        .relationCd(FamilyRelation.CHILD)
+        .isInsView(true)
+        .isCardView(true)
+        .isProxyClaim(true)
+        .isTrustView(true)
+        .card(card)
+        .build());
+  }
+
+  private List<TBCardUsage> buildSampleUsages(TBCard card, String grantorName) {
+    record U(String nm, String loc, UsageType type, String amt, String abnml) {}
+    List<U> rows = List.of(
+        new U("강남성심병원",        "서울 강남구 도곡로 117",         UsageType.SPEND,  "25000",  "N"),
+        new U(grantorName,           null,                             UsageType.CHARGE, "300000", "N"),
+        new U("네일샵 강남점",        "서울 강남구 강남대로 396",       UsageType.SPEND,  "45000",  "Y"),
+        new U("삼성서울병원 약국",    "서울 강남구 일원로 81",          UsageType.SPEND,  "18500",  "N"),
+        new U("강남구보건소",         "서울 강남구 삼성로 212",         UsageType.SPEND,  "5000",   "N"),
+        new U("온누리약국 역삼점",    "서울 강남구 역삼로 165",         UsageType.SPEND,  "12800",  "N"),
+        new U("노래방 강남점",        "서울 강남구 역삼로 180",         UsageType.SPEND,  "35000",  "Y"),
+        new U("의료기기센터 강남",    "서울 강남구 논현로 508",         UsageType.SPEND,  "45000",  "N"),
+        new U("강남재활의학과",       "서울 강남구 역삼로 146",         UsageType.SPEND,  "32000",  "N"),
+        new U("한마음약국",           "서울 강남구 대치동 944-7",       UsageType.SPEND,  "9500",   "N")
+    );
+
+    return rows.stream()
+        .map(u -> TBCardUsage.builder()
+            .card(card)
+            .usageNm(u.nm())
+            .usageLoc(u.loc())
+            .usageTypeCd(u.type())
+            .usageAmt(new BigDecimal(u.amt()))
+            .abnmlYn(u.abnml())
+            .aprvlYn("Y")
+            .build())
+        .collect(Collectors.toList());
   }
 
   public String getUser(Long userId) {

@@ -9,4 +9,5 @@ public interface AssetSimulationRepository extends JpaRepository<TBAssetSimulati
     Optional<TBAssetSimulation> findFirstByUser_UserIdOrderByCreatedAtDesc(Long userId);
     Optional<TBAssetSimulation> findFirstByUser_UserIdAndTargetAgeAndCareTypeOrderByCreatedAtDesc(Long userId, Integer targetAge, CareType careType);
     boolean existsByUser_UserId(Long userId);
+    boolean existsByUser_UserIdAndIsDefaultFalse(Long userId);
 }
