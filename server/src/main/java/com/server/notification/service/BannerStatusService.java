@@ -18,6 +18,8 @@ import com.server.asset.repository.PensionSimulationRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.card.entity.TBCard;
 import com.server.card.repository.CardRepository;
+import com.server.card.repository.CardUsageRepository;
+import com.server.user.repository.FamilyAuthRepository;
 import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.notification.dto.BannerStatusResponse;
 import com.server.notification.dto.BannerStatusResponse.HousingPensionProductInfo;
@@ -38,6 +40,8 @@ public class BannerStatusService {
     private final UserProdRepository userProdRepository;
     private final CardRepository cardRepository;
     private final AccountRepository accountRepository;
+    private final FamilyAuthRepository familyAuthRepository;
+    private final CardUsageRepository cardUsageRepository;
 
     /**
      * @param userId   인증된 사용자 ID
@@ -53,7 +57,17 @@ public class BannerStatusService {
             .housingPensionProduct(resolveHousingPensionProduct(userId))
             .medicalBill(resolveMedicalBill(userId))
             .pension(resolvePension(userId))
+            .isInvitedUser(resolveInvitedUser(userId))
+            .abnormalCardIds(resolveAbnormalCardIds(userId))
             .build();
+    }
+
+    private boolean resolveInvitedUser(Long userId) {
+        return familyAuthRepository.existsByGrantee_UserIdAndGrantee_IsHanaCertFalse(userId);
+    }
+
+    private List<Long> resolveAbnormalCardIds(Long userId) {
+        return cardUsageRepository.findAbnormalCardIdsByUserId(userId);
     }
 
     private boolean resolveSimulation(Long userId) {

@@ -4,6 +4,7 @@ import { getBannerStatus } from './asset/actions/notificationStatus';
 import { AssetDashboard } from './asset/components/AssetDashboard';
 import { MedicalBudgetCard } from './asset/components/MedicalBudgetCard';
 import { BannerCard } from './asset/components/notification/BannerCard';
+import { HomeBanners } from './asset/components/notification/HomeBanners';
 import { InheritanceStepCard } from './asset/components/notification/InheritanceStepCard';
 import { MedicalBillCard } from './asset/components/notification/MedicalBillCard';
 import { PensionCard } from './asset/components/notification/PensionCard';
@@ -63,6 +64,8 @@ export default async function Home() {
     housingPensionProduct,
     medicalBill,
     pension,
+    isInvitedUser,
+    abnormalCardIds,
   } = bannerStatus;
 
   const hasLinkedMyData = assetData?.isMyDataLinked ?? false;
@@ -112,6 +115,8 @@ export default async function Home() {
           <span className="text-hana-green-700">Care</span>
         </div>
       </div>
+
+      <HomeBanners isInvitedUser={isInvitedUser} abnormalCardIds={abnormalCardIds} />
 
       {activeBanner?.type === 'simulation-cta' && (
           <BannerCard

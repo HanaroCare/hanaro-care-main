@@ -45,4 +45,6 @@ public interface FamilyAuthRepository extends JpaRepository<TBFamilyAuth, Long> 
   List<TBFamilyAuth> findAllByGrantee_UserIdAndIsCardViewTrue(Long userId);
 
   void deleteAllByGrantor_UserIdOrGrantee_UserId(Long grantorId, Long granteeId);
+
+  boolean existsByGrantee_UserIdAndGrantee_IsHanaCertFalse(Long granteeUserId);
 }
