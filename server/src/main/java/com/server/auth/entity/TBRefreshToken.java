@@ -7,6 +7,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -32,6 +34,7 @@ public class TBRefreshToken {
 
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "USER_ID", insertable = false, updatable = false) // 읽기 전용 연관관계
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBUser user;
 
   @Column(name = "TOKEN_VAL", nullable = false, length = 500, unique = true)

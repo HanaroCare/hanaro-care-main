@@ -176,8 +176,6 @@ export default function SimulatorPage() {
       });
       if (response) {
         localStorage.setItem(COMPLETION_KEY, 'true');
-        setHasResult(true);
-        setIsRecalculating(false);
         router.push('/asset/simulator/result' as Route);
       }
     } catch (error) {
@@ -265,7 +263,7 @@ export default function SimulatorPage() {
                   <SimulatorSummaryCard data={summaryData} />
                   <PrimaryButton
                     label="다시 계산하기"
-                    variant="secondary"
+                    variant="third"
                     onClick={() => setIsRecalculating(true)}
                   />
 

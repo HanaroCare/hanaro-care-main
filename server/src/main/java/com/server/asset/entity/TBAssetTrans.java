@@ -22,6 +22,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -61,5 +63,6 @@ public class TBAssetTrans extends BaseEntity {
   @JoinColumn(name = "USER_PROD_ID", referencedColumnName = "USER_PROD_ID",
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_AssetTrans_userProdutId_UserProd"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBUserProd userProd;
 }

@@ -3,7 +3,7 @@ type PrimaryButtonProps = {
   disabled?: boolean;
   onClick?: () => void;
   type?: 'button' | 'submit' | 'reset';
-  variant?: 'primary' | 'secondary' | 'disabled' | 'warning';
+  variant?: 'primary' | 'secondary' | 'third' | 'disabled' | 'warning';
   fullWidth?: boolean;
   className?: string;
   icon?: React.ReactNode;
@@ -27,9 +27,11 @@ export default function PrimaryButton({
       ? 'bg-hana-ez-600 text-white'
       : resolvedVariant === 'secondary'
         ? 'bg-[#E9F8F9] text-hana-ez-600'
-        : resolvedVariant === 'disabled'
-          ? 'bg-[#F3F4F6] text-[#9CA3AF]'
-          : 'bg-hana-red-500 text-white';
+            : resolvedVariant === 'third'
+                ? 'bg-hana-teal-600 text-white active:bg-hana-teal-700'
+                  : resolvedVariant === 'disabled'
+                    ? 'bg-[#F3F4F6] text-[#9CA3AF]'
+                    : 'bg-hana-red-500 text-white';
 
   return (
     <button

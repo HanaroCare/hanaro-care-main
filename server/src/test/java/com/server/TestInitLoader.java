@@ -90,7 +90,7 @@ public class TestInitLoader implements ApplicationRunner {
   }
 
   private void initPensionProduct() {
-    pensionProduct = productRepository.findByProdCate(ProdCate.PENSION)
+    pensionProduct = productRepository.findFirstByProdCate(ProdCate.PENSION)
         .orElseGet(() -> {
           TBProduct product = TBProduct.builder()
               .prodCate(ProdCate.PENSION)
@@ -102,7 +102,7 @@ public class TestInitLoader implements ApplicationRunner {
   }
 
   private void initTrustProduct() {
-    trustProduct = productRepository.findByProdCate(ProdCate.TRUST)
+    trustProduct = productRepository.findFirstByProdCate(ProdCate.TRUST)
         .orElseGet(() -> {
           TBProduct product = TBProduct.builder()
               .prodCate(ProdCate.TRUST)
@@ -111,19 +111,5 @@ public class TestInitLoader implements ApplicationRunner {
               .build();
           return productRepository.saveAndFlush(product);
         });
-  }
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // 테스트 전용 유틸리티 메서드
-  // ─────────────────────────────────────────────────────────────────────────
-
-  /**
-   * testUser의 userId를 안전하게 반환합니다.
-   *
-   * <p>이 메서드는 준영속(detached) 객체에서 ID 값만 추출하는 용도이며,
-   * 반환된 Long 값은 모든 트랜잭션 컨텍스트에서 안전하게 사용할 수 있습니다.
-   */
-  public Long getTestUserId() {
-    return testUser.getUserId();
   }
 }

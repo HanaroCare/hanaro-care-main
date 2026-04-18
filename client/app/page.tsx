@@ -4,6 +4,7 @@ import { getBannerStatus } from './asset/actions/notificationStatus';
 import { AssetDashboard } from './asset/components/AssetDashboard';
 import { MedicalBudgetCard } from './asset/components/MedicalBudgetCard';
 import { BannerCard } from './asset/components/notification/BannerCard';
+import { HomeBanners } from './asset/components/notification/HomeBanners';
 import { InheritanceStepCard } from './asset/components/notification/InheritanceStepCard';
 import { MedicalBillCard } from './asset/components/notification/MedicalBillCard';
 import { PensionCard } from './asset/components/notification/PensionCard';
@@ -48,6 +49,10 @@ export default async function Home() {
     })),
   ]);
 
+  console.log('=== [DEBUG] API Responses ===');
+  console.log('- assetData:', assetData ? 'Data received' : 'Null');
+  console.log('- bannerStatus:', bannerStatus);
+
   const simulationData = simulationResult.ok ? simulationResult.data : null;
 
   const {
@@ -59,6 +64,9 @@ export default async function Home() {
     housingPensionProduct,
     medicalBill,
     pension,
+    isInvitedUser,
+    abnormalCardIds,
+    firstAbnormalUsageId,
   } = bannerStatus;
 
   const hasLinkedMyData = assetData?.isMyDataLinked ?? false;
@@ -76,11 +84,11 @@ export default async function Home() {
   const activeBanner: ActiveBanner = (() => {
     if (!hasLinkedMyData) return null;
 
+    if (!hasCompletedSimulation) return { type: 'simulation-cta' };
+
     const candidates: ActiveBanner[] = [];
 
-    if (!hasCompletedSimulation) {
-      candidates.push({ type: 'simulation-cta' });
-    } else if (housingPensionProduct) {
+    if (housingPensionProduct) {
       candidates.push({
         type: 'simulation-result',
         userName,
@@ -109,6 +117,8 @@ export default async function Home() {
         </div>
       </div>
 
+      <HomeBanners isInvitedUser={isInvitedUser} abnormalCardIds={abnormalCardIds} firstAbnormalUsageId={firstAbnormalUsageId} />
+
       {activeBanner?.type === 'simulation-cta' && (
           <BannerCard
               title={<>내 남은 인생,{'\n'}평생 병원비 걱정 없을까요?</>}
@@ -123,7 +133,7 @@ export default async function Home() {
               title={
                 <>
                   {activeBanner.userName} 손님,{'\n'}
-                  매달 <span className="text-hana-red-500">{(activeBanner.monthlyPayout / 10000).toLocaleString()}만원</span> 수령으로{'\n'} 병원비 부담이 줄었네요
+                  매달 <span className="text-hana-red-500">{Math.floor(activeBanner.monthlyPayout / 10000).toLocaleString()}만원</span> 수령으로{'\n'} 병원비 부담이 줄었네요
                 </>
               }
               buttonText="확인하러 가기"
@@ -153,7 +163,7 @@ export default async function Home() {
               title={<>미리 준비하는 상속{'\n'}가족 모두가 든든해져요</>}
               buttonText="상속 계산하기"
               imageSrc="/images/asset/inheritance-recom.svg"
-              href="/inheritance/plan"
+              href="/inheritance/intro"
           />
       )}
 
