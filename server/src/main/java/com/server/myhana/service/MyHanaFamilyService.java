@@ -56,9 +56,9 @@ public class MyHanaFamilyService {
         .isMe(true)
         .build());
 
-    List<TBFamilyAuth> familyAuths = familyAuthRepository.findAllByGrantorUserId(userId);
-
-    List<FamilyMemberResponse> families = familyAuths.stream()
+    // 내가 부모(grantor)인 경우 → 자녀 목록
+    List<TBFamilyAuth> grantorAuths = familyAuthRepository.findApprovedFamilyByGrantorId(userId);
+    grantorAuths.stream()
         .map(auth -> FamilyMemberResponse.builder()
             .userId(auth.getGrantee().getUserId())
             .name(auth.getGrantee().getUserNm())
@@ -67,11 +67,30 @@ public class MyHanaFamilyService {
             .isSharing(auth.getIsInsView())
             .isMe(false)
             .build())
-        .collect(Collectors.toList());
+        .forEach(result::add);
 
-    result.addAll(families);
+    // 내가 자녀(grantee)인 경우 → 부모 목록 (초대 링크로 가입한 경우)
+    List<TBFamilyAuth> granteeAuths = familyAuthRepository.findApprovedFamilyByGranteeId(userId);
+    granteeAuths.stream()
+        .map(auth -> FamilyMemberResponse.builder()
+            .userId(auth.getGrantor().getUserId())
+            .name(auth.getGrantor().getUserNm())
+            .phone(auth.getGrantor().getUserPhone())
+            .relation(inverseRelation(auth.getRelationCd()))
+            .isSharing(auth.getIsInsView())
+            .isMe(false)
+            .build())
+        .forEach(result::add);
 
     return result;
+  }
+
+  private String inverseRelation(FamilyRelation relation) {
+    return switch (relation) {
+      case CHILD -> FamilyRelation.PARENT.getDescription();
+      case PARENT -> FamilyRelation.CHILD.getDescription();
+      default -> relation.getDescription();
+    };
   }
 
   public String inviteFamily(Long grantorId, FamilyInviteRequest request) {
