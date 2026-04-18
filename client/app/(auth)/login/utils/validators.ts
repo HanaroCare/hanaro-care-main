@@ -18,5 +18,7 @@ export const validatePassword = (password: string): boolean => {
  * validatePasswordMatch: 두 비밀번호 문자열이 일치하고, 비어있지 않은지 체크
  */
 export const validatePasswordMatch = (password: string, confirmPassword: string): boolean => {
-  return password !== "" && password === confirmPassword;
+  const trimmedPw = password.trim();
+  const trimmedConfirm = confirmPassword.trim();
+  return trimmedPw !== "" && trimmedPw === trimmedConfirm;
 };

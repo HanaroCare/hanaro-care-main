@@ -1,6 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   ChevronDown,
   ChevronRight,
@@ -55,7 +56,7 @@ export default function MyHanaPage() {
       if (info) {
         // getMe가 실패했거나 아직 안 끝났을 경우를 대비해 보완
         if (info.userName) setUserName(info.userName);
-        
+
         if (info.userRole === 'ROLE_CHILD') {
           setUserRole('child');
         } else {
@@ -92,11 +93,12 @@ export default function MyHanaPage() {
     const res = await withdraw();
     if (res.success) {
       alert('회원 탈퇴가 완료되었습니다.');
-      router.push('/' as Route);
+      // 세션을 완전히 초기화하기 위해 소프트 라우팅이 아닌 강제 리다이렉트
+      window.location.href = '/login';
     } else {
       alert(res.message);
+      setIsWithdrawPopupOpen(false);
     }
-    setIsWithdrawPopupOpen(false);
   };
 
   return (
@@ -111,13 +113,15 @@ export default function MyHanaPage() {
 
         <main className="no-scrollbar flex-1 pb-28">
           <section className="flex flex-col items-center py-10">
-            <div className="mb-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border border-hana-green-100 bg-hana-green-50 shadow-sm">
-              <CircleUserRound
-                className="h-20 w-20 text-hana-ez-600"
-                role="img"
-                aria-label={`${userName}의 프로필`}
-              />
-            </div>
+              <div className="mb-4 h-24 w-24 overflow-hidden rounded-full bg-white">
+                <Image
+                  src="/images/my/profile.svg"
+                  alt={`${userName}의 프로필`}
+                  width={96}
+                  height={96}
+                  className="h-full w-full object-contain"
+                />
+              </div>
             <h2 className="font-bold text-2xl text-hana-black-900 tracking-tight">
               {userName}
             </h2>

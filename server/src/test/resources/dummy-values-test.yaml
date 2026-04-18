@@ -5,7 +5,7 @@ jwt:
 
 encrypt:
   aes:
-    key: "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+    key: "MTIzNDU2Nzg9AEHyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
 
 external:
   gemini:
@@ -13,9 +13,6 @@ external:
     api-key: dummy_gemini_key # 변수 대신 더미값
     connect-timeout: 5s
     read-timeout: 15s
-  kosis:
-    base-url: https://kosis.kr/openapi
-    api-key: dummy_kosis_key
   public-data:
     base-url: http://apis.data.go.kr
     api-key: dummy_public_key

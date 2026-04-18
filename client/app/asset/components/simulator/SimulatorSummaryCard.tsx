@@ -58,7 +58,7 @@ export function SimulatorSummaryCard({ data }: { data: SimulationSummaryApiRespo
           <SummaryItem
               label={isShortage ? "월 부족액" : "월 여유자금"}
               value={`${monthlyGapDisplay.toLocaleString()}만원`}
-              colorClass={isShortage ? "text-[#FF4D4D]" : "text-[#4AFEF1]"}
+              colorClass={isShortage ? "text-hana-red-500" : "text-hana-gold-400"}
           />
         </div>
 

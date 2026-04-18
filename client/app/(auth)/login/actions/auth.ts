@@ -39,6 +39,9 @@ export async function login(loginId: string, userPwd: string): Promise<LoginResu
     if (res.status === 403 && body.code === "AUTH_009") {
       return { ok: false, error: body.message ?? "휴면 계정입니다.", isDormant: true };
     }
+    if (res.status === 403 && body.code === "AUTH_015") {
+      return { ok: false, error: "탈퇴 처리된 계정입니다. 고객센터에 문의해주세요." };
+    }
     return { ok: false, error: body.message ?? "로그인에 실패했습니다." };
   } catch {
     return { ok: false, error: "서버 연결에 실패했습니다." };
@@ -74,6 +77,9 @@ export async function loginWithHanaCert(
     const body = await res.json().catch(() => ({}));
     if (res.status === 403 && body.code === "AUTH_009") {
       return { ok: false, error: body.message ?? "휴면 계정입니다.", isDormant: true };
+    }
+    if (res.status === 403 && body.code === "AUTH_015") {
+      return { ok: false, error: "탈퇴 처리된 계정입니다. 고객센터에 문의해주세요." };
     }
     return { ok: false, error: body.message ?? "로그인에 실패했습니다." };
   } catch {
@@ -148,6 +154,47 @@ export async function sendFindIdSms(phone: string): Promise<ActionResult> {
     if (res.ok) return { ok: true };
     const body = await res.json().catch(() => ({}));
     return { ok: false, error: body.message ?? "인증번호 발송에 실패했습니다." };
+  } catch {
+    return { ok: false, error: "서버 연결에 실패했습니다." };
+  }
+}
+
+export async function checkUserNameExists(userNm: string): Promise<ActionResult> {
+  try {
+    const res = await fetch(
+      `${BASE}/api/auth/check-user-name?userNm=${encodeURIComponent(userNm.trim())}`
+    );
+    const body = await res.json().catch(() => ({}));
+    if (res.ok && body.isSuccess !== false) return { ok: true };
+    return { ok: false, error: body.message ?? "등록되지 않은 정보입니다." };
+  } catch {
+    return { ok: false, error: "서버 연결에 실패했습니다." };
+  }
+}
+
+export async function checkLoginIdExists(loginId: string): Promise<ActionResult> {
+  try {
+    const res = await fetch(
+      `${BASE}/api/auth/check-user?loginId=${encodeURIComponent(loginId.trim())}`
+    );
+    const body = await res.json().catch(() => ({}));
+    // HTTP 2xx AND isSuccess:true → 아이디 존재
+    if (res.ok && body.isSuccess !== false) return { ok: true };
+    return { ok: false, error: body.message ?? "등록되지 않은 아이디입니다." };
+  } catch {
+    return { ok: false, error: "서버 연결에 실패했습니다." };
+  }
+}
+
+export async function checkNameExists(loginId: string, userNm: string): Promise<ActionResult> {
+  try {
+    const res = await fetch(
+      `${BASE}/api/auth/check-name?loginId=${encodeURIComponent(loginId.trim())}&userNm=${encodeURIComponent(userNm.trim())}`
+    );
+    const body = await res.json().catch(() => ({}));
+    // HTTP 2xx AND isSuccess:true → 이름+아이디 조합 존재
+    if (res.ok && body.isSuccess !== false) return { ok: true };
+    return { ok: false, error: body.message ?? "등록되지 않은 이름입니다." };
   } catch {
     return { ok: false, error: "서버 연결에 실패했습니다." };
   }

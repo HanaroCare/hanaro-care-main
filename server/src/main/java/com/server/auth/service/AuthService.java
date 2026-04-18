@@ -53,6 +53,36 @@ public class AuthService {
     }
   }
 
+  /**
+   * 아이디 찾기 — 활성 상태인 계정 중 해당 이름이 존재하는지 확인합니다.
+   * 탈퇴/정지 계정은 검색되지 않습니다.
+   */
+  public void checkUserByName(String userNm) {
+    if (!userRepository.existsByUserNmAndUserStatusCd(userNm, UserStatus.ACTIVE)) {
+      throw new ApiException(ErrorStatus.AUTH_USER_NAME_NOT_FOUND);
+    }
+  }
+
+  /**
+   * 비밀번호 찾기 — 활성 상태인 계정 중 해당 아이디가 존재하는지 확인합니다.
+   * 탈퇴/정지 계정은 검색되지 않습니다.
+   */
+  public void checkUserExists(String loginId) {
+    if (!userRepository.existsByLoginIdAndUserStatusCd(loginId, UserStatus.ACTIVE)) {
+      throw new ApiException(ErrorStatus.AUTH_LOGIN_ID_NOT_FOUND);
+    }
+  }
+
+  /**
+   * 비밀번호 찾기 — 활성 상태인 계정 중 아이디+이름 조합이 존재하는지 확인합니다.
+   * 탈퇴/정지 계정은 검색되지 않습니다.
+   */
+  public void checkUserNm(String loginId, String userNm) {
+    if (!userRepository.existsByLoginIdAndUserNmAndUserStatusCd(loginId, userNm, UserStatus.ACTIVE)) {
+      throw new ApiException(ErrorStatus.AUTH_NAME_NOT_FOUND);
+    }
+  }
+
   @Transactional(rollbackFor = {Exception.class, Error.class})
   public void signUp(SignUpRequestDTO request) {
 
@@ -108,6 +138,13 @@ public class AuthService {
     }
 
     TBUser user = storedToken.getUser();
+
+    // 탈퇴된 계정의 리프레시 토큰은 즉시 파기하고 거절
+    if (user.getUserStatusCd() == UserStatus.DELETED) {
+      refreshTokenRepository.delete(storedToken);
+      throw new CustomJwtException("AUTH_015", "탈퇴 처리된 계정입니다. 고객센터에 문의해주세요.");
+    }
+
     SubscriberDTO subscriberDTO = createSubscriberDTO(user);
 
     String newAccessToken = jwtUtil.createAccessToken(subscriberDTO);
@@ -172,7 +209,8 @@ public class AuthService {
     if (!smsAuthService.isVerified(normalizedPhone)) {
       throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
-    TBUser user = userRepository.findByUserNmAndUserPhone(request.getUsername(), normalizedPhone)
+    TBUser user = userRepository.findByUserNmAndUserPhoneAndUserStatusCd(
+            request.getUsername(), normalizedPhone, UserStatus.ACTIVE)
         .orElseThrow(() -> new ApiException(ErrorStatus.FIND_ID_USER_NOT_FOUND));
     log.info("[아이디 찾기 성공] userNm={}", request.getUsername());
     return new FindIdResponseDTO(maskLoginId(user.getLoginId()));
@@ -184,7 +222,8 @@ public class AuthService {
     if (!smsAuthService.isVerified(normalizedPhone)) {
       throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
-    TBUser user = userRepository.findByLoginIdAndUserPhone(request.getLoginId(), normalizedPhone)
+    TBUser user = userRepository.findByLoginIdAndUserPhoneAndUserStatusCd(
+            request.getLoginId(), normalizedPhone, UserStatus.ACTIVE)
         .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND));
     if (!user.getUserNm().equals(request.getUsername())) {
       throw new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND);

@@ -2,7 +2,6 @@
 
 import Header from '@/components/navigation/Header';
 import { AssetDetailLayout } from '../../components/AssetDetailLayout';
-import { formatKoreanCurrency } from '../../utils/formatCurrency';
 import type { AssetDetailResponse } from '../../utils/types';
 
 interface Props {
@@ -21,7 +20,6 @@ function parseVehicleDesc(desc: string | null | undefined): VehicleDesc {
 }
 
 export default function CarDetailClient({ assetData }: Props) {
-    // 1. 데이터 부재 시 예외 처리
     if (!assetData) {
         return (
             <div className="flex min-h-screen flex-col bg-white">
@@ -33,7 +31,6 @@ export default function CarDetailClient({ assetData }: Props) {
         );
     }
 
-    // 2. 데이터 파싱 및 변수 선언 (리턴문 앞에서 한 번에 처리)
     const parsed = parseVehicleDesc(assetData.assetDesc);
     const brand = parsed.brand ?? '';
     const model = parsed.model ?? '';
@@ -46,12 +43,13 @@ export default function CarDetailClient({ assetData }: Props) {
     const subtitle = [[brand, model].filter(Boolean).join(' '), regDt].filter(Boolean).join(' · ');
 
     const carInfo = {
-        priceChange: 1500000,
-        changePercent: 3.2,
+        priceChange: -1500000,
+        changePercent: -3.2,
         fuel: '가솔린',
     };
 
-    // 3. 통합된 단일 리턴 (AssetDetailLayout 사용)
+    const changeColorClass = carInfo.priceChange >= 0 ? 'text-red-500' : 'text-blue-500';
+
     return (
         <AssetDetailLayout
             headerTitle="자동차 상세"
@@ -60,8 +58,7 @@ export default function CarDetailClient({ assetData }: Props) {
             amount={currentAmount}
             priceChange={carInfo.priceChange}
             changePercent={carInfo.changePercent}
-            // 가격 변동에 따른 색상 분기 (상승: blue, 하락: red)
-            changeColorClass={carInfo.priceChange >= 0 ? 'text-hana-blue-500' : 'text-red-500'}
+            changeColorClass={changeColorClass}
             chart={{
                 title: '중고차 시세 변화',
                 subtitle: '최근 6개월 기준 (단위: 만원)',

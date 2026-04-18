@@ -47,13 +47,8 @@ export default function CardIssueScreen({ onIssue }: CardIssueScreenProps) {
         }
       `}</style>
 
-      {/* 상단 레이블 */}
-      <div className="absolute left-6 top-[140px]">
-        <p className="text-xs text-[#6A7282]">요양보호사 선불카드</p>
-      </div>
-
       {/* 타이틀 */}
-      <div className="absolute left-6 top-[162px]">
+      <div className="absolute left-6 top-[62px]">
         <h1 className="text-xl font-semibold leading-[30px] tracking-tight text-black">
           어떤 디자인으로 발급할까요?
         </h1>
@@ -61,7 +56,7 @@ export default function CardIssueScreen({ onIssue }: CardIssueScreenProps) {
 
       {/* 카드 슬라이더 */}
       <div
-        className="absolute w-full top-[260px]"
+        className="absolute w-full top-[160px]"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onTouchMove={handleTouchMove}
@@ -147,11 +142,11 @@ export default function CardIssueScreen({ onIssue }: CardIssueScreenProps) {
       </div>
 
       {/* 카드 설명 */}
-      <div className="absolute w-full text-center top-[482px]">
+      <div className="absolute w-full text-center top-[400px]">
         <p className="text-xl font-semibold tracking-tight text-black">
           하나은행 요양보호사 전용 선불카드
         </p>
-        <p className="text-xs text-[#4A5565] mt-2 tracking-tight">
+        <p className="text-ㄴ text-[#4A5565] mt-2 tracking-tight">
           선불 충전 방식으로 이상 지출을 실시간으로 감지해요
         </p>
       </div>

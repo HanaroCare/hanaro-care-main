@@ -156,7 +156,7 @@ export default function SupportDetailPage({
     <div className="relative w-full min-h-screen bg-white flex flex-col">
       <Header title="나를 위한 제도" />
 
-      <div className="flex flex-col flex-1 px-[25px] pt-[65px]">
+      <div className="flex flex-col flex-1 px-[25px] pt-[20px]">
         <h1 className="font-bold text-[22px] leading-[33px] text-[#1A212D] mt-[87px]">
           {detail.title}
         </h1>

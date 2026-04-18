@@ -3,7 +3,7 @@
 import { serverFetch } from '@/lib/serverFetch';
 
 export type MyInfo = {
-  userId: number;
+  userId: string;
   userName: string;
   loginId: string;
   userRole: string;
@@ -11,7 +11,7 @@ export type MyInfo = {
 };
 
 export type AdminUserSearchItem = {
-  userId: number;
+  userId: string;
   userName: string;
   loginId: string;
   phoneNumber: string | null;
@@ -19,7 +19,7 @@ export type AdminUserSearchItem = {
 };
 
 export type AdminUserDetail = {
-  userId: number;
+  userId: string;
   userName: string;
   loginId: string;
   phoneNumber: string | null;
@@ -29,12 +29,18 @@ export type AdminUserDetail = {
 };
 
 export type AdminRealAssetItem = {
-  realAssetId: number;
+  realAssetId: string;
   assetNm: string;
   addr: string | null;
   evalAmt: number | null;
   assetSize: number | null;
   assetDesc: string | null;
+};
+
+export type AdminChildFamilyItem = {
+  userId: string;
+  userName: string;
+  phoneNumber: string | null;
 };
 
 export async function getMyInfo(): Promise<MyInfo | null> {
@@ -54,23 +60,31 @@ export async function searchAdminUsers(
 }
 
 export async function getAdminUserDetail(
-  userId: number,
+  userId: string,
 ): Promise<AdminUserDetail> {
   return serverFetch<AdminUserDetail>(`/api/admin/asset/users/${userId}`);
 }
 
 export async function getAdminUserAssets(
-  userId: number,
+  userId: string,
 ): Promise<AdminRealAssetItem[]> {
   return serverFetch<AdminRealAssetItem[]>(
     `/api/admin/asset/users/${userId}/real-assets`,
   );
 }
 
+export async function getAdminUserChildren(
+  userId: string,
+): Promise<AdminChildFamilyItem[]> {
+  return serverFetch<AdminChildFamilyItem[]>(
+    `/api/admin/asset/users/${userId}/children`,
+  );
+}
+
 export async function subscribeTrustProduct(
-  userId: number,
-): Promise<{ userProdId: number }> {
-  const userProdId = await serverFetch<number>(
+  userId: string,
+): Promise<{ userProdId: string }> {
+  const userProdId = await serverFetch<string>(
     `/api/admin/asset/trust/subscribe?userId=${userId}`,
     {
       method: 'POST',
@@ -80,10 +94,10 @@ export async function subscribeTrustProduct(
 }
 
 export async function subscribePensionProduct(
-  userId: number,
-  realAssetId: number,
-): Promise<number> {
-  return serverFetch<number>(
+  userId: string,
+  realAssetId: string,
+): Promise<string> {
+  return serverFetch<string>(
     `/api/admin/asset/pension/subscribe?userId=${userId}&realAssetId=${realAssetId}`,
     {
       method: 'POST',
@@ -91,7 +105,17 @@ export async function subscribePensionProduct(
   );
 }
 
-export async function enableAgentView(userId: number): Promise<string> {
+export async function updateClaimAgent(
+  userId: string,
+  agentUserId: string,
+): Promise<string> {
+  return serverFetch<string>(
+    `/api/admin/asset/trust/claim-agent?userId=${userId}&agentUserId=${agentUserId}`,
+    { method: 'POST' },
+  );
+}
+
+export async function enableAgentView(userId: string): Promise<string> {
   return serverFetch<string>(
     `/api/admin/asset/trust/agent-view?userId=${userId}`,
     {

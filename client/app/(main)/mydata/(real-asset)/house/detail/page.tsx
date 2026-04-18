@@ -2,7 +2,7 @@
 
 import { ChevronDown } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { getBannerStatus } from '@/app/asset/actions/notificationStatus';
 import FormInput from '@/components/baseelements/FormInput';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -31,19 +31,21 @@ function HouseDetailContent() {
 
   const currentYear = new Date().getFullYear();
 
-  const [address, setAddress] = useState('');
-  const [houseType, setHouseType] = useState('아파트, 1주택');
-  const [area, setArea] = useState('');
-  const [year, setYear] = useState('');
-  const [hasLoan, setHasLoan] = useState<'none' | 'exists'>('none');
+  // ─── 폼 상태 ─────────────────────────────────────────────────────────
+  const [address,         setAddress]         = useState('');
+  const [houseType,       setHouseType]       = useState('아파트, 1주택');
+  const [area,            setArea]            = useState('');
+  const [acquisitionYear, setAcquisitionYear] = useState('');
+  const [hasLoan,         setHasLoan]         = useState<'none' | 'exists'>('none');
 
+  // ─── UI 상태 ─────────────────────────────────────────────────────────
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAllDone, setIsAllDone] = useState(false);
-  const [apiResult, setApiResult] = useState<RealAssetLinkResult | null>(null);
-  const [apiError, setApiError] = useState('');
-  const [userName, setUserName] = useState('사용자');
+  const [isSubmitted,  setIsSubmitted]  = useState(false);
+  const [isLoading,    setIsLoading]    = useState(false);
+  const [isAllDone,    setIsAllDone]    = useState(false);
+  const [apiResult,    setApiResult]    = useState<RealAssetLinkResult | null>(null);
+  const [apiError,     setApiError]     = useState('');
+  const [userName,     setUserName]     = useState('사용자');
 
   useEffect(() => {
     getBannerStatus().then((s) => {
@@ -51,27 +53,24 @@ function HouseDetailContent() {
     });
   }, []);
 
-  const yearError = useMemo(() => {
-    if (!year) return '';
-    if (!/^\d{4}$/.test(year)) return '년도 4자리를 입력해주세요.';
-    if (Number(year) > currentYear) return '미래 년도는 입력할 수 없어요.';
-    return '';
-  }, [year, currentYear]);
-
+  // ─── 폼 유효성: 모든 필드 필수 ───────────────────────────────────────
   const isFormValid =
-    address.trim() !== '' && area !== '' && year !== '' && !yearError;
+    address.trim() !== '' &&
+    area !== '' &&
+    acquisitionYear !== '';
 
+  // ─── 조회 실행 ────────────────────────────────────────────────────────
   const handleSearch = async () => {
     if (!isFormValid || isSubmitting) return;
     setIsSubmitting(true);
     setApiError('');
     try {
       const result = await linkHousing({
-        addr: address,
-        housing_type: houseType,
-        asset_size: Number(area),
-        acquisition_year: Number(year),
-        has_loan: hasLoan === 'exists',
+        addr:             address,
+        housing_type:     houseType,
+        asset_size:       Number(area),
+        acquisition_year: Number(acquisitionYear),
+        has_loan:         hasLoan === 'exists',
       });
       setApiResult(result);
       setIsSubmitted(true);
@@ -82,26 +81,26 @@ function HouseDetailContent() {
     }
   };
 
+  // ─── 완료 처리 ────────────────────────────────────────────────────────
+  // mydata 초기 플로우: 개별 로딩 없이 바로 다음 단계(차량)로 이동
+  // asset 탭 플로우:    주택 아이콘 로딩 → CompleteStep
   const handleComplete = () => {
+    if (!isAssetFlow) {
+      router.push('/mydata/car');
+      return;
+    }
     setIsLoading(true);
   };
 
-  const handleLoadingComplete = () => {
-    setIsLoading(false);
-    setIsAllDone(true);
-  };
+  const handleLoadingComplete = () => { setIsLoading(false); setIsAllDone(true); };
 
-  const nextPath = isAssetFlow ? '/asset?tab=realestate' : '/mydata/car';
-
+  // ─── 완료 화면 (asset 탭 플로우 전용) ───────────────────────────────
   if (isAllDone) {
     return (
       <CompleteStep
         footer={
           <div className="w-full px-6 pb-12">
-            <PrimaryButton
-              label="확인하기"
-              onClick={() => router.push(nextPath)}
-            />
+            <PrimaryButton label="확인하기" onClick={() => router.push('/asset?tab=realestate')} />
           </div>
         }
       >
@@ -122,14 +121,16 @@ function HouseDetailContent() {
     );
   }
 
+  // ─── 로딩 화면 (asset 탭 플로우 전용 — 주택 아이콘 강조) ─────────────
   if (isLoading) {
     return (
       <div className="flex h-full flex-col">
-        <LoadingStep name={userName} onComplete={handleLoadingComplete} />
+        <LoadingStep assetType="house" onComplete={handleLoadingComplete} />
       </div>
     );
   }
 
+  // ─── 확인 화면 (조회 결과) ────────────────────────────────────────────
   if (isSubmitted && apiResult) {
     return (
       <div className="flex h-full flex-col bg-background">
@@ -146,9 +147,7 @@ function HouseDetailContent() {
 
           <div className="mb-6 rounded-[20px] border border-border-gray bg-white p-6 shadow-sm">
             <div className="mb-6 flex items-center justify-between">
-              <span className="font-bold text-[18px] text-hana-black-900">
-                {address}
-              </span>
+              <span className="font-bold text-[18px] text-hana-black-900">{address}</span>
               <span className="rounded-full bg-hana-green-50 px-3 py-1 font-medium text-[12px] text-hana-green-700">
                 내 집
               </span>
@@ -163,6 +162,10 @@ function HouseDetailContent() {
                 <span className="font-semibold text-hana-black-900">{area}m²</span>
               </div>
               <div className="flex justify-between">
+                <span className="text-hana-black-500">취득연도</span>
+                <span className="font-semibold text-hana-black-900">{acquisitionYear}년</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-hana-black-500">KB 시세</span>
                 <span className="font-bold text-hana-teal-500">
                   {formatAmtSync(apiResult.evalAmt)}
@@ -173,10 +176,6 @@ function HouseDetailContent() {
                 <span className="font-semibold text-hana-black-900">
                   {hasLoan === 'none' ? '없음' : '있음'}
                 </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-hana-black-500">취득연도</span>
-                <span className="font-semibold text-hana-black-900">{year}년</span>
               </div>
             </div>
           </div>
@@ -199,6 +198,7 @@ function HouseDetailContent() {
     );
   }
 
+  // ─── 입력 화면 ───────────────────────────────────────────────────────
   return (
     <div className="flex h-full flex-col bg-background px-6 pt-6 pb-12">
       <div className="mb-10">
@@ -212,6 +212,8 @@ function HouseDetailContent() {
       </div>
 
       <div className="flex flex-col gap-6">
+
+        {/* ── 보유 주택 정보 ────────────────────────────────────────────── */}
         <FormInput
           label="주소"
           id="address"
@@ -233,7 +235,7 @@ function HouseDetailContent() {
             htmlFor="house-type"
             className="mb-2 block font-medium text-[15px] text-hana-black-800"
           >
-            주택 정보
+            주택 종류
           </label>
           <div className="relative">
             <select
@@ -252,6 +254,7 @@ function HouseDetailContent() {
           </div>
         </div>
 
+        {/* ── 면적 + 취득연도 ───────────────────────────────────────────── */}
         <div className="flex gap-4">
           <FormInput
             className="flex-1"
@@ -262,18 +265,33 @@ function HouseDetailContent() {
             value={area}
             onChange={setArea}
           />
-          <FormInput
-            className="flex-1"
-            label="취득연도"
-            id="year"
-            type="number"
-            placeholder={String(currentYear)}
-            value={year}
-            onChange={setYear}
-            error={yearError}
-          />
+          <div className="flex flex-1 flex-col">
+            <label
+              htmlFor="acquisition-year"
+              className="mb-2 block font-medium text-[15px] text-hana-black-800"
+            >
+              취득연도
+            </label>
+            <div className="relative">
+              <select
+                id="acquisition-year"
+                className="h-14 w-full cursor-pointer appearance-none rounded-[10px] border border-border-gray bg-transparent px-4 text-[16px] outline-none transition-all focus:border-hana-teal-400"
+                value={acquisitionYear}
+                onChange={(e) => setAcquisitionYear(e.target.value)}
+              >
+                <option value="">연도 선택</option>
+                {Array.from({ length: currentYear - 1989 }, (_, i) => currentYear - i).map((y) => (
+                  <option key={y} value={String(y)}>{y}년</option>
+                ))}
+              </select>
+              <div className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-4 text-hana-silver-300">
+                <ChevronDown size={20} />
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* ── 기존 대출 여부 ────────────────────────────────────────────── */}
         <div>
           <p className="mb-2 block font-medium text-[15px] text-hana-black-800">
             기존 대출 여부
@@ -295,6 +313,7 @@ function HouseDetailContent() {
             ))}
           </div>
         </div>
+
       </div>
 
       {apiError && (

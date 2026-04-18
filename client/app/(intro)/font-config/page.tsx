@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
 
-export default function FontConfigPage() {
+function FontConfigContent() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const [isMounted, setIsMounted] = useState(false);
 	const [selectedLevel, setSelectedLevel] = useState(2);
 
@@ -16,6 +17,16 @@ export default function FontConfigPage() {
 		5: "20.8px",
 	};
 
+	// URL에서 토큰 추출 및 처리
+	useEffect(() => {
+		const inviteToken = searchParams.get("token");
+		if (inviteToken) {
+			localStorage.setItem("family_invite_token", inviteToken);
+			window.history.replaceState(null, "", window.location.pathname);
+		}
+	}, [searchParams]);
+
+	// 초기 마운트 시 저장된 폰트 레벨 불러오기
 	useEffect(() => {
 		setIsMounted(true);
 		const savedLevel = localStorage.getItem("font-level");
@@ -167,5 +178,13 @@ export default function FontConfigPage() {
 				</footer>
 			</div>
 		</div>
+	);
+}
+
+export default function FontConfigPage() {
+	return (
+		<Suspense fallback={<div className="app-shell bg-white" />}>
+			<FontConfigContent />
+		</Suspense>
 	);
 }

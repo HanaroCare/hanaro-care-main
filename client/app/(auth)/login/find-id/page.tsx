@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import AuthInput from "../components/AuthInput";
 import PhoneVerificationField from "../components/PhoneVerificationField";
 import Header from "@/components/navigation/Header";
 import PrimaryButton from "@/components/baseelements/PrimaryButton";
 import { findId } from "../actions/user";
-import { sendFindIdSms } from "../actions/auth";
+import { sendFindIdSms, checkUserNameExists } from "../actions/auth";
 
+const NAME_LENGTH_ERROR = "이름은 2글자 이상 20자 이하로 입력해주세요.";
 const FIND_ID_ERROR = "입력하신 정보와 일치하는 회원이 없습니다.";
 
 export default function FindIdPage() {
@@ -18,46 +19,72 @@ export default function FindIdPage() {
   const [isVerified, setIsVerified] = useState(false);
   const [isFieldLocked, setIsFieldLocked] = useState(false);
   const [isPending, setIsPending] = useState(false);
-  const [error, setError] = useState("");
+  const [sendError, setSendError] = useState("");
 
-  useEffect(() => {
-    setError("");
-    setIsVerified(false);
-    setIsFieldLocked(false);
-  }, []);
+  const [nameError, setNameError] = useState("");
+  const [isNameVerified, setIsNameVerified] = useState(false);
+  const isCheckingNameRef = useRef(false);
 
-  const clearError = () => {
-    if (error) setError("");
-  };
+  const isPhoneReady = useMemo(
+    () => phone.replace(/[^0-9]/g, "").length === 11,
+    [phone]
+  );
+  const isPhoneEnabled = isNameVerified && !nameError && !isFieldLocked;
+  const canRequestCode = isPhoneEnabled && isPhoneReady;
+  const isFormValid = isNameVerified && !nameError && isVerified;
 
-  const isNameValid = useMemo(() => name.trim().length > 0, [name]);
-  const isPhoneReady = useMemo(() => phone.replace(/[^0-9]/g, "").length === 11, [phone]);
-  const isFormValid = useMemo(() => isNameValid && isVerified, [isNameValid, isVerified]);
+  const validateFindIdName = useCallback(async () => {
+    const trimmed = name.trim();
+    if (!trimmed || isCheckingNameRef.current) return;
+
+    // 길이 검사 (서버 호출 전)
+    if (trimmed.length < 2 || trimmed.length > 20) {
+      setNameError(NAME_LENGTH_ERROR);
+      setIsNameVerified(false);
+      return;
+    }
+
+    isCheckingNameRef.current = true;
+    try {
+      const result = await checkUserNameExists(trimmed);
+      if (!result.ok) {
+        setNameError(result.error ?? "등록되지 않은 정보입니다.");
+        setIsNameVerified(false);
+      } else {
+        setNameError("");
+        setIsNameVerified(true);
+        // 이름 확인 후 휴대폰 필드로 포커스 이동
+        setTimeout(() => document.getElementById("phone")?.focus(), 50);
+      }
+    } finally {
+      isCheckingNameRef.current = false;
+    }
+  }, [name]);
 
   const handleRequestCode = async () => {
-    if (!isNameValid) {
-      setError("이름을 먼저 입력해 주세요.");
-      return { ok: false as const, error: "이름을 먼저 입력해 주세요." };
+    // 이름이 검증되지 않은 경우 차단 (안전망)
+    if (!isNameVerified || nameError) {
+      return { ok: false as const, error: "이름을 먼저 확인해 주세요." };
     }
     const result = await sendFindIdSms(phone);
-    if (!result.ok) setError(result.error);
+    if (!result.ok) setSendError(result.error);
     return result;
   };
 
   const handleFindId = async () => {
     if (!isFormValid || isPending) return;
     setIsPending(true);
-    setError("");
+    setSendError("");
     try {
       const result = await findId(name, phone);
       if (result.ok) {
         router.push(`/login/find-id/result?loginId=${encodeURIComponent(result.loginId)}`);
       } else {
-        setError(FIND_ID_ERROR);
+        setSendError(FIND_ID_ERROR);
         setIsFieldLocked(false);
       }
     } catch {
-      setError(FIND_ID_ERROR);
+      setSendError(FIND_ID_ERROR);
       setIsFieldLocked(false);
     } finally {
       setIsPending(false);
@@ -87,25 +114,40 @@ export default function FindIdPage() {
                 value={name}
                 onChange={(e) => {
                   setName(e.target.value);
-                  clearError();
+                  setNameError("");
+                  setIsNameVerified(false);
+                }}
+                onBlur={() => { validateFindIdName(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    validateFindIdName();
+                  }
                 }}
                 disabled={isFieldLocked}
+                autoComplete="name"
               />
+              {nameError && (
+                <p className="ml-[0.2rem] text-[0.75rem] text-hana-red-500 animate-in fade-in slide-in-from-top-1">
+                  {nameError}
+                </p>
+              )}
             </div>
 
             <PhoneVerificationField
               phone={phone}
               onPhoneChange={(v) => {
                 setPhone(v);
-                clearError();
+                if (sendError) setSendError("");
               }}
-              onRequestCode={isNameValid && isPhoneReady ? handleRequestCode : undefined}
+              onRequestCode={canRequestCode ? handleRequestCode : undefined}
               onVerified={() => {
                 setIsVerified(true);
                 setIsFieldLocked(true);
               }}
-              externalError={error}
-              onClearExternalError={clearError}
+              externalError={sendError}
+              onClearExternalError={() => { if (sendError) setSendError(""); }}
+              disabled={!isPhoneEnabled}
             />
           </div>
 

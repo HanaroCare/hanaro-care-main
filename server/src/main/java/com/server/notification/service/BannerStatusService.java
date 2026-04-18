@@ -18,6 +18,8 @@ import com.server.asset.repository.PensionSimulationRepository;
 import com.server.asset.repository.UserProdRepository;
 import com.server.card.entity.TBCard;
 import com.server.card.repository.CardRepository;
+import com.server.card.repository.CardUsageRepository;
+import com.server.user.repository.FamilyAuthRepository;
 import com.server.inheritance.repository.InheritPlanRepository;
 import com.server.notification.dto.BannerStatusResponse;
 import com.server.notification.dto.BannerStatusResponse.HousingPensionProductInfo;
@@ -38,6 +40,8 @@ public class BannerStatusService {
     private final UserProdRepository userProdRepository;
     private final CardRepository cardRepository;
     private final AccountRepository accountRepository;
+    private final FamilyAuthRepository familyAuthRepository;
+    private final CardUsageRepository cardUsageRepository;
 
     /**
      * @param userId   인증된 사용자 ID
@@ -53,32 +57,44 @@ public class BannerStatusService {
             .housingPensionProduct(resolveHousingPensionProduct(userId))
             .medicalBill(resolveMedicalBill(userId))
             .pension(resolvePension(userId))
+            .isInvitedUser(resolveInvitedUser(userId))
+            .abnormalCardIds(resolveAbnormalCardIds(userId))
+            .firstAbnormalUsageId(resolveFirstAbnormalUsageId(userId))
             .build();
     }
 
-    // ─── 병원비 시뮬레이션 완료 여부 ───
-    private boolean resolveSimulation(Long userId) {
-        return simulationRepository.existsByUser_UserId(userId);
+    private boolean resolveInvitedUser(Long userId) {
+        return familyAuthRepository.existsByGrantee_UserIdAndGrantee_IsHanaCertFalse(userId);
     }
 
-    // ─── 상속 설계 완료 여부 ───
+    private List<Long> resolveAbnormalCardIds(Long userId) {
+        return cardUsageRepository.findAbnormalCardIdsByUserId(userId);
+    }
+
+    private Long resolveFirstAbnormalUsageId(Long userId) {
+        return cardUsageRepository
+            .findTopByCard_Account_User_UserIdAndAbnmlYnOrderByCreatedAtDesc(userId, "Y")
+            .map(usage -> usage.getCardUsageId())
+            .orElse(null);
+    }
+
+    private boolean resolveSimulation(Long userId) {
+        return simulationRepository.existsByUser_UserIdAndIsDefaultFalse(userId);
+    }
+
     private boolean resolveInheritancePlan(Long userId) {
         return inheritPlanRepository.findByUserId(userId).isPresent();
     }
 
-    // ─── 주택연금 시뮬레이션 완료 여부 ───
     private boolean resolveHousingPension(Long userId) {
         return pensionSimulationRepository.existsByRealAsset_User_UserId(userId);
     }
 
-    // ─── 신탁 상품 가입 여부 (InheritanceStepCard step 3 판별용) ───
     private boolean resolveTrustProduct(Long userId) {
         return userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
             userId, ProdType.TRUST, ProdStat.IN_PROGRESS);
     }
 
-    // ─── 주택연금 상품 실제 가입 정보 (simulation-result 배너용) ───
-    // 시뮬레이션만 했을 때는 null, 실제 상품 가입 후에만 반환
     private HousingPensionProductInfo resolveHousingPensionProduct(Long userId) {
         return userProdRepository
             .findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(

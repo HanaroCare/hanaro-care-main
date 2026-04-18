@@ -33,7 +33,7 @@ export default function OrganDonationPage() {
 
   return (
     <>
-      <Header title="새생명 나눔" />
+      <Header title="새생명 나눔" onBack={() => router.push("/my" as Route)} />
       <ConsentIntro
         videoSubtitle="실제 장기 기증 절차"
         videoTitle="영상으로 알아보기"

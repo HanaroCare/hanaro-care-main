@@ -3,7 +3,7 @@ package com.server.asset.service.pension;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.asset.dto.pension.PensionForecastInternalDto;
-import com.server.common.config.GeminiProperties;
+import com.server.common.config.OpenAiProperties;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
@@ -25,10 +25,9 @@ import org.springframework.web.client.RestClient;
 @Primary
 @Component
 @RequiredArgsConstructor
-public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
+public class ChatGptRealEstatePricePredictor implements PensionPricePredictor {
 
-	private static final String MODEL = "gemini-2.0-flash";
-	private static final String MODEL_VERSION = "gemini-2.0-flash";
+	private static final String MODEL_VERSION = "gpt-4o";
 
 	private static final Map<String, BigDecimal> SCENARIO_RATES = Map.of(
 		"UP",   new BigDecimal("0.04"),
@@ -42,9 +41,9 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 		"DOWN", "비관"
 	);
 
-	@Qualifier("geminiRestClient")
-	private final RestClient geminiRestClient;
-	private final GeminiProperties geminiProperties;
+	@Qualifier("openAiRestClient")
+	private final RestClient openAiRestClient;
+	private final OpenAiProperties openAiProperties;
 	private final ObjectMapper objectMapper;
 
 	@Override
@@ -54,47 +53,46 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 		unless = "#result == null || #result.recommendedReason == '현재 평가금액 기준으로 중립 시나리오가 가장 안정적으로 참고할 수 있는 예측입니다.'"
 	)
 	public PensionForecastInternalDto.Result predict(PensionForecastInternalDto.Command command) {
-		GeminiScenarioResult geminiResult = callGemini(command);
-		return buildResult(command, geminiResult);
+		ChatGptScenarioResult chatGptResult = callChatGpt(command);
+		return buildResult(command, chatGptResult);
 	}
 
-	private GeminiScenarioResult callGemini(PensionForecastInternalDto.Command command) {
+	private ChatGptScenarioResult callChatGpt(PensionForecastInternalDto.Command command) {
 		String prompt = buildPrompt(command);
 		Map<String, Object> requestBody = Map.of(
-			"contents", List.of(Map.of("parts", List.of(Map.of("text", prompt)))),
-			"generationConfig", Map.of("response_mime_type", "application/json")
+			"model", openAiProperties.getModel(),
+			"messages", List.of(Map.of("role", "user", "content", prompt)),
+			"response_format", Map.of("type", "json_object")
 		);
 
 		try {
-			String rawJson = geminiRestClient.post()
-				.uri("/{model}:generateContent?key={key}", MODEL, geminiProperties.getApiKey())
+			String rawJson = openAiRestClient.post()
+				.uri("/v1/chat/completions")
 				.contentType(MediaType.APPLICATION_JSON)
 				.body(requestBody)
 				.retrieve()
 				.body(String.class);
 
-			GeminiApiResponse apiResponse = objectMapper.readValue(rawJson, GeminiApiResponse.class);
+			OpenAiApiResponse apiResponse = objectMapper.readValue(rawJson, OpenAiApiResponse.class);
 
-			if (apiResponse.candidates() == null || apiResponse.candidates().isEmpty()) {
-				log.warn(">>> [Gemini API 응답 오류] candidates가 비어있음. addr={}", command.getAddr());
+			if (apiResponse.choices() == null || apiResponse.choices().isEmpty()) {
+				log.warn(">>> [ChatGPT API 응답 오류] choices가 비어있음. addr={}", command.getAddr());
 				return fallbackResult(command);
 			}
 
-			String resultText = apiResponse.candidates().get(0).content().parts().get(0).text();
+			String resultText = apiResponse.choices().get(0).message().content();
 
-			// ── 로깅 추가: AI가 보낸 원본 JSON 텍스트 확인 ──
-			log.info(">>> [Gemini API 원본 응답 텍스트]: {}", resultText);
+			log.info(">>> [ChatGPT API 원본 응답 텍스트]: {}", resultText);
 
-			GeminiScenarioResult result = objectMapper.readValue(resultText, GeminiScenarioResult.class);
+			ChatGptScenarioResult result = objectMapper.readValue(resultText, ChatGptScenarioResult.class);
 
-			// ── 로깅 추가: 특정 필드 값 존재 여부 확인 ──
-			log.info(">>> [Gemini 분석 결과 확인] locationSummary: {}, recommendedReason: {}",
+			log.info(">>> [ChatGPT 분석 결과 확인] locationSummary: {}, recommendedReason: {}",
 				result.locationSummary(), result.recommendedReason());
 
 			return result;
 
 		} catch (Exception e) {
-			log.error(">>> [Gemini API 호출 예외 발생] addr={}, error={}", command.getAddr(), e.getMessage());
+			log.error(">>> [ChatGPT API 호출 예외 발생] addr={}, error={}", command.getAddr(), e.getMessage());
 			return fallbackResult(command);
 		}
 	}
@@ -167,13 +165,13 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 
 	private PensionForecastInternalDto.Result buildResult(
 		PensionForecastInternalDto.Command command,
-		GeminiScenarioResult geminiResult
+		ChatGptScenarioResult chatGptResult
 	) {
 		int years = command.getPeriodYears();
 		int currentYear = LocalDate.now().getYear();
 		BigDecimal currentPrice = command.getCurrentPrice();
 
-		List<PensionForecastInternalDto.Scenario> scenarios = geminiResult.scenarios().stream()
+		List<PensionForecastInternalDto.Scenario> scenarios = chatGptResult.scenarios().stream()
 			.map(s -> {
 				BigDecimal rate = SCENARIO_RATES.getOrDefault(s.type(), BigDecimal.ZERO);
 				BigDecimal predicted = compoundGrowth(currentPrice, rate, years);
@@ -213,19 +211,18 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 			.reduce(BigDecimal.ZERO, BigDecimal::add)
 			.setScale(0, RoundingMode.HALF_UP);
 
-		// ── 최종 결과 조립 전 값 확인 로깅 ──
 		log.debug(">>> [최종 결과 조립] Market: {}, Location: {}, Reason: {}",
-			geminiResult.marketSummary(), geminiResult.locationSummary(), geminiResult.recommendedReason());
+			chatGptResult.marketSummary(), chatGptResult.locationSummary(), chatGptResult.recommendedReason());
 
 		return PensionForecastInternalDto.Result.builder()
 			.periodYears(years)
 			.expectedPrice(expectedPrice)
 			.scenarios(scenarios)
 			.chartPoints(chartPoints)
-			.recommendedScenario(geminiResult.recommendedScenario())
-			.marketSummary(geminiResult.marketSummary())
-			.locationSummary(geminiResult.locationSummary())
-			.recommendedReason(geminiResult.recommendedReason())
+			.recommendedScenario(chatGptResult.recommendedScenario())
+			.marketSummary(chatGptResult.marketSummary())
+			.locationSummary(chatGptResult.locationSummary())
+			.recommendedReason(chatGptResult.recommendedReason())
 			.modelVersion(MODEL_VERSION)
 			.predictedAt(LocalDateTime.now().toString())
 			.build();
@@ -245,13 +242,13 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 			.setScale(2, RoundingMode.HALF_UP);
 	}
 
-	private GeminiScenarioResult fallbackResult(PensionForecastInternalDto.Command command) {
+	private ChatGptScenarioResult fallbackResult(PensionForecastInternalDto.Command command) {
 		log.info(">>> [폴백 사용] API 응답 실패로 인해 기본 데이터로 결과를 생성합니다.");
-		return new GeminiScenarioResult(
+		return new ChatGptScenarioResult(
 			List.of(
-				new GeminiScenarioResult.ScenarioItem("UP", new BigDecimal("0.30")),
-				new GeminiScenarioResult.ScenarioItem("BASE", new BigDecimal("0.50")),
-				new GeminiScenarioResult.ScenarioItem("DOWN", new BigDecimal("0.20"))
+				new ChatGptScenarioResult.ScenarioItem("UP", new BigDecimal("0.30")),
+				new ChatGptScenarioResult.ScenarioItem("BASE", new BigDecimal("0.50")),
+				new ChatGptScenarioResult.ScenarioItem("DOWN", new BigDecimal("0.20"))
 			),
 			"BASE",
 			"금리와 거래 흐름을 고려하면 급격한 변동보다 완만한 흐름 가능성이 높다.",
@@ -261,17 +258,15 @@ public class GeminiRealEstatePricePredictor implements PensionPricePredictor {
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	private record GeminiApiResponse(List<Candidate> candidates) {
+	private record OpenAiApiResponse(List<Choice> choices) {
 		@JsonIgnoreProperties(ignoreUnknown = true)
-		private record Candidate(Content content) {}
+		private record Choice(Message message) {}
 		@JsonIgnoreProperties(ignoreUnknown = true)
-		private record Content(List<Part> parts) {}
-		@JsonIgnoreProperties(ignoreUnknown = true)
-		private record Part(String text) {}
+		private record Message(String content) {}
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	private record GeminiScenarioResult(
+	private record ChatGptScenarioResult(
 		List<ScenarioItem> scenarios,
 		String recommendedScenario,
 		String marketSummary,

@@ -1,7 +1,7 @@
 spring:
   config:
     import:
-      - classpath:security.yaml
+      - optional:file:security.yaml
   application:
     name: server
 
@@ -14,7 +14,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -34,13 +34,13 @@ spring:
 
   sql:
     init:
-      mode: always
+      mode: never
 
   batch:
     job:
-      enabled: false        # 서버 시작 시 배치 자동 실행 방지 (스케줄러가 제어)
+      enabled: false
     jdbc:
-      initialize-schema: always  # Spring Batch 메타 테이블 자동 생성 (MySQL)
+      initialize-schema: always
 
   web:
     resources:
