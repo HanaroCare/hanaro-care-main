@@ -92,63 +92,81 @@ public class MyDataService {
 
   private List<TBAccount> buildRandomAccounts(TBUser user) {
     int age = resolveAge(user);
-    final long minAmt;
-    final long maxAmt;
 
-    // 연령대별 자산 규모 설정
+    final long totalMinAmt;
+    final long totalMaxAmt;
+
     if (age < 40) {
-      minAmt = 100_000_000L;
-      maxAmt = 500_000_000L;
+      // 20대, 30대: 1억 ~ 최대 10억
+      totalMinAmt = 100_000_000L;
+      totalMaxAmt = 1_000_000_000L;
     } else if (age < 50) {
-      minAmt = 600_000_000L;
-      maxAmt = 1_500_000_000L;
+      // 40대: 5억 ~ 최대 30억
+      totalMinAmt = 500_000_000L;
+      totalMaxAmt = 3_000_000_000L;
     } else {
-      minAmt = 800_000_000L;
-      maxAmt = 2_000_000_000L;
+      // 50대 이상: 10억 ~ 최대 50억
+      totalMinAmt = 1_000_000_000L;
+      totalMaxAmt = 5_000_000_000L;
     }
 
-    List<ProductTemplate> selected = new ArrayList<>();
+    long targetTotalAsset =
+        totalMinAmt + (long) (RANDOM.nextDouble() * (totalMaxAmt - totalMinAmt));
 
-    addProductIfNotNull(selected, pickOne(POOL_CASH));
-    addProductIfNotNull(selected, pickOne(POOL_CARD));
-    addProductIfNotNull(selected, pickOne(POOL_STOCK));
-    addProductIfNotNull(selected, pickOne(POOL_INSURANCE));
-    addProductIfNotNull(selected, pickOne(POOL_PENSION));
+    List<ProductTemplate> selectedTemplates = new ArrayList<>();
+    addProductIfNotNull(selectedTemplates, pickOne(POOL_CASH));
+    addProductIfNotNull(selectedTemplates, pickOne(POOL_CARD));
+    addProductIfNotNull(selectedTemplates, pickOne(POOL_STOCK));
+    addProductIfNotNull(selectedTemplates, pickOne(POOL_INSURANCE));
+    addProductIfNotNull(selectedTemplates, pickOne(POOL_PENSION));
 
     if (age < 30) {
-      // 청년층은 현금성 자산이나 주식 하나 더 추가할 확률
       if (RANDOM.nextBoolean()) {
-        selected.add(pickOne(RANDOM.nextBoolean() ? POOL_CASH : POOL_STOCK));
+        selectedTemplates.add(pickOne(RANDOM.nextBoolean() ? POOL_CASH : POOL_STOCK));
       }
     } else if (age < 50) {
-      // 중장년층은 연금이나 보험 하나 더 추가할 확률
       if (RANDOM.nextBoolean()) {
-        selected.add(pickOne(RANDOM.nextBoolean() ? POOL_PENSION : POOL_INSURANCE));
+        selectedTemplates.add(pickOne(RANDOM.nextBoolean() ? POOL_PENSION : POOL_INSURANCE));
       }
     } else {
-      // 고령층은 현금이나 연금 위주로 추가
       if (RANDOM.nextBoolean()) {
-        selected.add(pickOne(POOL_CASH));
+        selectedTemplates.add(pickOne(POOL_CASH));
       }
       if (RANDOM.nextBoolean()) {
-        selected.add(pickOne(POOL_PENSION));
+        selectedTemplates.add(pickOne(POOL_PENSION));
       }
     }
 
-    return selected.stream()
-        .map(t -> build(user, t, minAmt, maxAmt))
-        .toList();
+    int accountCount = selectedTemplates.size();
+    double[] weights = new double[accountCount];
+    double sumWeight = 0;
+
+    for (int i = 0; i < accountCount; i++) {
+      weights[i] = 0.5 + RANDOM.nextDouble();
+      sumWeight += weights[i];
+    }
+
+    List<TBAccount> accounts = new ArrayList<>();
+    for (int i = 0; i < accountCount; i++) {
+      long assignedBalance = (long) (targetTotalAsset * (weights[i] / sumWeight));
+      accounts.add(build(user, selectedTemplates.get(i), assignedBalance));
+    }
+
+    return accounts;
   }
 
-  private TBAccount build(TBUser user, ProductTemplate t, long min, long max) {
-    long balance = min + (long) (RANDOM.nextDouble() * (max - min));
+  private TBAccount build(TBUser user, ProductTemplate t, long balance) {
     String accNum = String.format("%03d-%03d-%06d", RANDOM.nextInt(900) + 100,
         RANDOM.nextInt(900) + 100, RANDOM.nextInt(1000000));
 
     TBAccount account = TBAccount.builder()
-        .user(user).instNm(t.instNm()).accountNm(t.accountNm())
-        .accountNum(accNum).balanceAmt(BigDecimal.valueOf(balance))
-        .assetCateCd(t.category()).isLinked(true)
+        .user(user)
+        .instNm(t.instNm())
+        .accountNm(t.accountNm())
+        .accountNum(accNum)
+        .balanceAmt(BigDecimal.valueOf(balance))
+        .assetCateCd(t.category())
+        .isLinked(true)
         .build();
 
     applyDetailFields(account, t.category(), account.getBalanceAmt());
@@ -170,6 +188,7 @@ public class MyDataService {
       case CARD -> {
         account.setLimitAmt(BigDecimal.valueOf(5000000 + RANDOM.nextInt(15000000)));
         account.setPayDay(CARD_PAY_DAYS[RANDOM.nextInt(CARD_PAY_DAYS.length)]);
+        // 카드 결제액은 해당 '카드 항목'에 할당된 가상의 잔액 중 일부(10~30%)로 설정
         account.setPayAmt(balance.multiply(BigDecimal.valueOf(0.1 + RANDOM.nextDouble() * 0.2))
             .setScale(0, RoundingMode.HALF_UP));
         account.setContrDt(today.minusMonths(RANDOM.nextInt(12)));
@@ -192,19 +211,16 @@ public class MyDataService {
   private int resolveAge(TBUser user) {
     Integer age = user.getUserAge();
     if (age == null || age <= 0) {
-      log.warn("[MyData] userId={} 나이 정보 없음(간편로그인 추정) → 기본값 30세 적용",
-          user.getUserId());
+      log.warn("[MyData] userId={} 나이 정보 없음 → 기본값 58세 적용", user.getUserId());
       return 58;
     }
     return age;
   }
 
   private ProductTemplate pickOne(List<ProductTemplate> pool) {
-
     if (pool == null || pool.isEmpty()) {
       return null;
     }
-
     return pool.get(RANDOM.nextInt(pool.size()));
   }
 
