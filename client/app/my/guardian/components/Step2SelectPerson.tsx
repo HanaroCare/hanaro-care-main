@@ -11,6 +11,7 @@ type Props = {
   onNext: () => void;
 };
 
+const relationships = ['배우자', '자녀', '부모', '가족', '기타'];
 
 function Avatar({ name }: { name: string }) {
   return (
@@ -126,11 +127,32 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
             </button>
           ))}
         </div>
+
+        {/* 후견인 관계 선택 (추가 수정이 필요할 때 사용) */}
+        <p className="mb-3 font-medium text-[13px] text-gray-500">
+          후견인 관계
+        </p>
+        <div className="mb-auto flex flex-wrap gap-2">
+          {relationships.map((rel) => (
+            <button
+              type="button"
+              key={rel}
+              onClick={() => onChange({ relationship: rel })}
+              className={`rounded-full px-4 py-2 font-medium text-[13px] transition-all ${
+                data.relationship === rel
+                  ? 'bg-hana-ez-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {rel}
+            </button>
+          ))}
+        </div>
       </div>
 
       <PrimaryButton
         onClick={onNext}
-        disabled={!data.selectedPerson}
+        disabled={!data.selectedPerson || !data.relationship}
         className="mt-15 w-full"
         label={'다음'}
       />
