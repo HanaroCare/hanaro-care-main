@@ -59,7 +59,23 @@ export async function inviteFamily(request: FamilyInviteRequest) {
   return data.result;
 }
 
-// 4. 보험 내역 열람 권한 관리
+// 4. 가족 초대 수락 (초대 토큰 → TB_FAMILY_AUTH GRANTOR/GRANTEE 등록)
+export async function acceptFamilyInvite(inviteToken: string) {
+  const response = await fetch(`${BASE_URL}/api/myhana/family/accept`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(await getAuthHeader()),
+    },
+    body: JSON.stringify({ inviteToken }),
+  });
+
+  if (!response.ok) throw new Error('가족 초대 수락에 실패했습니다.');
+  const data: ApiResponse<null> = await response.json();
+  return data.result;
+}
+
+// 5. 보험 내역 열람 권한 관리
 export async function updateInsurancePermission(
     request: GrantInsuranceViewRequest,
 ) {
