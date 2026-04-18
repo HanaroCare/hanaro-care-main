@@ -11,7 +11,10 @@ import type {
   TrustProductDetail,
   TrustSimulationSummary,
 } from '@/app/asset/actions/trust';
-import { formatKoreanCurrency } from '../../utils/formatCurrency';
+import {
+  formatKoreanCurrency,
+  formatKoreanCurrencyShort,
+} from '../../utils/formatCurrency';
 
 type ProductStatus = 'recommend' | 'designed' | 'active';
 
@@ -101,7 +104,9 @@ export function ProductStatusCard({
     if (!displayData) return null;
 
     const trustData = isTrust ? (displayData as TrustProductDetail) : null;
-    const pensionData = !isTrust ? (displayData as PensionStatusResponse) : null;
+    const pensionData = !isTrust
+      ? (displayData as PensionStatusResponse)
+      : null;
 
     return (
       <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
@@ -115,7 +120,7 @@ export function ProductStatusCard({
                 {trustData ? trustData.productName || title : title}
               </span>
               {ownerLabel && (
-                  <span className="text-[12px] font-medium text-[#9CA3AF]">
+                <span className="text-[12px] font-medium text-[#9CA3AF]">
                   {ownerLabel}
                 </span>
               )}
@@ -133,11 +138,13 @@ export function ProductStatusCard({
         <div className="flex items-baseline gap-2">
           <span className="text-[28px] font-extrabold text-black">
             {formatKoreanCurrency(
-                trustData ? trustData.currentAmount : (pensionData?.currentMonthlyPayout ?? 0)
+              trustData
+                ? trustData.currentAmount
+                : (pensionData?.currentMonthlyPayout ?? 0),
             )}
           </span>
           {trustData && (
-              <span className="text-[20px] font-bold text-red-500">
+            <span className="text-[20px] font-bold text-red-500">
               {formatRate(trustData.profitRate)}
             </span>
           )}
@@ -145,15 +152,37 @@ export function ProductStatusCard({
 
         <div className="mt-2 flex flex-col gap-2 text-[15px] text-hana-black-800">
           {trustData ? (
-              <>
-                <p>원금 · <span className="font-semibold text-black">{formatKoreanCurrency(trustData.principalAmount)}</span></p>
-                <p>누적 수익 · <span className="font-semibold text-red-500">{formatKoreanCurrency(trustData.profit)}</span></p>
-              </>
+            <>
+              <p>
+                원금 ·{' '}
+                <span className="font-semibold text-black">
+                  {formatKoreanCurrencyShort(trustData.principalAmount)}
+                </span>
+              </p>
+              <p>
+                누적 수익 ·{' '}
+                <span className="font-semibold text-red-500">
+                  {formatKoreanCurrencyShort(trustData.profit)}
+                </span>
+              </p>
+            </>
           ) : (
-              <>
-                <p>수령 방식 · <span className="font-semibold text-black">{pensionData?.pensionPayoutLabel}</span></p>
-                <p>누적 수령 · <span className="font-semibold text-red-500">{formatKoreanCurrency(pensionData?.currentCumulativeAmount ?? 0)}</span></p>
-              </>
+            <>
+              <p>
+                수령 방식 ·{' '}
+                <span className="font-semibold text-black">
+                  {pensionData?.pensionPayoutLabel}
+                </span>
+              </p>
+              <p>
+                누적 수령 ·{' '}
+                <span className="font-semibold text-red-500">
+                  {formatKoreanCurrency(
+                    pensionData?.currentCumulativeAmount ?? 0,
+                  )}
+                </span>
+              </p>
+            </>
           )}
         </div>
         <button
@@ -171,50 +200,87 @@ export function ProductStatusCard({
     if (!simData) return null;
 
     const trustSim = isTrust ? (simData as TrustSimulationSummary) : null;
-    const pensionSim = !isTrust ? (simData as PensionSimulationSummaryResponse) : null;
+    const pensionSim = !isTrust
+      ? (simData as PensionSimulationSummaryResponse)
+      : null;
 
     return (
-        <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
-          <div className="mb-5 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F9F9]">
-                <Icon size={20} className="text-hana-ez-600" />
-              </div>
-              <span className="text-[17px] font-bold text-[#1F2937]">{title}</span>
+      <div className="rounded-[28px] border border-[#F2F3F5] bg-white p-6 shadow-sm">
+        <div className="mb-5 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#F0F9F9]">
+              <Icon size={20} className="text-hana-ez-600" />
             </div>
-            <span className="rounded-full bg-[#FFF9E9] px-5 py-1.5 text-[14px] font-bold text-[#FFA800]">설계완료</span>
+            <span className="text-[17px] font-bold text-[#1F2937]">
+              {title}
+            </span>
           </div>
+          <span className="rounded-full bg-[#FFF9E9] px-5 py-1.5 text-[14px] font-bold text-[#FFA800]">
+            설계완료
+          </span>
+        </div>
 
-          <p className="mb-1 text-[15px] font-semibold text-hana-ez-600">
-            {isTrust ? '5년 후 예상 자산' : '30년 후 누적 수령액'}
-          </p>
+        <p className="mb-1 text-[15px] font-semibold text-hana-ez-600">
+          {isTrust ? '5년 후 예상 자산' : '30년 후 누적 수령액'}
+        </p>
 
-          <div className="flex items-baseline gap-2">
+        <div className="flex items-baseline gap-2">
           <span className="text-[28px] font-extrabold text-black">
             {formatKoreanCurrency(
-                trustSim ? trustSim.expectedNetAmount : (pensionSim?.recommendedCumulativeAmount ?? 0)
+              trustSim
+                ? trustSim.expectedNetAmount
+                : (pensionSim?.recommendedCumulativeAmount ?? 0),
             )}
           </span>
-            {trustSim && (
-                <span className="text-[20px] font-bold text-red-500">{formatRate(trustSim.profitRate)}</span>
-            )}
-          </div>
-
-          <div className="mt-2 flex gap-4 text-[15px] text-hana-black-800">
-            {trustSim ? (
-                <>
-                  <p>원금 · <span className="font-semibold text-black">{formatKoreanCurrency(trustSim.principalAmount)}</span></p>
-                  <p>예상 수익 · <span className="font-semibold text-red-500">{formatKoreanCurrency(trustSim.expectedProfit)}</span></p>
-                </>
-            ) : (
-                <>
-                  <p>추천 방식 · <span className="font-semibold text-black">{pensionSim?.recommendedLabel}</span></p>
-                  <p>월 수령 · <span className="font-semibold text-red-500">{formatKoreanCurrency(pensionSim?.recommendedMonthlyAmount ?? 0)}</span></p>
-                </>
-            )}
-          </div>
-          <button onClick={handleNavigation} className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700">설계 결과 보기</button>
+          {trustSim && (
+            <span className="text-[20px] font-bold text-red-500">
+              {formatRate(trustSim.profitRate)}
+            </span>
+          )}
         </div>
+
+        <div className="mt-2 flex gap-4 text-[14px] text-hana-black-800">
+          {trustSim ? (
+            <>
+              <p>
+                원금 ·{' '}
+                <span className="font-semibold text-black">
+                  {formatKoreanCurrencyShort(trustSim.principalAmount)}
+                </span>
+              </p>
+              <p>
+                예상 수익 ·{' '}
+                <span className="font-semibold text-red-500">
+                  {formatKoreanCurrencyShort(trustSim.expectedProfit)}
+                </span>
+              </p>
+            </>
+          ) : (
+            <>
+              <p>
+                추천 방식 ·{' '}
+                <span className="font-semibold text-black">
+                  {pensionSim?.recommendedLabel}
+                </span>
+              </p>
+              <p>
+                월 수령 ·{' '}
+                <span className="font-semibold text-red-500">
+                  {formatKoreanCurrency(
+                    pensionSim?.recommendedMonthlyAmount ?? 0,
+                  )}
+                </span>
+              </p>
+            </>
+          )}
+        </div>
+        <button
+          onClick={handleNavigation}
+          className="mt-5 w-full rounded-2xl bg-hana-ez-600 py-3 text-[14px] font-semibold text-white active:bg-hana-ez-700"
+        >
+          설계 결과 보기
+        </button>
+      </div>
     );
   }
 

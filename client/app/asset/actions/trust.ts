@@ -48,7 +48,7 @@ type TrustSimulationRequest = {
   investType: InvestType;
   payoutType: PayoutType;
   payoutSettings: TrustPayoutSettingsDto | null;
-  claimAgentId: number | null;
+  claimAgentId: string | null;
 };
 
 export type TrustPayoutSettingsUpdateRequest = {
@@ -83,7 +83,7 @@ export type TrustSimulationResultResponse = {
 };
 
 export type TrustGrantorItem = {
-  grantorId: number;
+  grantorId: string;
   grantorName: string;
   relation: string;
   relationLabel: string;
@@ -103,7 +103,7 @@ export type TrustSimulationSummary = {
 };
 
 export type TrustProductDetail = {
-  userProdId: number;
+  userProdId: string;
   productName: string;
   prodStatus: 'IN_PROGRESS' | 'CANCELLED' | 'EXPIRED';
   currentAmount: number;
@@ -118,7 +118,7 @@ export type TrustProductDetail = {
     livingAmount: number;
   };
   claimAgent: {
-    userId: number;
+    userId: string;
     userName: string;
     relation: string | null;
   } | null;
@@ -126,7 +126,7 @@ export type TrustProductDetail = {
 };
 
 export type FamilyMember = {
-  userId: number;
+  userId: string;
   name: string;
   phone: string;
   relation: string;
@@ -202,10 +202,8 @@ export async function saveTrustSimulation(form: TrustFormState): Promise<void> {
     investType: INVEST_TYPE_MAP[form.operationType] ?? 'LUMP_SUM',
     payoutType: PAYOUT_TYPE_MAP[form.payoutType ?? 'free'] ?? 'FLEXIBLE',
     payoutSettings: payoutItems.length > 0 ? { items: payoutItems } : null,
-    claimAgentId: form.selectedAgent ? Number(form.selectedAgent) : null,
+    claimAgentId: form.selectedAgent ?? null,
   };
-
-  console.log('[saveTrustSimulation] body', body);
 
   await serverFetch<void>('/api/asset/trust', {
     method: 'POST',
@@ -221,7 +219,7 @@ export async function getTrustFamilyGrantors(): Promise<TrustGrantorItem[]> {
 }
 
 export async function getFamilyTrustSummary(
-  grantorId: number,
+  grantorId: string,
 ): Promise<TrustSimulationSummary | null> {
   try {
     return await serverFetch<TrustSimulationSummary>(
@@ -242,7 +240,7 @@ export async function getFamilyTrustSummary(
 }
 
 export async function getFamilyTrustDetail(
-  grantorId: number,
+  grantorId: string,
 ): Promise<TrustProductDetail | null> {
   try {
     return await serverFetch<TrustProductDetail>(

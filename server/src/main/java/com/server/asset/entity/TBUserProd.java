@@ -122,4 +122,7 @@ public class TBUserProd extends BaseEntity {
 
   @Column(name = "PAYOUT_SETTINGS", columnDefinition = "JSON")
   private String payoutSettings;
+
+  @Column(name = "LAST_PAYOUT_DATE", nullable = true)
+  private LocalDate lastPayoutDate;
 }

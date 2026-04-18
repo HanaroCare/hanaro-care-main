@@ -320,16 +320,24 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 11, fill: '#6B7280' }}
+                      tickFormatter={(value) => `${value}년`}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
                       width={58}
-                      tickFormatter={(value) => `${value}만원`}
+                      tickFormatter={(value) => {
+                        const eok = value / 10000;
+                        return `${Number.isInteger(eok) ? eok : eok.toFixed(1)}억원`;
+                      }}
                       tick={{ fontSize: 11, fill: '#6B7280' }}
                     />
                     <Tooltip
-                      formatter={(value, name) => [`${value}만원`, name]}
+                      formatter={(value, name) => {
+                        const eok = Number(value) / 10000;
+                        return [`${Number.isInteger(eok) ? eok : eok.toFixed(1)}억원`, name];
+                      }}
+                      labelFormatter={(label) => `${label}년`}
                       contentStyle={{
                         borderRadius: 12,
                         border: '1px solid #E5E7EB',

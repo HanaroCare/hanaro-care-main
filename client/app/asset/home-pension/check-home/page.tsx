@@ -124,9 +124,13 @@ export default function CheckHomePage() {
                         <p className="break-keep text-[18px] leading-7 font-bold tracking-tight text-[#111827]">
                           {house.address}
                         </p>
-                        <p className="mt-1 text-[14px] leading-5 font-medium tracking-tight text-[#6B7280]">
-                          {house.detail}
-                        </p>
+                        <div className="mt-1 flex flex-col gap-0.5">
+                          {house.detail.map((line, i) => (
+                            <p key={i} className="text-[14px] leading-5 font-medium tracking-tight text-[#6B7280]">
+                              {line}
+                            </p>
+                          ))}
+                        </div>
                       </div>
 
                       <div className="shrink-0 text-right">

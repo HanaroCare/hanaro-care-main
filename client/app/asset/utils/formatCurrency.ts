@@ -1,3 +1,24 @@
+export function formatKoreanCurrencyShort(amount: number): string {
+  if (!amount) return '0원';
+
+  const isNegative = amount < 0;
+  const abs = Math.abs(amount);
+
+  const eok = Math.floor(abs / 100_000_000);
+  const cheonMan = Math.floor((abs % 100_000_000) / 10_000_000);
+
+  let result = '';
+  if (eok > 0) result += `${eok}억`;
+  if (cheonMan > 0) result += ` ${cheonMan}천만`;
+
+  if (!result) {
+    const man = Math.floor(abs / 10_000);
+    result = man > 0 ? `${man}만` : '0';
+  }
+
+  return `${isNegative ? '-' : ''}${result.trim()}원`;
+}
+
 export function formatKoreanCurrency(amount: number): string {
   if (!amount) return '0원';
 
