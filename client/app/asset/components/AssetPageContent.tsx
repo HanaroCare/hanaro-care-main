@@ -126,7 +126,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                 type: 'gold',
                 amount: formatKoreanCurrency(getRealSum('GOLD')),
                 buttonLabel: '금 연동하기',
-                href: '/mydata/gold' as Route,
+                href: '/mydata/gold?from=asset' as Route,
             },
         };
     }, [dashboardData, financialAssets, realAssets]);

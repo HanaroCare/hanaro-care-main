@@ -3,6 +3,7 @@ package com.server.common.security;
 import com.server.auth.service.LoginLogService;
 import com.server.common.exception.AccountDormantException;
 import com.server.common.exception.AccountSuspendedException;
+import com.server.common.exception.AccountWithdrawnException;
 import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
 import com.server.user.entity.TBUserSimpleAuth;
@@ -81,6 +82,12 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
   }
 
   private void checkAccountStatus(TBUser user, String loginId, LoginMeans means) {
+    if (user.getUserStatusCd() == UserStatus.DELETED) {
+      log.warn("[로그인 실패] 탈퇴 계정 - loginId={}", loginId);
+      loginLogService.save(user, means, false);
+      throw new AccountWithdrawnException();
+    }
+
     if (user.getUserStatusCd() == UserStatus.SUSPENDED) {
       log.warn("[로그인 실패] 정지 계정 - loginId={}", loginId);
       loginLogService.save(user, means, false);

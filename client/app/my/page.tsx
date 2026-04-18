@@ -92,11 +92,12 @@ export default function MyHanaPage() {
     const res = await withdraw();
     if (res.success) {
       alert('회원 탈퇴가 완료되었습니다.');
-      router.push('/' as Route);
+      // 세션을 완전히 초기화하기 위해 소프트 라우팅이 아닌 강제 리다이렉트
+      window.location.href = '/login';
     } else {
       alert(res.message);
+      setIsWithdrawPopupOpen(false);
     }
-    setIsWithdrawPopupOpen(false);
   };
 
   return (
