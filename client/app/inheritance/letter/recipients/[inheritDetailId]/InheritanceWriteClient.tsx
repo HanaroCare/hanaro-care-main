@@ -13,7 +13,7 @@ export default function InheritanceWriteClient({
 }) {
   const letterHook = useLetter(inheritDetailId);
 
-  const recipient = recipients.find(
+  const recipient = recipients?.find(
     (r) => String(r.inheritDetailId) === inheritDetailId,
   );
 

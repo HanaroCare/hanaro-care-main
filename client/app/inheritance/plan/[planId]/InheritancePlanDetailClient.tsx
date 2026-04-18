@@ -23,7 +23,7 @@ import Header from '@/components/navigation/Header';
 import styles from './page.module.css';
 
 interface Heir {
-  id: string;
+  id: number;
   userId?: string;
   name: string;
   relationship: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
@@ -49,14 +49,14 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
   const [tempPercentage, setTempPercentage] = useState<number>(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'add' | 'edit'>('add');
-  const [targetHeirId, setTargetHeirId] = useState<string | null>(null);
+  const [targetHeirId, setTargetHeirId] = useState<number | null>(null);
   const [newName, setNewName] = useState('');
   const [newRelationship, setNewRelationship] = useState<'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY'>('CHILD');
 
   const [totalAsset] = useState(initialData.assetSummary.totalAsset / 100000000);
   const [heirs, setHeirs] = useState<Heir[]>(
     initialData.familyMembers.map((member, index) => ({
-      id: String(index + 1),
+      id: index + 1,
       userId: member.userId,
       name: member.name,
       relationship: member.relation,
@@ -125,7 +125,7 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
     setIsAddModalOpen(true);
   };
 
-  const handleDeleteHeir = (e: React.MouseEvent, heirId: string) => {
+  const handleDeleteHeir = (e: React.MouseEvent, heirId: number) => {
     e.stopPropagation();
     setHeirs((prev) => prev.filter((h) => h.id !== heirId));
   };
@@ -133,15 +133,16 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
   const handleSaveModal = () => {
     if (!newName.trim()) return;
     if (modalMode === 'add') {
+      const newId = heirs.length > 0 ? Math.max(...heirs.map((h) => h.id)) + 1 : 1;
       const newHeir: Heir = {
-        id: String(Date.now()),
+        id: newId,
         name: newName,
         relationship: newRelationship,
         percentage: 0,
         icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
       };
       setHeirs((prev) => [...prev, newHeir]);
-    } else if (modalMode === 'edit' && targetHeirId) {
+    } else if (modalMode === 'edit' && targetHeirId !== null) {
       setHeirs((prev) =>
         prev.map((h) => (h.id === targetHeirId ? { ...h, name: newName.trim(), relationship: newRelationship } : h))
       );
@@ -169,17 +170,15 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
           heirUserId: h.userId || null,
           heirName: h.name,
           relation: h.relationship,
-          distRatio: h.percentage,
+          distRatio: h.percentage, // 백분율 그대로 전송 (합계 100)
         }));
 
-        console.log('[Check Payload]', distributions.map(d => d.distRatio));
-
+        console.log('[handleComplete] Submitting distributions:', distributions);
         await submitInheritancePlan({ distributions });
         router.push('/inheritance/result');
       } catch (error) {
-        console.error('Submission error:', error);
-
-        alert('서버 전송에 실패했습니다. (비율 합계 오류)');
+        console.error('Failed to submit inheritance plan:', error);
+        alert('상속 설계 저장에 실패했습니다. 다시 시도해주세요.');
       } finally {
         setSubmitting(false);
       }
@@ -192,7 +191,7 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
         <Header title="상속 설계" showBackButton={true} />
         <div className="app-main">
           <div className={styles.container}>
-            <h1 className={styles.pageTitle}>상속 비율을{'\n'}자유롭게 조정해보세요</h1>
+            <h1 className={styles.pageTitle}>상속 비율을{"\n"}자유롭게 조정해보세요</h1>
             <div className={styles.chartImageContainer}>
               <Image src="/images/inheritance/intro-slide-3.png" alt="Chart" width={220} height={220} className="mx-auto" />
             </div>
@@ -209,7 +208,7 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
             <div className={styles.heirList}>
               {heirs.map((heir) => (
                 <div key={heir.id} className={styles.heirCard}>
-                  <div className={styles.heirContent} onClick={() => handleCardClick(heir)}>
+                  <div className={styles.heirContent} onClick={() => handleCardClick(heir)} role="button" tabIndex={0}>
                     <div className={styles.heirInfo}>
                       <div className={styles.heirIcon}>{heir.icon}</div>
                       <div className="flex flex-col">
@@ -225,18 +224,18 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
                     </div>
                   </div>
                   <div className={styles.heirActions}>
-                    <button className={`${styles.actionBtn} ${styles.editBtn}`} onClick={(e) => handleOpenEditModal(e, heir)}><Edit2 size={14} /></button>
+                    <button type="button" className={`${styles.actionBtn} ${styles.editBtn}`} onClick={(e) => handleOpenEditModal(e, heir)} aria-label="수정"><Edit2 size={14} /></button>
                     <div className={styles.separator} />
-                    <button className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={(e) => handleDeleteHeir(e, heir.id)}><Trash2 size={14} /></button>
+                    <button type="button" className={`${styles.actionBtn} ${styles.deleteBtn}`} onClick={(e) => handleDeleteHeir(e, heir.id)} aria-label="삭제"><Trash2 size={14} /></button>
                   </div>
                 </div>
               ))}
-              <button className={styles.addHeirBtn} onClick={handleOpenAddModal}><Plus size={18} /><span>상속인 추가하기</span></button>
+              <button type="button" className={styles.addHeirBtn} onClick={handleOpenAddModal}><Plus size={18} /><span>상속인 추가하기</span></button>
             </div>
           </div>
         </div>
         <footer className={styles.footer}>
-          <button className={styles.nextBtn} disabled={totalPercentage !== 100 || submitting} onClick={handleComplete}>
+          <button type="button" className={styles.nextBtn} disabled={totalPercentage !== 100 || submitting} onClick={handleComplete}>
             {submitting ? <Loader2 className="mx-auto h-5 w-5 animate-spin" /> : totalPercentage === 100 ? '설정 완료' : '비율의 합을 100%로 맞춰주세요'}
           </button>
         </footer>
@@ -244,7 +243,7 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
         {editingHeir && (
           <div className={styles.overlay} onClick={() => setEditingHeir(null)}>
             <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-              <h2 className={styles.modalTitle}><span className="text-[var(--color-hana-ez-600)]">{editingHeir.name}</span>님에게{'\n'}얼마를 상속할까요?</h2>
+              <h2 className={styles.modalTitle}><span className="text-[var(--color-hana-ez-600)]">{editingHeir.name}</span>님에게{"\n"}얼마를 상속할까요?</h2>
               <div className={styles.modalInputContainer}>
                 <div className={styles.inputHeader}>
                   <div className="flex items-center gap-1.5"><div className="h-2 w-2 rounded-full bg-red-500" /><span className="font-bold text-[12px] text-red-500">최소 유류분 보장: {currentEditingShares?.forcedPercentage}%</span></div>
@@ -270,7 +269,7 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
               <label className={styles.inputLabel}>가족 관계</label>
               <div className={styles.relationshipGrid}>
                 {RELATIONSHIPS.map((rel) => (
-                  <button key={rel.value} className={`${styles.relBtn} ${newRelationship === rel.value ? styles.activeRel : ''}`} onClick={() => setNewRelationship(rel.value as any)}>{rel.label}</button>
+                  <button key={rel.value} className={`${styles.relBtn} ${newRelationship === rel.value ? styles.activeRel : ""}`} onClick={() => setNewRelationship(rel.value as any)}>{rel.label}</button>
                 ))}
               </div>
             </div>

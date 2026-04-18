@@ -38,8 +38,8 @@ public class LetterController {
   // 상속비율 및 가족 조회
   @Operation(summary = "상속비율 및 가족 조회", description = "상속 편지에서 상속비율 및 상속 설계된 가족을 조회합니다.")
   @GetMapping
-  List<InheritanceSummaryDto> getInheritanceInfo(@AuthenticationPrincipal SubscriberDTO user) {
-    return service.getInheritanceInfo(user.getUserId());
+  public ApiResponse<List<InheritanceSummaryDto>> getInheritanceInfo(@AuthenticationPrincipal SubscriberDTO user) {
+    return ApiResponse.onSuccess(service.getInheritanceInfo(user.getUserId()));
   }
 
   // 상속 편지 생성

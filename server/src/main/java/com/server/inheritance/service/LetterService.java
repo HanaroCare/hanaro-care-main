@@ -55,11 +55,12 @@ public class LetterService {
 
     return inheritDetails.stream().map(i -> InheritanceSummaryDto.builder()
         .inheritDetailId(String.valueOf(i.getInheritDetailId()))
-        .userId(String.valueOf(i.getUser().getUserId()))
-        .username(i.getUser().getUserNm())
+        .userId(i.getUser() != null ? String.valueOf(i.getUser().getUserId()) : null)
+        .username(i.getHeirName())
         .percent(i.getDistRatio())
         .amt(i.getInheritPlan().getTotalInheritAmt()
             .multiply(i.getDistRatio())
+            .setScale(0, java.math.RoundingMode.HALF_UP)
             .longValue()).build()).toList();
   }
 
@@ -164,4 +165,3 @@ public class LetterService {
     return String.valueOf(letter.getLetterId());
   }
 }
-
