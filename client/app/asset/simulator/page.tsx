@@ -4,7 +4,6 @@ import { ChevronRight, Lock } from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-
 import {
   getLinkedHouses,
   getPensionSimulationSummary,
@@ -26,7 +25,6 @@ import {
   type TrustProductDetail,
   type TrustSimulationSummary,
 } from '@/app/asset/actions/trust';
-
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
@@ -69,7 +67,7 @@ export default function SimulatorPage() {
 
   const [isParentMode, setIsParentMode] = useState(false);
   const [grantors, setGrantors] = useState<TrustGrantorItem[]>([]);
-  const [grantorId, setGrantorId] = useState<number | null>(null);
+  const [grantorId, setGrantorId] = useState<string | null>(null);
 
   const [myTrustSimulationSummary, setMyTrustSimulationSummary] =
     useState<TrustSimulationSummary | null>(null);
@@ -80,7 +78,7 @@ export default function SimulatorPage() {
   const [myPensionProductSummary, setMyPensionProductSummary] =
     useState<PensionStatusResponse | null>(null);
   const [myPensionRealAssetId, setMyPensionRealAssetId] = useState<
-    number | null
+    string | null
   >(null);
   const [parentTrustDetail, setParentTrustDetail] =
     useState<TrustProductDetail | null>(null);
@@ -127,6 +125,7 @@ export default function SimulatorPage() {
           ]);
 
         const pensionRealAssetId = linkedHouses[0]?.realAssetId ?? null;
+
         setMyPensionRealAssetId(pensionRealAssetId);
 
         let pensionSim = null;
@@ -185,8 +184,14 @@ export default function SimulatorPage() {
     }
   };
 
-  const myTrustStatus = useProductStatus(myTrustProductSummary, myTrustSimulationSummary);
-  const myPensionStatus = useProductStatus(myPensionProductSummary, myPensionSimulationSummary);
+  const myTrustStatus = useProductStatus(
+    myTrustProductSummary,
+    myTrustSimulationSummary,
+  );
+  const myPensionStatus = useProductStatus(
+    myPensionProductSummary,
+    myPensionSimulationSummary,
+  );
 
   const parentAccessLevel = useMemo<TrustAccessLevel>(() => {
     if (grantors.some((item) => item.accessLevel === 'READ_WRITE')) {
@@ -314,7 +319,9 @@ export default function SimulatorPage() {
                           const params = proxyGrantor
                             ? `?grantorId=${proxyGrantor.grantorId}&name=${encodeURIComponent(proxyGrantor.grantorName)}&relation=${encodeURIComponent(proxyGrantor.relationLabel)}`
                             : '';
-                          router.push(`/asset/trust/change-agent-child${params}`);
+                          router.push(
+                            `/asset/trust/change-agent-child${params}` as Route,
+                          );
                         }}
                       />
                     </div>
@@ -326,10 +333,11 @@ export default function SimulatorPage() {
                       ownerLabel="부모님 신탁"
                       productSummary={parentTrustDetail}
                       onAction={() =>
-                        grantorId &&
-                        router.push(
-                          `/asset/trust/dashboard?grantorId=${grantorId}` as Route,
-                        )
+                        grantorId
+                          ? router.push(
+                              `/asset/trust/dashboard?grantorId=${grantorId}` as Route,
+                            )
+                          : undefined
                       }
                     />
                   )}

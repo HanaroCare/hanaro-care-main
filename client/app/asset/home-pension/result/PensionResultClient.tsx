@@ -49,7 +49,7 @@ function formatManwon(value: number) {
 }
 
 type Props = {
-  realAssetId: number;
+  realAssetId: string;
 };
 
 export default function HomePensionResultClient({ realAssetId }: Props) {
@@ -65,7 +65,7 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (!Number.isFinite(realAssetId)) {
+    if (!realAssetId) {
       setErrorMessage('대상 주택 정보를 확인할 수 없어요.');
       setIsLoading(false);
       return;
@@ -335,7 +335,10 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
                     <Tooltip
                       formatter={(value, name) => {
                         const eok = Number(value) / 10000;
-                        return [`${Number.isInteger(eok) ? eok : eok.toFixed(1)}억원`, name];
+                        return [
+                          `${Number.isInteger(eok) ? eok : eok.toFixed(1)}억원`,
+                          name,
+                        ];
                       }}
                       labelFormatter={(label) => `${label}년`}
                       contentStyle={{

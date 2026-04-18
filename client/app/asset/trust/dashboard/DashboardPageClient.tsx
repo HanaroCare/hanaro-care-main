@@ -35,7 +35,7 @@ export default function DashboardPageClient({
         setIsLoading(true);
 
         if (grantorId) {
-          const data = await getFamilyTrustDetail(Number(grantorId));
+          const data = await getFamilyTrustDetail(grantorId);
           setDetail(data);
         } else {
           const data = await getTrustProduct();

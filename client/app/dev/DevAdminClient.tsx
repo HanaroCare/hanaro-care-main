@@ -129,7 +129,7 @@ export default function DevAdminClient() {
     null,
   );
 
-  const [selectedRealAssetId, setSelectedRealAssetId] = useState<number | null>(
+  const [selectedRealAssetId, setSelectedRealAssetId] = useState<string | null>(
     null,
   );
 
@@ -145,6 +145,9 @@ export default function DevAdminClient() {
     useState<ResultState>({ status: 'idle', message: '' });
   const [simulationBatchResult, setSimulationBatchResult] =
     useState<ResultState>({ status: 'idle', message: '' });
+
+  const [opsOpen, setOpsOpen] = useState(false);
+  const [batchDate, setBatchDate] = useState('');
 
   const handleSearch = () => {
     const q = keyword.trim();
@@ -166,7 +169,7 @@ export default function DevAdminClient() {
       try {
         const result = await searchAdminUsers(q);
         setSearchResult(result);
-      } catch (e) {
+      } catch {
         setSearchResult([]);
       } finally {
         setIsSearching(false);
@@ -174,7 +177,7 @@ export default function DevAdminClient() {
     });
   };
 
-  const handleSelectUser = (userId: number) => {
+  const handleSelectUser = (userId: string) => {
     setSelectedUser(null);
     setRealAssets([]);
     setSelectedRealAssetId(null);
@@ -198,7 +201,7 @@ export default function DevAdminClient() {
         setRealAssets(assets);
         setSelectedRealAssetId(assets[0]?.realAssetId ?? null);
         setChildMembers(children);
-      } catch (e) {
+      } catch {
         setSelectedUser(null);
         setRealAssets([]);
         setSelectedRealAssetId(null);
@@ -271,7 +274,9 @@ export default function DevAdminClient() {
       });
       return;
     }
+
     setClaimAgentResult({ status: 'idle', message: '' });
+
     startTransition(async () => {
       try {
         await updateClaimAgent(selectedUser.userId, selectedAgentUserId);
@@ -362,6 +367,7 @@ export default function DevAdminClient() {
 
   const handleRunSimulationEnqueue = () => {
     setSimulationEnqueueResult({ status: 'idle', message: '' });
+
     startTransition(async () => {
       try {
         const message = await runSimulationEnqueue();
@@ -377,6 +383,7 @@ export default function DevAdminClient() {
 
   const handleRunSimulationBatchRun = () => {
     setSimulationBatchResult({ status: 'idle', message: '' });
+
     startTransition(async () => {
       try {
         const message = await runSimulationBatchRun();
@@ -389,9 +396,6 @@ export default function DevAdminClient() {
       }
     });
   };
-
-  const [opsOpen, setOpsOpen] = useState(false);
-  const [batchDate, setBatchDate] = useState('');
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] px-4 py-8">

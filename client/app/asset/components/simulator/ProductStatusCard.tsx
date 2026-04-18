@@ -28,7 +28,7 @@ interface Props {
   productSummary?: TrustProductDetail | null;
   pensionSimulationSummary?: PensionSimulationSummaryResponse | null;
   pensionProductSummary?: PensionStatusResponse | null;
-  realAssetId?: number | null;
+  realAssetId?: string | null;
 }
 
 function formatRate(value?: number) {
@@ -53,7 +53,6 @@ export function ProductStatusCard({
   const title = isTrust ? '내맘대로신탁' : '주택연금';
   const Icon = isTrust ? CircleDollarSign : Home;
   const isActive = status === 'active';
-  // const isRecommend = status === 'recommend';
   const isDesigned = status === 'designed';
 
   const handleNavigation = () => {

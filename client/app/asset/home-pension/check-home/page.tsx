@@ -25,7 +25,7 @@ export default function CheckHomePage() {
   const router = useRouter();
 
   const [houses, setHouses] = useState<LinkedHouse[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -49,7 +49,7 @@ export default function CheckHomePage() {
     fetchHouses();
   }, []);
 
-  const handleSelect = (id: number) => {
+  const handleSelect = (id: string) => {
     setSelectedId(id);
   };
 
@@ -126,7 +126,10 @@ export default function CheckHomePage() {
                         </p>
                         <div className="mt-1 flex flex-col gap-0.5">
                           {house.detail.map((line, i) => (
-                            <p key={i} className="text-[14px] leading-5 font-medium tracking-tight text-[#6B7280]">
+                            <p
+                              key={i}
+                              className="text-[14px] leading-5 font-medium tracking-tight text-[#6B7280]"
+                            >
                               {line}
                             </p>
                           ))}
