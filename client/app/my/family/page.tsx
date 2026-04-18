@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, PlusCircle, X } from 'lucide-react';
+import {Check, PlusCircle, ShieldCheck, X} from 'lucide-react';
 import type { Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,6 @@ import {
 } from '../actions/familyActions';
 import type { FamilyMemberResponse } from './types';
 
-// --- 인터페이스 ---
 interface FamilyMember {
   id: number;
   lastName: string;
@@ -24,169 +23,216 @@ interface FamilyMember {
   isMe?: boolean;
   isSharing: boolean;
   sharingInsuranceCount?: number;
-  circleColor: string; // Tailwind bg class
-  textColor: string; // Tailwind text class
+  circleColor: string;
+  textColor: string;
+  badgeColor: string;
 }
 
-const getColors = (relation: string) => {
-  if (relation === '본인' || relation === '배우자') {
+const getColors = (relation: string, isMe?: boolean) => {
+  if (isMe === true || relation === '본인') {
+    return {
+      circleColor: 'bg-hana-teal-50',
+      textColor: 'text-hana-teal-700',
+      badgeColor: 'bg-hana-ez-green-50 text-hana-teal-700' // 배지 색상까지 여기서 정의
+    };
+  }
+
+  if (relation === '배우자') {
     return {
       circleColor: 'bg-hana-green-100',
       textColor: 'text-hana-green-700',
+      badgeColor: 'bg-hana-green-100 text-hana-green-700'
     };
   }
+
   return {
-    circleColor: 'bg-hana-yellow-100',
-    textColor: 'text-hana-yellow-700',
+    circleColor: 'bg-hana-gold-100',
+    textColor: 'text-hana-gold-700',
+    badgeColor: 'bg-hana-gold-100 text-hana-gold-700'
   };
 };
 
 const mapResponseToFamilyMember = (res: FamilyMemberResponse): FamilyMember => {
-  const colors = getColors(res.relation);
+  const colors = getColors(res.relation, res.isMe);
+
   return {
     id: res.userId,
     lastName: res.name.charAt(0),
     name: res.name,
-    relationship: res.relation,
+    relationship: res.isMe ? '본인' : res.relation, // 본인이면 텍스트도 본인으로 강제
     phone: res.phone,
     isMe: res.isMe,
     isSharing: res.isSharing,
-    ...colors,
+    ...colors, // circleColor, textColor, badgeColor가 한꺼번에 들어감
   };
 };
 
-// --- 하위 컴포넌트 ---
-
 const Stats = ({
-  registeredCount,
-  sharingCount,
-  requestedCount,
-}: {
+                 registeredCount,
+                 sharingCount,
+                 requestedCount,
+               }: {
   registeredCount: number;
   sharingCount: number;
   requestedCount: number;
 }) => (
-  <section className="mb-6 grid grid-cols-3 rounded-3xl border border-gray-100 bg-white p-6 shadow-sm">
-    <div className="flex flex-col items-center border-gray-100 border-r pr-2">
-      <span className="mb-1.5 text-center font-medium text-[#333333] text-sm">
+    <section className="mb-6 grid grid-cols-3 rounded-2xl bg-white py-5 shadow-s">
+      {/* 1. 등록된 가족 */}
+      <div className="flex flex-col items-start border-hana-silver-100 border-r pl-5">
+      <span className="mb-1 text-hana-black-500 text-[13px] font-medium">
         등록된 가족
       </span>
-      <span className="font-bold text-3xl text-hana-ez-600">
-        {registeredCount}명
+        <div className="flex items-baseline gap-0.5">
+        <span className="font-bold text-2xl text-hana-black-900">
+          {registeredCount}
+        </span>
+          <span className="text-sm font-bold text-hana-black-900">명</span>
+        </div>
+      </div>
+
+      {/* 2. 공유중 */}
+      <div className="flex flex-col items-start border-hana-silver-100 border-r pl-5">
+      <span className="mb-1 text-hana-black-500 text-[13px] font-medium">
+        공유중
       </span>
-    </div>
-    <div className="flex flex-col items-center border-gray-100 border-r px-2">
-      <span className="mb-1.5 text-center text-[#5A5A5A] text-sm">공유중</span>
-      <span className="font-bold text-3xl text-hana-ez-600">
-        {sharingCount}
-      </span>
-    </div>
-    <div className="flex flex-col items-center pl-2">
-      <span className="mb-1.5 text-center text-[#5A5A5A] text-sm">
+        <div className="flex items-baseline gap-0.5">
+        <span className="font-bold text-2xl text-hana-teal-600">
+          {sharingCount}
+        </span>
+          <span className="text-sm font-bold text-hana-teal-600">명</span>
+        </div>
+      </div>
+
+      {/* 3. 공유 요청 */}
+      <div className="flex flex-col items-start pl-5">
+      <span className="mb-1 text-hana-black-500 text-[13px] font-medium">
         공유 요청
       </span>
-      <span className="font-bold text-3xl text-hana-ez-600">
-        {requestedCount}
-      </span>
-    </div>
-  </section>
+        <div className="flex items-baseline gap-0.5">
+        <span className="font-bold text-2xl text-hana-teal-600">
+          {requestedCount}
+        </span>
+          <span className="text-sm font-bold text-hana-teal-600">건</span>
+        </div>
+      </div>
+    </section>
 );
 
 const FamilyCard = ({
-  member,
-  onToggleSharing,
-}: {
+                      member,
+                      onToggleSharing,
+                    }: {
   member: FamilyMember;
   onToggleSharing: (id: number, currentStatus: boolean) => void;
 }) => {
   return (
-    <div className="group relative mb-3 flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all active:scale-[0.99]">
-      <div
-        className={`h-14 w-14 ${member.circleColor} flex items-center justify-center rounded-full ${member.textColor} font-bold text-2xl`}
-      >
-        {member.lastName}
-      </div>
-
-      <div className="flex flex-1 flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-[#1A1A1A] text-lg">
-            {member.name}
-          </span>
-          <span
-            className={`rounded-full border border-hana-ez-600 bg-white px-3 py-1 font-medium text-hana-ez-600 text-xs ${member.isMe ? '' : 'hidden'}`}
-          >
-            {member.relationship}
-          </span>
-        </div>
-        <span
-          className={`text-[#8A8A8A] text-sm ${member.phone ? '' : 'hidden'}`}
-        >
-          {member.phone}
-        </span>
-      </div>
-
-      {!member.isMe && (
-        <div className="flex flex-col items-end gap-2">
-          <div className="flex items-center gap-2">
-            <label className="relative inline-flex cursor-pointer items-center">
-              <input
-                type="checkbox"
-                className="peer sr-only"
-                checked={member.isSharing}
-                onChange={() => onToggleSharing(member.id, member.isSharing)}
-              />
-              <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-hana-ez-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
-            </label>
+      <div className="group mb-4 overflow-hidden rounded-[20px] bg-white shadow-[0_8px_20px_rgba(0,0,0,0.03)] border border-hana-silver-50">
+        <div className="relative flex items-center gap-4 p-5 pb-4">
+          <div className={`h-14 w-14 shrink-0 aspect-square ${member.circleColor} flex items-center justify-center rounded-full ${member.textColor} font-bold text-2xl`}>
+            {member.lastName}
           </div>
 
-          <span
-            className={`font-medium text-xs ${member.isSharing ? 'text-hana-ez-600' : 'text-[#8A8A8A]'}`}
-          >
-            {member.isSharing ? '공유 중' : '공유 안함'}
-          </span>
+          <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+            <div className="flex items-center gap-2">
+            <span className="font-bold text-hana-black-900 text-[19px] truncate">
+              {member.name}
+            </span>
+              <span className={`rounded-md px-2 py-0.5 font-bold text-[10px] ${member.badgeColor}`}>
+              {member.relationship}
+            </span>
+            </div>
+            {member.isMe && member.phone && (
+                <span className="text-hana-black-400 text-sm mt-0.5 font-medium">{member.phone}</span>
+            )}
+          </div>
+
+          {!member.isMe && (
+              <button type="button" className="absolute top-5 right-5 rounded-md bg-hana-red-50 px-2.5 py-1 text-xs font-bold text-hana-red-500 transition active:scale-95">
+                삭제
+              </button>
+          )}
         </div>
-      )}
-    </div>
+
+        {!member.isMe && (
+            <div className="flex flex-col gap-3 bg-hana-silver-50 px-5 py-4 border-t border-hana-silver-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className={`h-4 w-4 shrink-0 ${member.isSharing ? 'text-hana-teal-600' : 'text-hana-black-300'}`} />
+                  <p className="text-[13px] text-hana-black-600 font-medium">
+                    {member.isSharing ? (
+                        <>
+                          내 보험 <span className="font-bold text-hana-teal-600">{member.sharingInsuranceCount ?? 0}개</span> 공유 중
+                        </>
+                    ) : (
+                        <span className="text-hana-black-400">보험 공유를 시작해보세요</span>
+                    )}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+              <span className={`text-[11px] font-bold ${member.isSharing ? 'text-hana-teal-600' : 'text-hana-black-400'}`}>
+                공유
+              </span>
+                  <label className="relative inline-flex cursor-pointer items-center">
+                    <input
+                        type="checkbox"
+                        className="peer sr-only"
+                        checked={member.isSharing}
+                        onChange={() => onToggleSharing(member.id, member.isSharing)}
+                    />
+                    <div className="peer h-6 w-11 shrink-0 rounded-full bg-hana-silver-300 transition-all after:absolute after:top-[2px] after:left-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-md after:transition-all peer-checked:bg-hana-teal-600 peer-checked:after:translate-x-full"></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+        )}
+      </div>
   );
 };
 
 const BottomSheetMemberCard = ({
-  member,
-  isSelected,
-  onSelect,
-}: {
+                                 member,
+                                 isSelected,
+                                 onSelect,
+                               }: {
   member: FamilyMember;
   isSelected: boolean;
   onSelect: () => void;
 }) => (
-  <div
-    className="group flex cursor-pointer items-center gap-4 border-gray-100 border-b py-4"
-    onClick={onSelect}
-  >
     <div
-      className={`h-14 w-14 ${member.circleColor} flex items-center justify-center rounded-full ${member.textColor} font-bold text-2xl`}
+        className="group flex cursor-pointer items-center gap-4 border-hana-silver-100 border-b py-4 active:bg-hana-silver-50"
+        onClick={onSelect}
     >
-      {member.lastName}
-    </div>
+      <div
+          className={`h-14 w-14 shrink-0 aspect-square ${member.circleColor} flex items-center justify-center rounded-full ${member.textColor} font-bold text-2xl`}
+      >
+        {member.lastName}
+      </div>
 
-    <div className="flex flex-1 flex-col gap-1">
-      <div className="flex items-center gap-2">
-        <span className="font-bold text-[#1A1A1A] text-xl">{member.name}</span>
-        <span
-          className={`rounded-full border border-hana-ez-600 bg-white px-3 py-1 font-medium text-hana-ez-600 text-xs`}
-        >
+      <div className="flex flex-1 flex-col gap-0.5">
+        <div className="flex items-center gap-2">
+          <span className="font-bold text-hana-black-900 text-lg">{member.name}</span>
+          <span
+              className={`rounded-md px-2 py-0.5 font-bold text-[10px] ${
+                  member.isMe ? 'bg-hana-ez-green-50 text-hana-teal-700' :
+                      member.relationship === '배우자' ? 'bg-hana-green-100 text-hana-green-700' :
+                          'bg-hana-gold-100 text-hana-gold-700'
+              }`}
+          >
           {member.relationship}
         </span>
+        </div>
+        <span className="text-hana-black-400 text-sm font-medium">{member.phone}</span>
       </div>
-      <span className={`text-[#8A8A8A] text-sm`}>{member.phone}</span>
-    </div>
 
-    <div
-      className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition-colors ${isSelected ? 'border-hana-ez-600 bg-hana-ez-600' : 'border-gray-300 bg-white'}`}
-    >
-      {isSelected && <Check className="h-4 w-4 text-white" />}
+      <div
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-colors ${
+              isSelected ? 'border-hana-teal-600 bg-hana-teal-600' : 'border-hana-silver-200 bg-white'
+          }`}
+      >
+        {isSelected && <Check className="h-4 w-4 text-white" strokeWidth={3} />}
+      </div>
     </div>
-  </div>
 );
 
 const ConfirmPopup = ({
@@ -306,7 +352,6 @@ const BottomSheet = ({
   );
 };
 
-// --- 메인 페이지 컴포넌트 ---
 
 export default function FamilyManagementPage() {
   const router = useRouter();
@@ -386,9 +431,9 @@ export default function FamilyManagementPage() {
 
   if (loading && members.length === 0) {
     return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-hana-ez-600 border-t-transparent"></div>
-      </div>
+        <div className="flex h-screen items-center justify-center bg-white">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-hana-teal-600 border-t-transparent"></div>
+        </div>
     );
   }
 
@@ -420,8 +465,8 @@ export default function FamilyManagementPage() {
 
           <section className="mb-6">
             <div className="mb-4 flex items-center justify-between px-1">
-              <h2 className="font-bold text-[#1A1A1A] text-lg">가족 목록</h2>
-              <span className="text-gray-400 text-sm">
+              <h2 className="font-semi-bold text-[#1A1A1A] text-lg">가족 목록</h2>
+              <span className="text-gray-400 text-[14px]">
                 전체 {members.length}명
               </span>
             </div>
