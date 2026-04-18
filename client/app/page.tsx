@@ -127,7 +127,7 @@ export default async function Home() {
               title={
                 <>
                   {activeBanner.userName} 손님,{'\n'}
-                  매달 <span className="text-hana-red-500">{(activeBanner.monthlyPayout / 10000).toLocaleString()}만원</span> 수령으로{'\n'} 병원비 부담이 줄었네요
+                  매달 <span className="text-hana-red-500">{Math.floor(activeBanner.monthlyPayout / 10000).toLocaleString()}만원</span> 수령으로{'\n'} 병원비 부담이 줄었네요
                 </>
               }
               buttonText="확인하러 가기"
@@ -157,7 +157,7 @@ export default async function Home() {
               title={<>미리 준비하는 상속{'\n'}가족 모두가 든든해져요</>}
               buttonText="상속 계산하기"
               imageSrc="/images/asset/inheritance-recom.svg"
-              href="/inheritance/plan"
+              href="/inheritance/intro"
           />
       )}
 
