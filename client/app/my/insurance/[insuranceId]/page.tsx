@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getInsuranceDetail } from '../../actions/insuranceActions';
+import InsuranceDetail from '../components/InsuranceDetail';
 
 interface Props {
   params: Promise<{ [key: string]: string }>;
@@ -16,7 +17,7 @@ export default async function MyFamilyInsuranceDetailPage({ params }: Props) {
     if (!detail) {
       return notFound();
     }
-    return <InsuranceDetailClient assetData={detail as any} />;
+    return <InsuranceDetail detail={detail}/>;
   } catch (error) {
     return notFound();
   }
