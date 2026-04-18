@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { AlertCircle, ChevronRight } from 'lucide-react';
+import { AlertCircle, ChevronRight, X } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 type AlertVariant = 'warning' | 'note' | 'info' | 'success';
@@ -10,6 +10,7 @@ type AlertBannerProps = {
   message: string;
   actionText?: string;
   onActionAction?: () => void;
+  onDismiss?: () => void;
   variant?: AlertVariant;
   icon?: ReactNode;
   actionFont?: string;
