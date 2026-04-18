@@ -30,6 +30,10 @@ export default function InheritancePlanPage() {
         setContext(data);
       } catch (error) {
         console.error('Failed to fetch inheritance context:', error);
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
+          router.replace('/login');
+          return;
+        }
       } finally {
         setLoading(false);
       }

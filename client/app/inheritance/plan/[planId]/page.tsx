@@ -59,14 +59,18 @@ export default function InheritancePlanDetailPage() {
         const initialHeirs: Heir[] = context.familyMembers.map((member, index) => ({
           id: index + 1,
           userId: member.userId,
-          name: member.userNm,
-          relationship: member.relationCd as Heir['relationship'],
+          name: member.name,
+          relationship: member.relation as Heir['relationship'],
           percentage: 0,
           icon: <User className="h-5 w-5 text-hana-ez-600" />,
         }));
         setHeirs(initialHeirs);
       } catch (error) {
         console.error('Failed to load inheritance context:', error);
+        if (error instanceof Error && error.message.includes('Unauthorized')) {
+          router.replace('/login');
+          return;
+        }
       } finally {
         setLoading(false);
       }
