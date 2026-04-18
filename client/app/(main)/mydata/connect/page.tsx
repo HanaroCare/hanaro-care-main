@@ -49,7 +49,7 @@ export default function MyDataConnectPage() {
 
   const handleModalConfirm = () => {
     setIsModalOpen(false);
-    router.push('/mydata/house');
+    router.push('/');
   };
 
   const handleModalClose = () => setIsModalOpen(false);
