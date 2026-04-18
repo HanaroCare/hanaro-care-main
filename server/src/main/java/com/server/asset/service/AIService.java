@@ -1,7 +1,6 @@
 package com.server.asset.service;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -11,10 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.server.asset.client.GeminiClient;
+import com.server.asset.client.OpenAiClient;
 import com.server.asset.dto.external.AIAnalysisInput;
-import com.server.asset.dto.external.GeminiRequest;
-import com.server.asset.dto.external.GeminiResponse;
 import com.server.asset.dto.simulation.SimulationDetailResponse;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
@@ -27,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AIService {
 
-    private final GeminiClient geminiClient;
+    private final OpenAiClient openAiClient;
     private final ObjectMapper objectMapper;
 
     @Cacheable(
@@ -46,41 +43,27 @@ public class AIService {
     ) {
         String prompt = buildAdvancedPrompt(input, medicalInflation, welfareServices, estimatedPension);
 
-        GeminiRequest.RequestBody requestBody = GeminiRequest.RequestBody.builder()
-            .contents(Collections.singletonList(
-                GeminiRequest.Content.builder()
-                    .parts(Collections.singletonList(
-                        GeminiRequest.Part.builder().text(prompt).build()
-                    ))
-                    .build()
-            ))
-            .build();
-
         try {
-            GeminiResponse response = null;
+            String rawText = null;
             int maxRetries = 3;
 
             for (int retryCount = 0; retryCount < maxRetries; retryCount++) {
                 try {
-                    response = geminiClient.generateContent(requestBody);
+                    rawText = openAiClient.chat(prompt);
                     break;
                 } catch (RestClientResponseException ex) {
-                    // 429 Too Many Requests 인지 상태 코드로 명확히 확인
                     if (ex.getStatusCode().value() == 429 && retryCount < maxRetries - 1) {
-                        log.warn("[Gemini] 할당량 초과(429). 재시도 중... ({}/{})", retryCount + 1, maxRetries);
+                        log.warn("[OpenAI] 할당량 초과(429). 재시도 중... ({}/{})", retryCount + 1, maxRetries);
                         Thread.sleep(2000L * (retryCount + 1));
                     } else {
-                        // 할당량 초과가 아니거나 재시도 횟수를 초과한 경우 그대로 던짐
                         throw ex;
                     }
                 }
             }
 
-            if (response == null) {
+            if (rawText == null) {
                 throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
             }
-
-            String rawText = response.getText();
             String jsonOnly = extractPureJson(rawText);
 
             SimulationDetailResponse detailResponse = objectMapper.readValue(jsonOnly, SimulationDetailResponse.class);
@@ -90,7 +73,7 @@ public class AIService {
             return detailResponse;
 
         } catch (Exception e) {
-            log.error("[Gemini] AI 분석 실패. 에러: {}", e.getMessage());
+            log.error("[OpenAI] AI 분석 실패. 에러: {}", e.getMessage());
             throw new ApiException(ErrorStatus.SIMULATION_JSON_ERROR);
         }
     }
@@ -206,6 +189,6 @@ public class AIService {
             throw new IllegalArgumentException("필수 필드 누락: ai_opinion이 없습니다.");
         }
 
-        log.info("[Gemini] AI 응답 데이터 검증 성공");
+        log.info("[OpenAI] AI 응답 데이터 검증 성공");
     }
 }

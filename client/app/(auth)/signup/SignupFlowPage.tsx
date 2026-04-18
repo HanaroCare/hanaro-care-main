@@ -75,6 +75,16 @@ export default function SignupFlowPage() {
     }
   };
 
+  const handleNameSubmit = () => {
+    const name = (formData.name ?? "").trim();
+    if (name.length < 2 || name.length > 20) {
+      setStepError("name", "이름은 2글자 이상 20자 이하로 입력해주세요.");
+      return;
+    }
+    clearStepError("name");
+    advanceStep();
+  };
+
   const handleUsernameSubmit = async () => {
     if (isLoading) return;
     setIsLoading(true);
@@ -209,6 +219,8 @@ export default function SignupFlowPage() {
               const onSubmit =
                 step.key === "username"
                   ? handleUsernameSubmit
+                  : step.key === "name"
+                  ? handleNameSubmit
                   : step.key === "phone"
                   ? handlePhoneSubmit
                   : advanceStep;

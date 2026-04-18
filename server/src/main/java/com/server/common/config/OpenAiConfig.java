@@ -8,20 +8,21 @@ import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 
 @Configuration
-@EnableConfigurationProperties(GeminiProperties.class)
+@EnableConfigurationProperties(OpenAiProperties.class)
 @RequiredArgsConstructor
-public class GeminiConfig {
+public class OpenAiConfig {
 
-	private final GeminiProperties geminiProperties;
+	private final OpenAiProperties openAiProperties;
 
-	@Bean("geminiRestClient")
-	public RestClient geminiRestClient() {
+	@Bean("openAiRestClient")
+	public RestClient openAiRestClient() {
 		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-		factory.setConnectTimeout(geminiProperties.getConnectTimeout());
-		factory.setReadTimeout(geminiProperties.getReadTimeout());
+		factory.setConnectTimeout(openAiProperties.getConnectTimeout());
+		factory.setReadTimeout(openAiProperties.getReadTimeout());
 
 		return RestClient.builder()
-			.baseUrl(geminiProperties.getBaseUrl())
+			.baseUrl(openAiProperties.getBaseUrl())
+			.defaultHeader("Authorization", "Bearer " + openAiProperties.getApiKey())
 			.requestFactory(factory)
 			.build();
 	}

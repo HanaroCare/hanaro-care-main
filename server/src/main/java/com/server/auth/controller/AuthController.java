@@ -82,6 +82,35 @@ public class AuthController {
     return ApiResponse.onSuccess("사용 가능한 아이디입니다.");
   }
 
+  @Operation(summary = "이름 존재 여부 확인", description = "아이디 찾기 시 해당 이름이 DB에 등록되어 있는지 확인합니다.")
+  @GetMapping("/check-user-name")
+  public ApiResponse<String> checkUserByName(
+      @Parameter(description = "확인할 이름", example = "홍길동")
+      @RequestParam String userNm) {
+    authService.checkUserByName(userNm);
+    return ApiResponse.onSuccess("등록된 이름입니다.");
+  }
+
+  @Operation(summary = "아이디 존재 여부 확인", description = "비밀번호 찾기 시 해당 아이디가 DB에 등록되어 있는지 확인합니다.")
+  @GetMapping("/check-user")
+  public ApiResponse<String> checkUserExists(
+      @Parameter(description = "확인할 아이디", example = "hong1234")
+      @RequestParam String loginId) {
+    authService.checkUserExists(loginId);
+    return ApiResponse.onSuccess("등록된 아이디입니다.");
+  }
+
+  @Operation(summary = "비밀번호 찾기 이름 확인", description = "아이디와 이름의 조합이 DB에 존재하는지 확인합니다.")
+  @GetMapping("/check-name")
+  public ApiResponse<String> checkUserNm(
+      @Parameter(description = "가입 시 사용한 아이디", example = "hong1234")
+      @RequestParam String loginId,
+      @Parameter(description = "가입 시 등록한 이름", example = "홍길동")
+      @RequestParam String userNm) {
+    authService.checkUserNm(loginId, userNm);
+    return ApiResponse.onSuccess("등록된 이름입니다.");
+  }
+
   @Operation(summary = "SMS 인증번호 발송")
   @PostMapping("/sms/send")
   public ApiResponse<String> sendSms(@Valid @RequestBody SmsRequestDTO request) {

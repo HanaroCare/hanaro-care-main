@@ -1,5 +1,6 @@
 package com.server.user.service;
 
+import com.server.asset.repository.AccountRepository;
 import com.server.auth.repository.RefreshTokenRepository;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
@@ -8,7 +9,9 @@ import com.server.user.dto.UserSummaryResponseDTO;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.UserStatus;
 import com.server.user.mapper.UserMapper;
+import com.server.user.repository.FamilyAuthRepository;
 import com.server.user.repository.UserRepository;
+import com.server.user.repository.UserSimpleAuthRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,9 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final RefreshTokenRepository refreshTokenRepository;
+  private final UserSimpleAuthRepository userSimpleAuthRepository;
+  private final FamilyAuthRepository familyAuthRepository;
+  private final AccountRepository accountRepository;
 
   @Transactional(readOnly = true)
   public List<UserSummaryResponseDTO> findAllUsers() {
@@ -70,6 +76,9 @@ public class UserService {
 
     user.setUserStatusCd(UserStatus.DELETED);
     refreshTokenRepository.deleteById(userId);
+    userSimpleAuthRepository.deleteByUser_UserId(userId);
+    familyAuthRepository.deleteAllByGrantor_UserIdOrGrantee_UserId(userId, userId);
+    accountRepository.unlinkAllByUserId(userId);
     log.info("[회원 탈퇴 완료] userId={}, loginId={}", userId, user.getLoginId());
   }
 }

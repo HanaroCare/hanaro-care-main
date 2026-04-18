@@ -7,15 +7,12 @@ const DEFAULT_LIVING_AMOUNT = 1000000;
 export default async function PayoutUseStep() {
   const summary = await getSimulationSummary();
 
-  const hospitalAmount =
-    summary?.ok && typeof summary.data?.medicalCost === 'number'
-      ? summary.data.medicalCost
-      : DEFAULT_HOSPITAL_AMOUNT;
+  const segments = summary?.ok ? (summary.data?.age_segments ?? []) : [];
 
-  const livingAmount =
-    summary?.ok && typeof summary.data?.livingCost === 'number'
-      ? summary.data.livingCost
-      : DEFAULT_LIVING_AMOUNT;
+  const firstSegment = segments[0];
+
+  const hospitalAmount = firstSegment?.detail.medical || DEFAULT_HOSPITAL_AMOUNT;
+  const livingAmount = firstSegment?.detail.living || DEFAULT_LIVING_AMOUNT;
 
   return (
     <PayoutUseStepClient

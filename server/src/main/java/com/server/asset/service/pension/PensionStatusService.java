@@ -92,7 +92,11 @@ public class PensionStatusService {
 		LocalDate baseDate = resolveBaseDate(ctx.userProd());
 		LocalDate firstPayoutDate = resolveFirstPayoutDate(baseDate);
 
-		if (firstPayoutDate == null || firstPayoutDate.isAfter(LocalDate.now())) {
+		LocalDate effectiveToday = ctx.userProd().getLastPayoutDate() != null
+			? ctx.userProd().getLastPayoutDate()
+			: LocalDate.now();
+
+		if (firstPayoutDate == null || firstPayoutDate.isAfter(effectiveToday)) {
 			return PensionPayoutHistoryResponse.builder()
 				.totalReceivedAmount(BigDecimal.ZERO)
 				.history(List.of())
@@ -103,7 +107,7 @@ public class PensionStatusService {
 		BigDecimal total = BigDecimal.ZERO;
 		LocalDate cursor = firstPayoutDate;
 
-		while (!cursor.isAfter(LocalDate.now())) {
+		while (!cursor.isAfter(effectiveToday)) {
 			long monthsSinceStart = ChronoUnit.MONTHS.between(firstPayoutDate, cursor);
 			int elapsedYear = calcElapsedYear(monthsSinceStart);
 			BigDecimal monthly = resolveMonthlyAmount(ctx.yearlyData(), elapsedYear);

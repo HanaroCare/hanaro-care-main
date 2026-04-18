@@ -40,7 +40,7 @@ function mapScenarioTypeToKey(type: string): ScenarioKey {
 }
 
 type Props = {
-  realAssetId: number;
+  realAssetId: string;
 };
 
 export default function HomeValueForecastClient({ realAssetId }: Props) {
@@ -79,7 +79,7 @@ export default function HomeValueForecastClient({ realAssetId }: Props) {
   }, [realAssetId]);
 
   useEffect(() => {
-    if (!Number.isFinite(realAssetId)) {
+    if (!realAssetId) {
       setIsLoading(false);
       setErrorMessage('잘못된 주택 정보예요.');
       return;

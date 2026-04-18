@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.server.asset.dto.admin.AdminChildFamilyResponse;
 import com.server.asset.dto.admin.AdminRealAssetResponse;
 import com.server.asset.dto.admin.AdminUserDetailResponse;
 import com.server.asset.dto.admin.AdminUserSearchResponse;
@@ -23,6 +24,7 @@ import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
 import com.server.asset.entity.enums.RealAssetCategory;
 import com.server.asset.entity.enums.StartType;
+import com.server.user.enums.FamilyRelation;
 import com.server.asset.mapper.PensionMapper;
 import com.server.asset.mapper.TrustMapper;
 import com.server.asset.repository.AccountRepository;
@@ -80,6 +82,16 @@ public class AssetAdminService {
   }
 
   @Transactional(readOnly = true)
+  public List<AdminChildFamilyResponse> getChildFamilyMembers(Long userId) {
+    userRepository.findById(userId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+    return familyAuthRepository.findAllByGrantor_UserIdAndRelationCd(userId, FamilyRelation.CHILD)
+        .stream()
+        .map(auth -> AdminChildFamilyResponse.from(auth.getGrantee()))
+        .toList();
+  }
+
+  @Transactional(readOnly = true)
   public List<AdminRealAssetResponse> getUserRealAssets(Long userId) {
     userRepository.findById(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
@@ -92,11 +104,9 @@ public class AssetAdminService {
 
   @Transactional
   public Long subscribeTrustProduct(Long userId) {
-    // 1. 유저 락 획득 (동시 가입 시도 직렬화)
     TBUser user = userRepository.findByIdWithLock(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.TRUST_USER_NOT_FOUND));
 
-    // 2. 가입 여부 체크
     if (userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
         userId, ProdType.TRUST, ProdStat.IN_PROGRESS
     )) {
@@ -116,7 +126,6 @@ public class AssetAdminService {
 
     TBUserProd userProd = trustMapper.toUserProd(simulation, user, product, principal, detail);
 
-    // 시작 타입에 따른 상태 처리
     if (simulation.getStartType() == StartType.CUSTOM) {
       userProd.setProdStat(ProdStat.PENDING);
     } else if (simulation.getStartType() == StartType.NOW) {
@@ -124,9 +133,9 @@ public class AssetAdminService {
       userProd.setProdStat(ProdStat.IN_PROGRESS);
     }
 
-    // 사후수익자(대리인) 처리
     TBUser claimAgent = simulation.getClaimAgent();
     if (claimAgent != null) {
+      userProd.setClaimAgent(claimAgent);
       userProd.setIsAgentView(true);
       TBFamilyAuth familyAuth = familyAuthRepository
           .findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
@@ -144,14 +153,11 @@ public class AssetAdminService {
     }
   }
 
-
   @Transactional
   public Long subscribePensionProduct(Long userId, Long realAssetId) {
-    // 1. 유저 락 획득
     TBUser user = userRepository.findByIdWithLock(userId)
         .orElseThrow(() -> new ApiException(ErrorStatus.PENSION_USER_NOT_FOUND));
 
-    // 2. 중복 가입 체크
     if (userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
         userId, ProdType.HOUSING_PENSION, ProdStat.IN_PROGRESS
     )) {
@@ -177,7 +183,6 @@ public class AssetAdminService {
           pensionMapper.toPensionAccount(user, savedProd, simulation.getRecommendedMonthlyAmt(), simulation)
       );
 
-      // 커밋 완료 후 백그라운드에서 즉시 시뮬레이션 재실행
       TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
         @Override
         public void afterCommit() {
@@ -191,6 +196,40 @@ public class AssetAdminService {
       log.warn("주택연금 중복 가입 시도 차단: userId={}, assetId={}", userId, realAssetId);
       throw new ApiException(ErrorStatus.PENSION_ALREADY_EXISTS);
     }
+  }
+
+  @Transactional
+  public void updateClaimAgent(Long userId, Long agentUserId) {
+    TBUserProd userProd = userProdRepository.findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(
+        userId,
+        ProdType.TRUST,
+        ProdStat.IN_PROGRESS
+    ).orElseThrow(() -> new ApiException(ErrorStatus.PRODUCT_NOT_FOUND));
+
+    TBUser agentUser = userRepository.findById(agentUserId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
+
+    TBFamilyAuth familyAuth = familyAuthRepository
+        .findByGrantor_UserIdAndGrantee_UserId(userId, agentUserId)
+        .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
+
+    if (familyAuth.getRelationCd() != FamilyRelation.CHILD) {
+      throw new ApiException(ErrorStatus._FORBIDDEN);
+    }
+
+    TBUser prevAgent = userProd.getClaimAgent();
+    if (prevAgent != null && !prevAgent.getUserId().equals(agentUserId)) {
+      familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(userId, prevAgent.getUserId())
+          .ifPresent(prev -> {
+            prev.setIsTrustView(false);
+            prev.setIsProxyClaim(false);
+          });
+    }
+
+    userProd.setClaimAgent(agentUser);
+    userProd.setIsAgentView(true);
+    familyAuth.setIsProxyClaim(true);
+    familyAuth.setIsTrustView(true);
   }
 
   @Transactional
