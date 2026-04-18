@@ -192,6 +192,9 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         title={asset.assetNm}
                         subtitle={parseAssetDesc('REAL_ESTATE', asset.assetDesc) || `${asset.assetSize}㎡ · ${asset.addr}`}
                         value={formatKoreanCurrency(asset.evalAmt ?? 0)}
+                        change="1,200만원"
+                        changePercent="1.3%"
+                        isPositive={true}
                         href={`/asset/housing/${asset.realAssetId}` as Route}
                     />
                 ));
@@ -247,6 +250,9 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         title={asset.assetNm}
                         subtitle={parseAssetDesc('VEHICLE', asset.assetDesc) || (asset.assetDesc ?? '')}
                         value={formatKoreanCurrency(asset.evalAmt ?? 0)}
+                        change="150만원"
+                        changePercent="3.2%"
+                        isPositive={false}
                         href={`/asset/car/${asset.realAssetId}` as Route}
                     />
                 ));
@@ -258,6 +264,9 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
                         title={asset.assetNm}
                         subtitle="금 현물"
                         value={formatKoreanCurrency(asset.evalAmt ?? 0)}
+                        change="80만원"
+                        changePercent="6.4%"
+                        isPositive={true}
                         href={`/asset/gold/${asset.realAssetId}` as Route}
                     />
                 ));

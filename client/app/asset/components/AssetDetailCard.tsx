@@ -1,5 +1,4 @@
 'use client';
-import { motion } from 'framer-motion';
 import { Car, ChevronRight, Coins, Home, Shield } from 'lucide-react';
 import type { Route } from 'next';
 import Image from 'next/image';
@@ -16,9 +15,9 @@ const ICON_MAP: Record<IconType, string> = {
 };
 
 const ASSET_ICON_MAP = {
-  property: Home,
-  car: Car,
-  gold: Coins,
+  property: { icon: Home, color: 'text-hana-blue-500', bg: 'bg-hana-blue-50' },
+  car: { icon: Car, color: 'text-hana-teal-600', bg: 'bg-hana-teal-50' },
+  gold: { icon: Coins, color: 'text-hana-gold-500', bg: 'bg-hana-gold-50' },
 };
 
 type DetailedAssetCardProps = {
@@ -46,12 +45,11 @@ type AssetDetailCardProps = DetailedAssetCardProps | InsuranceAssetCardProps;
 
 export function AssetDetailCard(props: AssetDetailCardProps) {
   const router = useRouter();
-
   const handleCardClick = () => {
-    if (props.href) {
-      router.push(props.href as Route);
-    }
+    if (props.href) router.push(props.href as Route);
   };
+
+  const cardBaseStyle = "relative flex w-full overflow-hidden rounded-[24px] border-[1px] border-hana-silver-100 bg-white p-5 shadow-[0_2px_8px_rgba(0,0,0,0.04)] outline-none transition-all active:scale-[0.98] active:bg-hana-silver-50";
 
   if (props.type === 'insurance') {
     const {
@@ -63,119 +61,95 @@ export function AssetDetailCard(props: AssetDetailCardProps) {
     } = props;
 
     return (
-      <motion.button
-        type="button"
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        onClick={handleCardClick}
-        className="relative flex h-22.5 w-81.25 items-center justify-between overflow-hidden rounded-[15px] border-[0.5px] border-border-gray bg-white px-4.5 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-hana-green-500 focus-visible:ring-offset-2 active:bg-zinc-50"
-      >
-        <div className="flex items-center gap-4.25 text-left">
-          <div className="flex size-8.25 items-center justify-center rounded-[10px] bg-hana-teal-100 text-left">
-            {iconType === 'default' ? (
-              <Shield
-                size={18}
-                className="text-hana-green-700"
-                aria-hidden="true"
-              />
-            ) : (
-              <Image
-                src={ICON_MAP[iconType]}
-                alt=""
-                width={22}
-                height={22}
-                aria-hidden="true"
-              />
+        <button
+            type="button"
+            onClick={handleCardClick}
+            className={`${cardBaseStyle} h-auto items-center justify-between`}
+        >
+          <div className="flex items-center gap-4 text-left">
+            <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-hana-green-50">
+              {iconType === 'default' ? (
+                  <Shield size={24} className="text-hana-green-700" />
+              ) : (
+                  <Image src={ICON_MAP[iconType]} alt="" width={28} height={28} />
+              )}
+            </div>
+
+            <div className="flex flex-col gap-0.5">
+              <span className="text-[12px] font-medium text-hana-black-500 leading-none tracking-tight">
+                {company}
+              </span>
+              <span className="text-[17px] font-bold text-hana-black-900 leading-snug tracking-tight">
+                {insuranceName}
+              </span>
+              <span className="text-[14px] font-semibold text-hana-teal-700 mt-0.5">
+                {monthlyPremium} <span className="text-[12px] font-medium text-hana-black-400">/ 월</span>
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-1.5">
+            <div className={`px-2.5 py-1 rounded-lg text-[11px] font-bold tracking-tighter ${
+                status === 'needs_check' ? 'bg-hana-red-50 text-hana-red-500' : 'bg-hana-blue-50 text-hana-blue-500'
+            }`}>
+              {status === 'needs_check' ? '확인 필요' : '정상'}
+            </div>
+            {status === 'needs_check' && (
+                <div className="flex items-center text-[11px] font-bold text-hana-black-400">
+                  보기 <ChevronRight size={12} strokeWidth={3} />
+                </div>
             )}
           </div>
-          <div className="flex flex-col">
-            <span className="text-left text-[12px] text-hana-black-600 leading-4.5">
-              {company}
-            </span>
-            <span className="text-left font-semibold text-[16px] text-hana-black-900 leading-5.25">
-              {insuranceName}
-            </span>
-            <span className="text-left text-[12px] text-hana-black-600 leading-4.5">
-              {monthlyPremium}
-            </span>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-end gap-2">
-          <div
-            className={`flex h-6.5 items-center justify-center rounded-[15px] px-3 ${status === 'needs_check' ? 'bg-hana-red-50' : 'bg-hana-blue-50'}`}
-          >
-            <span
-              className={`font-medium text-[12px] tracking-tight ${status === 'needs_check' ? 'text-hana-red-500' : 'text-hana-blue-500'}`}
-            >
-              {status === 'needs_check' ? '확인 필요' : '정상'}
-            </span>
-          </div>
-          {status === 'needs_check' && (
-            <span className="font-medium text-[11px] text-hana-black-600 tracking-tight">
-              확인하기 &gt;
-            </span>
-          )}
-        </div>
-      </motion.button>
+        </button>
     );
   }
 
   const { title, subtitle, value, change, changePercent, isPositive } = props;
-  const AssetIcon = ASSET_ICON_MAP[props.type];
+  const assetStyle = ASSET_ICON_MAP[props.type as AssetType];
+  const AssetIcon = assetStyle.icon;
 
   return (
-    <motion.button
-      type="button"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      onClick={handleCardClick}
-      className="relative flex h-32 w-81.25 flex-col justify-between overflow-hidden rounded-3xl border-[0.5px] border-border-gray bg-white p-5 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-hana-green-500 focus-visible:ring-inset active:bg-zinc-50"
-    >
-      <div className="flex w-full items-start justify-between">
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 flex size-10 items-center justify-center rounded-xl bg-gray-50 text-hana-black-800">
-            <AssetIcon size={24} strokeWidth={2} />
+      <button
+          type="button"
+          onClick={handleCardClick}
+          className={`${cardBaseStyle} h-auto min-h-[144px] flex-col justify-between items-stretch`}
+      >
+        <div className="flex w-full items-start justify-between">
+          <div className="flex items-center gap-3">
+            <div className={`flex size-11 items-center justify-center rounded-2xl ${assetStyle.bg} ${assetStyle.color}`}>
+              <AssetIcon size={30} strokeWidth={2} />
+            </div>
+            <div className="flex flex-col text-left">
+              <span className="text-[17px] font-bold text-hana-black-900 tracking-tight leading-tight">
+                {title}
+              </span>
+              <span className="text-[12px] font-medium text-hana-black-400">
+                {subtitle}
+              </span>
+            </div>
           </div>
-          <div className="flex flex-col text-left">
-            <span className="font-bold text-[16px] text-hana-black-900 leading-tight">
-              {title}
-            </span>
-            <span className="mt-1 font-medium text-[12px] text-hana-black-500">
-              {subtitle}
-            </span>
+          <div className="text-hana-silver-100">
+            <ChevronRight size={22} strokeWidth={2.5} className="text-hana-black-300" />
           </div>
         </div>
-        <div className="mt-1 text-hana-black-300">
-          <ChevronRight size={20} />
-        </div>
-      </div>
 
-      <div className="mt-auto flex w-full items-center justify-between">
-        <span className="font-semibold text-[18px] text-hana-black-900 tracking-tight">
-          {value}
-        </span>
-        {change && changePercent && (
-          <div
-            className={`flex items-center gap-1 font-semibold text-[13px] ${isPositive ? 'text-hana-red-500' : 'text-hana-blue-500'}`}
-          >
-            <svg
-              width="8"
-              height="7"
-              viewBox="0 0 7 6"
-              fill="none"
-              className={isPositive ? '' : 'rotate-180'}
-              aria-hidden="true"
-            >
-              <title>{isPositive ? '상승' : '하락'}</title>
-              <path d="M3.5 0L7 6L0 6L3.5 0Z" fill="currentColor" />
-            </svg>
-            <span>
-              {change} ({changePercent})
+        <div className="flex w-full items-end justify-between mt-4">
+          <div className="flex flex-col text-left">
+            <span className="text-[22px] font-bold text-hana-black-900 tracking-tighter">
+              {value}
             </span>
           </div>
-        )}
-      </div>
-    </motion.button>
+
+          {change && (
+              <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-[13px] ${
+                  isPositive ? 'bg-hana-red-50 text-hana-red-500' : 'bg-hana-blue-50 text-hana-blue-500'
+              }`}>
+                <span className="text-[11px]">{isPositive ? '▲' : '▼'}</span>
+                <span>{change}</span>
+                <span className="opacity-70 text-[11px]">({changePercent})</span>
+              </div>
+          )}
+        </div>
+      </button>
   );
 }
