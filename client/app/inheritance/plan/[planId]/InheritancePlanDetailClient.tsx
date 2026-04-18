@@ -12,9 +12,8 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import {
-  getInheritanceContext,
   type HeirDistribution,
-  InheritanceContext,
+  type InheritanceContext,
   submitInheritancePlan,
 } from '@/app/inheritance/actions/plan';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
@@ -56,18 +55,19 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
     'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY'
   >('CHILD');
 
-  const [totalAsset] = useState(initialData.assetSummary.totalAsset / 100000000);
+  const [totalAsset] = useState(
+    initialData.assetSummary.totalAsset / 100000000,
+  );
   const [heirs, setHeirs] = useState<Heir[]>(
     initialData.familyMembers.map((member, index) => ({
       id: index + 1,
       userId: member.userId,
-      name: member.userNm,
-      relationship: member.relationCd,
+      name: member.name,
+      relationship: member.relation,
       percentage: 0,
       icon: <User className="h-5 w-5 text-[var(--color-hana-ez-600)]" />,
-    }))
+    })),
   );
- 
 
   useEffect(() => {
     if (editingHeir || isAddModalOpen) {
@@ -198,7 +198,7 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
           heirUserId: h.userId || null,
           heirName: h.name,
           relation: h.relationship,
-          distRatio: h.percentage, // 정수(40) 형태로 전송
+          distRatio: h.percentage / 100,
         }));
 
         console.log(
@@ -451,4 +451,3 @@ export default function InheritancePlanDetailClient({ initialData }: Props) {
     </div>
   );
 }
-
