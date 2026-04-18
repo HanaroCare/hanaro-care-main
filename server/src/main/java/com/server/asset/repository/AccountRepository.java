@@ -39,4 +39,8 @@ public interface AccountRepository extends JpaRepository<TBAccount, Long> {
       AssetCategory category);
 
   boolean existsByUser_UserIdAndIsLinkedTrue(Long userId);
+
+  @org.springframework.data.jpa.repository.Modifying
+  @org.springframework.data.jpa.repository.Query("UPDATE TBAccount a SET a.isLinked = false WHERE a.user.userId = :userId")
+  void unlinkAllByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
 }

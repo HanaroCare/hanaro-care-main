@@ -18,6 +18,8 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -76,6 +78,7 @@ public class TBUserProd extends BaseEntity {
       columnDefinition = "bigint unsigned",
       nullable = true,
       foreignKey = @ForeignKey(name = "fk_UserProd_targetAssetId_RealAsset"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBRealAsset targetAsset;
 
   @Column(name = "MONTHLY_PAYOUT",

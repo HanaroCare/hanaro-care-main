@@ -71,14 +71,4 @@ public class LinkController {
         realAssetService.linkGold(
             subscriberDTO.getUserId(), request, subscriberDTO.isHanaCertYn()));
   }
-
-  @Operation(summary = "실물 자산 연동 해제")
-  @DeleteMapping("/link/{realAssetId}")
-  public ApiResponse<String> unlinkRealAsset(
-      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
-      @PathVariable Long realAssetId
-  ) {
-    realAssetService.unlinkRealAsset(subscriberDTO.getUserId(), realAssetId);
-    return ApiResponse.onSuccess("연동이 해제되었습니다.");
-  }
 }

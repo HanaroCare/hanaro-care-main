@@ -12,6 +12,8 @@ import jakarta.persistence.ForeignKey;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -48,6 +50,7 @@ public class TBUserSimpleAuth extends BaseEntity {
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_UserSimpleAuth_userId_User")
   )
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBUser user;
 
   @Enumerated(EnumType.STRING)

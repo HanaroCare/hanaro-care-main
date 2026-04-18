@@ -22,6 +22,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -48,6 +50,7 @@ public class TBPensionSimulation extends BaseEntity {
   @JoinColumn(name = "REAL_ASSET_ID",
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_TbPensionSimulation_realAssetId_TbRealAsset"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBRealAsset realAsset;
 
   @Enumerated(EnumType.STRING)

@@ -18,6 +18,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -38,6 +40,7 @@ public class TBCardUsage extends BaseCreatedEntity {
   @JoinColumn(name = "CARD_ID",
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_CardUsage_cardId_Card"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBCard card;
 
   @Column(name = "USAGE_NM", nullable = false, length = 100)

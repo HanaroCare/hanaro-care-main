@@ -9,4 +9,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface UserSimpleAuthRepository extends JpaRepository<TBUserSimpleAuth, Long> {
 
   Optional<TBUserSimpleAuth> findByUserAndAuthMeansCd(TBUser user, LoginMeans authMeansCd);
+  void deleteByUser_UserId(Long userId);
 }
