@@ -1,7 +1,7 @@
 spring:
   config:
     import:
-      - classpath:security.yaml
+      - optional:file:security.yaml
   application:
     name: server
 
