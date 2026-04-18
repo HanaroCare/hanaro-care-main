@@ -1,7 +1,7 @@
 'use client';
 
 import { FileCheck, FileText } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import type { ReactNode } from 'react';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import Header from '@/components/navigation/Header';
@@ -9,6 +9,9 @@ import TrustStepLayout from '../../components/trust/TrustStepLayout';
 import { handleReservation } from '../../constants/trustUtils';
 
 export default function ChangeAgentChildPage() {
+  const searchParams = useSearchParams();
+  const parentName = searchParams.get('name');
+
   const handleFamilyDoc = () => {
     window.location.href =
       'https://www.gov.kr/main?a=AA020InfoCappViewApp&HighCtgCD=A01008&CappBizCD=97400000004';
@@ -18,6 +21,7 @@ export default function ChangeAgentChildPage() {
     window.location.href =
       'https://egdrs.scourt.go.kr/ug/SrvcGuideDtlInq.do?bltnBordId=042018000002';
   };
+
   return (
     <TrustStepLayout
       footer={
@@ -49,25 +53,27 @@ export default function ChangeAgentChildPage() {
           </p>
 
           <div className="rounded-4xl border border-[#F2F3F5] bg-white px-5 py-5 shadow-[0_2px_10px_rgba(0,0,0,0.03)]">
-            <div className="flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E9F8F9] text-[20px] font-semibold text-hana-ez-600">
-                권
-              </div>
-
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[16px] leading-6 font-semibold tracking-tight text-black">
-                    권하나
-                  </span>
-                  <span className="rounded-full bg-[#E9F8F9] px-2.5 py-1 text-[11px] leading-4 font-medium text-hana-ez-600">
-                    어머니
-                  </span>
+            {parentName ? (
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#E9F8F9] text-[20px] font-semibold text-hana-ez-600">
+                  {parentName.charAt(0)}
                 </div>
-                <p className="mt-1 text-[12px] leading-5 text-[#9CA3AF]">
-                  010-1234-5678
-                </p>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[16px] leading-6 font-semibold tracking-tight text-black">
+                      {parentName}
+                    </span>
+                    <span className="rounded-full bg-[#E9F8F9] px-2.5 py-1 text-[11px] leading-4 font-medium text-hana-ez-600">
+                      부모
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <p className="text-[14px] text-[#9CA3AF]">
+                연동된 부모님 정보가 없어요.
+              </p>
+            )}
           </div>
         </div>
 
@@ -88,7 +94,7 @@ export default function ChangeAgentChildPage() {
 
             <DocumentItem
               title="후견 증명서"
-              desc="전자후견등기에서 발급받기"
+              desc={"전자후견등기에서\n발급받기"}
               iconBg="#FDEEEE"
               buttonLabel="발급받기"
               icon={<FileCheck size={20} className="text-hana-red-500" />}
@@ -131,7 +137,7 @@ function DocumentItem({
             <p className="text-[15px] leading-6 font-semibold tracking-tight text-black">
               {title}
             </p>
-            <p className="text-[12px] leading-5 text-[#6A7282]">{desc}</p>
+            <p className="whitespace-pre-line text-[12px] leading-5 text-[#6A7282]">{desc}</p>
           </div>
         </div>
 

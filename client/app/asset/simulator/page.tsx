@@ -309,9 +309,15 @@ export default function SimulatorPage() {
                       </p>
                       <PrimaryButton
                         label="권한 위임 신청하기"
-                        onClick={() =>
-                          router.push('/asset/trust/change-agent-child')
-                        }
+                        onClick={() => {
+                          const proxyGrantor = grantors.find(
+                            (g) => g.accessLevel === 'PROXY_ONLY',
+                          );
+                          const params = proxyGrantor
+                            ? `?grantorId=${proxyGrantor.grantorId}&name=${encodeURIComponent(proxyGrantor.grantorName)}&relation=${encodeURIComponent(proxyGrantor.relationLabel)}`
+                            : '';
+                          router.push(`/asset/trust/change-agent-child${params}`);
+                        }}
                       />
                     </div>
                   )}

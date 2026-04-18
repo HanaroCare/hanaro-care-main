@@ -55,6 +55,7 @@ public class PensionMonthlyBatchService {
 
 			userProd.setMonthlyPayout(monthlyPayout);
 			userProd.setProfit(newCumulativeAmount);
+			userProd.setLastPayoutDate(today);
 
 			log.info(
 				"Pension monthly payout settled. userProdId={}, userId={}, ym={}, monthlyPayout={}, cumulativeAmount={}",

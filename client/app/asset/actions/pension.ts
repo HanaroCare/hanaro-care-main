@@ -22,7 +22,7 @@ export type AssetDashboardResponse = {
 export type LinkedHouse = {
   realAssetId: number;
   address: string;
-  detail: string;
+  detail: string[];
   price: number;
 };
 
@@ -118,6 +118,25 @@ export async function getPayoutComparison(
   );
 }
 
+function parseAssetDesc(assetDesc: string, assetNm: string, assetSize: number): string[] {
+  try {
+    const parsed = JSON.parse(assetDesc) as {
+      has_loan?: boolean;
+      acquisition_year?: number;
+      housing_type?: string;
+    };
+
+    const parts: string[] = [];
+    if (parsed.housing_type) parts.push(parsed.housing_type);
+    if (parsed.acquisition_year) parts.push(`${parsed.acquisition_year}년 취득`);
+    if (parsed.has_loan != null) parts.push(parsed.has_loan ? '대출 있음' : '대출 없음');
+
+    return parts.length > 0 ? parts : [`${assetNm} · ${assetSize}m²`];
+  } catch {
+    return [assetDesc || `${assetNm} · ${assetSize}m²`];
+  }
+}
+
 export async function getLinkedHouses(): Promise<LinkedHouse[]> {
   const dashboard = await serverFetch<AssetDashboardResponse>('/api/asset');
 
@@ -126,7 +145,7 @@ export async function getLinkedHouses(): Promise<LinkedHouse[]> {
     .map((asset) => ({
       realAssetId: asset.realAssetId,
       address: asset.addr,
-      detail: asset.assetDesc || `${asset.assetNm} · ${asset.assetSize}m²`,
+      detail: parseAssetDesc(asset.assetDesc, asset.assetNm, asset.assetSize),
       price: asset.evalAmt,
     }));
 }
