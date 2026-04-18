@@ -5,7 +5,7 @@ jwt:
 
 encrypt:
   aes:
-    key: "MTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
+    key: "MTIzNDU2Nzg9AEHyMzQ1Njc4OTAxMjM0NTY3ODkwMTI="
 
 external:
   gemini:

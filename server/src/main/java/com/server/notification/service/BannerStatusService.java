@@ -56,29 +56,23 @@ public class BannerStatusService {
             .build();
     }
 
-    // ─── 병원비 시뮬레이션 완료 여부 ───
     private boolean resolveSimulation(Long userId) {
-        return simulationRepository.existsByUser_UserId(userId);
+        return simulationRepository.existsByUser_UserIdAndIsDefaultFalse(userId);
     }
 
-    // ─── 상속 설계 완료 여부 ───
     private boolean resolveInheritancePlan(Long userId) {
         return inheritPlanRepository.findByUserId(userId).isPresent();
     }
 
-    // ─── 주택연금 시뮬레이션 완료 여부 ───
     private boolean resolveHousingPension(Long userId) {
         return pensionSimulationRepository.existsByRealAsset_User_UserId(userId);
     }
 
-    // ─── 신탁 상품 가입 여부 (InheritanceStepCard step 3 판별용) ───
     private boolean resolveTrustProduct(Long userId) {
         return userProdRepository.existsByUser_UserIdAndProdTypeAndProdStat(
             userId, ProdType.TRUST, ProdStat.IN_PROGRESS);
     }
 
-    // ─── 주택연금 상품 실제 가입 정보 (simulation-result 배너용) ───
-    // 시뮬레이션만 했을 때는 null, 실제 상품 가입 후에만 반환
     private HousingPensionProductInfo resolveHousingPensionProduct(Long userId) {
         return userProdRepository
             .findFirstByUser_UserIdAndProdTypeAndProdStatOrderByCreatedAtDesc(

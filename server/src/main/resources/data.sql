@@ -212,7 +212,7 @@ VALUES (9001, 4001, '강남성심병원', '서울 강남구 도곡동', 'SPEND',
 INSERT INTO TB_ASSET_SIMULATION (SIMULATION_ID, USER_ID, TARGET_AGE, CARE_TYPE_CD,
                                  TOTAL_INCOME_AMT, SHORTAGE_AMT, IS_SUFFICIENT,
                                  LIVING_COST, MEDICAL_COST, CARE_COST, MONTHLY_COST,
-                                 AGE_RANGE_DETAILS)
+                                 AGE_RANGE_DETAILS, IS_DEFAULT)
 VALUES
     -- ──────────────────────────────────────────────────────────────────────
     -- [1] 홍길동 (1001, 65세 → 85세, CENTER 요양, 연금 연동 완료)
@@ -279,7 +279,7 @@ VALUES
        ],
        "ai_opinion": "퇴직연금이 소진되는 80세 이후 월 부족액이 약 205만원으로 증가합니다. 현재 연동된 IRP 잔액(1억 4,400만원)과 주식 자산을 활용한 추가 노후 준비를 권장합니다.",
        "is_linked": true
-     }'),
+     }', 1),
 
     -- ──────────────────────────────────────────────────────────────────────
     -- [2] 이영희 (1003, 63세 → 90세, HOME 요양, 연금 미연동)
@@ -352,7 +352,7 @@ VALUES
          }
        ],
        "ai_opinion": "현재 연금 수령액만으로도 계획하신 재가 요양 생활비를 충분히 충당 가능합니다. 여유 자산은 신탁을 통해 관리하시는 것을 추천합니다."
-     }');
+     }', 1);
 
 -- ========================
 -- TB_TRUST_SIMULATION

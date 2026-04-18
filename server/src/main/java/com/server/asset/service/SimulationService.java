@@ -55,7 +55,7 @@ public class SimulationService {
 
     AccumulatedTotals totals = accumulateSegments(aiResult.getAgeSegments());
     TBAssetSimulation simulation = buildSimulationEntity(
-        userId, request.getTargetAge(), request.getCareType(), totals, toJson(aiResult));
+        userId, request.getTargetAge(), request.getCareType(), totals, toJson(aiResult), false);
 
     return simulationMapper.toSimulationResponse(assetSimulationRepository.save(simulation));
   }
@@ -63,6 +63,11 @@ public class SimulationService {
   @Transactional
   @CacheEvict(value = "simulationDetail", key = "#userId + ':' + #targetAge + ':' + #careType.name()")
   public void rerunLatestSimulation(Long userId, Integer targetAge, CareType careType) {
+    boolean wasDefault = assetSimulationRepository
+        .findFirstByUser_UserIdOrderByCreatedAtDesc(userId)
+        .map(TBAssetSimulation::getIsDefault)
+        .orElse(false);
+
     SimulationRequest request = SimulationRequest.builder()
         .targetAge(targetAge)
         .careType(careType)
@@ -73,7 +78,7 @@ public class SimulationService {
 
     AccumulatedTotals totals = accumulateSegments(aiResult.getAgeSegments());
     assetSimulationRepository.save(
-        buildSimulationEntity(userId, targetAge, careType, totals, toJson(aiResult)));
+        buildSimulationEntity(userId, targetAge, careType, totals, toJson(aiResult), wasDefault));
   }
 
   @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -85,7 +90,18 @@ public class SimulationService {
         .map(u -> u.getUserAge())
         .orElse(30);
     int targetAge = Math.max(85, userAge + 30);
-    rerunLatestSimulation(userId, targetAge, CareType.CENTER);
+
+    SimulationRequest request = SimulationRequest.builder()
+        .targetAge(targetAge)
+        .careType(CareType.CENTER)
+        .build();
+
+    AIAnalysisInput input = userContextUtil.collectUserContext(userId, request);
+    SimulationDetailResponse aiResult = simulationEngine.run(input);
+
+    AccumulatedTotals totals = accumulateSegments(aiResult.getAgeSegments());
+    assetSimulationRepository.save(
+        buildSimulationEntity(userId, targetAge, CareType.CENTER, totals, toJson(aiResult), true));
   }
 
   @CheckUser(key = "#userId")
@@ -152,7 +168,7 @@ public class SimulationService {
   }
 
   private TBAssetSimulation buildSimulationEntity(Long userId, Integer targetAge, CareType careType,
-      AccumulatedTotals totals, String ageRangeDetails) {
+      AccumulatedTotals totals, String ageRangeDetails, boolean isDefault) {
     BigDecimal totalShortageAmt = totals.cost().subtract(totals.income());
     BigDecimal monthlyShortageAmt = totals.months() > 0
         ? totalShortageAmt.divide(new BigDecimal(totals.months()), 0, RoundingMode.HALF_UP)
@@ -170,6 +186,7 @@ public class SimulationService {
         .careCost(totals.care())
         .monthlyCost(totals.cost())
         .ageRangeDetails(ageRangeDetails)
+        .isDefault(isDefault)
         .build();
   }
 

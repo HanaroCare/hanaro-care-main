@@ -48,6 +48,10 @@ export default async function Home() {
     })),
   ]);
 
+  console.log('=== [DEBUG] API Responses ===');
+  console.log('- assetData:', assetData ? 'Data received' : 'Null');
+  console.log('- bannerStatus:', bannerStatus);
+
   const simulationData = simulationResult.ok ? simulationResult.data : null;
 
   const {
@@ -76,11 +80,11 @@ export default async function Home() {
   const activeBanner: ActiveBanner = (() => {
     if (!hasLinkedMyData) return null;
 
+    if (!hasCompletedSimulation) return { type: 'simulation-cta' };
+
     const candidates: ActiveBanner[] = [];
 
-    if (!hasCompletedSimulation) {
-      candidates.push({ type: 'simulation-cta' });
-    } else if (housingPensionProduct) {
+    if (housingPensionProduct) {
       candidates.push({
         type: 'simulation-result',
         userName,

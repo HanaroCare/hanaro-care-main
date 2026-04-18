@@ -90,7 +90,7 @@ public class TestInitLoader implements ApplicationRunner {
   }
 
   private void initPensionProduct() {
-    pensionProduct = productRepository.findByProdCate(ProdCate.PENSION)
+    pensionProduct = productRepository.findFirstByProdCate(ProdCate.PENSION)
         .orElseGet(() -> {
           TBProduct product = TBProduct.builder()
               .prodCate(ProdCate.PENSION)
@@ -102,7 +102,7 @@ public class TestInitLoader implements ApplicationRunner {
   }
 
   private void initTrustProduct() {
-    trustProduct = productRepository.findByProdCate(ProdCate.TRUST)
+    trustProduct = productRepository.findFirstByProdCate(ProdCate.TRUST)
         .orElseGet(() -> {
           TBProduct product = TBProduct.builder()
               .prodCate(ProdCate.TRUST)
