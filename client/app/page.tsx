@@ -66,6 +66,7 @@ export default async function Home() {
     pension,
     isInvitedUser,
     abnormalCardIds,
+    firstAbnormalUsageId,
   } = bannerStatus;
 
   const hasLinkedMyData = assetData?.isMyDataLinked ?? false;
@@ -116,7 +117,7 @@ export default async function Home() {
         </div>
       </div>
 
-      <HomeBanners isInvitedUser={isInvitedUser} abnormalCardIds={abnormalCardIds} />
+      <HomeBanners isInvitedUser={isInvitedUser} abnormalCardIds={abnormalCardIds} firstAbnormalUsageId={firstAbnormalUsageId} />
 
       {activeBanner?.type === 'simulation-cta' && (
           <BannerCard

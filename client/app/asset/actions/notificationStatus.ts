@@ -19,6 +19,8 @@ export type BannerStatusResponse = {
   isInvitedUser: boolean;
   /** 이상 거래(ABNML_YN=Y)가 있는 카드 ID 목록 */
   abnormalCardIds: number[];
+  /** 카드가 1개일 때 이동할 가장 최근 이상 거래 USAGE_ID */
+  firstAbnormalUsageId: number | null;
 };
 
 const EMPTY_STATUS: BannerStatusResponse = {
@@ -32,6 +34,7 @@ const EMPTY_STATUS: BannerStatusResponse = {
   pension: null,
   isInvitedUser: false,
   abnormalCardIds: [],
+  firstAbnormalUsageId: null,
 };
 
 export async function getBannerStatus(): Promise<BannerStatusResponse> {

@@ -59,6 +59,7 @@ public class BannerStatusService {
             .pension(resolvePension(userId))
             .isInvitedUser(resolveInvitedUser(userId))
             .abnormalCardIds(resolveAbnormalCardIds(userId))
+            .firstAbnormalUsageId(resolveFirstAbnormalUsageId(userId))
             .build();
     }
 
@@ -68,6 +69,13 @@ public class BannerStatusService {
 
     private List<Long> resolveAbnormalCardIds(Long userId) {
         return cardUsageRepository.findAbnormalCardIdsByUserId(userId);
+    }
+
+    private Long resolveFirstAbnormalUsageId(Long userId) {
+        return cardUsageRepository
+            .findTopByCard_Account_User_UserIdAndAbnmlYnOrderByCreatedAtDesc(userId, "Y")
+            .map(usage -> usage.getCardUsageId())
+            .orElse(null);
     }
 
     private boolean resolveSimulation(Long userId) {
