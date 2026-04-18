@@ -82,7 +82,7 @@ public class PensionController {
                  ],
                  "recommendedScenario": "BASE",
                  "recommendedReason": "지역 학군 수요와 매수 심리를 고려할 때 완만한 상승세가 예상됩니다.",
-                 "modelVersion": "gemini-2.0-flash",
+                 "modelVersion": "gpt-4o",
                  "predictedAt": "2026-04-15T10:00:00"
                }
              }

@@ -9,18 +9,18 @@ export type AssetDashboardResponse = {
     totalBalance: number;
   }[];
   realAssets: {
-    realAssetId: number;
+    realAssetId: string;
     assetCateCd: string;
     assetNm: string;
-    evalAmt: number;
-    assetSize: number;
-    addr: string;
-    assetDesc: string;
+    evalAmt: number | null;
+    assetSize: number | null;
+    addr: string | null;
+    assetDesc: string | null;
   }[];
 };
 
 export type LinkedHouse = {
-  realAssetId: number;
+  realAssetId: string;
   address: string;
   detail: string[];
   price: number;
@@ -43,7 +43,7 @@ export type PensionForecastChartPoint = {
 };
 
 export type PensionForecastResponse = {
-  realAssetId: number;
+  realAssetId: string;
   assetNm: string;
   currentPrice: number;
   periodYears: number;
@@ -111,15 +111,23 @@ export type PensionPayoutHistoryResponse = {
 };
 
 export async function getPayoutComparison(
-  realAssetId: number,
+  realAssetId: string,
 ): Promise<PensionPayoutComparisonResponse> {
   return serverFetch<PensionPayoutComparisonResponse>(
     `/api/asset/pension/${realAssetId}/payout-comparison`,
   );
 }
 
-function parseAssetDesc(assetDesc: string, assetNm: string, assetSize: number): string[] {
+function parseAssetDesc(
+  assetDesc: string | null,
+  assetNm: string,
+  assetSize: number | null,
+): string[] {
   try {
+    if (!assetDesc) {
+      return [`${assetNm} · ${assetSize ?? '-'}m²`];
+    }
+
     const parsed = JSON.parse(assetDesc) as {
       has_loan?: boolean;
       acquisition_year?: number;
@@ -128,12 +136,14 @@ function parseAssetDesc(assetDesc: string, assetNm: string, assetSize: number): 
 
     const parts: string[] = [];
     if (parsed.housing_type) parts.push(parsed.housing_type);
-    if (parsed.acquisition_year) parts.push(`${parsed.acquisition_year}년 취득`);
-    if (parsed.has_loan != null) parts.push(parsed.has_loan ? '대출 있음' : '대출 없음');
+    if (parsed.acquisition_year)
+      parts.push(`${parsed.acquisition_year}년 취득`);
+    if (parsed.has_loan != null)
+      parts.push(parsed.has_loan ? '대출 있음' : '대출 없음');
 
-    return parts.length > 0 ? parts : [`${assetNm} · ${assetSize}m²`];
+    return parts.length > 0 ? parts : [`${assetNm} · ${assetSize ?? '-'}m²`];
   } catch {
-    return [assetDesc || `${assetNm} · ${assetSize}m²`];
+    return [assetDesc || `${assetNm} · ${assetSize ?? '-'}m²`];
   }
 }
 
@@ -144,14 +154,14 @@ export async function getLinkedHouses(): Promise<LinkedHouse[]> {
     .filter((asset) => asset.assetCateCd === 'REAL_ESTATE')
     .map((asset) => ({
       realAssetId: asset.realAssetId,
-      address: asset.addr,
+      address: asset.addr ?? '',
       detail: parseAssetDesc(asset.assetDesc, asset.assetNm, asset.assetSize),
-      price: asset.evalAmt,
+      price: asset.evalAmt ?? 0,
     }));
 }
 
 export async function getPensionForecast(
-  realAssetId: number,
+  realAssetId: string,
   periodYears = 5,
 ): Promise<PensionForecastResponse> {
   return serverFetch<PensionForecastResponse>(
@@ -178,7 +188,7 @@ export async function getPensionStatus(): Promise<PensionStatusResponse | null> 
 }
 
 export async function getPensionSimulationSummary(
-  realAssetId: number,
+  realAssetId: string,
 ): Promise<PensionSimulationSummaryResponse | null> {
   try {
     return await serverFetch<PensionSimulationSummaryResponse>(
