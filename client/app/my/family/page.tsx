@@ -375,7 +375,7 @@ export default function FamilyManagementPage() {
       // 서버에서 초대 토큰 생성
       const token = await inviteFamily({});
       // 실제 배포 시에는 도메인을 포함한 전체 URL을 구성해야 함
-      const inviteUrl = `${window.location.origin}/onboarding?token=${token}`;
+      const inviteUrl = `${window.location.origin}/font-config?token=${token}`;
       setInviteToken(inviteUrl);
       setIsAddSheetOpen(true);
     } catch (error) {
