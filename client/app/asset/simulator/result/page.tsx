@@ -16,16 +16,20 @@ export default function SimulatorResultPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    localStorage.setItem('has_completed_simulation', 'true');
 
     const fetchData = async () => {
       try {
         const result = await getSimulationSummary();
         if (result) {
+          localStorage.setItem('has_completed_simulation', 'true');
           setData(result);
+        } else {
+          localStorage.removeItem('has_completed_simulation');
+          router.replace('/asset/simulator');
         }
       } catch (error) {
         console.error("데이터 로드 실패:", error);
+        router.replace('/asset/simulator');
       } finally {
         setLoading(false);
       }

@@ -15,8 +15,15 @@ export async function createSimulation(request: SimulationRequest) {
     });
 }
 
-export async function getSimulationSummary() {
-    return await serverFetch<SimulationSummaryApiResponse>('/api/asset/simulation/summary');
+export async function getSimulationSummary(): Promise<SimulationSummaryApiResponse | null> {
+    try {
+        return await serverFetch<SimulationSummaryApiResponse>('/api/asset/simulation/summary');
+    } catch (error) {
+        if (error instanceof ServerFetchError && error.status === 404) {
+            return null;
+        }
+        throw error;
+    }
 }
 
 
