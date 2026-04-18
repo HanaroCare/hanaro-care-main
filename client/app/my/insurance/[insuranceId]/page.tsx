@@ -1,5 +1,4 @@
 import { notFound } from 'next/navigation';
-import InsuranceDetailClient from '@/app/asset/insurance/[id]/InsuranceDetailClient';
 import { getInsuranceDetail } from '../../actions/insuranceActions';
 import InsuranceDetail from '../components/InsuranceDetail';
 
