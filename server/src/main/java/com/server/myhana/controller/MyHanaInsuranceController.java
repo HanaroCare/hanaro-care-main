@@ -42,8 +42,8 @@ public class MyHanaInsuranceController {
   @GetMapping("/{insuranceId}")
   ApiResponse<InsuranceDetailDto> getInsuranceDetail(@AuthenticationPrincipal
       SubscriberDTO user,
-      @Parameter(description = "보험 ID", example = "2005") @PathVariable Long insuranceId) {
-    InsuranceDetailDto result = service.getInsurance(user.getUserId(), insuranceId);
+      @Parameter(description = "보험 ID", example = "2005") @PathVariable String insuranceId) {
+    InsuranceDetailDto result = service.getInsurance(user.getUserId(), Long.parseLong(insuranceId));
     return ApiResponse.onSuccess(result);
   }
 }

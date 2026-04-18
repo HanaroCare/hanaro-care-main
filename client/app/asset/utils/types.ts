@@ -25,7 +25,7 @@ export interface FinancialAssetSummary {
 }
 
 export interface RealAssetSummary {
-    realAssetId: number;
+    realAssetId: string;
     assetCateCd: RealAssetCategory;
     assetNm: string;
     evalAmt: number | null;
@@ -35,7 +35,7 @@ export interface RealAssetSummary {
 }
 
 export interface FinancialAssetResponse {
-    accountId: number;
+    accountId: string;
     assetCateCd: AssetCategory;
     instNm: string;
     accountNm: string;
@@ -101,7 +101,7 @@ export interface CurrentSpending {
 
 // ◀ 추가: actions/simulation.ts에서 참조하는 POST 응답 타입
 export interface SimulationResponse {
-    simulationId: number;
+    simulationId: string;
     summary: SimulationSummary;
     currentSpending: CurrentSpending;
 }

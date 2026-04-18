@@ -30,7 +30,7 @@ function CardChargeContent() {
 
   const [amount, setAmount] = useState("");
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
     null,
   );
   const [showAccountSelect, setShowAccountSelect] = useState(false);

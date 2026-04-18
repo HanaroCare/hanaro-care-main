@@ -19,7 +19,8 @@ export async function getSimulationSummary(): Promise<SimulationSummaryApiRespon
     try {
         return await serverFetch<SimulationSummaryApiResponse>('/api/asset/simulation/summary');
     } catch (error) {
-        if (error instanceof ServerFetchError && error.status === 404) {
+        if (error instanceof ServerFetchError && (error.status === 404 || error.code === 'SIMULATION_404')) {
+            console.warn('[getSimulationSummary] No simulation found.');
             return null;
         }
         throw error;

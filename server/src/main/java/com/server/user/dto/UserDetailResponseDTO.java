@@ -11,7 +11,7 @@ import lombok.Getter;
 public class UserDetailResponseDTO {
 
   @Schema(description = "유저 ID", example = "1001")
-  private Long userId;
+  private String userId;
 
   @Schema(description = "로그인 아이디", example = "hong1234")
   private String loginId;

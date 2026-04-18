@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 
 interface FamilyMember {
-  id: number;
+  id: string;
   name: string;
   initial: string;
   relation: string;
@@ -15,7 +15,7 @@ interface StepFamilyShareProps {
   shareAll: boolean;
   members: FamilyMember[];
   onToggleAll: (val: boolean) => void;
-  onToggleMember: (id: number, val: boolean) => void;
+  onToggleMember: (id: string, val: boolean) => void;
   onNext: () => void;
   isActive: boolean;
 }
@@ -100,13 +100,12 @@ export default function StepFamilyShare({
         disabled={!isActive}
         aria-pressed={alertAgreed}
         onClick={() => isActive && setAlertAgreed(!alertAgreed)}
-        className={`mt-4 w-full px-4 py-3 rounded-[14px] border transition-colors text-left ${
-          !isActive
-            ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-60"
-            : alertAgreed
-              ? "bg-hana-blue-50 border-hana-blue-300 cursor-pointer"
-              : "bg-hana-red-50 border-hana-red-100 cursor-pointer"
-        }`}
+        className={`mt-4 w-full px-4 py-3 rounded-[14px] border transition-colors text-left ${!isActive
+          ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-60"
+          : alertAgreed
+            ? "bg-hana-blue-50 border-hana-blue-300 cursor-pointer"
+            : "bg-hana-red-50 border-hana-red-100 cursor-pointer"
+          }`}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
@@ -123,11 +122,10 @@ export default function StepFamilyShare({
             </p>
           </div>
           <div
-            className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-colors ${
-              alertAgreed
-                ? "border-hana-blue-500 bg-hana-blue-500"
-                : "border-hana-red-400 bg-transparent"
-            }`}
+            className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-colors ${alertAgreed
+              ? "border-hana-blue-500 bg-hana-blue-500"
+              : "border-hana-red-400 bg-transparent"
+              }`}
           >
             {alertAgreed && (
               <svg width="14" height="11" viewBox="0 0 14 11" fill="none">

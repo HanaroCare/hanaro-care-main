@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FamilyMemberDTO {
-    private Long userId;
-    private String name;
-    private FamilyRelation relation; // Simplified for this view
+
+  private String userId;
+  private String name;
+  private FamilyRelation relation; // Simplified for this view
 }

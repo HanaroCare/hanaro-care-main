@@ -264,21 +264,22 @@ public class TrustController {
 	})
 	public ResponseEntity<ApiResponse<?>> getFamilyTrust(
 		@AuthenticationPrincipal SubscriberDTO granteeUser,
-		@PathVariable Long grantorId,
+		@PathVariable String grantorId,
 		@Parameter(description = "조회 유형 (summary | detail)", example = "summary")
 		@RequestParam(defaultValue = "detail") String view
 	) {
 		Long granteeUserId = granteeUser.getUserId();
+		Long grantorIdLong = Long.parseLong(grantorId);
 
 		if ("summary".equalsIgnoreCase(view)) {
 			return ResponseEntity.ok(
-				ApiResponse.onSuccess(trustService.getFamilySimulationSummary(granteeUserId, grantorId))
+				ApiResponse.onSuccess(trustService.getFamilySimulationSummary(granteeUserId, grantorIdLong))
 			);
 		}
 
 		if ("detail".equalsIgnoreCase(view)) {
 			return ResponseEntity.ok(
-				ApiResponse.onSuccess(trustService.getFamilyProduct(granteeUserId, grantorId))
+				ApiResponse.onSuccess(trustService.getFamilyProduct(granteeUserId, grantorIdLong))
 			);
 		}
 

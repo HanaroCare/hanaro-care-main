@@ -17,10 +17,9 @@ export default function Step4Done({
     // 임시 저장된 ID를 가져와서 서버 API 호출
     const pendingIdStr = localStorage.getItem('pending_share_id');
     if (pendingIdStr) {
-      const pendingId = Number(pendingIdStr);
       try {
         await updateInsurancePermission({
-          granteeId: pendingId,
+          granteeId: pendingIdStr,
           isInsView: true,
         });
         localStorage.removeItem('pending_share_id');

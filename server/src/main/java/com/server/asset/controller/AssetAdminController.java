@@ -73,12 +73,12 @@ public class AssetAdminController {
               """))
 		)
 	})
-	public ApiResponse<Long> subscribeTrustProduct(
+	public ApiResponse<String> subscribeTrustProduct(
 		@Parameter(description = "가입 처리할 대상 유저 ID", required = true)
-		@RequestParam Long userId
+		@RequestParam String userId
 	) {
-		Long userProdId = trustAdminService.subscribeTrustProduct(userId);
-		return ApiResponse.onSuccess(userProdId);
+		Long userProdId = trustAdminService.subscribeTrustProduct(Long.parseLong(userId));
+		return ApiResponse.onSuccess(String.valueOf(userProdId));
 	}
 
 	@PostMapping("/pension/subscribe")
@@ -99,14 +99,14 @@ public class AssetAdminController {
               """))
 		)
 	})
-	public ApiResponse<Long> subscribePensionProduct(
+	public ApiResponse<String> subscribePensionProduct(
 		@Parameter(description = "가입 처리할 대상 유저 ID", required = true)
-		@RequestParam Long userId,
+		@RequestParam String userId,
 		@Parameter(description = "주택연금 대상 부동산 자산 ID", required = true)
-		@RequestParam Long realAssetId
+		@RequestParam String realAssetId
 	) {
-		Long userProdId = trustAdminService.subscribePensionProduct(userId, realAssetId);
-		return ApiResponse.onSuccess(userProdId);
+		Long userProdId = trustAdminService.subscribePensionProduct(Long.parseLong(userId), Long.parseLong(realAssetId));
+		return ApiResponse.onSuccess(String.valueOf(userProdId));
 	}
 
 	@PostMapping("/simulation/enqueue")
@@ -114,8 +114,8 @@ public class AssetAdminController {
 		summary = "시뮬레이션 재실행 큐 등록 (관리자)",
 		description = "지정한 userId를 Redis 큐에 등록합니다. /simulation/batch-run과 함께 사용하세요."
 	)
-	public ApiResponse<String> enqueueSimulation(@RequestParam Long userId) {
-		simulationRefreshService.enqueue(userId);
+	public ApiResponse<String> enqueueSimulation(@RequestParam String userId) {
+		simulationRefreshService.enqueue(Long.parseLong(userId));
 		return ApiResponse.onSuccess("userId=" + userId + " 큐 등록 완료");
 	}
 
@@ -145,10 +145,10 @@ public class AssetAdminController {
 		description = "지정한 유저의 신탁 상품에 지급청구대리인을 지정하거나 변경합니다."
 	)
 	public ApiResponse<String> updateClaimAgent(
-		@Parameter(description = "대상 유저 ID", required = true) @RequestParam Long userId,
-		@Parameter(description = "대리인으로 지정할 유저 ID", required = true) @RequestParam Long agentUserId
+		@Parameter(description = "대상 유저 ID", required = true) @RequestParam String userId,
+		@Parameter(description = "대리인으로 지정할 유저 ID", required = true) @RequestParam String agentUserId
 	) {
-		trustAdminService.updateClaimAgent(userId, agentUserId);
+		trustAdminService.updateClaimAgent(Long.parseLong(userId), Long.parseLong(agentUserId));
 		return ApiResponse.onSuccess("지급청구대리인 지정 완료");
 	}
 
@@ -172,9 +172,9 @@ public class AssetAdminController {
 	})
 	public ApiResponse<String> enableAgentView(
 		@Parameter(description = "권한 설정할 대상 유저 ID", required = true)
-		@RequestParam Long userId
+		@RequestParam String userId
 	) {
-		trustAdminService.enableAgentView(userId);
+		trustAdminService.enableAgentView(Long.parseLong(userId));
 		return ApiResponse.onSuccess("대리인 열람 권한 허용 처리가 완료되었습니다.");
 	}
 
@@ -197,9 +197,9 @@ public class AssetAdminController {
 	)
 	public ApiResponse<AdminUserDetailResponse> getUserDetail(
 		@Parameter(description = "조회 대상 유저 ID", required = true)
-		@PathVariable Long userId
+		@PathVariable String userId
 	) {
-		return ApiResponse.onSuccess(trustAdminService.getUserDetail(userId));
+		return ApiResponse.onSuccess(trustAdminService.getUserDetail(Long.parseLong(userId)));
 	}
 
 	@GetMapping("/users/{userId}/children")
@@ -209,9 +209,9 @@ public class AssetAdminController {
 	)
 	public ApiResponse<List<AdminChildFamilyResponse>> getUserChildren(
 		@Parameter(description = "조회 대상 유저 ID", required = true)
-		@PathVariable Long userId
+		@PathVariable String userId
 	) {
-		return ApiResponse.onSuccess(trustAdminService.getChildFamilyMembers(userId));
+		return ApiResponse.onSuccess(trustAdminService.getChildFamilyMembers(Long.parseLong(userId)));
 	}
 
 	@GetMapping("/users/{userId}/real-assets")
@@ -221,9 +221,9 @@ public class AssetAdminController {
 	)
 	public ApiResponse<List<AdminRealAssetResponse>> getUserRealAssets(
 		@Parameter(description = "조회 대상 유저 ID", required = true)
-		@PathVariable Long userId
+		@PathVariable String userId
 	) {
-		return ApiResponse.onSuccess(trustAdminService.getUserRealAssets(userId));
+		return ApiResponse.onSuccess(trustAdminService.getUserRealAssets(Long.parseLong(userId)));
 	}
 
 	@PostMapping("/batch/pension")

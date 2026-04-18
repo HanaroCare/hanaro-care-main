@@ -3,15 +3,17 @@
 import { type InheritancePlanResponse } from '@/app/inheritance/actions/plan';
 import { NavigationBar } from '@/components/navigation/NavigationBar';
 import { TabNavigation } from '@/components/navigation/TabNavigation';
-import { AlertCircle, Link, User } from 'lucide-react';
+import { AlertCircle, User } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts';
 import styles from './page.module.css';
 
 type Props = {
-  initialData: InheritancePlanResponse;
+  initialData: InheritancePlanResponse | null;
 };
+
 const COLORS = [
   'var(--color-chart-1)',
   'var(--color-chart-2)',
@@ -19,11 +21,36 @@ const COLORS = [
   'var(--color-chart-3)',
   'var(--color-chart-4)',
 ];
+
 export default function InheritanceResultClient({ initialData }: Props) {
   const router = useRouter();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [activeTab, setActiveTab] = useState('inheritance');
-  
+
+  if (!initialData) {
+    return (
+      <div className="app-shell bg-white">
+        <div className="app-layout flex flex-col items-center justify-center p-6 text-center">
+          <div className="mb-6 rounded-full bg-gray-50 p-6">
+            <AlertCircle className="h-12 w-12 text-gray-300" />
+          </div>
+          <h2 className="mb-2 text-xl font-bold text-gray-900">저장된 설계가 없습니다</h2>
+          <p className="mb-8 text-gray-500 text-sm leading-relaxed">
+            아직 상속 설계가 완료되지 않았습니다.<br />
+            나만의 자산 배분 계획을 먼저 세워보세요.
+          </p>
+          <button
+            className="w-full max-w-[240px] rounded-xl bg-[var(--color-primary)] py-4 font-bold text-white shadow-lg transition-transform active:scale-95"
+            onClick={() => router.push('/inheritance')}
+          >
+            상속 설계 시작하기
+          </button>
+          <NavigationBar />
+        </div>
+      </div>
+    );
+  }
+
   const handleTabChange = (tabId: string) => {
     if (tabId === 'asset') router.push('/asset/simulator');
     else if (tabId === 'inheritance') router.push('/inheritance/result');
@@ -48,8 +75,8 @@ export default function InheritanceResultClient({ initialData }: Props) {
         id: h.inheritDetailId,
         name: h.heirName,
         relation: h.relation,
-        percentage: h.distRatio,
-        distributedAmt: h.distributedAmt / 100000000,
+        percentage: h.distRatio * 100, // 0.4 -> 40% 변환
+        distributedAmt: h.distributedAmt / 100000000, // 원 -> 억원 변환
         legalPercentage,
         forcedPercentage,
         hasLetter: h.hasLetter,
@@ -92,7 +119,7 @@ export default function InheritanceResultClient({ initialData }: Props) {
             <section className={styles.chartSection}>
               <div
                 className={styles.chartWrapper}
-                style={{ height: '220px', width: '220px' }}
+                style={{ position: 'relative', height: '220px', width: '220px', margin: '0 auto' }}
               >
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
@@ -125,23 +152,11 @@ export default function InheritanceResultClient({ initialData }: Props) {
                     textAlign: 'center',
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: '13px',
-                      color: 'var(--color-hana-black-500)',
-                      fontWeight: 500,
-                    }}
-                  >
+                  <span style={{ fontSize: '13px', color: 'var(--color-hana-black-500)', fontWeight: 500 }}>
                     상속비율
                   </span>
                   <br />
-                  <span
-                    style={{
-                      fontSize: '18px',
-                      fontWeight: 800,
-                      color: 'var(--color-hana-ez-600)',
-                    }}
-                  >
+                  <span style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-hana-ez-600)' }}>
                     100%
                   </span>
                 </div>
@@ -155,7 +170,7 @@ export default function InheritanceResultClient({ initialData }: Props) {
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
                     <span>
-                      {heir.name} ( {heir.percentage}% )
+                      {heir.name} ( {heir.percentage.toFixed(0)}% )
                     </span>
                   </div>
                 ))}
@@ -182,41 +197,29 @@ export default function InheritanceResultClient({ initialData }: Props) {
                         className={`${styles.statusBadge} ${diff >= 0 ? styles.statusPositive : styles.statusNegative}`}
                       >
                         유류분보다 {diff >= 0 ? '+' : ''}
-                        {diff.toLocaleString('ko-KR', {
-                          maximumFractionDigits: 0,
-                        })}
-                        만원
+                        {diff.toLocaleString('ko-KR', { maximumFractionDigits: 0 })}만원
                       </div>
                     </div>
                     <div className={styles.memberDetails}>
                       <div className={styles.detailRow}>
-                        <span className={styles.detailLabel}>
-                          내가 정한 금액
-                        </span>
-                        <span className={styles.highlightValue}>
-                          {myAmount.toFixed(2)}억원
-                        </span>
+                        <span className={styles.detailLabel}>내가 정한 금액</span>
+                        <span className={styles.highlightValue}>{myAmount.toFixed(2)}억원</span>
                       </div>
                       <div className={styles.detailRow}>
                         <span className={styles.detailLabel}>법정상속분</span>
-                        <span className={styles.legalValue}>
-                          {legalAmount.toFixed(2)}억원
-                        </span>
+                        <span className={styles.legalValue}>{legalAmount.toFixed(2)}억원</span>
                       </div>
                       <div className={styles.detailRow}>
                         <span className={styles.detailLabel}>유류분</span>
-                        <span className={styles.forcedValue}>
-                          {forcedAmount.toFixed(2)}억원
-                        </span>
+                        <span className={styles.forcedValue}>{forcedAmount.toFixed(2)}억원</span>
                       </div>
                     </div>
+                    {/* next/link 사용 */}
                     <Link
                       href={`/inheritance/letter/recipients/${heir.id}`}
                       className={styles.letterLink}
                     >
-                      {heir.hasLetter
-                        ? '작성된 편지 보기 >'
-                        : '상속편지 남기기 >'}
+                      {heir.hasLetter ? '작성된 편지 보기 >' : '상속편지 남기기 >'}
                     </Link>
                   </div>
                 );
@@ -237,28 +240,18 @@ export default function InheritanceResultClient({ initialData }: Props) {
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-hana-red-50)]">
                   <AlertCircle className="h-6 w-6 text-[var(--color-hana-red-500)]" />
                 </div>
-                <h3 className="mb-2 font-bold text-gray-900 text-lg">
-                  상속 설계 초기화
-                </h3>
-                <p className="text-gray-500 text-sm leading-relaxed">
-                  작성하신 상속 설계를 처음부터
-                  <br />
-                  다시 시작하시겠습니까?
-                </p>
+                <h3 className="mb-2 font-bold text-gray-900 text-lg">상속 설계 초기화</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">작성하신 상속 설계를 처음부터<br />다시 시작하시겠습니까?</p>
               </div>
               <div className="flex border-gray-100 border-t">
                 <button
                   className="flex-1 px-4 py-4 font-medium text-gray-500 text-sm transition-colors hover:bg-gray-50"
                   onClick={() => setShowConfirmModal(false)}
-                >
-                  취소
-                </button>
+                >취소</button>
                 <button
                   className="flex-1 border-gray-100 border-l px-4 py-4 font-bold text-[var(--color-hana-red-500)] text-sm transition-colors hover:bg-red-50"
                   onClick={confirmReset}
-                >
-                  확인
-                </button>
+                >확인</button>
               </div>
             </div>
           </div>

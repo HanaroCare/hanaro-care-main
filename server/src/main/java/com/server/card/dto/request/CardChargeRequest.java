@@ -22,5 +22,5 @@ public class CardChargeRequest {
 
   @NotNull
   @Schema(description = "충전할 계좌 ID", example = "2001")
-  private Long accountId;
+  private String accountId;
 }

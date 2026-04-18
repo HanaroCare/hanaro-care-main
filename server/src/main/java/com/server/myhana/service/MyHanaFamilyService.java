@@ -48,7 +48,7 @@ public class MyHanaFamilyService {
     List<FamilyMemberResponse> result = new ArrayList<>();
 
     result.add(FamilyMemberResponse.builder()
-        .userId(user.getUserId())
+        .userId(String.valueOf(user.getUserId()))
         .name(user.getUserNm())
         .phone(user.getUserPhone())
         .relation(FamilyRelation.FAMILY.getDescription())
@@ -60,7 +60,7 @@ public class MyHanaFamilyService {
     List<TBFamilyAuth> grantorAuths = familyAuthRepository.findApprovedFamilyByGrantorId(userId);
     grantorAuths.stream()
         .map(auth -> FamilyMemberResponse.builder()
-            .userId(auth.getGrantee().getUserId())
+            .userId(String.valueOf(auth.getGrantee().getUserId()))
             .name(auth.getGrantee().getUserNm())
             .phone(auth.getGrantee().getUserPhone())
             .relation(auth.getRelationCd().getDescription())
@@ -102,7 +102,7 @@ public class MyHanaFamilyService {
 
   @Transactional
   public void updateInsuranceViewPermission(Long grantorId, GrantInsuranceViewRequest request) {
-    Long granteeId = request.getGranteeId();
+    Long granteeId = Long.parseLong(request.getGranteeId());
 
     TBFamilyAuth familyAuth = familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId,
             granteeId)

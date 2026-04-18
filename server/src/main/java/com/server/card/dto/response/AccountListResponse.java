@@ -11,7 +11,7 @@ import lombok.Getter;
 public class AccountListResponse {
 
   @Schema(description = "계좌 ID", example = "2001")
-  private Long accountId;
+  private String accountId;
 
   @Schema(description = "금융 기관명", example = "하나은행")
   private String instNm;
@@ -24,7 +24,7 @@ public class AccountListResponse {
 
   public static AccountListResponse from(TBAccount account) {
     return AccountListResponse.builder()
-        .accountId(account.getAccountId())
+        .accountId(String.valueOf(account.getAccountId()))
         .instNm(account.getInstNm())
         .accountNum(account.getAccountNum())
         .balanceAmt(account.getBalanceAmt())

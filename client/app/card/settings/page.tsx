@@ -31,13 +31,13 @@ function CardSettingsContent() {
   const [limitAmt, setLimitAmt] = useState(200000);
   const [accounts, setAccounts] = useState<
     {
-      accountId: number;
+      accountId: string;
       instNm: string;
       accountNum: string;
       balanceAmt: number;
     }[]
   >([]);
-  const [selectedAccountId, setSelectedAccountId] = useState<number | null>(
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(
     null,
   );
   const [showAccountSelect, setShowAccountSelect] = useState(false);

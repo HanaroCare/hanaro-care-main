@@ -37,8 +37,8 @@ public class UserController {
   @GetMapping("/{userId}")
   public ApiResponse<UserDetailResponseDTO> getUserDetail(
       @Parameter(description = "조회할 유저 ID", example = "1001")
-      @PathVariable Long userId) {
-    return ApiResponse.onSuccess(userService.findUserById(userId));
+      @PathVariable String userId) {
+    return ApiResponse.onSuccess(userService.findUserById(Long.parseLong(userId)));
   }
 
   @Operation(summary = "로그아웃", description = "성공 시 리프레시 토큰이 삭제됩니다.")

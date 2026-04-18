@@ -22,20 +22,21 @@ public class InheritanceController {
   private final InheritanceService inheritanceService;
 
   @GetMapping("/context/{userId}")
-  public ApiResponse<InheritanceContextDTO> getInheritanceContext(@PathVariable Long userId) {
-    return ApiResponse.onSuccess(inheritanceService.getInheritanceContext(userId));
+  public ApiResponse<InheritanceContextDTO> getInheritanceContext(@PathVariable String userId) {
+    return ApiResponse.onSuccess(inheritanceService.getInheritanceContext(Long.parseLong(userId)));
   }
 
   @PostMapping("/plan/{userId}")
   public ApiResponse<InheritanceResponseDTO> createOrUpdatePlan(
-      @PathVariable Long userId,
+      @PathVariable String userId,
       @RequestBody InheritanceRequestDTO request) {
-    return ApiResponse.onSuccess(inheritanceService.createOrUpdatePlan(userId, request));
+    return ApiResponse.onSuccess(
+        inheritanceService.createOrUpdatePlan(Long.parseLong(userId), request));
   }
 
   @GetMapping("/summary/{userId}")
-  public ApiResponse<InheritanceResponseDTO> getPlanSummary(@PathVariable Long userId) {
-    return ApiResponse.onSuccess(inheritanceService.getPlanSummary(userId));
+  public ApiResponse<InheritanceResponseDTO> getPlanSummary(@PathVariable String userId) {
+    return ApiResponse.onSuccess(inheritanceService.getPlanSummary(Long.parseLong(userId)));
   }
 
 

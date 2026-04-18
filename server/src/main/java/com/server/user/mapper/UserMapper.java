@@ -11,7 +11,7 @@ public class UserMapper {
 
   public static UserSummaryResponseDTO toSummaryResponse(TBUser user) {
     return UserSummaryResponseDTO.builder()
-        .userId(user.getUserId())
+        .userId(String.valueOf(user.getUserId()))
         .loginId(user.getLoginId())
         .userNm(user.getUserNm())
         .userPhone(maskPhone(user.getUserPhone()))
@@ -21,7 +21,7 @@ public class UserMapper {
 
   public static UserDetailResponseDTO toDetailResponse(TBUser user) {
     return UserDetailResponseDTO.builder()
-        .userId(user.getUserId())
+        .userId(String.valueOf(user.getUserId()))
         .loginId(user.getLoginId())
         .userNm(user.getUserNm())
         .userAge(user.getUserAge())

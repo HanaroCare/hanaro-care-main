@@ -16,7 +16,7 @@ public class CardRegisterRequest {
 
   @NotNull
   @Schema(description = "연동 계좌 ID", example = "2001")
-  private Long accountId;
+  private String accountId;
 
   @NotBlank
   @Schema(description = "카드 이름", example = "김복순 요양사의 카드")
@@ -36,7 +36,7 @@ public class CardRegisterRequest {
   private String designCd;
 
   @Schema(description = "카드 공유할 가족 권한 ID 목록", example = "[1, 2]")
-  private List<Long> familyAuthIds;
+  private List<String> familyAuthIds;
 
   @NotNull
   @Min(1)

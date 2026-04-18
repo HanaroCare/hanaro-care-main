@@ -101,7 +101,7 @@ public class InheritanceService {
       String hName = dist.getHeirName();
 
       if (dist.getHeirUserId() != null) {
-        heir = userRepository.findById(dist.getHeirUserId())
+        heir = userRepository.findById(Long.parseLong(dist.getHeirUserId()))
             .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
         hName = heir.getUserNm();
       }
@@ -128,8 +128,8 @@ public class InheritanceService {
           .setScale(0, RoundingMode.HALF_UP);
 
       heirSummaries.add(InheritanceResponseDTO.HeirSummaryDTO.builder()
-          .inheritDetailId(detail.getInheritDetailId())
-          .heirUserId(heir != null ? heir.getUserId() : null)
+          .inheritDetailId(String.valueOf(detail.getInheritDetailId()))
+          .heirUserId(heir != null ? String.valueOf(heir.getUserId()) : null)
           .heirName(hName)
           .relation(dist.getRelation())
           .distRatio(dist.getDistRatio())
@@ -141,7 +141,7 @@ public class InheritanceService {
     }
 
     return InheritanceResponseDTO.builder()
-        .planId(plan.getId())
+        .planId(String.valueOf(plan.getId()))
         .totalInheritAmt(totalInheritAmt)
         .estiTaxAmt(tax)
         .heirs(heirSummaries)
@@ -149,42 +149,43 @@ public class InheritanceService {
   }
 
   public InheritanceResponseDTO getPlanSummary(Long userId) {
-    TBInheritPlan plan = planRepository.findByUserId(userId)
-        .orElseThrow(
-            () -> new ApiException(ErrorStatus.INHERIT_PLAN_NOT_FOUND));
+    return planRepository.findByUserId(userId)
+        .map(plan -> {
+          List<TBInheritDetail> details = detailRepository.findByInheritPlanId(plan.getId());
 
-    List<TBInheritDetail> details = detailRepository.findByInheritPlanId(plan.getId());
+          List<InheritanceResponseDTO.HeirSummaryDTO> heirSummaries = details.stream()
+              .map(d -> {
+                BigDecimal netInheritAmt = plan.getTotalInheritAmt().subtract(plan.getEstiTaxAmt());
+                BigDecimal distributedAmt = netInheritAmt
+                    .multiply(d.getDistRatio())
+                    .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 
-    List<InheritanceResponseDTO.HeirSummaryDTO> heirSummaries = details.stream()
-        .map(d -> {
-          BigDecimal netInheritAmt = plan.getTotalInheritAmt().subtract(plan.getEstiTaxAmt());
+                boolean hasLetter = d.getInheritLetter() != null;
+                String letterId =
+                    hasLetter ? String.valueOf(d.getInheritLetter().getLetterId()) : null;
 
-          BigDecimal distributedAmt = netInheritAmt
-              .multiply(d.getDistRatio())
-              .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
+                return InheritanceResponseDTO.HeirSummaryDTO.builder()
+                    .inheritDetailId(String.valueOf(d.getInheritDetailId()))
+                    .heirUserId(
+                        d.getUser() != null ? String.valueOf(d.getUser().getUserId()) : null)
+                    .heirName(d.getHeirName())
+                    .relation(d.getRelationCd())
+                    .distRatio(d.getDistRatio().doubleValue())
+                    .distributedAmt(distributedAmt)
+                    .hasLetter(hasLetter)
+                    .letterId(letterId)
+                    .build();
+              })
+              .collect(Collectors.toList());
 
-          boolean hasLetter = d.getInheritLetter() != null;
-          Long letterId = hasLetter ? d.getInheritLetter().getLetterId() : null;
-
-          return InheritanceResponseDTO.HeirSummaryDTO.builder()
-              .inheritDetailId(d.getInheritDetailId())
-              .heirUserId(d.getUser() != null ? d.getUser().getUserId() : null)
-              .heirName(d.getHeirName())
-              .relation(d.getRelationCd())
-              .distRatio(d.getDistRatio().doubleValue())
-              .distributedAmt(distributedAmt)
-              .hasLetter(hasLetter)
-              .letterId(letterId)
+          return InheritanceResponseDTO.builder()
+              .planId(String.valueOf(plan.getId()))
+              .totalInheritAmt(plan.getTotalInheritAmt())
+              .estiTaxAmt(plan.getEstiTaxAmt())
+              .heirs(heirSummaries)
               .build();
         })
-        .collect(Collectors.toList());
-
-    return InheritanceResponseDTO.builder()
-        .planId(plan.getId())
-        .totalInheritAmt(plan.getTotalInheritAmt())
-        .estiTaxAmt(plan.getEstiTaxAmt())
-        .heirs(heirSummaries)
-        .build();
+        .orElse(null);
   }
 
   public LetterDTO getLetter(Long letterId) {
@@ -192,8 +193,8 @@ public class InheritanceService {
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
     return LetterDTO.builder()
-        .letterId(letter.getLetterId())
-        .inheritDetailId(letter.getInheritDetail().getInheritDetailId())
+        .letterId(String.valueOf(letter.getLetterId()))
+        .inheritDetailId(String.valueOf(letter.getInheritDetail().getInheritDetailId()))
         .letterType(letter.getLetterTypeCd())
         .content(letter.getLetterCont())
         .voiceUrl(letter.getVoiceUrl())
@@ -201,7 +202,7 @@ public class InheritanceService {
   }
 
   public LetterDTO createOrUpdateLetter(LetterDTO dto) {
-    TBInheritDetail detail = detailRepository.findById(dto.getInheritDetailId())
+    TBInheritDetail detail = detailRepository.findById(Long.parseLong(dto.getInheritDetailId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_HEIR_NOT_FOUND));
 
     TBInheritLetter letter = detail.getInheritLetter();
@@ -218,8 +219,8 @@ public class InheritanceService {
     letter = letterRepository.save(letter);
 
     return LetterDTO.builder()
-        .letterId(letter.getLetterId())
-        .inheritDetailId(detail.getInheritDetailId())
+        .letterId(String.valueOf(letter.getLetterId()))
+        .inheritDetailId(String.valueOf(detail.getInheritDetailId()))
         .letterType(letter.getLetterTypeCd())
         .content(letter.getLetterCont())
         .voiceUrl(letter.getVoiceUrl())
