@@ -89,7 +89,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
 
     const summaryData = useMemo<Record<TabId, SummaryItem>>(() => {
         const getRealSum = (cate: string) =>
-            realAssets
+            (realAssets || []) // 안전하게 빈 배열 처리
                 .filter(a => a.assetCateCd === cate)
                 .reduce((sum, a) => sum + (a.evalAmt ?? 0), 0);
 
@@ -97,8 +97,8 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             asset: {
                 type: 'total',
                 amount: formatKoreanCurrency(dashboardData?.totalFinancialAmt || 0),
-                buttonLabel: '노후 비용 예측하기',
-                href: '/asset/simulator' as Route,
+                buttonLabel: '자산 추가 연동하기',
+                href: '/mydata/connect' as Route,
             },
             realestate: {
                 type: 'property',
@@ -109,7 +109,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             insurance: {
                 type: 'insurance',
                 amount: formatKoreanCurrency(
-                    financialAssets
+                    (financialAssets || [])
                         .filter(a => a.assetCateCd === 'INSURANCE')
                         .reduce((sum, a) => sum + (a.balanceAmt ?? 0), 0)
                 ),
@@ -230,7 +230,7 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
             </div>
             <main className="flex flex-col items-center gap-6 px-6 pb-24">
                 {tabContent}
-                {activeTab !== 'asset' && currentSummary.buttonLabel && (
+                {currentSummary.buttonLabel && (
                     <div className="mt-4 w-full">
                         <PrimaryButton
                             label={currentSummary.buttonLabel}

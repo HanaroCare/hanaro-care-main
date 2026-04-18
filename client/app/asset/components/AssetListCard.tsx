@@ -9,7 +9,7 @@ const GET_LOGO_BY_NAME = (instNm: string): string => {
 	if (instNm.includes("하나")) return "/images/asset/hana-bank.svg";
 	if (instNm.includes("현대")) return "/images/asset/hd-card.svg";
 	if (instNm.includes("기업")) return "/images/asset/ibk-bank.svg";
-	if (instNm.includes("국민은행")) return "/images/asset/kb-bank.svg"; // 국민연금과 구분
+	if (instNm.includes("국민은행")) return "/images/asset/kb-bank.svg";
 	if (instNm.includes("국민연금")) return "/images/asset/nation-pension.svg";
 	if (instNm.includes("삼성")) return "/images/asset/samsung.svg";
 	if (instNm.includes("신한")) return "/images/asset/shinhan-bank.svg";
@@ -17,7 +17,6 @@ const GET_LOGO_BY_NAME = (instNm: string): string => {
 	return "/images/asset/hana-bank.svg"; // 기본 로고
 };
 
-// 타입을 DB 카테고리에 맞춰 매핑
 const ICON_STYLES: Record<string, string> = {
 	CASH:             "bg-hana-teal-100",
 	STOCK:            "bg-hana-teal-100",
