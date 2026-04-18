@@ -13,6 +13,7 @@ const DETAIL_ROWS = [
 interface InsuranceDetailViewProps {
   detail: InsuranceDetailDto;
 }
+
 export default function InsuranceDetail({ detail }: InsuranceDetailViewProps) {
   const getValue = (row: (typeof DETAIL_ROWS)[number]) => {
     if (row.isNested) {

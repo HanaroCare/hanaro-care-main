@@ -48,8 +48,6 @@ export async function getInsuranceDetail(insuranceId: string) {
   try {
     const url = `${BASE_URL}/api/myhana/insurances/${insuranceId}`;
     
-    console.log("🚀 호출 주소:", url);
-
     const response = await fetch(url, {
       method: 'GET',
       headers: await getAuthHeader(),
@@ -57,12 +55,12 @@ export async function getInsuranceDetail(insuranceId: string) {
     });
 
     if (!response.ok) {
-      console.error(`❌ 백엔드 응답 에러: ${response.status}`);
+      console.error(`백엔드 응답 에러: ${response.status}`);
       return null; // 에러 시 throw 대신 null 반환
     }
 
     const data: ApiResponse<InsuranceDetailDto> = await response.json();
-    console.log("📦 백엔드 결과:", data);
+    console.log("백엔드 결과:", data);
     return data.result;
   } catch (error) {
     console.error('getInsuranceDetail Error:', error);
