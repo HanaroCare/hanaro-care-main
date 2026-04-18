@@ -64,9 +64,6 @@ export function AssetListCard({ data }: { data: FinancialAssetResponse[] }) {
 					</div>
 				))}
 			</div>
-			<button type="button" className="mt-6 flex w-full items-center justify-center gap-1 py-1 text-[13px] text-hana-black-500">
-				더보기 <ChevronRight size={14} />
-			</button>
 		</div>
 	);
 }

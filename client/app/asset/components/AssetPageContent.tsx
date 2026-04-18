@@ -152,7 +152,9 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
 
                 return (
                     <>
-                        <AssetListCard data={financialAssets.filter(a => a.assetCateCd !== 'INSURANCE')} />
+                        {financialAssets.filter(a => a.assetCateCd !== 'INSURANCE').length > 0 && (
+                            <AssetListCard data={financialAssets.filter(a => a.assetCateCd !== 'INSURANCE')} />
+                        )}
                         {chartPoints.length > 0 && (
                             <AssetChart
                                 title="6개월 자산 변화"
