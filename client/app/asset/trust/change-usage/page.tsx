@@ -7,6 +7,7 @@ import {
   type TrustProductDetail,
   updateTrustPayoutSettings,
 } from '@/app/asset/actions/trust';
+import { getSimulationSummary } from '@/app/asset/actions/asset';
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import ProgressBar from '@/components/baseelements/ProgressBar';
 import { AlertBanner } from '@/components/modules/AlertBanner';
@@ -44,7 +45,10 @@ export default function ChangeUsagePage() {
         setIsLoading(true);
         setError(null);
 
-        const data = await getTrustProduct();
+        const [data, simResult] = await Promise.all([
+          getTrustProduct(),
+          getSimulationSummary(),
+        ]);
 
         if (!data) {
           setProductDetail(null);
@@ -61,16 +65,29 @@ export default function ChangeUsagePage() {
           return;
         }
 
+        const simSegment = simResult?.ok ? simResult.data?.age_segments?.[0] : null;
+        const DEFAULT_HOSPITAL = 430000;
+        const DEFAULT_LIVING = 1000000;
+
+        const hospitalAmount =
+          data.executionSetting.hospitalAmount ||
+          simSegment?.detail.medical ||
+          DEFAULT_HOSPITAL;
+        const livingAmount =
+          data.executionSetting.livingAmount ||
+          simSegment?.detail.living ||
+          DEFAULT_LIVING;
+
         const nextItems: UsageItem[] = [
           {
             id: 'hospital',
             title: '병원비 자동 집행',
-            amount: data.executionSetting.hospitalAmount ?? 0,
+            amount: hospitalAmount,
           },
           {
             id: 'living',
             title: '생활비',
-            amount: data.executionSetting.livingAmount ?? 0,
+            amount: livingAmount,
           },
         ];
 
