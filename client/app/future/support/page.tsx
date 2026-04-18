@@ -39,7 +39,7 @@ export default function SupportPage() {
                 <div className="flex flex-row w-full gap-2">
                     <button
                         onClick={() => setActiveTab("local")}
-                        className={`flex-1 py-[12px] rounded-[14px] transition-all duration-200 font-bold text-[16px] ${
+                        className={`flex-1 py-[12px] rounded-[14px] transition-all duration-200 font-semi-bold text-[16px] ${
                             activeTab === "local"
                                 ? "bg-hana-green-50 text-hana-green-700"
                                 : "bg-white text-hana-black-500 hover:bg-gray-50"
@@ -50,7 +50,7 @@ export default function SupportPage() {
 
                     <button
                         onClick={() => setActiveTab("hana")}
-                        className={`flex-1 py-[12px] rounded-[14px] transition-all duration-200 font-bold text-[16px] ${
+                        className={`flex-1 py-[12px] rounded-[14px] transition-all duration-200 font-semi-bold text-[16px] ${
                             activeTab === "hana"
                                 ? "bg-hana-green-50 text-hana-green-700"
                                 : "bg-white text-hana-black-500 hover:bg-gray-50"
