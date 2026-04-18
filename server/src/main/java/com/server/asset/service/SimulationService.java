@@ -20,6 +20,7 @@ import com.server.asset.util.UserContextUtil;
 import com.server.common.annotation.CheckUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
+import com.server.user.entity.TBUser;
 import com.server.user.repository.UserRepository;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -87,7 +88,7 @@ public class SimulationService {
       return;
     }
     int userAge = userRepository.findById(userId)
-        .map(u -> u.getUserAge())
+        .map(TBUser::getUserAge)
         .orElse(30);
     int targetAge = Math.max(85, userAge + 30);
 
