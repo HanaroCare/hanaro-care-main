@@ -18,7 +18,7 @@ export function SimulationDetailCard({ items }: SimulationDetailCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex w-full flex-col gap-[20px] rounded-[16px] border border-[#F3F4F6] bg-white px-5 py-[22px] shadow-[0_2px_12px_rgba(0,0,0,0.06)]"
+      className="flex w-full flex-col gap-5 rounded-3xl bg-white px-5 py-5.5 "
     >
       {items.map((item, index) => {
         const clampedProgress = Math.min(1, Math.max(0, item.progress));
@@ -37,7 +37,7 @@ export function SimulationDetailCard({ items }: SimulationDetailCardProps) {
                 initial={{ width: 0 }}
                 animate={{ width: `${clampedProgress * 100}%` }}
                 transition={{ duration: 1, delay: index * 0.1 }}
-                className="h-full rounded-full bg-[#49A5A4]"
+                className="h-full rounded-full bg-red-300"
                 style={{ opacity: item.opacity }}
               />
             </div>

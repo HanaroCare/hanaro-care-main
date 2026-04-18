@@ -1,10 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function FontConfigPage() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
 	const [isMounted, setIsMounted] = useState(false);
 	const [selectedLevel, setSelectedLevel] = useState(2);
 
@@ -15,6 +16,14 @@ export default function FontConfigPage() {
 		4: "19.2px",
 		5: "20.8px",
 	};
+
+	useEffect(() => {
+		const inviteToken = searchParams.get("token");
+		if (inviteToken) {
+			localStorage.setItem("family_invite_token", inviteToken);
+			window.history.replaceState(null, "", window.location.pathname);
+		}
+	}, [searchParams]);
 
 	useEffect(() => {
 		setIsMounted(true);

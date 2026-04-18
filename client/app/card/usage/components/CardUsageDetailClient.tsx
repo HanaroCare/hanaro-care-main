@@ -34,18 +34,19 @@ export default function CardUsageDetailClient({ usage }: Props) {
   };
 
   return (
-    <div
-      className="relative min-h-screen"
-      style={{ background: isAbnormal ? "#FFF1F1" : "#FFFFFF" }}
-    >
-      <div className="absolute top-4 right-4 flex gap-2">
-        <button
-          className="w-[35px] h-[35px] bg-[#E5E5E5] rounded-full flex items-center justify-center"
-          onClick={() => router.back()}
-        >
-          <X size={16} color="#0A0A0A" />
-        </button>
-      </div>
+      <div
+          className="relative min-h-screen"
+          style={{ background: isAbnormal ? "#FFF1F1" : "#FFFFFF" }}
+      >
+        {/* 1. 상단 액션 바 영역 (높이를 명시적으로 잡아줌) */}
+        <div className="flex items-center justify-end px-4 h-14">
+          <button
+              className="w-9 h-9 bg-hana-black-50/50 backdrop-blur-sm rounded-full flex items-center justify-center transition-active active:scale-95"
+              onClick={() => router.back()}
+          >
+            <X size={18} color="#0A0A0A" />
+          </button>
+        </div>
 
       <div className="px-6 mt-6">
         <p className="text-xl text-hana-black-900">{usage.usageNm}</p>

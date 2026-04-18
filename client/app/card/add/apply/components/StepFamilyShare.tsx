@@ -37,7 +37,7 @@ export default function StepFamilyShare({
   return (
     <div className="page-in px-8 pt-8 pb-6 border-t border-border-gray">
       <h2 className="text-lg font-semibold leading-[30px] tracking-snug text-black whitespace-pre-line">
-        {"가족 공유 설정을\n할 수 있어요"}
+        {"결제 내역 공유를\n설정할 수 있어요"}
       </h2>
       <p className="mt-2 text-xs text-[#4A5565] leading-5">
         지출 내역과 알림을 공유할 가족을 선택해요

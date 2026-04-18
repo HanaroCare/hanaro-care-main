@@ -126,7 +126,7 @@ export default function CardDashboardScreen({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="flex justify-end px-4 pt-4 h-9">
+        <div className="flex justify-end px-4 pt-3 h-9">
           {!isAddSlide && (
             <button
               onClick={() =>
@@ -134,7 +134,7 @@ export default function CardDashboardScreen({
                   `/card/settings?cardId=${currentCard!.cardId}` as Route,
                 )
               }
-              className="flex items-center gap-1 px-3 py-1 bg-hana-silver-100 rounded-xl text-xs font-medium text-black"
+              className="flex items-center gap-1 px-3 py-3 bg-gray-3 rounded-xl text-xs font-medium text-black"
             >
               <Settings size={14} />
               카드 설정 변경
@@ -142,12 +142,10 @@ export default function CardDashboardScreen({
           )}
         </div>
 
-        {/* 카드 슬라이더 */}
         <div
           className="relative overflow-hidden mt-2"
           style={{ height: "165px" }}
         >
-          {/* 카드 트랙 - 전체를 translateX로 이동 */}
           <div
             className="flex items-center h-full"
             style={{
@@ -234,7 +232,7 @@ export default function CardDashboardScreen({
                       `/card/charge?cardId=${currentCard!.cardId}` as Route,
                     )
                   }
-                  className="px-3 py-1 bg-hana-green-50 rounded-[15px] text-xs font-medium text-hana-ez-600"
+                  className="px-4 py-2 bg-hana-green-50 rounded-[15px] text-xs font-medium text-hana-ez-600"
                 >
                   송금하기
                 </button>
@@ -263,7 +261,7 @@ export default function CardDashboardScreen({
           <p className="text-xl font-medium text-[#101828] tracking-tight">
             4월 소비 내역
           </p>
-          <p className="text-2xl font-medium text-[#101828] tracking-tight mt-1">
+          <p className="text-2xl font-bold text-[#101828] tracking-tight mt-1">
             {monthlyTotal.toLocaleString()}원
           </p>
         </div>

@@ -39,7 +39,7 @@ export default function LegacyDonationPage() {
     <div className="relative w-full min-h-screen bg-[#F6F7F8] flex flex-col">
       <Header title="유산기부" onBack={() => router.push("/my" as Route)} />
 
-      <div className="flex flex-col pb-[40px] pt-[65px]">
+      <div className="flex flex-col pb-[40px] pt-[20px]">
         {/* 상단 배너 */}
         <div
           onClick={() => router.push("/future/legacy-donation/consult" as Route)}

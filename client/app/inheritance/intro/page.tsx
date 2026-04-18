@@ -1,5 +1,11 @@
 import InheritanceIntroClient from './InheritanceIntroClient';
 
+// 공통 컴포넌트 import
+import PrimaryButton from '@/components/baseelements/PrimaryButton';
+import { StepIndicator } from '@/components/baseelements/StepIndicator';
+import PageHeading from '@/components/typography/PageHeading';
+import PageDescription from '@/components/typography/PageDescription';
+
 const SLIDES = [
   {
     idx: 0,

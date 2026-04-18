@@ -44,7 +44,7 @@ export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="w-full rounded-[24px] border border-hana-silver-100 bg-white px-5 py-7 shadow-sm"
+      className="w-full rounded-[24px] bg-white px-5 py-7 shadow-sm"
     >
       <div className="h-55 w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -86,7 +86,7 @@ export function SimulationTrendChart({ data }: SimulationTrendChartProps) {
       </div>
 
       <p className="mt-4 text-center font-medium text-[13px] text-hana-black-500">
-        구간별 월 지출 추이 (만원)
+        구간별 월 지출 추이
       </p>
     </motion.div>
   );

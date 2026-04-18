@@ -11,7 +11,6 @@ export default function CardAddPage() {
   const router = useRouter();
   const [selectedDesignId, setSelectedDesignId] = useState<number | null>(null);
 
-  // 디자인 선택 후 동의 페이지
   if (selectedDesignId !== null) {
     return (
       <CardConsentPage

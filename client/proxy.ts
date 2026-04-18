@@ -15,6 +15,11 @@ export function proxy(request: NextRequest) {
   const hasSeenOnboarding = request.cookies.get('HAS_SEEN_ONBOARDING')?.value === 'true';
   const authType = request.cookies.get('AUTH_TYPE')?.value;
 
+  const hasInviteToken = request.nextUrl.searchParams.has('token');
+  if (hasInviteToken && pathname === '/font-config') {
+    return NextResponse.next();
+  }
+
   const isPublic = PUBLIC_PATHS.some((path) => pathname.startsWith(path));
   const isAlwaysAccessible = ALWAYS_ACCESSIBLE.some((path) => pathname.startsWith(path));
 
