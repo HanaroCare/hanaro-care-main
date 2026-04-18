@@ -2,6 +2,7 @@ package com.server.myhana.controller;
 
 import com.server.common.response.ApiResponse;
 import com.server.common.security.dto.SubscriberDTO;
+import com.server.myhana.dto.request.FamilyAcceptRequest;
 import com.server.myhana.dto.request.FamilyInviteRequest;
 import com.server.myhana.dto.request.GrantInsuranceViewRequest;
 import com.server.myhana.dto.response.FamilyMemberResponse;
@@ -47,6 +48,15 @@ public class MyHanaFamilyController {
       @RequestBody FamilyInviteRequest request) {
     String inviteToken = familyService.inviteFamily(subscriberDTO.getUserId(), request);
     return ApiResponse.onSuccess(inviteToken);
+  }
+
+  @Operation(summary = "가족 초대 수락", description = "초대 토큰을 검증하고 TB_FAMILY_AUTH에 GRANTOR/GRANTEE 관계를 등록합니다.")
+  @PostMapping("/accept")
+  public ApiResponse<Void> acceptFamilyInvite(
+      @AuthenticationPrincipal SubscriberDTO subscriberDTO,
+      @RequestBody FamilyAcceptRequest request) {
+    familyService.acceptFamilyInvite(subscriberDTO.getUserId(), request);
+    return ApiResponse.onSuccess(null);
   }
 
   @Operation(summary = "보험 내역 열람 권한 관리", description = "입증된 가족에게 보험 내역 열람 권한을 주거나 취소합니다.")

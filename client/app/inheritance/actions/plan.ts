@@ -41,8 +41,8 @@ export interface InheritanceContext {
   };
   familyMembers: {
     userId: number;
-    userNm: string;
-    relationCd: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
+    name: string;
+    relation: 'SPOUSE' | 'CHILD' | 'PARENT' | 'FAMILY';
   }[];
 }
 

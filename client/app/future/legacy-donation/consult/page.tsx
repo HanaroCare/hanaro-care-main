@@ -46,7 +46,7 @@ export default function LegacyDonationConsultPage() {
     <div className="relative w-full min-h-screen bg-white flex flex-col">
       <Header title="유산기부" />
 
-      <div className="flex flex-col pt-[65px]">
+      <div className="flex flex-col pt-[20px]">
         <div className="mx-[27px] mt-[51px]">
           <div className="flex flex-row items-center gap-[5px] h-[50px] px-[17px] border border-[#E3E5E8] rounded-[10px] bg-white">
             <Search size={15} color="#D1D5DB" />
