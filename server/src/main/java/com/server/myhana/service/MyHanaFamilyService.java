@@ -73,7 +73,7 @@ public class MyHanaFamilyService {
     List<TBFamilyAuth> granteeAuths = familyAuthRepository.findApprovedFamilyByGranteeId(userId);
     granteeAuths.stream()
         .map(auth -> FamilyMemberResponse.builder()
-            .userId(auth.getGrantor().getUserId())
+            .userId(String.valueOf(auth.getGrantor().getUserId()))
             .name(auth.getGrantor().getUserNm())
             .phone(auth.getGrantor().getUserPhone())
             .relation(inverseRelation(auth.getRelationCd()))
@@ -165,18 +165,20 @@ public class MyHanaFamilyService {
   }
 
   private List<TBCardUsage> buildSampleUsages(TBCard card, String grantorName) {
-    record U(String nm, String loc, UsageType type, String amt, String abnml) {}
+    record U(String nm, String loc, UsageType type, String amt, String abnml) {
+
+    }
     List<U> rows = List.of(
-        new U("강남성심병원",        "서울 강남구 도곡로 117",         UsageType.SPEND,  "25000",  "N"),
-        new U(grantorName,           null,                             UsageType.CHARGE, "300000", "N"),
-        new U("네일샵 강남점",        "서울 강남구 강남대로 396",       UsageType.SPEND,  "45000",  "Y"),
-        new U("삼성서울병원 약국",    "서울 강남구 일원로 81",          UsageType.SPEND,  "18500",  "N"),
-        new U("강남구보건소",         "서울 강남구 삼성로 212",         UsageType.SPEND,  "5000",   "N"),
-        new U("온누리약국 역삼점",    "서울 강남구 역삼로 165",         UsageType.SPEND,  "12800",  "N"),
-        new U("노래방 강남점",        "서울 강남구 역삼로 180",         UsageType.SPEND,  "35000",  "Y"),
-        new U("의료기기센터 강남",    "서울 강남구 논현로 508",         UsageType.SPEND,  "45000",  "N"),
-        new U("강남재활의학과",       "서울 강남구 역삼로 146",         UsageType.SPEND,  "32000",  "N"),
-        new U("한마음약국",           "서울 강남구 대치동 944-7",       UsageType.SPEND,  "9500",   "N")
+        new U("강남성심병원", "서울 강남구 도곡로 117", UsageType.SPEND, "25000", "N"),
+        new U(grantorName, null, UsageType.CHARGE, "300000", "N"),
+        new U("네일샵 강남점", "서울 강남구 강남대로 396", UsageType.SPEND, "45000", "Y"),
+        new U("삼성서울병원 약국", "서울 강남구 일원로 81", UsageType.SPEND, "18500", "N"),
+        new U("강남구보건소", "서울 강남구 삼성로 212", UsageType.SPEND, "5000", "N"),
+        new U("온누리약국 역삼점", "서울 강남구 역삼로 165", UsageType.SPEND, "12800", "N"),
+        new U("노래방 강남점", "서울 강남구 역삼로 180", UsageType.SPEND, "35000", "Y"),
+        new U("의료기기센터 강남", "서울 강남구 논현로 508", UsageType.SPEND, "45000", "N"),
+        new U("강남재활의학과", "서울 강남구 역삼로 146", UsageType.SPEND, "32000", "N"),
+        new U("한마음약국", "서울 강남구 대치동 944-7", UsageType.SPEND, "9500", "N")
     );
 
     return rows.stream()
