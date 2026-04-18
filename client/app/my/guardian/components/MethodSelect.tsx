@@ -1,7 +1,6 @@
 import PrimaryButton from '@/components/baseelements/PrimaryButton';
 import { Shield, Smartphone } from 'lucide-react';
-import type { Method } from '../types/types';
-
+type Method = 'phone' | 'hana' | null;
 const METHODS = [
   {
     id: 'phone' as const,
