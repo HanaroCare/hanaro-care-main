@@ -23,6 +23,12 @@ public class PensionPayoutHistoryResponse {
 	@Schema(description = "월별 수령 내역 (최신순)")
 	private List<PayoutRecord> history;
 
+	@Schema(description = "다음 입금 예정일 (아직 수령 이력이 없는 경우)", example = "2026-04-25")
+	private LocalDate nextPayoutDate;
+
+	@Schema(description = "다음 입금 예정액 (원)", example = "2050000")
+	private BigDecimal nextPayoutAmount;
+
 	@Schema(description = "월별 수령 내역")
 	@Getter
 	@Builder

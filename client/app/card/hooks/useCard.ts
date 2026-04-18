@@ -11,6 +11,7 @@ export interface UsageData {
   cardUsageId: string;
   usageNm: string;
   usageAmt: number;
+  usageTypeCd: 'SPEND' | 'CHARGE';
   createdAt: string;
   abnmlYn: string;
 }

@@ -108,6 +108,8 @@ export type PensionPayoutHistoryRecord = {
 export type PensionPayoutHistoryResponse = {
   totalReceivedAmount: number;
   history: PensionPayoutHistoryRecord[];
+  nextPayoutDate?: string | null;
+  nextPayoutAmount?: number | null;
 };
 
 export async function getPayoutComparison(

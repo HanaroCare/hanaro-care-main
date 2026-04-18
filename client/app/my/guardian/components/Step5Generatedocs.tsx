@@ -96,7 +96,7 @@ export default function Step5GenerateDocs({ data, onNext, goTo }: Props) {
             {[
               {
                 label: '후견인',
-                value: `${guardianName} (${data.relationship})`,
+                value: `${guardianName} (${data.relationship === 'CHILD' ? '자식' : data.relationship === 'PARENT' ? '부모' : data.relationship})`,
                 accent: false,
               },
               {

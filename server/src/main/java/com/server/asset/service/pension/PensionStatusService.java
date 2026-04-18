@@ -97,9 +97,14 @@ public class PensionStatusService {
 			: LocalDate.now();
 
 		if (firstPayoutDate == null || firstPayoutDate.isAfter(effectiveToday)) {
+			BigDecimal nextAmount = firstPayoutDate != null
+				? resolveMonthlyAmount(ctx.yearlyData(), 1)
+				: BigDecimal.ZERO;
 			return PensionPayoutHistoryResponse.builder()
 				.totalReceivedAmount(BigDecimal.ZERO)
 				.history(List.of())
+				.nextPayoutDate(firstPayoutDate)
+				.nextPayoutAmount(nextAmount)
 				.build();
 		}
 

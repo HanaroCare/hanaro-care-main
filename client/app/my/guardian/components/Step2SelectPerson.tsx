@@ -98,7 +98,7 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
               onClick={() => handleSelect(person)} // 여기서 위에서 만든 함수 실행!
               className={`flex w-full items-center gap-3 rounded-2xl border-2 px-4 py-4 transition-all ${
                 data.selectedPerson?.phoneNumber === person.phoneNumber
-                  ? 'border-hana-ez-600 bg-gray-50'
+                  ? 'border-gray-100 bg-hana-green-50'
                   : 'border-gray-100 hover:bg-gray-100'
               }`}
             >
@@ -109,7 +109,7 @@ export default function Step2SelectPerson({ data, onChange, onNext }: Props) {
                     {person.name}
                   </span>
                   <span className="rounded-full bg-[#EBFFFC] px-2 py-0.5 font-medium text-[11px] text-hana-ez-600">
-                    {person.relationCd}
+                    {person.relationCd === 'CHILD' ? '자식' : person.relationCd === 'PARENT' ? '부모' : person.relationCd}
                   </span>
                 </div>
                 <p className="mt-0.5 text-[12px] text-gray-500">
