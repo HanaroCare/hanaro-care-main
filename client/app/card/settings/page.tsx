@@ -8,6 +8,7 @@ import CancelModal from "./components/CancelModal";
 import Header from "@/components/navigation/Header";
 import { CardData } from "../hooks/useCard";
 import DayPicker from "../add/apply/components/DayPicker";
+import { Route } from "next";
 
 import {
   getCardAccounts,
@@ -84,7 +85,7 @@ function CardSettingsContent() {
       accountId: selectedAccountId,
       payDay: payDay,
     });
-    router.back();
+    router.push("/card");
   };
 
   const handleCancel = async () => {
@@ -113,7 +114,7 @@ function CardSettingsContent() {
         }
       `}</style>
 
-      <Header title="카드 관리" />
+      <Header title="카드 관리" onBack={() => router.push("/card" as Route)} />
 
       <div
         className={`flex justify-center mt-6 transition-opacity ${isCancelled ? "opacity-40" : ""}`}

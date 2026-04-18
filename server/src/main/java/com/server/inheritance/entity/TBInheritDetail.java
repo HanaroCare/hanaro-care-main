@@ -18,10 +18,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -57,6 +58,7 @@ public class TBInheritDetail extends BaseEntity {
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_InheritDetail_inheritPlanId_InheritPlan"
       ))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBInheritPlan inheritPlan;
 
   @ManyToOne(fetch = FetchType.LAZY)

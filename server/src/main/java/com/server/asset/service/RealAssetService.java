@@ -185,13 +185,6 @@ public class RealAssetService {
         .evalAmt(evalAmt)
         .build();
   }
-  
-  public void unlinkRealAsset(Long userId, Long realAssetId) {
-    TBRealAsset asset = realAssetRepository
-        .findByRealAssetIdAndUser_UserId(realAssetId, userId)
-        .orElseThrow(() -> new ApiException(ErrorStatus.ASSET_NOT_FOUND));
-    realAssetRepository.delete(asset);
-  }
 
   private String toJson(Object obj) {
     try {

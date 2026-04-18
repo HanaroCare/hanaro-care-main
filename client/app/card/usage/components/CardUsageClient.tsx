@@ -77,7 +77,7 @@ export default function CardUsageClient({ usagesPerCard }: Props) {
       </div>
 
       {/* 카드 필터 탭 */}
-      <div className="flex gap-2 px-6 mt-4 overflow-x-auto">
+      <div className="flex gap-2 px-6 mt-4 pb-2 overflow-x-auto no-scrollbar">
         <button
           onClick={() => setSelectedCardId(null)}
           className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
@@ -92,7 +92,7 @@ export default function CardUsageClient({ usagesPerCard }: Props) {
           <button
             key={card.cardId}
             onClick={() => setSelectedCardId(card.cardId)}
-            className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+            className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors max-w-[140px] truncate ${
               selectedCardId === card.cardId
                 ? "bg-hana-green-700 text-white"
                 : "bg-hana-silver-100 text-hana-black-900"
@@ -139,7 +139,7 @@ export default function CardUsageClient({ usagesPerCard }: Props) {
                         {formatTime(u.createdAt)}
                       </span>
                       <span className="w-[3px] h-[3px] rounded-full bg-hana-black-500 inline-block" />
-                      <span className="text-xs text-hana-black-800">
+                      <span className="text-xs text-hana-black-800 max-w-[120px] truncate">
                         {u.cardNm}
                       </span>
                     </div>

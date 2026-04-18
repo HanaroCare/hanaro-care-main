@@ -28,6 +28,7 @@ public class MyHanaGuardianController {
 
   private final MyHanaInheritanceService myHanaInheritanceService;
 
+
   // 가족 조회
   @Operation(summary = "후견인 가족 조회", description = "후견인으로 선택할 가족을 조회합니다.")
   @GetMapping("/family")

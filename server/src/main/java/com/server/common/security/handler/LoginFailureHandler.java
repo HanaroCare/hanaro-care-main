@@ -3,6 +3,7 @@ package com.server.common.security.handler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.server.common.exception.AccountDormantException;
 import com.server.common.exception.AccountSuspendedException;
+import com.server.common.exception.AccountWithdrawnException;
 import com.server.user.exception.LoginValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -45,6 +46,11 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
       log.warn("[로그인 실패] {}", exception.getMessage());
       code = "AUTH_009";
       message = "휴면 계정입니다. 본인인증을 통해 계정을 복구해 주세요.";
+      status = HttpServletResponse.SC_FORBIDDEN; // 403 Forbidden
+    } else if (exception instanceof AccountWithdrawnException) {
+      log.warn("[로그인 실패] {}", exception.getMessage());
+      code = "AUTH_015";
+      message = "탈퇴 처리된 계정입니다.";
       status = HttpServletResponse.SC_FORBIDDEN; // 403 Forbidden
     } else {
       log.warn("[로그인 실패] {}", exception.getMessage());

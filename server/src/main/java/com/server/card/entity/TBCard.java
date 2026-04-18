@@ -18,6 +18,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -49,6 +51,7 @@ public class TBCard extends BaseEntity {
   @JoinColumn(name = "ACCOUNT_ID",
       columnDefinition = "bigint unsigned not null",
       foreignKey = @ForeignKey(name = "fk_Card_accountId_Account"))
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private TBAccount account;
 
   @Column(name = "LIMIT_AMT", nullable = false, precision = 13, scale = 2)

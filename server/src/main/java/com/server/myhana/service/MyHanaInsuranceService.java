@@ -25,7 +25,6 @@ public class MyHanaInsuranceService {
 
   // 보험(자신+grantor) 조회
   @CheckUser(key = "#userId")
-  @Cacheable(value = "insuranceList", key = "#userId")
   public List<InsuranceDto> getInsurances(Long userId) {
     List<TBAccount> account = accountRepository.findByUser_UserIdAndAssetCateCd(
         userId, AssetCategory.INSURANCE);
@@ -76,6 +75,7 @@ public class MyHanaInsuranceService {
 
     InsuranceDto insuranceDto = InsuranceDto.builder().instNm(account.getInstNm())
         .accountNm(account.getAccountNm()).monthlyPremAmt(account.getMonthlyPremAmt())
+        .username(account.getUser().getUserNm()).accountId(String.valueOf(account.getAccountId()))
         .build();
     return InsuranceDetailDto.builder()
         .insuranceDto(insuranceDto)

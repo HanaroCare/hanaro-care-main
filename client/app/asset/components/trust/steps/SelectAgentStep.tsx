@@ -16,13 +16,13 @@ export default function SelectAgentStep() {
   const router = useRouter();
   const { form, setSelectedAgent } = useTrustForm();
 
-  const [selected, setSelected] = useState<number | null>(
-    form.selectedAgent ? Number(form.selectedAgent) : null,
+  const [selected, setSelected] = useState<string | null>(
+    form.selectedAgent ?? null,
   );
   const [isPending, startTransition] = useTransition();
-
   const [familyList, setFamilyList] = useState<FamilyMember[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     getFamilyMembers()
@@ -40,25 +40,26 @@ export default function SelectAgentStep() {
           return isValidSelected ? prevSelected : null;
         });
       })
+      .catch(() => {
+        setFamilyList([]);
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const handleSubmit = (agentId: number | null) => {
+  const handleSubmit = (agentId: string | null) => {
     const validAgentId =
       agentId != null && familyList.some((item) => item.userId === agentId)
         ? agentId
         : null;
 
-    setSelectedAgent(validAgentId);
+    setSelectedAgent(validAgentId !== null ? Number(validAgentId) : null);
     setErrorMessage(null);
 
     startTransition(async () => {
       try {
         await saveTrustSimulation({
           ...form,
-          selectedAgent: validAgentId !== null ? String(validAgentId) : null,
+          selectedAgent: validAgentId,
         });
         localStorage.setItem('has_completed_trust', 'true');
         router.push('/asset/trust/result');

@@ -23,6 +23,21 @@ public interface UserRepository extends JpaRepository<TBUser, Long> {
 
   Optional<TBUser> findByUserNmAndUserPhone(String userNm, String userPhone);
 
+  boolean existsByLoginIdAndUserNm(String loginId, String userNm);
+
+  boolean existsByUserNm(String userNm);
+
+  // ─── 활성 계정 전용 조회 (탈퇴/정지 계정 자동 필터링) ─────────────────
+  boolean existsByLoginIdAndUserStatusCd(String loginId, UserStatus status);
+
+  boolean existsByUserNmAndUserStatusCd(String userNm, UserStatus status);
+
+  boolean existsByLoginIdAndUserNmAndUserStatusCd(String loginId, String userNm, UserStatus status);
+
+  Optional<TBUser> findByUserNmAndUserPhoneAndUserStatusCd(String userNm, String userPhone, UserStatus status);
+
+  Optional<TBUser> findByLoginIdAndUserPhoneAndUserStatusCd(String loginId, String userPhone, UserStatus status);
+
   List<TBUser> findAllByUserStatusCdNot(UserStatus status);
 
   /**

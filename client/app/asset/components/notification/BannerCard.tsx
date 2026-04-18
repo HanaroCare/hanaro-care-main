@@ -3,7 +3,6 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
-import type { Route } from 'next';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { type ReactNode, useState } from 'react';
@@ -14,7 +13,7 @@ type BannerCardProps = {
   buttonText: string;
   imageSrc: string;
   onClick?: () => void;
-  href?: Route<string>;
+  href?: string;
 };
 
 export function BannerCard({
@@ -25,26 +24,26 @@ export function BannerCard({
   href,
 }: BannerCardProps) {
   const [isVisible, setIsVisible] = useState(true);
+
   const router = useRouter();
 
   if (!isVisible) return null;
 
   const handleBannerClick = () => {
-    if (onClick) {
-      onClick();
-      return;
-    }
+  if (onClick) {
+    onClick();
+    return;
+  }
 
-    if (href) {
-      const isExternal = href.startsWith('http');
+  if (!href) return;
 
-      if (isExternal) {
-        window.open(href, '_blank');
-      } else {
-        router.push(href as Route);
-      }
-    }
-  };
+  if (href.startsWith('http')) {
+    window.open(href, '_blank');
+    return;
+  }
+
+  router.push(href);
+};
 
   return (
     <AnimatePresence>
@@ -91,5 +90,7 @@ export function BannerCard({
         </div>
       </motion.div>
     </AnimatePresence>
+    
+      
   );
 }

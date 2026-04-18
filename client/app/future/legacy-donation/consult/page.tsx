@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Route } from "next";
 import Header from "@/components/navigation/Header";
 import InstitutionCard from "@/app/future/components/InstitutionCard";
+import PhonePopup from "@/app/future/components/PhonePopup";
 import { Search } from "lucide-react";
 
 const institutions = [
@@ -36,14 +36,11 @@ const institutions = [
 
 export default function LegacyDonationConsultPage() {
   const [search, setSearch] = useState("");
+  const [popupPhone, setPopupPhone] = useState<{ phone: string; name: string } | null>(null);
 
   const filtered = institutions.filter(
     (item) => item.name.includes(search) || item.address.includes(search),
   );
-
-  const handleCall = (phone: string) => {
-    window.location.href = `tel:${phone}`;
-  };
 
   return (
     <div className="relative w-full min-h-screen bg-white flex flex-col">
@@ -75,11 +72,19 @@ export default function LegacyDonationConsultPage() {
               key={`${item.name}-${item.phone}`}
               name={item.name}
               address={item.address}
-              onCall={() => handleCall(item.phone)}
+              onCall={() => setPopupPhone({ phone: item.phone, name: item.name })}
             />
           ))}
         </div>
       </div>
+
+      {popupPhone && (
+        <PhonePopup
+          phone={popupPhone.phone}
+          name={popupPhone.name}
+          onClose={() => setPopupPhone(null)}
+        />
+      )}
     </div>
   );
 }

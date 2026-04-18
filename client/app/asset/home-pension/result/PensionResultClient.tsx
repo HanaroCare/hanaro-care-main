@@ -49,7 +49,7 @@ function formatManwon(value: number) {
 }
 
 type Props = {
-  realAssetId: number;
+  realAssetId: string;
 };
 
 export default function HomePensionResultClient({ realAssetId }: Props) {
@@ -65,7 +65,7 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    if (!Number.isFinite(realAssetId)) {
+    if (!realAssetId) {
       setErrorMessage('대상 주택 정보를 확인할 수 없어요.');
       setIsLoading(false);
       return;
@@ -320,16 +320,27 @@ export default function HomePensionResultClient({ realAssetId }: Props) {
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 11, fill: '#6B7280' }}
+                      tickFormatter={(value) => `${value}년`}
                     />
                     <YAxis
                       axisLine={false}
                       tickLine={false}
                       width={58}
-                      tickFormatter={(value) => `${value}만원`}
+                      tickFormatter={(value) => {
+                        const eok = value / 10000;
+                        return `${Number.isInteger(eok) ? eok : eok.toFixed(1)}억원`;
+                      }}
                       tick={{ fontSize: 11, fill: '#6B7280' }}
                     />
                     <Tooltip
-                      formatter={(value, name) => [`${value}만원`, name]}
+                      formatter={(value, name) => {
+                        const eok = Number(value) / 10000;
+                        return [
+                          `${Number.isInteger(eok) ? eok : eok.toFixed(1)}억원`,
+                          name,
+                        ];
+                      }}
+                      labelFormatter={(label) => `${label}년`}
                       contentStyle={{
                         borderRadius: 12,
                         border: '1px solid #E5E7EB',
