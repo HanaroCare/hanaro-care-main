@@ -20,17 +20,16 @@ export default function HospicePage() {
           <DotIndicator total={3} current={1} />
         </div>
 
-        {/* 질문 */}
         <h2 className="font-medium text-[22px] leading-[33px] tracking-[-0.02em] text-black mt-[61px]">
-          추후, 호스피스 완화의료를{"\n"}이용하시겠어요?
+          추후, 호스피스 {"\n"}
+          완화의료를 이용하시겠어요?
         </h2>
 
-        {/* 안내 박스 */}
-        <div className="mt-[103px]">
+        <div className="mt-[50px]">
           <AlertBanner
-            message="호스피스는 치료를 포기하는 것이 아니라, 남은 시간을 편안하게 보내도록 돕는 서비스입니다."
-            variant="note"
-            icon={<Lightbulb size={22} />}
+              message={"호스피스는 치료를 포기하는 것이 아니라,\n남은 시간 편안하게 보내도록 돕는 서비스입니다."}
+              variant="note"
+            icon={<Lightbulb size={20} />}
           />
         </div>
       </div>

@@ -20,7 +20,7 @@ export default function ViewConsentPage() {
     <div className="relative w-full min-h-screen bg-white flex flex-col">
       <Header title="연명의료 결정" />
 
-      <div className="flex flex-col flex-1 px-[25px] pt-[65px]">
+      <div className="flex flex-col flex-1 px-[25px] pt-[35px]">
         <div className="flex justify-center mt-[54px]">
           <DotIndicator total={3} current={2} />
         </div>
