@@ -47,10 +47,9 @@ public class LetterController {
   @PostMapping(value = "/letter", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   ApiResponse<LetterResponseDto> sendLetter(
       @AuthenticationPrincipal SubscriberDTO user,
-      @Valid @ModelAttribute @ParameterObject LetterRequestDto dto,
-      @RequestPart(value = "voice", required = false) MultipartFile voice
+      @Valid @ModelAttribute @ParameterObject LetterRequestDto dto
   ) throws IOException {
-    LetterResponseDto result = service.sendLetter(user.getUserId(), dto, voice);
+    LetterResponseDto result = service.sendLetter(user.getUserId(), dto, dto.getVoice());
     return ApiResponse.onSuccess(result);
   }
 

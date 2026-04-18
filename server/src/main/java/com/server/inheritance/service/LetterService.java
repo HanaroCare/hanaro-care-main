@@ -72,9 +72,11 @@ public class LetterService {
     TBInheritDetail detail = inheritDetailRepository.findById(Long.parseLong(dto.getInheritDetailId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
-    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId,
-        detail.getUser().getUserId())) {
-      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+    if (detail.getUser() != null) {
+      if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId,
+          detail.getUser().getUserId())) {
+        throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+      }
     }
 
     if (letterRepository.findByInheritDetail_InheritDetailId(Long.parseLong(dto.getInheritDetailId()))

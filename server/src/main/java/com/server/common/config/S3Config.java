@@ -31,7 +31,10 @@ public class S3Config {
     var builder = S3Client.builder()
         .region(Region.of(region))
         .credentialsProvider(
-            StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)));
+            StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
+        .serviceConfiguration(S3Configuration.builder()
+            .pathStyleAccessEnabled(true) // ✅ LocalStack 전용
+            .build());
 
     if (!endpoint.isEmpty()) {   // ✅ LocalStack 전용
       builder.endpointOverride(URI.create(endpoint));

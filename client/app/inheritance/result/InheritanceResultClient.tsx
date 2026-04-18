@@ -75,7 +75,7 @@ export default function InheritanceResultClient({ initialData }: Props) {
         id: h.inheritDetailId,
         name: h.heirName,
         relation: h.relation,
-        percentage: h.distRatio * 100, // 0.4 -> 40% 변환
+        percentage: h.distRatio, // 이미 50% 형태이므로 100을 곱하지 않음
         distributedAmt: h.distributedAmt / 100000000, // 원 -> 억원 변환
         legalPercentage,
         forcedPercentage,

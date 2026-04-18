@@ -28,4 +28,7 @@ public class LetterRequestDto {
 
   @Schema(description = "편지 내용", example = "사랑하는 자녀에게...")
   private String letterCont;
+
+  @Schema(description = "음성 파일")
+  private org.springframework.web.multipart.MultipartFile voice;
 }
