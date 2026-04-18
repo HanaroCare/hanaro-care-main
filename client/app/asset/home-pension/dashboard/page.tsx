@@ -356,6 +356,22 @@ export default function HomePensionDashboard() {
                         </div>
                       </div>
                     ))
+                  ) : historyData?.nextPayoutDate ? (
+                    <div className="flex items-center justify-between rounded-[20px] border border-dashed border-[#CCFBF1] bg-[#F0FDFD] px-6 py-6">
+                      <div>
+                        <p className="mb-1 text-[13px] font-medium text-[#9CA3AF]">
+                          첫 입금 예정일
+                        </p>
+                        <p className="text-[17px] font-bold text-[#111827]">
+                          {formatHistoryDate(historyData.nextPayoutDate)}
+                        </p>
+                      </div>
+                      {historyData.nextPayoutAmount != null && (
+                        <p className="text-[19px] font-black text-[#1098A0]">
+                          {formatKoreanCurrency(historyData.nextPayoutAmount)}
+                        </p>
+                      )}
+                    </div>
                   ) : (
                     <p className="py-8 text-center text-[14px] text-[#9CA3AF]">
                       표시할 입금 내역이 없어요.
