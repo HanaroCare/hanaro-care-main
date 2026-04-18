@@ -70,29 +70,26 @@ public class TBUserProd extends BaseEntity {
   private ProdStat prodStat;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "PENSION_PAYOUT_TYPE_CD", nullable = true)
+  @Column(name = "PENSION_PAYOUT_TYPE_CD")
   private PensionPayoutType pensionPayoutType;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TARGET_ASSET_ID", referencedColumnName = "REAL_ASSET_ID",
       columnDefinition = "bigint unsigned",
-      nullable = true,
       foreignKey = @ForeignKey(name = "fk_UserProd_targetAssetId_RealAsset"))
   @OnDelete(action = OnDeleteAction.CASCADE)
   private TBRealAsset targetAsset;
 
   @Column(name = "MONTHLY_PAYOUT",
-      precision = 13, scale = 2,
-      nullable = true)
+      precision = 13, scale = 2)
   private BigDecimal monthlyPayout;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "INVEST_TYPE_CD", nullable = true)
+  @Column(name = "INVEST_TYPE_CD")
   private InvestType investType;
 
   @Column(name = "PRINCIPAL_AMOUNT",
-      precision = 13, scale = 2,
-      nullable = true)
+      precision = 13, scale = 2)
   private BigDecimal principalAmount;
 
   @Column(name = "PROFIT_RATE",

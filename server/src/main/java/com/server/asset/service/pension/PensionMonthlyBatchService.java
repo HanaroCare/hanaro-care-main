@@ -8,6 +8,9 @@ import com.server.asset.entity.TBPensionSimulation;
 import com.server.asset.entity.TBUserProd;
 import com.server.asset.entity.enums.ProdStat;
 import com.server.asset.entity.enums.ProdType;
+import com.server.asset.entity.TBAccount;
+import com.server.asset.entity.enums.AssetCategory;
+import com.server.asset.repository.AccountRepository;
 import com.server.asset.repository.PensionSimulationRepository;
 import com.server.asset.repository.UserProdRepository;
 import java.math.BigDecimal;
@@ -30,7 +33,34 @@ public class PensionMonthlyBatchService {
 
 	private final UserProdRepository userProdRepository;
 	private final PensionSimulationRepository pensionSimulationRepository;
+	private final AccountRepository accountRepository;
 	private final ObjectMapper objectMapper;
+
+	private static final List<AssetCategory> PENSION_CATEGORIES = List.of(
+		AssetCategory.PENSION,
+		AssetCategory.PENSION_NATIONAL,
+		AssetCategory.PENSION_RETIRE,
+		AssetCategory.PENSION_PERSONAL
+	);
+
+	@Transactional
+	public void creditDailyPensionPayout(LocalDate today) {
+		int payDay = today.getDayOfMonth();
+		boolean isLastDayOfMonth = (payDay == today.lengthOfMonth());
+		// 월말이면 이번 달에 존재하지 않는 날짜(예: 2월의 29~31일)도 함께 정산
+		int maxDay = isLastDayOfMonth ? 31 : payDay;
+
+		List<TBAccount> accounts = accountRepository.findPensionAccountsForPayout(
+			PENSION_CATEGORIES, payDay, maxDay);
+
+		for (TBAccount account : accounts) {
+			BigDecimal newBalance = account.getBalanceAmt().add(account.getPayAmt());
+			account.setBalanceAmt(newBalance);
+			log.info("Pension payout credited. accountId={}, userId={}, payDay={}, payAmt={}, newBalance={}",
+				account.getAccountId(), account.getUser().getUserId(),
+				account.getPayDay(), account.getPayAmt(), newBalance);
+		}
+	}
 
 	@Transactional
 	public void settleMonthlyPayout(LocalDate today) {

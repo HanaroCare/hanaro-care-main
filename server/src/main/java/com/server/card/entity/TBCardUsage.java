@@ -46,7 +46,7 @@ public class TBCardUsage extends BaseCreatedEntity {
   @Column(name = "USAGE_NM", nullable = false, length = 100)
   private String usageNm;
 
-  @Column(name = "USAGE_LOC", length = 255)
+  @Column(name = "USAGE_LOC")
   private String usageLoc;
 
   @Enumerated(EnumType.STRING)

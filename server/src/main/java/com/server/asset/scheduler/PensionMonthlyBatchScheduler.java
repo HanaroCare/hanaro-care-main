@@ -14,6 +14,14 @@ public class PensionMonthlyBatchScheduler {
 
 	private final PensionMonthlyBatchService pensionMonthlyBatchService;
 
+	@Scheduled(cron = "0 0 0 * * *")
+	public void creditDailyPensionPayout() {
+		LocalDate today = LocalDate.now();
+		log.info("Pension daily payout batch started. date={}", today);
+		pensionMonthlyBatchService.creditDailyPensionPayout(today);
+		log.info("Pension daily payout batch finished. date={}", today);
+	}
+
 	@Scheduled(cron = "0 0 2 25 * *")
 	public void settleMonthlyPayout() {
 		LocalDate today = LocalDate.now();

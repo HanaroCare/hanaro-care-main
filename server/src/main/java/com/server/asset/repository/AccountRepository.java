@@ -40,6 +40,12 @@ public interface AccountRepository extends JpaRepository<TBAccount, Long> {
 
   boolean existsByUser_UserIdAndIsLinkedTrue(Long userId);
 
+  @Query("SELECT a FROM TBAccount a WHERE a.assetCateCd IN :categories AND a.payDay BETWEEN :minDay AND :maxDay AND a.payAmt IS NOT NULL AND a.payAmt > 0")
+  List<TBAccount> findPensionAccountsForPayout(
+      @Param("categories") List<AssetCategory> categories,
+      @Param("minDay") int minDay,
+      @Param("maxDay") int maxDay);
+
   @org.springframework.data.jpa.repository.Modifying
   @org.springframework.data.jpa.repository.Query("UPDATE TBAccount a SET a.isLinked = false WHERE a.user.userId = :userId")
   void unlinkAllByUserId(@org.springframework.data.repository.query.Param("userId") Long userId);
