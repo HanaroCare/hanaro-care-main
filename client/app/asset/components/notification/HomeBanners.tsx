@@ -29,8 +29,11 @@ export function HomeBanners({ isInvitedUser, abnormalCardIds, firstAbnormalUsage
     if (inviteToken) {
       try {
         await acceptFamilyInvite(inviteToken);
-      } catch {
-        // 이미 등록된 경우 등 — 계속 진행
+      } catch (err) {
+        console.error('[acceptFamilyInvite 실패]', err);
+        alert(`가족 인증 등록 실패: ${err instanceof Error ? err.message : String(err)}`);
+        setIsLoading(false);
+        return;
       }
       localStorage.removeItem('family_invite_token');
     }

@@ -157,7 +157,28 @@ export default function AssetPageContent({ dashboardData, financialAssets, insur
     const tabContent = useMemo(() => {
         switch (activeTab) {
             case 'asset': {
-                // 두 번째 코드의 동적 차트 계산 로직 적용
+                const isMyDataLinked = dashboardData?.isMyDataLinked ?? false;
+
+                if (!isMyDataLinked) {
+                    return (
+                        <div className="flex w-full flex-col items-center justify-center py-24 gap-4">
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <rect x="2" y="7" width="20" height="14" rx="2" />
+                                    <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+                                    <line x1="12" y1="12" x2="12" y2="16" />
+                                    <line x1="10" y1="14" x2="14" y2="14" />
+                                </svg>
+                            </div>
+                            <div className="text-center">
+                                <p className="font-bold text-[16px] text-hana-black-800">자산이 연동되지 않았어요!</p>
+                                <p className="mt-1 text-[13px] text-gray-400">마이데이터를 등록하면 내 자산을 한눈에 볼 수 있어요</p>
+                            </div>
+
+                        </div>
+                    );
+                }
+
                 const chartPoints = chartData.map(p => ({ name: p.month, value: p.value }));
                 const values = chartPoints.map(p => p.value);
                 const minVal = values.length > 0 ? Math.min(...values) : 0;

@@ -113,13 +113,15 @@ export default function MyHanaPage() {
 
         <main className="no-scrollbar flex-1 pb-28">
           <section className="flex flex-col items-center py-10">
-              <Image
-                  src="/images/my/profile.png"
+              <div className="mb-4 h-24 w-24 overflow-hidden rounded-full bg-white">
+                <Image
+                  src="/images/my/profile.svg"
                   alt={`${userName}의 프로필`}
                   width={96}
                   height={96}
-                  className="mb-4 object-contain"
-              />
+                  className="h-full w-full object-contain"
+                />
+              </div>
             <h2 className="font-bold text-2xl text-hana-black-900 tracking-tight">
               {userName}
             </h2>

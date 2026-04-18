@@ -32,8 +32,8 @@ export function AssetListCard({ data }: { data: FinancialAssetResponse[] }) {
 		<div className="w-81.25 rounded-3xl border-[0.5px] border-border-gray bg-white p-5 shadow-sm">
 			<div className="flex flex-col gap-6">
 				{data.map((item, index) => (
-					<div key={`${item.assetCateCd}-${item.accountId}-${index}`} className="flex items-center justify-between">
-						<div className="flex items-center gap-3">
+					<div key={`${item.assetCateCd}-${item.accountId}-${index}`} className="flex items-center justify-between gap-2">
+						<div className="flex min-w-0 items-center gap-3">
 							<div className={`flex size-8 shrink-0 items-center justify-center rounded-[10px] ${ICON_STYLES[item.assetCateCd] || "bg-hana-teal-100"}`}>
 								<Image
 									src={GET_LOGO_BY_NAME(item.instNm)}
@@ -54,7 +54,7 @@ export function AssetListCard({ data }: { data: FinancialAssetResponse[] }) {
                          {formatKoreanCurrency(item.balanceAmt)}
                       </span>
 							{item.profitRate > 0 && (
-								<div className="flex items-center gap-1 font-medium text-[12px] text-hana-red-500">
+								<div className="flex items-center gap-1 whitespace-nowrap font-medium text-[12px] text-hana-red-500">
 									<svg width="7" height="6" viewBox="0 0 7 6" fill="none"><path d="M3.5 0L7 6L0 6L3.5 0Z" fill="currentColor" /></svg>
 									<span>{formatKoreanCurrency(Math.floor(item.balanceAmt * (item.profitRate / 100)))} ({item.profitRate}%)</span>
 								</div>
