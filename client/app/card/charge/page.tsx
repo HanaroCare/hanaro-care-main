@@ -9,6 +9,7 @@ import {
   getCardAccounts,
   chargeCard,
   getMyCards,
+  getCardBalance,
   Account,
 } from "../actions/card";
 import { CardData } from "../hooks/useCard";
@@ -20,6 +21,7 @@ const QUICK_AMOUNTS = [
 ];
 
 const SINGLE_LIMIT = 600000;
+const CARD_BALANCE_LIMIT = 2000000;
 
 function CardChargeContent() {
   const router = useRouter();
@@ -34,21 +36,25 @@ function CardChargeContent() {
   const [showAccountSelect, setShowAccountSelect] = useState(false);
   const [shake, setShake] = useState(false);
 
+  const [currentCard, setCurrentCard] = useState<CardData | null>(null);
+  const [currentBalance, setCurrentBalance] = useState(0);
+
   const numericAmount = Number(amount || "0");
   const isOverLimit = numericAmount > SINGLE_LIMIT;
+  const isOverCardLimit = numericAmount > 0 && currentBalance + numericAmount > CARD_BALANCE_LIMIT;
   const selectedAccount = accounts.find(
     (a) => a.accountId === selectedAccountId,
   );
-  const [currentCard, setCurrentCard] = useState<CardData | null>(null);
 
   useEffect(() => {
-    Promise.all([getCardAccounts(), getMyCards()]).then(
-      ([accountData, cardList]) => {
+    Promise.all([getCardAccounts(), getMyCards(), getCardBalance(cardId)]).then(
+      ([accountData, cardList, balance]) => {
         setAccounts(accountData);
         if (accountData.length > 0)
           setSelectedAccountId(accountData[0].accountId);
         const found = cardList.find((c) => c.cardId === cardId) ?? null;
         setCurrentCard(found);
+        setCurrentBalance(balance);
       },
     );
   }, [cardId]);
@@ -79,7 +85,7 @@ function CardChargeContent() {
   };
 
   const handleConfirm = async () => {
-    if (!selectedAccountId || !amount || isOverLimit) return;
+    if (!selectedAccountId || !amount || isOverLimit || isOverCardLimit) return;
     await chargeCard({
       cardId: cardId, // Number() 제거
       chargeAmt: numericAmount,
@@ -128,6 +134,11 @@ function CardChargeContent() {
         {isOverLimit && (
           <p className="text-xs text-hana-red-500 mt-1">
             1회 최대 {SINGLE_LIMIT.toLocaleString()}원까지 충전할 수 있어요
+          </p>
+        )}
+        {!isOverLimit && isOverCardLimit && (
+          <p className="text-xs text-hana-red-500 mt-1">
+            카드 한도 200만원 이상 충전할 수 없습니다.
           </p>
         )}
       </div>
@@ -203,7 +214,7 @@ function CardChargeContent() {
       <div className="mt-auto bg-hana-silver-100 pt-4">
         <div className="px-6 pb-4">
           <button
-            disabled={!amount || amount === "0" || isOverLimit}
+            disabled={!amount || amount === "0" || isOverLimit || isOverCardLimit}
             onClick={handleConfirm}
             className="w-full h-[53px] rounded-xl bg-hana-ez-600 text-white text-base font-medium disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
           >

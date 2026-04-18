@@ -124,6 +124,7 @@ export function useIssueSteps(designId: string) {
 
   return {
     currentStep,
+    setCurrentStep,
     visibleSteps,
     showModal,
     setShowModal,

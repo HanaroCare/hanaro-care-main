@@ -17,6 +17,7 @@ import com.server.card.repository.CardUsageRepository;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
 import com.server.user.entity.TBFamilyAuth;
+import com.server.user.enums.FamilyRelation;
 import com.server.user.repository.FamilyAuthRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -62,6 +63,39 @@ public class CardService {
         .build();
 
     TBCard savedCard = cardRepository.save(card);
+
+    // ✅ 본인 selfAuth 추가
+    TBFamilyAuth selfAuth = TBFamilyAuth.builder()
+        .grantor(account.getUser())
+        .grantee(account.getUser())
+        .relationCd(FamilyRelation.FAMILY)
+        .isCardView(true)
+        .card(savedCard)
+        .build();
+    familyAuthRepository.save(selfAuth);
+
+    if (request.getFamilyAuthIds() != null && !request.getFamilyAuthIds().isEmpty()) {
+      List<TBFamilyAuth> familyAuths = familyAuthRepository.findAllById(
+          request.getFamilyAuthIds());
+
+      // ✅ grantor+grantee 조합으로 중복 제거
+      Map<String, TBFamilyAuth> deduped = new java.util.LinkedHashMap<>();
+      for (TBFamilyAuth auth : familyAuths) {
+        String key = auth.getGrantor().getUserId() + "_" + auth.getGrantee().getUserId();
+        deduped.putIfAbsent(key, auth);
+      }
+
+      List<TBFamilyAuth> newAuths = deduped.values().stream()
+          .map(auth -> TBFamilyAuth.builder()
+              .grantor(auth.getGrantor())
+              .grantee(auth.getGrantee())
+              .relationCd(auth.getRelationCd())
+              .isCardView(true)
+              .card(savedCard)
+              .build())
+          .toList();
+      familyAuthRepository.saveAll(newAuths);
+    }
 
     if (request.getFamilyAuthIds() != null && !request.getFamilyAuthIds().isEmpty()) {
       List<com.server.user.entity.TBFamilyAuth> familyAuths = familyAuthRepository.findAllById(
