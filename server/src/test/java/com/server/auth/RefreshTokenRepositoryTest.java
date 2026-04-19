@@ -40,10 +40,6 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
   private static final String TOKEN_VALUE = "header.payload.signature_test_token_abc";
   private static final String TOKEN_VALUE_2 = "header.payload.signature_test_token_def";
 
-    /*
-    save
-     */
-
   @Test
   @Order(1)
   @DisplayName("save: testUser의 리프레시 토큰 저장 → userId로 조회 가능")
@@ -61,10 +57,6 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
     assertThat(saved.getUserId()).isEqualTo(userId);
     assertThat(saved.getTokenValue()).isEqualTo(TOKEN_VALUE);
   }
-
-  /*
-  findByTokenValue
-   */
 
   @Test
   @Order(2)
@@ -87,10 +79,6 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
     assertThat(result).isEmpty();
   }
 
-  /*
-  findById
-   */
-
   @Test
   @Order(4)
   @DisplayName("findById: userId(PK)로 토큰 조회 → 반환")
@@ -112,10 +100,6 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
     assertThat(result).isEmpty();
   }
 
-  /*
-  existsById
-   */
-
   @Test
   @Order(6)
   @DisplayName("existsById: 저장된 userId → true")
@@ -131,10 +115,6 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
   void existsById_false() {
     assertThat(refreshTokenRepository.existsById(Long.MAX_VALUE)).isFalse();
   }
-
-  /*
-  findAll / count
-   */
 
   @Test
   @Order(8)
@@ -153,17 +133,13 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
     assertThat(refreshTokenRepository.count()).isGreaterThan(0);
   }
 
-  /*
-  tokenValue unique 제약조건 위반
-   */
-
   @Test
   @Order(10)
   @Transactional(propagation = Propagation.NOT_SUPPORTED)
   @DisplayName("save: 동일 tokenValue 중복 저장 → DataIntegrityViolationException 발생")
   void save_duplicateTokenValue_throwsException() {
     // 별도 유저를 생성해 PK(userId) 충돌 없이 tokenValue unique 위반만 발생시킴
-    TBUser extraUser = userRepository.findByLoginId("token_dup_user").orElseGet(() -> 
+    TBUser extraUser = userRepository.findByLoginId("token_dup_user").orElseGet(() ->
         userRepository.save(TBUser.builder()
             .loginId("token_dup_user")
             .userNm("토큰중복유저")
@@ -249,10 +225,6 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
 
     assertThat(tbRefreshTokenRepository.existsById(userId)).isTrue();
   }
-
-  /*
-  deleteById
-   */
 
   @Test
   @Order(16)

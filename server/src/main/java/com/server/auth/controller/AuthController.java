@@ -53,7 +53,6 @@ public class AuthController {
   )
   @PostMapping("/login")
   public ApiResponse<TokenResponseDTO> login(@Valid @RequestBody LoginRequestDTO request) {
-    // 1번 방식(Filter 기반)에서는 이 코드가 실행되지 않아야 함
     throw new IllegalStateException("Security Filter가 가로채지 못했습니다. 설정을 확인하세요.");
   }
 

@@ -10,12 +10,6 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * TBAccount.accountNum 필드에 적용되는 AES-256-CBC 양방향 암호화 Converter. 암호문 형식: Base64(IV[16 bytes] +
- * Ciphertext)
- * <p>
- * 암호화 키는 EncryptionConfig 가 애플리케이션 기동 시 {@link #setKey(String)} 로 주입한다.
- */
 @Slf4j
 @Converter
 public class AccountNumConverter implements AttributeConverter<String, String> {
@@ -23,9 +17,6 @@ public class AccountNumConverter implements AttributeConverter<String, String> {
   private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
   private static final int IV_LENGTH = 16;
 
-  /**
-   * Spring 기동 시 EncryptionConfig 에 의해 주입되는 정적 키
-   */
   private static byte[] AES_KEY;
 
   public static void setKey(String base64Key) {

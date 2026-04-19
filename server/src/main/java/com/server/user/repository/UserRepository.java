@@ -23,24 +23,16 @@ public interface UserRepository extends JpaRepository<TBUser, Long> {
 
   boolean existsByUserNm(String userNm);
 
-  // ─── 활성 계정 전용 조회 (탈퇴/정지 계정 자동 필터링) ─────────────────
   boolean existsByLoginIdAndUserStatusCd(String loginId, UserStatus status);
 
   boolean existsByUserNmAndUserStatusCd(String userNm, UserStatus status);
 
   boolean existsByLoginIdAndUserNmAndUserStatusCd(String loginId, String userNm, UserStatus status);
 
-  // NOTE: phone-equality derived queries are intentionally absent — userPhone is AES-encrypted
-  // and JPA does not apply AttributeConverter to query parameters. Services must load by
-  // non-phone criteria first, then compare user.getUserPhone() (decrypted) in Java.
   List<TBUser> findByUserNmAndUserStatusCd(String userNm, UserStatus status);
 
   List<TBUser> findAllByUserStatusCdNot(UserStatus status);
 
-  /**
-   * loginId 가 특정 접두사로 시작하고 authMeansCd 가 일치하는 첫 번째 유저를 조회합니다.
-   * 프론트에서 "Tsid" 같은 공통 식별자를 전달했을 때 수단별로 실제 계정을 찾기 위해 사용됩니다.
-   */
   Optional<TBUser> findFirstByLoginIdStartingWithAndAuthMeansCd(
       String loginIdPrefix, LoginMeans authMeansCd);
 

@@ -4,9 +4,9 @@ import com.server.auth.dto.DormantSmsRequestDTO;
 import com.server.auth.dto.PasswordFindRequestDTO;
 import com.server.auth.dto.SmsRequestDTO;
 import com.server.auth.dto.SmsVerifyRequestDTO;
-import com.server.user.entity.TBUser;
 import com.server.common.exception.ApiException;
 import com.server.common.response.code.status.ErrorStatus;
+import com.server.user.entity.TBUser;
 import com.server.user.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import java.security.SecureRandom;
@@ -28,16 +28,18 @@ public class SmsAuthService {
   private static final DateTimeFormatter FMT =
       DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("Asia/Seoul"));
 
-  private static final String KEY_AUTH     = "sms:auth:";
+  private static final String KEY_AUTH = "sms:auth:";
   private static final String KEY_VERIFIED = "sms:verified:";
-  private static final long   AUTH_TTL_MIN     = 3L;
-  private static final long   VERIFIED_TTL_MIN = 5L;
+  private static final long AUTH_TTL_MIN = 3L;
+  private static final long VERIFIED_TTL_MIN = 5L;
 
   private final SmsService smsService;
   private final UserRepository userRepository;
   private final StringRedisTemplate redisTemplate;
 
-  /** 애플리케이션 기동 시 Redis 연결 가능 여부를 즉시 확인한다. */
+  /**
+   * 애플리케이션 기동 시 Redis 연결 가능 여부를 즉시 확인한다.
+   */
   @PostConstruct
   public void checkRedisConnection() {
     try {
@@ -50,10 +52,13 @@ public class SmsAuthService {
   }
 
   private static String normalize(String phone) {
-    if (phone == null) return "";
+    if (phone == null) {
+      return "";
+    }
     String result = phone.replaceAll("[^0-9]", "");
     if (result.length() != 10 && result.length() != 11) {
-      log.warn("[번호 정규화 경고] 예상치 못한 자릿수 raw={} normalized={} length={}", phone, result, result.length());
+      log.warn("[번호 정규화 경고] 예상치 못한 자릿수 raw={} normalized={} length={}", phone, result,
+          result.length());
     }
     return result;
   }
@@ -63,7 +68,7 @@ public class SmsAuthService {
     String phone = normalize(rawPhone);
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));
 
-    // ① Redis에 먼저 저장 — 실패하면 SMS 발송하지 않음
+    // Redis에 먼저 저장 — 실패하면 SMS 발송하지 않음
     boolean replaced = Boolean.TRUE.equals(redisTemplate.hasKey(KEY_AUTH + phone));
     try {
       redisTemplate.opsForValue().set(KEY_AUTH + phone, code, AUTH_TTL_MIN, TimeUnit.MINUTES);
@@ -77,7 +82,7 @@ public class SmsAuthService {
     log.info("[인증번호 발송] rawPhone={} | normalizedKey={} | 서버시각={} | 이전레코드교체={}",
         maskPhone(rawPhone), phone, FMT.format(Instant.now()), replaced);
 
-    // ② Redis 저장 성공 후 SMS 발송
+    // Redis 저장 성공 후 SMS 발송
     smsService.send(phone, code);
   }
 
@@ -121,7 +126,8 @@ public class SmsAuthService {
 
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));
     try {
-      redisTemplate.opsForValue().set(KEY_AUTH + normalizedDb, code, AUTH_TTL_MIN, TimeUnit.MINUTES);
+      redisTemplate.opsForValue()
+          .set(KEY_AUTH + normalizedDb, code, AUTH_TTL_MIN, TimeUnit.MINUTES);
       log.info("[휴면 Redis 저장 완료] key={}", KEY_AUTH + maskPhone(normalizedDb));
     } catch (Exception e) {
       log.error("[휴면 Redis 저장 실패] 원인={}", e.getMessage(), e);
@@ -152,7 +158,8 @@ public class SmsAuthService {
     }
 
     // 인증 완료 도장: sms:verified:{phone} (TTL 5분)
-    redisTemplate.opsForValue().set(KEY_VERIFIED + phone, "true", VERIFIED_TTL_MIN, TimeUnit.MINUTES);
+    redisTemplate.opsForValue()
+        .set(KEY_VERIFIED + phone, "true", VERIFIED_TTL_MIN, TimeUnit.MINUTES);
     redisTemplate.delete(authKey);
 
     log.info("[인증 완료] phone={}", maskPhone(phone));
@@ -171,7 +178,9 @@ public class SmsAuthService {
   }
 
   private String maskPhone(String phone) {
-    if (phone == null || phone.length() < 7) return "****";
+    if (phone == null || phone.length() < 7) {
+      return "****";
+    }
     return phone.substring(0, 3) + "****" + phone.substring(phone.length() - 4);
   }
 }

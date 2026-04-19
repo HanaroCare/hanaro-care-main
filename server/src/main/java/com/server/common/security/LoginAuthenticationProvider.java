@@ -64,13 +64,6 @@ public class LoginAuthenticationProvider implements AuthenticationProvider {
     return new LoginAuthenticationToken(subscriberDTO, means, subscriberDTO.getAuthorities());
   }
 
-  /**
-   * loginId로 유저를 조회합니다.
-   * 1) 정확히 일치하는 유저가 있고 authMeansCd도 일치하면 그대로 반환합니다.
-   * 2) 정확히 일치하지 않거나 authMeansCd가 다를 경우,
-   *    loginId를 접두사로 삼아 authMeansCd가 일치하는 첫 번째 유저를 반환합니다.
-   *    (예: "Tsid" + PATTERN → TsidZ, "Tsid" + SIMPLE_PASSWORD → Tsid)
-   */
   private TBUser resolveUser(String loginId, LoginMeans means) {
     Optional<TBUser> exact = userRepository.findByLoginId(loginId);
     if (exact.isPresent() && exact.get().getAuthMeansCd() == means) {
