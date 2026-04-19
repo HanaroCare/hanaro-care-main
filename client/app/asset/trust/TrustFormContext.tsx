@@ -39,7 +39,7 @@ type TrustFormContextValue = {
     payoutItems: PayoutItemValue[],
     payoutAmounts?: Partial<PayoutAmounts>,
   ) => void;
-  setSelectedAgent: (selectedAgent: number | null) => void;
+  setSelectedAgent: (selectedAgent: string | null) => void;
   resetForm: () => void;
 };
 
@@ -123,7 +123,7 @@ export function TrustFormProvider({ children }: { children: React.ReactNode }) {
       setSelectedAgent: (selectedAgent) => {
         setForm((prev) => ({
           ...prev,
-          selectedAgent: selectedAgent !== null ? String(selectedAgent) : null,
+          selectedAgent,
         }));
       },
 

@@ -209,8 +209,12 @@ public class AuthService {
     if (!smsAuthService.isVerified(normalizedPhone)) {
       throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
-    TBUser user = userRepository.findByUserNmAndUserPhoneAndUserStatusCd(
-            request.getUsername(), normalizedPhone, UserStatus.ACTIVE)
+    // userPhone은 AES 암호화 컬럼 — SQL 파라미터 비교 불가, 복호화된 값을 Java에서 비교
+    TBUser user = userRepository.findByUserNmAndUserStatusCd(request.getUsername(), UserStatus.ACTIVE)
+        .stream()
+        .filter(u -> u.getUserPhone() != null
+            && u.getUserPhone().replaceAll("[^0-9]", "").equals(normalizedPhone))
+        .findFirst()
         .orElseThrow(() -> new ApiException(ErrorStatus.FIND_ID_USER_NOT_FOUND));
     log.info("[아이디 찾기 성공] userNm={}", request.getUsername());
     return new FindIdResponseDTO(maskLoginId(user.getLoginId()));
@@ -222,8 +226,11 @@ public class AuthService {
     if (!smsAuthService.isVerified(normalizedPhone)) {
       throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
-    TBUser user = userRepository.findByLoginIdAndUserPhoneAndUserStatusCd(
-            request.getLoginId(), normalizedPhone, UserStatus.ACTIVE)
+    // userPhone은 AES 암호화 컬럼 — SQL 파라미터 비교 불가, 복호화된 값을 Java에서 비교
+    TBUser user = userRepository.findByLoginId(request.getLoginId())
+        .filter(u -> u.getUserStatusCd() == UserStatus.ACTIVE)
+        .filter(u -> u.getUserPhone() != null
+            && u.getUserPhone().replaceAll("[^0-9]", "").equals(normalizedPhone))
         .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND));
     if (!user.getUserNm().equals(request.getUsername())) {
       throw new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND);

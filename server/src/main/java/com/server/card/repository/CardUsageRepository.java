@@ -11,8 +11,10 @@ public interface CardUsageRepository extends JpaRepository<TBCardUsage, Long> {
 
   List<TBCardUsage> findByCard_CardIdOrderByCreatedAtDesc(Long cardId);
 
-  @Query("SELECT DISTINCT u.card.cardId FROM TBCardUsage u WHERE u.card.account.user.userId = :userId AND u.abnmlYn = 'Y'")
+  /** 활성 카드(isUse=true)의 이상 거래 카드 ID 목록 */
+  @Query("SELECT DISTINCT u.card.cardId FROM TBCardUsage u WHERE u.card.account.user.userId = :userId AND u.abnmlYn = 'Y' AND u.card.isUse = true")
   List<Long> findAbnormalCardIdsByUserId(@Param("userId") Long userId);
 
-  Optional<TBCardUsage> findTopByCard_Account_User_UserIdAndAbnmlYnOrderByCreatedAtDesc(Long userId, String abnmlYn);
+  /** 활성 카드(isUse=true)의 가장 최근 이상 거래 */
+  Optional<TBCardUsage> findTopByCard_Account_User_UserIdAndAbnmlYnAndCard_IsUseTrueOrderByCreatedAtDesc(Long userId, String abnmlYn);
 }

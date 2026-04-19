@@ -1,20 +1,18 @@
 package com.server.user.entity;
 
-import java.time.LocalDateTime;
-
+import com.server.common.converter.AccountNumConverter;
 import com.server.user.enums.LoginMeans;
 import com.server.user.enums.SubscriberRole;
 import com.server.user.enums.UserStatus;
-
 import io.hypersistence.utils.hibernate.id.Tsid;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,7 +44,8 @@ public class TBUser {
   @Column(name = "USER_AGE", nullable = false)
   private Integer userAge;
 
-  @Column(name = "USER_PHONE", nullable = false, length = 11)
+  @Column(name = "USER_PHONE", length = 200)
+  @Convert(converter = AccountNumConverter.class)
   private String userPhone;
 
   @Column(name = "USER_ADDR", length = 255)

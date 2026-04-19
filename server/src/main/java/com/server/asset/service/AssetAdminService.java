@@ -138,7 +138,7 @@ public class AssetAdminService {
       userProd.setClaimAgent(claimAgent);
       userProd.setIsAgentView(true);
       TBFamilyAuth familyAuth = familyAuthRepository
-          .findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+          .findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(userId, claimAgent.getUserId())
           .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
       familyAuth.setIsTrustView(true);
     }
@@ -210,7 +210,7 @@ public class AssetAdminService {
         .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
 
     TBFamilyAuth familyAuth = familyAuthRepository
-        .findByGrantor_UserIdAndGrantee_UserId(userId, agentUserId)
+        .findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(userId, agentUserId)
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
     if (familyAuth.getRelationCd() != FamilyRelation.CHILD) {
@@ -219,7 +219,7 @@ public class AssetAdminService {
 
     TBUser prevAgent = userProd.getClaimAgent();
     if (prevAgent != null && !prevAgent.getUserId().equals(agentUserId)) {
-      familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(userId, prevAgent.getUserId())
+      familyAuthRepository.findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(userId, prevAgent.getUserId())
           .ifPresent(prev -> {
             prev.setIsTrustView(false);
             prev.setIsProxyClaim(false);
@@ -248,7 +248,7 @@ public class AssetAdminService {
     userProd.setIsAgentView(true);
 
     TBFamilyAuth familyAuth = familyAuthRepository
-        .findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+        .findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(userId, claimAgent.getUserId())
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
     familyAuth.setIsTrustView(true);
   }

@@ -69,13 +69,13 @@ class UserRepositoryTest extends BaseRepositoryTest {
 
     @Test
     @Order(3)
-    @DisplayName("findByLoginIdAndUserPhone: loginId·전화번호 모두 일치 → 유저 반환")
-    void findByLoginIdAndUserPhone_success() {
+    @DisplayName("findByLoginId + phone 비교: 복호화된 전화번호가 저장값과 일치")
+    void findByLoginId_phoneDecryptsCorrectly() {
         loadTestUser();
-        Optional<TBUser> result =
-                userRepository.findByLoginIdAndUserPhone(TEST_ID, "01012345678");
+        Optional<TBUser> result = userRepository.findByLoginId(TEST_ID);
 
         assertThat(result).isPresent();
+        assertThat(result.get().getUserPhone()).isEqualTo("01012345678");
     }
 
     @Test

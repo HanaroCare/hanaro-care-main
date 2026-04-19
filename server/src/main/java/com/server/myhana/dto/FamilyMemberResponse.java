@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FamilyMemberResponse {
-  private Long userId;
+  private String userId; // TSID: JS 정밀도 유지를 위해 String
   private String name;
   private String relation; // "부모", "자녀", "배우자" etc.
   private String phone;

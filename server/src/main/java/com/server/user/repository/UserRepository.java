@@ -19,10 +19,6 @@ public interface UserRepository extends JpaRepository<TBUser, Long> {
 
   boolean existsByLoginId(String loginId);
 
-  Optional<TBUser> findByLoginIdAndUserPhone(String loginId, String userPhone);
-
-  Optional<TBUser> findByUserNmAndUserPhone(String userNm, String userPhone);
-
   boolean existsByLoginIdAndUserNm(String loginId, String userNm);
 
   boolean existsByUserNm(String userNm);
@@ -34,9 +30,10 @@ public interface UserRepository extends JpaRepository<TBUser, Long> {
 
   boolean existsByLoginIdAndUserNmAndUserStatusCd(String loginId, String userNm, UserStatus status);
 
-  Optional<TBUser> findByUserNmAndUserPhoneAndUserStatusCd(String userNm, String userPhone, UserStatus status);
-
-  Optional<TBUser> findByLoginIdAndUserPhoneAndUserStatusCd(String loginId, String userPhone, UserStatus status);
+  // NOTE: phone-equality derived queries are intentionally absent — userPhone is AES-encrypted
+  // and JPA does not apply AttributeConverter to query parameters. Services must load by
+  // non-phone criteria first, then compare user.getUserPhone() (decrypted) in Java.
+  List<TBUser> findByUserNmAndUserStatusCd(String userNm, UserStatus status);
 
   List<TBUser> findAllByUserStatusCdNot(UserStatus status);
 

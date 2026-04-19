@@ -20,7 +20,8 @@ export interface GoldLinkRequest {
 }
 
 export interface RealAssetLinkResult {
-  realAssetId: number;
+  /** TSID. 백엔드(RealAssetLinkResponse)가 String으로 반환하므로 string */
+  realAssetId: string;
   assetNm: string;
   evalAmt: number;
   brand?: string | null;

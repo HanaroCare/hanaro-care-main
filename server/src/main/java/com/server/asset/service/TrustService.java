@@ -79,7 +79,7 @@ public class TrustService {
 
     if (claimAgent != null) {
       TBFamilyAuth familyAuth = familyAuthRepository
-          .findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+          .findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(userId, claimAgent.getUserId())
           .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
       familyAuth.setIsProxyClaim(true);
@@ -180,7 +180,7 @@ public class TrustService {
   @Transactional(readOnly = true)
   public void validateTrustViewAccess(Long granteeId, Long grantorId) {
     TBFamilyAuth familyAuth = familyAuthRepository
-        .findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
+        .findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(grantorId, granteeId)
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
     if (!Boolean.TRUE.equals(familyAuth.getIsTrustView())) {
@@ -214,7 +214,7 @@ public class TrustService {
     userProd.setIsAgentView(enabled);
 
     TBFamilyAuth familyAuth = familyAuthRepository
-        .findByGrantor_UserIdAndGrantee_UserId(userId, claimAgent.getUserId())
+        .findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(userId, claimAgent.getUserId())
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
     familyAuth.setIsTrustView(enabled);
@@ -313,7 +313,7 @@ public class TrustService {
     TBUser claimAgent = userProd.getClaimAgent();
 
     String relation = familyAuthRepository
-        .findByGrantor_UserIdAndGrantee_UserId(userProd.getUser().getUserId(), claimAgent.getUserId())
+        .findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(userProd.getUser().getUserId(), claimAgent.getUserId())
         .map(auth -> auth.getRelationCd().getDescription())
         .orElse(null);
 

@@ -119,10 +119,6 @@ class MyHanaInsuranceServiceTest {
     given(accountRepository.findByAccountIdAndAssetCateCd(insuranceId, AssetCategory.INSURANCE))
         .willReturn(Optional.of(account));
 
-    given(familyAuthRepository
-        .findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(2L, userId, true))
-        .willReturn(Optional.empty());
-
     assertThatThrownBy(() ->
         service.getInsurance(userId, insuranceId)
     ).isInstanceOf(ApiException.class);

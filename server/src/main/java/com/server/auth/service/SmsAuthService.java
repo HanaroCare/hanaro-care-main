@@ -82,8 +82,13 @@ public class SmsAuthService {
   }
 
   public void sendPasswordFindCode(PasswordFindRequestDTO request) {
-    userRepository.findByLoginIdAndUserPhone(request.getLoginId(), request.getUserPhone())
+    // userPhone은 AES 암호화 컬럼 — SQL 파라미터 비교 불가, 복호화된 값을 Java에서 비교
+    TBUser pwdFindUser = userRepository.findByLoginId(request.getLoginId())
         .orElseThrow(() -> new ApiException(ErrorStatus.FIND_ID_USER_NOT_FOUND));
+    if (pwdFindUser.getUserPhone() == null
+        || !normalize(pwdFindUser.getUserPhone()).equals(normalize(request.getUserPhone()))) {
+      throw new ApiException(ErrorStatus.FIND_ID_USER_NOT_FOUND);
+    }
 
     String phone = normalize(request.getUserPhone());
     String code = String.format("%06d", RANDOM.nextInt(1_000_000));

@@ -64,7 +64,7 @@ public class MyHanaInsuranceService {
 
     if (!accountOwnerId.equals(userId)) {
       boolean hasAuth = familyAuthRepository
-          .findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(
+          .findFirstByGrantor_UserIdAndGrantee_UserIdAndIsInsViewOrderByFamilyAuthIdDesc(
               accountOwnerId, userId, true)
           .isPresent();
 
