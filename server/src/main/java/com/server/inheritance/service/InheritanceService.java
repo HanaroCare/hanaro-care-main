@@ -160,9 +160,8 @@ public class InheritanceService {
                     .multiply(d.getDistRatio())
                     .divide(BigDecimal.valueOf(100), RoundingMode.HALF_UP);
 
-                boolean hasLetter = d.getInheritLetter() != null;
-                String letterId =
-                    hasLetter ? String.valueOf(d.getInheritLetter().getLetterId()) : null;
+                boolean hasLetter = letterRepository.findByInheritDetail_InheritDetailId(d.getInheritDetailId()).isPresent();
+                String letterId = hasLetter ? String.valueOf(letterRepository.findByInheritDetail_InheritDetailId(d.getInheritDetailId()).get().getLetterId()) : null;
 
                 return InheritanceResponseDTO.HeirSummaryDTO.builder()
                     .inheritDetailId(String.valueOf(d.getInheritDetailId()))

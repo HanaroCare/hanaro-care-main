@@ -163,15 +163,17 @@ class RefreshTokenRepositoryTest extends BaseRepositoryTest {
   @DisplayName("save: 동일 tokenValue 중복 저장 → DataIntegrityViolationException 발생")
   void save_duplicateTokenValue_throwsException() {
     // 별도 유저를 생성해 PK(userId) 충돌 없이 tokenValue unique 위반만 발생시킴
-    TBUser extraUser = userRepository.save(TBUser.builder()
-        .loginId("token_dup_user")
-        .userNm("토큰중복유저")
-        .userAge(35)
-        .userPhone("01077776666")
-        .userAddr("인천시")
-        .userPwd("pwd_dup!")
-        .userStatusCd(UserStatus.ACTIVE)
-        .build());
+    TBUser extraUser = userRepository.findByLoginId("token_dup_user").orElseGet(() -> 
+        userRepository.save(TBUser.builder()
+            .loginId("token_dup_user")
+            .userNm("토큰중복유저")
+            .userAge(35)
+            .userPhone("01077776666")
+            .userAddr("인천시")
+            .userPwd("pwd_dup!")
+            .userStatusCd(UserStatus.ACTIVE)
+            .build())
+    );
 
     TBRefreshToken duplicate = TBRefreshToken.builder()
         .userId(extraUser.getUserId())

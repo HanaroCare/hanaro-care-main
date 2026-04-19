@@ -118,7 +118,7 @@ class CardServiceTest {
     // ── Fixture factories ──────────────────────────────────────────────────────
 
     private CardRegisterRequest registerRequest(BigDecimal limitAmt, BigDecimal autoTransAmt,
-            List<Long> familyAuthIds) {
+            List<String> familyAuthIds) {
         CardRegisterRequest req = new CardRegisterRequest();
         ReflectionTestUtils.setField(req, "accountId", String.valueOf(ACCOUNT_ID));
         ReflectionTestUtils.setField(req, "cardNm", "내 카드");
@@ -246,7 +246,7 @@ class CardServiceTest {
             when(familyAuthRepository.saveAll(anyList())).thenReturn(Collections.emptyList());
 
             TBCard result = cardService.registerCard(OWNER_ID,
-                    registerRequest(new BigDecimal("500000"), null, List.of(FAMILY_AUTH_ID)));
+                    registerRequest(new BigDecimal("500000"), null, List.of(String.valueOf(FAMILY_AUTH_ID))));
 
             assertThat(result).isEqualTo(activeCard);
             verify(familyAuthRepository).saveAll(anyList());
@@ -403,7 +403,7 @@ class CardServiceTest {
             List<AccountListResponse> result = cardService.getCashAccounts(OWNER_ID);
 
             assertThat(result).hasSize(1);
-            assertThat(result.get(0).getAccountId()).isEqualTo(ACCOUNT_ID);
+            assertThat(result.get(0).getAccountId()).isEqualTo(String.valueOf(ACCOUNT_ID));
             assertThat(result.get(0).getInstNm()).isEqualTo("하나은행");
         }
 
@@ -828,4 +828,3 @@ class CardServiceTest {
         }
     }
 }
-

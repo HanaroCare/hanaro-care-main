@@ -32,8 +32,14 @@ class FamilyAuthRepositoryTest extends BaseRepositoryTest {
     
     private TBUser managedTestUser() {
         return userRepository.findByLoginId("testuser01")
-                .orElseThrow(() -> new IllegalStateException(
-                        "testuser01이 DB에 없습니다. TestInitLoader가 정상 실행되었는지 확인하세요."));
+                .orElseGet(() -> userRepository.save(TBUser.builder()
+                        .loginId("testuser01")
+                        .userNm("테스트유저")
+                        .userAge(30)
+                        .userPhone("01011112222")
+                        .userPwd("pwd123!")
+                        .userStatusCd(UserStatus.ACTIVE)
+                        .build()));
     }
 
     private TBUser managedGranteeUser() {

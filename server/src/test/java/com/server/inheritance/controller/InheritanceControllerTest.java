@@ -18,7 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -33,18 +33,18 @@ public class InheritanceControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private InheritanceService inheritanceService;
 
-    @MockBean
+    @MockitoBean
     private com.server.common.security.JwtAuthenticationFilter jwtAuthenticationFilter;
-    @MockBean
+    @MockitoBean
     private com.server.common.security.handler.CustomAccessDeniedHandler accessDeniedHandler;
-    @MockBean
+    @MockitoBean
     private com.server.common.security.handler.LoginSuccessHandler loginSuccessHandler;
-    @MockBean
+    @MockitoBean
     private com.server.common.security.handler.LoginFailureHandler loginFailureHandler;
-    @MockBean
+    @MockitoBean
     private com.server.common.security.LoginAuthenticationProvider loginAuthenticationProvider;
 
     @Autowired
@@ -62,7 +62,7 @@ public class InheritanceControllerTest {
         when(inheritanceService.getInheritanceContext(userId)).thenReturn(context);
 
         // when & then
-        mockMvc.perform(get("/apis/inheritance/context/{userId}", userId))
+        mockMvc.perform(get("/api/inheritance/context/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true));
     }
@@ -77,18 +77,18 @@ public class InheritanceControllerTest {
                 .build();
         
         InheritanceResponseDTO response = InheritanceResponseDTO.builder()
-                .planId(1L)
+                .planId("1")
                 .build();
 
         when(inheritanceService.createOrUpdatePlan(eq(userId), any(InheritanceRequestDTO.class))).thenReturn(response);
 
         // when & then
-        mockMvc.perform(post("/apis/inheritance/plan/{userId}", userId)
+        mockMvc.perform(post("/api/inheritance/plan/{userId}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true))
-                .andExpect(jsonPath("$.result.planId").value(1L));
+                .andExpect(jsonPath("$.result.planId").value("1"));
     }
 
     @Test
@@ -97,15 +97,15 @@ public class InheritanceControllerTest {
         // given
         Long userId = 1L;
         InheritanceResponseDTO response = InheritanceResponseDTO.builder()
-                .planId(1L)
+                .planId("1")
                 .build();
 
         when(inheritanceService.getPlanSummary(userId)).thenReturn(response);
 
         // when & then
-        mockMvc.perform(get("/apis/inheritance/summary/{userId}", userId))
+        mockMvc.perform(get("/api/inheritance/summary/{userId}", userId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.isSuccess").value(true))
-                .andExpect(jsonPath("$.result.planId").value(1L));
+                .andExpect(jsonPath("$.result.planId").value("1"));
     }
 }

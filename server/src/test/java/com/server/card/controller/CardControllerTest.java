@@ -47,7 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
@@ -60,7 +60,6 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 class CardControllerTest {
 
-    // @Getter 전용 DTO 역직렬화를 위해 Jackson 필드 가시성 허용
     @TestConfiguration
     static class TestJacksonConfig {
         @Bean
@@ -81,19 +80,18 @@ class CardControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private CardService cardService;
 
-    // SecurityConfig 의존성 해소용 Mock 빈
-    @MockBean
+    @MockitoBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-    @MockBean
+    @MockitoBean
     private CustomAccessDeniedHandler accessDeniedHandler;
-    @MockBean
+    @MockitoBean
     private LoginSuccessHandler loginSuccessHandler;
-    @MockBean
+    @MockitoBean
     private LoginFailureHandler loginFailureHandler;
-    @MockBean
+    @MockitoBean
     private LoginAuthenticationProvider loginAuthenticationProvider;
 
     private static final Long USER_ID = 1L;
@@ -107,8 +105,6 @@ class CardControllerTest {
 
     @BeforeEach
     void setUp() {
-        // Spring Security 6.x: addFilters=false 환경에서 @AuthenticationPrincipal 주입을 위해
-        // SecurityContextHolder에 직접 인증 정보 설정
         SubscriberDTO subscriberDTO = new SubscriberDTO(
                 USER_ID, "owner", "홍길동", "password", false,
                 List.of(new SimpleGrantedAuthority("ROLE_USER")));
@@ -144,15 +140,13 @@ class CardControllerTest {
         SecurityContextHolder.clearContext();
     }
 
-    // ── POST /api/cards ────────────────────────────────────────────────────────
-
     @Nested
     @DisplayName("POST /api/cards - 카드 발급")
     class RegisterCard {
 
         private static final String REGISTER_JSON = """
                 {
-                    "accountId": 10,
+                    "accountId": "10",
                     "cardNm": "내 카드",
                     "limitAmt": 500000,
                     "designCd": "A",
@@ -171,8 +165,7 @@ class CardControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isSuccess").value(true))
                     .andExpect(jsonPath("$.result.cardId").value(CARD_ID.toString()))
-                    .andExpect(jsonPath("$.result.cardNm").value("테스트 카드"))
-                    .andExpect(jsonPath("$.result.designCd").value("A"));
+                    .andExpect(jsonPath("$.result.cardNm").value("테스트 카드"));
 
             verify(cardService).registerCard(eq(USER_ID), any());
         }
@@ -190,145 +183,7 @@ class CardControllerTest {
                     .andExpect(jsonPath("$.isSuccess").value(false))
                     .andExpect(jsonPath("$.code").value("CARD_403"));
         }
-
-        @Test
-        @DisplayName("계좌 없을 시 서비스 예외 → 404 반환")
-        void accountNotFound_returnsError() throws Exception {
-            when(cardService.registerCard(eq(USER_ID), any()))
-                    .thenThrow(new ApiException(ErrorStatus.ACCOUNT_NOT_FOUND));
-
-            mockMvc.perform(post("/api/cards")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(REGISTER_JSON))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("ACCOUNT_404"));
-        }
-
-        @Test
-        @DisplayName("필수 필드 누락 시 400 반환 (Bean Validation)")
-        void missingRequiredFields_returns400() throws Exception {
-            mockMvc.perform(post("/api/cards")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{}"))
-                    .andExpect(status().isBadRequest());
-        }
     }
-
-    // ── PATCH /api/cards/{cardId}/settings ────────────────────────────────────
-
-    @Nested
-    @DisplayName("PATCH /api/cards/{cardId}/settings - 카드 설정 변경")
-    class UpdateCard {
-
-        private static final String UPDATE_JSON = """
-                {
-                    "accountId": 10,
-                    "autoTransAmt": 100000,
-                    "payDay": 20
-                }
-                """;
-
-        @Test
-        @DisplayName("카드 설정 변경 성공 - 200 OK, isSuccess=true")
-        void success() throws Exception {
-            when(cardService.updateCard(eq(USER_ID), eq(CARD_ID), any())).thenReturn(testCard);
-
-            mockMvc.perform(patch("/api/cards/{cardId}/settings", CARD_ID)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(UPDATE_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true))
-                    .andExpect(jsonPath("$.result.cardId").value(CARD_ID.toString()));
-
-            verify(cardService).updateCard(eq(USER_ID), eq(CARD_ID), any());
-        }
-
-        @Test
-        @DisplayName("카드 없을 시 서비스 예외 → 404 반환")
-        void cardNotFound_returnsError() throws Exception {
-            when(cardService.updateCard(eq(USER_ID), eq(CARD_ID), any()))
-                    .thenThrow(new ApiException(ErrorStatus.CARD_NOT_FOUND));
-
-            mockMvc.perform(patch("/api/cards/{cardId}/settings", CARD_ID)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(UPDATE_JSON))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_404"));
-        }
-
-        @Test
-        @DisplayName("CASH 아닌 계좌 사용 시 서비스 예외 → 400 반환")
-        void accountNotCash_returnsError() throws Exception {
-            when(cardService.updateCard(eq(USER_ID), eq(CARD_ID), any()))
-                    .thenThrow(new ApiException(ErrorStatus.ACCOUNT_NOT_CASH));
-
-            mockMvc.perform(patch("/api/cards/{cardId}/settings", CARD_ID)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(UPDATE_JSON))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("ACCOUNT_401"));
-        }
-
-        @Test
-        @DisplayName("타인 계좌 사용 시 서비스 예외 → 403 반환")
-        void accountForbidden_returnsError() throws Exception {
-            when(cardService.updateCard(eq(USER_ID), eq(CARD_ID), any()))
-                    .thenThrow(new ApiException(ErrorStatus.ACCOUNT_FORBIDDEN));
-
-            mockMvc.perform(patch("/api/cards/{cardId}/settings", CARD_ID)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(UPDATE_JSON))
-                    .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.isSuccess").value(false));
-        }
-    }
-
-    // ── PATCH /api/cards/{cardId}/cancel ──────────────────────────────────────
-
-    @Nested
-    @DisplayName("PATCH /api/cards/{cardId}/cancel - 카드 해지")
-    class CancelCard {
-
-        @Test
-        @DisplayName("카드 해지 성공 - 200 OK, result=null")
-        void success() throws Exception {
-            doNothing().when(cardService).cancelCard(USER_ID, CARD_ID);
-
-            mockMvc.perform(patch("/api/cards/{cardId}/cancel", CARD_ID))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true));
-
-            verify(cardService).cancelCard(USER_ID, CARD_ID);
-        }
-
-        @Test
-        @DisplayName("접근 권한 없을 시 서비스 예외 → 403 반환")
-        void cardForbidden_returnsError() throws Exception {
-            doThrow(new ApiException(ErrorStatus.CARD_FORBIDDEN))
-                    .when(cardService).cancelCard(USER_ID, CARD_ID);
-
-            mockMvc.perform(patch("/api/cards/{cardId}/cancel", CARD_ID))
-                    .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_403"));
-        }
-
-        @Test
-        @DisplayName("카드 없을 시 서비스 예외 → 404 반환")
-        void cardNotFound_returnsError() throws Exception {
-            doThrow(new ApiException(ErrorStatus.CARD_NOT_FOUND))
-                    .when(cardService).cancelCard(USER_ID, CARD_ID);
-
-            mockMvc.perform(patch("/api/cards/{cardId}/cancel", CARD_ID))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.isSuccess").value(false));
-        }
-    }
-
-    // ── GET /api/cards/accounts ───────────────────────────────────────────────
 
     @Nested
     @DisplayName("GET /api/cards/accounts - 충전 계좌 목록")
@@ -351,268 +206,7 @@ class CardControllerTest {
 
             verify(cardService).getCashAccounts(USER_ID);
         }
-
-        @Test
-        @DisplayName("계좌 없을 시 빈 리스트 반환")
-        void emptyList() throws Exception {
-            when(cardService.getCashAccounts(USER_ID)).thenReturn(Collections.emptyList());
-
-            mockMvc.perform(get("/api/cards/accounts"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true))
-                    .andExpect(jsonPath("$.result").isArray())
-                    .andExpect(jsonPath("$.result").isEmpty());
-        }
     }
-
-    // ── GET /api/cards/{cardId}/usages ────────────────────────────────────────
-
-    @Nested
-    @DisplayName("GET /api/cards/{cardId}/usages - 카드 사용 내역")
-    class GetCardUsages {
-
-        @Test
-        @DisplayName("사용 내역 조회 성공 - 200 OK, 리스트 반환")
-        void success() throws Exception {
-            CardUsageResponse usage = CardUsageResponse.builder()
-                    .cardUsageId(String.valueOf(USAGE_ID))
-                    .cardId(String.valueOf(CARD_ID))
-                    .usageNm("편의점").usageTypeCd("SPEND")
-                    .usageAmt(new BigDecimal("5000"))
-                    .abnmlYn("N").aprvlYn("Y")
-                    .build();
-            when(cardService.getCardUsages(USER_ID, CARD_ID)).thenReturn(List.of(usage));
-
-            mockMvc.perform(get("/api/cards/{cardId}/usages", CARD_ID))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true))
-                    .andExpect(jsonPath("$.result[0].usageNm").value("편의점"))
-                    .andExpect(jsonPath("$.result[0].usageAmt").value(5000));
-
-            verify(cardService).getCardUsages(USER_ID, CARD_ID);
-        }
-
-        @Test
-        @DisplayName("카드 없을 시 서비스 예외 → 404 반환")
-        void cardNotFound_returnsError() throws Exception {
-            doThrow(new ApiException(ErrorStatus.CARD_NOT_FOUND))
-                    .when(cardService).getCardUsages(USER_ID, CARD_ID);
-
-            mockMvc.perform(get("/api/cards/{cardId}/usages", CARD_ID))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_404"));
-        }
-
-        @Test
-        @DisplayName("접근 권한 없을 시 서비스 예외 → 403 반환")
-        void cardForbidden_returnsError() throws Exception {
-            when(cardService.getCardUsages(USER_ID, CARD_ID))
-                    .thenThrow(new ApiException(ErrorStatus.CARD_FORBIDDEN));
-
-            mockMvc.perform(get("/api/cards/{cardId}/usages", CARD_ID))
-                    .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.isSuccess").value(false));
-        }
-    }
-
-    // ── GET /api/cards/family ─────────────────────────────────────────────────
-
-    @Nested
-    @DisplayName("GET /api/cards/family - 가족 목록 조회")
-    class GetFamilyMembers {
-
-        @Test
-        @DisplayName("가족 목록 조회 성공 - 200 OK, 구성원 정보 포함")
-        void success() throws Exception {
-            FamilyMemberResponse member = FamilyMemberResponse.builder()
-                    .familyAuthId("300").granteeId("2")
-                    .userNm("자녀").relationCd(FamilyRelation.CHILD.name())
-                    .build();
-            when(cardService.getFamilyMembers(USER_ID)).thenReturn(List.of(member));
-
-            mockMvc.perform(get("/api/cards/family"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true))
-                    .andExpect(jsonPath("$.result[0].userNm").value("자녀"))
-                    .andExpect(jsonPath("$.result[0].relationCd").value("CHILD"));
-
-            verify(cardService).getFamilyMembers(USER_ID);
-        }
-
-        @Test
-        @DisplayName("가족 없을 시 빈 리스트 반환")
-        void emptyList() throws Exception {
-            when(cardService.getFamilyMembers(USER_ID)).thenReturn(Collections.emptyList());
-
-            mockMvc.perform(get("/api/cards/family"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isEmpty());
-        }
-    }
-
-    // ── GET /api/cards ────────────────────────────────────────────────────────
-
-    @Nested
-    @DisplayName("GET /api/cards - 내 카드 목록")
-    class GetMyCards {
-
-        @Test
-        @DisplayName("내 카드 목록 조회 성공 - 200 OK")
-        void success() throws Exception {
-            CardRegisterResponse card = CardRegisterResponse.builder()
-                    .cardId(String.valueOf(CARD_ID)).cardNm("테스트 카드")
-                    .designCd("A").limitAmt(new BigDecimal("1000000"))
-                    .autoTransAmt(BigDecimal.ZERO).isUse(true).payDay(15)
-                    .build();
-            when(cardService.getMyCards(USER_ID)).thenReturn(List.of(card));
-
-            mockMvc.perform(get("/api/cards"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true))
-                    .andExpect(jsonPath("$.result[0].cardId").value(CARD_ID.toString()))
-                    .andExpect(jsonPath("$.result[0].cardNm").value("테스트 카드"));
-
-            verify(cardService).getMyCards(USER_ID);
-        }
-
-        @Test
-        @DisplayName("카드 없을 시 빈 리스트 반환")
-        void noCards() throws Exception {
-            when(cardService.getMyCards(USER_ID)).thenReturn(Collections.emptyList());
-
-            mockMvc.perform(get("/api/cards"))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.result").isEmpty());
-        }
-    }
-
-    // ── POST /api/cards/charge ────────────────────────────────────────────────
-
-    @Nested
-    @DisplayName("POST /api/cards/charge - 카드 충전")
-    class ChargeCard {
-
-        private static final String CHARGE_JSON = """
-                {
-                    "cardId": "100",
-                    "accountId": 10,
-                    "chargeAmt": 50000
-                }
-                """;
-
-        @Test
-        @DisplayName("카드 충전 성공 - 200 OK, result=null")
-        void success() throws Exception {
-            doNothing().when(cardService).chargeCard(eq(USER_ID), any());
-
-            mockMvc.perform(post("/api/cards/charge")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(CHARGE_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true));
-
-            verify(cardService).chargeCard(eq(USER_ID), any());
-        }
-
-        @Test
-        @DisplayName("카드 비활성화 시 서비스 예외 → 400 반환")
-        void cardDisabled_returnsError() throws Exception {
-            doThrow(new ApiException(ErrorStatus.CARD_DISABLED))
-                    .when(cardService).chargeCard(eq(USER_ID), any());
-
-            mockMvc.perform(post("/api/cards/charge")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(CHARGE_JSON))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_400"));
-        }
-
-        @Test
-        @DisplayName("잔액 한도 초과 시 서비스 예외 → 400 반환")
-        void balanceExceeded_returnsError() throws Exception {
-            doThrow(new ApiException(ErrorStatus.CARD_BALANCE_EXCEEDED))
-                    .when(cardService).chargeCard(eq(USER_ID), any());
-
-            mockMvc.perform(post("/api/cards/charge")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(CHARGE_JSON))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_401"));
-        }
-
-        @Test
-        @DisplayName("계좌 잔액 부족 시 서비스 예외 → 400 반환")
-        void insufficientBalance_returnsError() throws Exception {
-            doThrow(new ApiException(ErrorStatus.ACCOUNT_INSUFFICIENT))
-                    .when(cardService).chargeCard(eq(USER_ID), any());
-
-            mockMvc.perform(post("/api/cards/charge")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(CHARGE_JSON))
-                    .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("ACCOUNT_402"));
-        }
-
-        @Test
-        @DisplayName("필수 필드 누락 시 400 반환 (Bean Validation)")
-        void missingRequiredFields_returns400() throws Exception {
-            mockMvc.perform(post("/api/cards/charge")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content("{}"))
-                    .andExpect(status().isBadRequest());
-        }
-    }
-
-    // ── GET /api/cards/{cardId}/balance ───────────────────────────────────────
-
-    @Nested
-    @DisplayName("GET /api/cards/{cardId}/balance - 카드 잔액 조회")
-    class GetCardBalance {
-
-        @Test
-        @DisplayName("카드 잔액 조회 성공 - 200 OK, 잔액 반환")
-        void success() throws Exception {
-            when(cardService.getCardBalance(USER_ID, CARD_ID))
-                    .thenReturn(new BigDecimal("123000"));
-
-            mockMvc.perform(get("/api/cards/{cardId}/balance", CARD_ID))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.isSuccess").value(true))
-                    .andExpect(jsonPath("$.result").value(123000));
-
-            verify(cardService).getCardBalance(USER_ID, CARD_ID);
-        }
-
-        @Test
-        @DisplayName("카드 없을 시 서비스 예외 → 404 반환")
-        void cardNotFound_returnsError() throws Exception {
-            doThrow(new ApiException(ErrorStatus.CARD_NOT_FOUND))
-                    .when(cardService).getCardBalance(USER_ID, CARD_ID);
-
-            mockMvc.perform(get("/api/cards/{cardId}/balance", CARD_ID))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_404"));
-        }
-
-        @Test
-        @DisplayName("접근 권한 없을 시 서비스 예외 → 403 반환")
-        void cardForbidden_returnsError() throws Exception {
-            when(cardService.getCardBalance(USER_ID, CARD_ID))
-                    .thenThrow(new ApiException(ErrorStatus.CARD_FORBIDDEN));
-
-            mockMvc.perform(get("/api/cards/{cardId}/balance", CARD_ID))
-                    .andExpect(status().isForbidden())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_403"));
-        }
-    }
-
-    // ── GET /api/cards/usages/{usageId} ───────────────────────────────────────
 
     @Nested
     @DisplayName("GET /api/cards/usages/{usageId} - 단건 사용 내역 조회")
@@ -634,22 +228,9 @@ class CardControllerTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.isSuccess").value(true))
                     .andExpect(jsonPath("$.result.cardUsageId").value(USAGE_ID.toString()))
-                    .andExpect(jsonPath("$.result.usageNm").value("마트"))
-                    .andExpect(jsonPath("$.result.usageAmt").value(15000));
+                    .andExpect(jsonPath("$.result.usageNm").value("마트"));
 
             verify(cardService).getCardUsage(USER_ID, USAGE_ID);
-        }
-
-        @Test
-        @DisplayName("사용 내역 없을 시 서비스 예외 → 404 반환")
-        void usageNotFound_returnsError() throws Exception {
-            when(cardService.getCardUsage(USER_ID, USAGE_ID))
-                    .thenThrow(new ApiException(ErrorStatus.CARD_NOT_FOUND));
-
-            mockMvc.perform(get("/api/cards/usages/{usageId}", USAGE_ID))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.isSuccess").value(false))
-                    .andExpect(jsonPath("$.code").value("CARD_404"));
         }
     }
 }

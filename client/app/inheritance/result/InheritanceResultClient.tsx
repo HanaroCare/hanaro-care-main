@@ -170,7 +170,7 @@ export default function InheritanceResultClient({ initialData }: Props) {
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
                     <span>
-                      {heir.name} ( {heir.percentage.toFixed(0)}% )
+                      {heir.name} ( {heir.percentage > 100 ? (heir.percentage / 100).toFixed(0) : heir.percentage.toFixed(0)}% )
                     </span>
                   </div>
                 ))}
@@ -216,7 +216,9 @@ export default function InheritanceResultClient({ initialData }: Props) {
                     </div>
                     {/* next/link 사용 */}
                     <Link
-                      href={`/inheritance/letter/recipients/${heir.id}`}
+                      href={heir.hasLetter 
+                        ? `/inheritance/letter/recipients/result?inheritDetailId=${heir.id}` 
+                        : `/inheritance/letter/recipients/${heir.id}`}
                       className={styles.letterLink}
                     >
                       {heir.hasLetter ? '작성된 편지 보기 >' : '상속편지 남기기 >'}
