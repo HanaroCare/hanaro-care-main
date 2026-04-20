@@ -28,7 +28,7 @@ export function RecipientCard({
       {/* Right: percentage + amount */}
       <div className="flex flex-col items-end gap-0.5">
         <span className="font-bold text-sm text-teal-500">
-          {recipient.percent * 100}%
+          {recipient.percent}%
         </span>
         <span className="text-gray-400 text-xs">
           {formatAmount(recipient.amt)}

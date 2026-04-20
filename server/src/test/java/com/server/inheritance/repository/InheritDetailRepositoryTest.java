@@ -36,8 +36,9 @@ public class InheritDetailRepositoryTest extends BaseRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user = TBUser.builder()
-                .loginId("testuser_detail")
+        user = userRepository.findByLoginId("testuser01").orElseGet(() -> 
+            userRepository.save(TBUser.builder()
+                .loginId("testuser01")
                 .userNm("테스트유저")
                 .userAge(30)
                 .userPhone("01011112222")
@@ -45,8 +46,8 @@ public class InheritDetailRepositoryTest extends BaseRepositoryTest {
                 .userStatusCd(UserStatus.ACTIVE)
                 .authMeansCd(LoginMeans.PASSWORD)
                 .isHanaCert(true)
-                .build();
-        user = userRepository.save(user);
+                .build())
+        );
 
         plan = TBInheritPlan.builder()
                 .user(user)

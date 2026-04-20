@@ -58,6 +58,7 @@ public class BannerStatusService {
             .medicalBill(resolveMedicalBill(userId))
             .pension(resolvePension(userId))
             .isInvitedUser(resolveInvitedUser(userId))
+            .isGrantor(resolveGrantor(userId))
             .abnormalCardIds(resolveAbnormalCardIds(userId))
             .firstAbnormalUsageId(resolveFirstAbnormalUsageId(userId))
             .build();
@@ -67,14 +68,21 @@ public class BannerStatusService {
         return familyAuthRepository.existsByGrantee_UserIdAndGrantee_IsHanaCertFalse(userId);
     }
 
-    private List<Long> resolveAbnormalCardIds(Long userId) {
-        return cardUsageRepository.findAbnormalCardIdsByUserId(userId);
+    private boolean resolveGrantor(Long userId) {
+        return familyAuthRepository.existsByGrantor_UserId(userId);
     }
 
-    private Long resolveFirstAbnormalUsageId(Long userId) {
+    private List<String> resolveAbnormalCardIds(Long userId) {
+        return cardUsageRepository.findAbnormalCardIdsByUserId(userId)
+            .stream()
+            .map(String::valueOf)
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    private String resolveFirstAbnormalUsageId(Long userId) {
         return cardUsageRepository
-            .findTopByCard_Account_User_UserIdAndAbnmlYnOrderByCreatedAtDesc(userId, "Y")
-            .map(usage -> usage.getCardUsageId())
+            .findTopByCard_Account_User_UserIdAndAbnmlYnAndCard_IsUseTrueOrderByCreatedAtDesc(userId, "Y")
+            .map(usage -> String.valueOf(usage.getCardUsageId()))
             .orElse(null);
     }
 

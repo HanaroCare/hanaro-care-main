@@ -92,7 +92,7 @@ public class InheritanceServiceTest {
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.getPlanId()).isEqualTo(1L);
+        assertThat(response.getPlanId()).isEqualTo("1");
         verify(planRepository, times(1)).save(any(TBInheritPlan.class));
         verify(detailRepository, times(1)).save(any(TBInheritDetail.class));
     }

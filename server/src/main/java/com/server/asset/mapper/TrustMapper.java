@@ -57,6 +57,7 @@ public interface TrustMapper {
   @Mapping(target = "pensionPayoutType", ignore = true)
   @Mapping(target = "targetAsset", ignore = true)
   @Mapping(target = "monthlyPayout", ignore = true)
+  @Mapping(target = "lastPayoutDate", ignore = true)
   TBUserProd toUserProd(
       TBTrustSimulation simulation,
       TBUser user,

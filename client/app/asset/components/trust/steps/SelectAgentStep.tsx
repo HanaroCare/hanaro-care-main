@@ -27,7 +27,13 @@ export default function SelectAgentStep() {
   useEffect(() => {
     getFamilyMembers()
       .then((list) => {
-        const filtered = list.filter((item) => !item.isMe);
+        // isMe 제외 + 중복 userId 제거 (서버 데이터 이중 삽입 방어)
+        const seen = new Set<string>();
+        const filtered = list.filter((item) => {
+          if (item.isMe || seen.has(item.userId)) return false;
+          seen.add(item.userId);
+          return true;
+        });
         setFamilyList(filtered);
 
         setSelected((prevSelected) => {
@@ -52,7 +58,7 @@ export default function SelectAgentStep() {
         ? agentId
         : null;
 
-    setSelectedAgent(validAgentId !== null ? Number(validAgentId) : null);
+    setSelectedAgent(validAgentId);
     setErrorMessage(null);
 
     startTransition(async () => {

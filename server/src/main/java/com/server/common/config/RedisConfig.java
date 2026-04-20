@@ -47,12 +47,6 @@ public class RedisConfig {
     return new GenericJackson2JsonRedisSerializer(objectMapper);
   }
 
-
-  /**
-   * SMS 인증 코드 저장에 사용되는 StringRedisTemplate.
-   * 키/값 모두 StringRedisSerializer를 사용해 plain-text로 저장한다.
-   * (Spring Boot 자동 구성에 의존하지 않고 명시적으로 등록)
-   */
   @Bean
   public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
     StringRedisTemplate template = new StringRedisTemplate();

@@ -20,7 +20,6 @@ import com.server.user.entity.TBFamilyAuth;
 import com.server.user.enums.FamilyRelation;
 import com.server.user.repository.FamilyAuthRepository;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -64,7 +63,6 @@ public class CardService {
 
     TBCard savedCard = cardRepository.save(card);
 
-    // ✅ 본인 selfAuth 추가
     TBFamilyAuth selfAuth = TBFamilyAuth.builder()
         .grantor(account.getUser())
         .grantee(account.getUser())
@@ -80,7 +78,6 @@ public class CardService {
           .toList();
       List<TBFamilyAuth> familyAuths = familyAuthRepository.findAllById(familyAuthLongIds);
 
-      // ✅ grantor+grantee 조합으로 중복 제거
       Map<String, TBFamilyAuth> deduped = new java.util.LinkedHashMap<>();
       for (TBFamilyAuth auth : familyAuths) {
         String key = auth.getGrantor().getUserId() + "_" + auth.getGrantee().getUserId();
@@ -156,7 +153,7 @@ public class CardService {
     TBCard card = cardRepository.findById(cardId)
         .orElseThrow(() -> new ApiException(ErrorStatus.CARD_NOT_FOUND));
 
-    //카드 권한 검증
+    // 카드 권한 검증
     validateCardAccess(userId, card);
 
     return cardUsageRepository.findByCard_CardIdOrderByCreatedAtDesc(cardId)

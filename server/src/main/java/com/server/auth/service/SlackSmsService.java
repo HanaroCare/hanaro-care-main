@@ -39,9 +39,6 @@ public class SlackSmsService implements SmsService {
     }
   }
 
-  /**
-   * 전화번호 마스킹 헬퍼 메서드 예: 01012345678 -> 010****5678
-   */
   private String maskPhoneNumber(String phone) {
     if (phone == null || phone.length() < 7) {
       return "****";

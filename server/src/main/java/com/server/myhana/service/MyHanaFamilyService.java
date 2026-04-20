@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,7 @@ public class MyHanaFamilyService {
   public void updateInsuranceViewPermission(Long grantorId, GrantInsuranceViewRequest request) {
     Long granteeId = Long.parseLong(request.getGranteeId());
 
-    TBFamilyAuth familyAuth = familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId,
+    TBFamilyAuth familyAuth = familyAuthRepository.findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(grantorId,
             granteeId)
         .orElseThrow(() -> new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND));
 
@@ -116,42 +117,47 @@ public class MyHanaFamilyService {
     Map<String, Object> info = jwtUtil.getInfoFromInviteToken(request.getInviteToken());
     Long grantorId = (Long) info.get("grantorId");
 
-    if (grantorId == null || grantorId.equals(granteeId)) {
-      throw new ApiException(ErrorStatus._BAD_REQUEST);
+    if (grantorId == null) {
+      throw new ApiException(ErrorStatus.FAMILY_INVITE_TOKEN_INVALID);
     }
 
-    if (familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)) {
-      return;
+    if (grantorId.equals(granteeId)) {
+      throw new ApiException(ErrorStatus.FAMILY_SELF_INVITE);
+    }
+
+    // 중복 가족 등록 방지 (양방향 모두 확인)
+    if (familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
+        || familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(granteeId, grantorId)) {
+      throw new ApiException(ErrorStatus.FAMILY_ALREADY_REGISTERED);
     }
 
     TBUser grantor = userRepository.findById(grantorId)
-        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
     TBUser grantee = userRepository.findById(granteeId)
-        .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST));
+        .orElseThrow(() -> new ApiException(ErrorStatus.USER_NOT_FOUND));
 
-    // 1. 부모(grantor)의 카드 계좌 조회 — 없으면 첫 번째 계좌 사용
-    TBAccount cardAccount = accountRepository
+    // 1. 부모(grantor)의 카드 계좌 조회 — CARD 카테고리 우선, 없으면 임의 계좌, 없으면 null(카드 생성 스킵)
+    Optional<TBAccount> cardAccountOpt = accountRepository
         .findByUser_UserIdAndAssetCateCd(grantorId, AssetCategory.CARD)
         .stream().findFirst()
-        .orElseGet(() -> accountRepository.findAllByUser_UserId(grantorId)
-            .stream().findFirst()
-            .orElseThrow(() -> new ApiException(ErrorStatus._BAD_REQUEST)));
+        .or(() -> accountRepository.findAllByUser_UserId(grantorId).stream().findFirst());
 
-    // 2. 자식(grantee) 명의 요양보호사 카드 생성
-    TBCard card = cardRepository.save(TBCard.builder()
-        .cardNm("A::" + grantee.getUserNm() + " 요양보호사 간병비 카드")
-        .account(cardAccount)
-        .limitAmt(new BigDecimal("1500000"))
-        .balanceAmt(new BigDecimal("320000"))
-        .autoTransAmt(BigDecimal.ZERO)
-        .payDay(15)
-        .isUse(true)
-        .build());
+    // 2. 계좌가 있을 때만 요양보호사 카드·이용 내역 생성 (계좌 없어도 가족 등록은 성공)
+    TBCard card = null;
+    if (cardAccountOpt.isPresent()) {
+      card = cardRepository.save(TBCard.builder()
+          .cardNm("A::" + grantee.getUserNm() + " 요양보호사 간병비 카드")
+          .account(cardAccountOpt.get())
+          .limitAmt(new BigDecimal("1500000"))
+          .balanceAmt(new BigDecimal("320000"))
+          .autoTransAmt(BigDecimal.ZERO)
+          .payDay(15)
+          .isUse(true)
+          .build());
+      cardUsageRepository.saveAll(buildSampleUsages(card, grantor.getUserNm()));
+    }
 
-    // 3. 샘플 카드 이용 내역 일괄 생성
-    cardUsageRepository.saveAll(buildSampleUsages(card, grantor.getUserNm()));
-
-    // 4. 가족 인증 등록 (GRANTOR=부모, GRANTEE=자식)
+    // 3. 가족 인증 등록 (GRANTOR=부모, GRANTEE=자식)
     familyAuthRepository.save(TBFamilyAuth.builder()
         .grantor(grantor)
         .grantee(grantee)
@@ -160,7 +166,7 @@ public class MyHanaFamilyService {
         .isCardView(true)
         .isProxyClaim(true)
         .isTrustView(true)
-        .card(card)
+        .card(card) // 계좌 없으면 null
         .build());
   }
 

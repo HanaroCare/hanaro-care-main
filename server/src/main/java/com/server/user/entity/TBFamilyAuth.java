@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +29,13 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString(callSuper = true)
-@Table(name = "TB_FAMILY_AUTH")
+@Table(
+    name = "TB_FAMILY_AUTH",
+    uniqueConstraints = @UniqueConstraint(
+        name = "uq_family_auth_grantor_grantee",
+        columnNames = {"USER_GRANTOR_ID", "USER_GRANTEE_ID"}
+    )
+)
 public class TBFamilyAuth extends BaseEntity {
 
   @Id

@@ -23,7 +23,7 @@ public class S3Config {
   @Value("${cloud.aws.region.static}")
   private String region;
 
-  @Value("${cloud.aws.s3.endpoint:}") // 없으면 빈 문자열
+  @Value("${cloud.aws.s3.endpoint:}")
   private String endpoint;
 
   @Bean
@@ -31,9 +31,12 @@ public class S3Config {
     var builder = S3Client.builder()
         .region(Region.of(region))
         .credentialsProvider(
-            StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)));
+            StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
+        .serviceConfiguration(S3Configuration.builder()
+            .pathStyleAccessEnabled(true)
+            .build());
 
-    if (!endpoint.isEmpty()) {   // ✅ LocalStack 전용
+    if (!endpoint.isEmpty()) {
       builder.endpointOverride(URI.create(endpoint));
     }
 
@@ -43,11 +46,11 @@ public class S3Config {
   @Bean
   public S3Presigner s3Presigner() {
     var builder = S3Presigner.builder()
-        .region(Region.AP_NORTHEAST_2)
+        .region(Region.of(region))
         .credentialsProvider(StaticCredentialsProvider.create(
             AwsBasicCredentials.create(accessKey, secretKey)
         )).serviceConfiguration(S3Configuration.builder()
-            .pathStyleAccessEnabled(true) // ✅ for localstack
+            .pathStyleAccessEnabled(true)
             .build());
 
     if (!endpoint.isEmpty()) {

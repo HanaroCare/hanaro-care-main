@@ -41,7 +41,8 @@ export default async function Home() {
       medicalBill: null,
       pension: null,
       isInvitedUser: false,
-      abnormalCardIds: [],
+      isGrantor: false,
+      abnormalCardIds: [] as string[],
       firstAbnormalUsageId: null,
     })),
   ]);
@@ -58,6 +59,7 @@ export default async function Home() {
     medicalBill,
     pension,
     isInvitedUser,
+    isGrantor,
     abnormalCardIds,
     firstAbnormalUsageId,
   } = bannerStatus;
@@ -113,6 +115,7 @@ export default async function Home() {
 
       <HomeBanners
         isInvitedUser={isInvitedUser}
+        isGrantor={isGrantor}
         abnormalCardIds={abnormalCardIds}
         firstAbnormalUsageId={firstAbnormalUsageId}
       />
