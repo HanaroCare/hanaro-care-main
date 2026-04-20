@@ -140,5 +140,13 @@ jacocoTestCoverageVerification {
     }
 }
 
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('bootJar') {
+    archiveFileName = 'server-0.0.1-SNAPSHOT.jar'
+}
+
 // 빌드 시 검증 실행
 check.dependsOn jacocoTestCoverageVerification
