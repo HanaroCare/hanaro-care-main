@@ -22,6 +22,6 @@
 <br>
 
 | 자산 | 자산 | 유저 | 상속 | 상속 | 카드 |
-| --- | --- | --- | --- | --- | --- |
+| :---: | :---: | :---: | :---: | :---: | :---: |
 | [<img src="https://github.com/KelseyKwon.png" width="150"/>](https://github.com/KelseyKwon) | [<img src="https://github.com/imsom2.png" width="150"/>](https://github.com/imsom2)  | [<img src="https://github.com/minyoungeee.png" width="150"/>](https://github.com/minyoungeee) | [<img src="https://github.com/s0nsy.png" width="150"/>](https://github.com/s0nsy) | [<img src="https://github.com/diacond.png" width="150"/>](https://github.com/diacond) | [<img src="https://github.com/SeolJiyun.png" width="150"/>](https://github.com/SeolJiyun) |
 | 권나연 | 남소미 | 유민영 | 손세영 | 신호림 | 설지윤 |
