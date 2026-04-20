@@ -17,32 +17,21 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 테스트 픽스처 초기화 로더
- *
- * <p>@Profile("test") 환경에서 ApplicationRunner로 실행되어
- * 공통 테스트 데이터(testUser, pensionProduct, trustProduct)를 생성합니다.
- *
- * <p><b>설계 원칙</b><br>
- * - saveAndFlush(): save() 후 즉시 SQL INSERT 실행 → 트랜잭션 커밋 전에도 DB에 반영됨<br>
- * - 멱등성 보장: loginId/ProdCate로 기존 데이터를 먼저 조회하여 중복 삽입 방지<br>
- * - 명시적 필드 설정: @Builder.Default 의존 없이 모든 필수 필드를 명시하여 누락 방지
- */
 @Slf4j
 @Component
 @Profile("test")
 @Getter
 public class TestInitLoader implements ApplicationRunner {
 
-    @Autowired
-    private UserRepository userRepository;
+  @Autowired
+  private UserRepository userRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
+  @Autowired
+  private ProductRepository productRepository;
 
-    private TBUser testUser;
-    private TBProduct pensionProduct;
-    private TBProduct trustProduct;
+  private TBUser testUser;
+  private TBProduct pensionProduct;
+  private TBProduct trustProduct;
 
   @Override
   @Transactional
@@ -53,7 +42,8 @@ public class TestInitLoader implements ApplicationRunner {
     initPensionProduct();
     initTrustProduct();
 
-    log.info("[TestInitLoader] 완료 - testUser.userId={}, pensionProduct.productId={}, trustProduct.productId={}",
+    log.info(
+        "[TestInitLoader] 완료 - testUser.userId={}, pensionProduct.productId={}, trustProduct.productId={}",
         testUser.getUserId(), pensionProduct.getProductId(), trustProduct.getProductId());
   }
 

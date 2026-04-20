@@ -48,10 +48,12 @@ export async function serverFetch<T>(
           cookieStore.get('ACCESS_TOKEN')?.value ??
           cookieStore.get('accessToken')?.value;
 
+  const isFormData = options?.body instanceof FormData;
+
   const res = await fetch(`${SPRING_API_URL}${path}`, {
     ...options,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options?.headers,
     },

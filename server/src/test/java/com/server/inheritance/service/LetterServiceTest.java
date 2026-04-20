@@ -69,12 +69,12 @@ class LetterServiceTest {
     TBUser user = mock(TBUser.class);
 
     given(detail.getInheritDetailId()).willReturn(100L);
-    given(detail.getDistRatio()).willReturn(new BigDecimal("0.5"));
+    given(detail.getDistRatio()).willReturn(new BigDecimal("50.0")); // 백분율 반영
 
     given(user.getUserId()).willReturn(userId);
-    given(user.getUserNm()).willReturn("홍길동");
 
     given(detail.getUser()).willReturn(user);
+    given(detail.getHeirName()).willReturn("홍길동");
     given(detail.getInheritPlan()).willReturn(plan);
 
     given(inheritDetailRepository.findAllByInheritPlan_Id(10L))
@@ -88,9 +88,9 @@ class LetterServiceTest {
 
     // then
     assertThat(result).hasSize(1);
-    assertThat(result.get(0).getUserId()).isEqualTo(userId);
+    assertThat(result.get(0).getUserId()).isEqualTo(String.valueOf(userId));
     assertThat(result.get(0).getUsername()).isEqualTo("홍길동");
-    assertThat(result.get(0).getAmt()).isEqualTo(500000L); // 1000000 * 0.5
+    assertThat(result.get(0).getAmt()).isEqualTo(500000L); // 1000000 * 50 / 100
   }
 
 
@@ -106,7 +106,7 @@ class LetterServiceTest {
         .build();
 
     LetterRequestDto dto = new LetterRequestDto();
-    dto.setInheritDetailId(inheritDetailId);
+    dto.setInheritDetailId(String.valueOf(inheritDetailId)); // ID 문자열 변환
     dto.setLetterTypeCd(LetterType.WRITING);
     dto.setLetterCont("hello");
 
@@ -133,7 +133,7 @@ class LetterServiceTest {
   }
 
   @Test
-  void sendLetter_fail_duplicate() {
+  void sendLetter_update_success() throws Exception {
     Long userId = 1L;
     Long inheritDetailId = 10L;
 
@@ -143,8 +143,9 @@ class LetterServiceTest {
         .build();
 
     LetterRequestDto dto = new LetterRequestDto();
-    dto.setInheritDetailId(inheritDetailId);
+    dto.setInheritDetailId(String.valueOf(inheritDetailId)); // ID 문자열 변환
     dto.setLetterTypeCd(LetterType.WRITING);
+    dto.setLetterCont("updated content");
 
     given(inheritDetailRepository.findById(inheritDetailId))
         .willReturn(Optional.of(detail));
@@ -155,9 +156,15 @@ class LetterServiceTest {
     given(letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId))
         .willReturn(Optional.of(new TBInheritLetter()));
 
-    assertThatThrownBy(() ->
-        letterService.sendLetter(userId, dto, null)
-    ).isInstanceOf(ApiException.class);
+    given(letterRepository.save(any()))
+        .willAnswer(inv -> inv.getArgument(0));
+
+    // when
+    LetterResponseDto result =
+        letterService.sendLetter(userId, dto, null);
+
+    // then
+    assertThat(result.getLetterCont()).isEqualTo("updated content");
   }
 
   @Test
@@ -172,13 +179,14 @@ class LetterServiceTest {
         .build();
 
     LetterRequestDto dto = new LetterRequestDto();
-    dto.setInheritDetailId(inheritDetailId);
+    dto.setInheritDetailId(String.valueOf(inheritDetailId)); // ID 문자열 변환
     dto.setLetterTypeCd(LetterType.VOICE);
 
     MultipartFile file = mock(MultipartFile.class);
 
     given(file.isEmpty()).willReturn(false);
     given(storageService.save(file)).willReturn("key123");
+    given(storageService.getUrl("key123")).willReturn("http://s3/key123");
 
     given(inheritDetailRepository.findById(inheritDetailId))
         .willReturn(Optional.of(detail));
@@ -195,7 +203,7 @@ class LetterServiceTest {
     LetterResponseDto result =
         letterService.sendLetter(userId, dto, file);
 
-    assertThat(result.getVoiceUrl()).isEqualTo("key123");
+    assertThat(result.getVoiceUrl()).isEqualTo("http://s3/key123");
   }
 
   @Test
@@ -272,7 +280,7 @@ class LetterServiceTest {
         .findByInheritDetail_InheritDetailId(inheritDetailId))
         .willReturn(Optional.of(letter));
 
-    Long result = letterService.deleteLetter(userId, inheritDetailId);
-    assertThat(result).isEqualTo(99L);
+    String result = letterService.deleteLetter(userId, inheritDetailId);
+    assertThat(result).isEqualTo("99"); // ID 문자열 변환
   }
 }

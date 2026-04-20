@@ -68,10 +68,6 @@ public class CustomJsonLoginFilter extends AbstractAuthenticationProcessingFilte
     );
   }
 
-  /**
-   * loginId 형식 검증 및 means별 userPwd 형식 검증. 검증 실패 시 LoginValidationException을 던져 LoginFailureHandler로
-   * 전달합니다.
-   */
   private void validateLoginRequest(LoginRequestDTO dto) {
     if (!LOGIN_ID_VALIDATOR.isValid(dto.getLoginId(), null)) {
       throw new LoginValidationException("loginId",

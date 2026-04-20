@@ -32,8 +32,14 @@ class FamilyAuthRepositoryTest extends BaseRepositoryTest {
     
     private TBUser managedTestUser() {
         return userRepository.findByLoginId("testuser01")
-                .orElseThrow(() -> new IllegalStateException(
-                        "testuser01이 DB에 없습니다. TestInitLoader가 정상 실행되었는지 확인하세요."));
+                .orElseGet(() -> userRepository.save(TBUser.builder()
+                        .loginId("testuser01")
+                        .userNm("테스트유저")
+                        .userAge(30)
+                        .userPhone("01011112222")
+                        .userPwd("pwd123!")
+                        .userStatusCd(UserStatus.ACTIVE)
+                        .build()));
     }
 
     private TBUser managedGranteeUser() {
@@ -106,13 +112,13 @@ class FamilyAuthRepositoryTest extends BaseRepositoryTest {
 
     @Test
     @Order(4)
-    @DisplayName("findByGrantor_UserIdAndGrantee_UserId: 존재하는 쌍 → 반환")
+    @DisplayName("findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc: 존재하는 쌍 → 반환")
     void findByGrantorAndGrantee_success() {
         Long grantorId = managedTestUser().getUserId();
         Long granteeId = managedGranteeUser().getUserId();
 
         Optional<TBFamilyAuth> result =
-                familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId);
+                familyAuthRepository.findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(grantorId, granteeId);
 
         assertThat(result).isPresent();
         assertThat(result.get().getRelationCd()).isEqualTo(FamilyRelation.CHILD);
@@ -120,10 +126,10 @@ class FamilyAuthRepositoryTest extends BaseRepositoryTest {
 
     @Test
     @Order(5)
-    @DisplayName("findByGrantor_UserIdAndGrantee_UserId: 존재하지 않는 쌍 → empty")
+    @DisplayName("findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc: 존재하지 않는 쌍 → empty")
     void findByGrantorAndGrantee_notFound() {
         Optional<TBFamilyAuth> result =
-                familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(
+                familyAuthRepository.findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(
                         Long.MAX_VALUE, Long.MAX_VALUE);
 
         assertThat(result).isEmpty();
@@ -263,26 +269,26 @@ class FamilyAuthRepositoryTest extends BaseRepositoryTest {
 
     @Test
     @Order(17)
-    @DisplayName("findByGrantor_UserIdAndGrantee_UserIdAndIsInsView: isInsView=true → 반환")
+    @DisplayName("findFirstByGrantor_UserIdAndGrantee_UserIdAndIsInsViewOrderByFamilyAuthIdDesc: isInsView=true → 반환")
     void findByGrantorGranteeAndIsInsView_true() {
         Long grantorId = managedTestUser().getUserId();
         Long granteeId = managedGranteeUser().getUserId();
 
         Optional<TBFamilyAuth> result = familyAuthRepository
-                .findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(grantorId, granteeId, true);
+                .findFirstByGrantor_UserIdAndGrantee_UserIdAndIsInsViewOrderByFamilyAuthIdDesc(grantorId, granteeId, true);
 
         assertThat(result).isPresent();
     }
 
     @Test
     @Order(18)
-    @DisplayName("findByGrantor_UserIdAndGrantee_UserIdAndIsInsView: isInsView=false → empty")
+    @DisplayName("findFirstByGrantor_UserIdAndGrantee_UserIdAndIsInsViewOrderByFamilyAuthIdDesc: isInsView=false → empty")
     void findByGrantorGranteeAndIsInsView_false() {
         Long grantorId = managedTestUser().getUserId();
         Long granteeId = managedGranteeUser().getUserId();
 
         Optional<TBFamilyAuth> result = familyAuthRepository
-                .findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(grantorId, granteeId, false);
+                .findFirstByGrantor_UserIdAndGrantee_UserIdAndIsInsViewOrderByFamilyAuthIdDesc(grantorId, granteeId, false);
 
         assertThat(result).isEmpty();
     }
@@ -355,10 +361,10 @@ class FamilyAuthRepositoryTest extends BaseRepositoryTest {
         Long granteeId = managedGranteeUser().getUserId();
 
         // FK 참조가 있는 FamilyAuth를 먼저 삭제해야 granteeUser 삭제 가능
-        familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(grantorId, granteeId)
+        familyAuthRepository.findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(grantorId, granteeId)
                 .ifPresent(f -> familyAuthRepository.deleteById(f.getFamilyAuthId()));
 
-        familyAuthRepository.findByGrantor_UserIdAndGrantee_UserId(granteeId, grantorId)
+        familyAuthRepository.findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(granteeId, grantorId)
                 .ifPresent(f -> familyAuthRepository.deleteById(f.getFamilyAuthId()));
 
         userRepository.deleteById(granteeId);

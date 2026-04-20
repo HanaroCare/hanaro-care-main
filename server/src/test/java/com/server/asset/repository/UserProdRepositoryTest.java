@@ -50,17 +50,19 @@ class UserProdRepositoryTest extends BaseRepositoryTest {
 
 	@BeforeEach
 	void setUp() {
-		user = userRepository.save(
-			TBUser.builder()
-				.loginId("u" + System.nanoTime())
-				.userNm("유저상품유저")
-				.userAge(42)
-				.userPhone("01077778888")
-				.userPwd("password")
-				.userStatusCd(UserStatus.ACTIVE)
-				.authMeansCd(LoginMeans.PASSWORD)
-				.isHanaCert(true)
-				.build()
+		user = userRepository.findByLoginId("prod_user").orElseGet(() -> 
+			userRepository.save(
+				TBUser.builder()
+					.loginId("prod_user")
+					.userNm("유저상품유저")
+					.userAge(42)
+					.userPhone("01077778888")
+					.userPwd("password")
+					.userStatusCd(UserStatus.ACTIVE)
+					.authMeansCd(LoginMeans.PASSWORD)
+					.isHanaCert(true)
+					.build()
+			)
 		);
 
 		product = productRepository.save(

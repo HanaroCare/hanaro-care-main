@@ -39,6 +39,9 @@ public enum ErrorStatus implements BaseErrorCode {
 
   FAMILY_AUTH_NOT_FOUND(HttpStatus.NOT_FOUND, "FAMILY4041", "가족 권한 정보를 찾을 수 없습니다."),
   FAMILY_AUTH_NOT_APPROVED(HttpStatus.FORBIDDEN, "FAMILY4031", "아직 승인되지 않은 가족 권한입니다."),
+  FAMILY_SELF_INVITE(HttpStatus.BAD_REQUEST, "FAMILY4001", "자기 자신을 초대할 수 없습니다."),
+  FAMILY_ALREADY_REGISTERED(HttpStatus.BAD_REQUEST, "FAMILY4002", "이미 가족으로 등록된 사용자입니다."),
+  FAMILY_INVITE_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "FAMILY4003", "유효하지 않은 초대 토큰입니다."),
   TRUST_VIEW_FORBIDDEN(HttpStatus.FORBIDDEN, "TRUST4032", "신탁 조회 권한이 없습니다."),
 
   // card

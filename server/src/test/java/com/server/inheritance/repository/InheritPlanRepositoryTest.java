@@ -29,8 +29,9 @@ public class InheritPlanRepositoryTest extends BaseRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        user = TBUser.builder()
-                .loginId("testuser")
+        user = userRepository.findByLoginId("testuser01").orElseGet(() -> 
+            userRepository.save(TBUser.builder()
+                .loginId("testuser01")
                 .userNm("테스트유저")
                 .userAge(30)
                 .userPhone("01012345678")
@@ -38,8 +39,8 @@ public class InheritPlanRepositoryTest extends BaseRepositoryTest {
                 .userStatusCd(UserStatus.ACTIVE)
                 .authMeansCd(LoginMeans.PASSWORD)
                 .isHanaCert(true)
-                .build();
-        user = userRepository.save(user);
+                .build())
+        );
     }
 
     @Test

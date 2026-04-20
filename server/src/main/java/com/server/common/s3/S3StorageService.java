@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 //@Profile("prod")
 @Primary
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class S3StorageService implements StorageService {
 
   private final S3Client s3Client;
@@ -32,9 +33,15 @@ public class S3StorageService implements StorageService {
   @Value("${cloud.aws.s3.voice-prefix:voice/}")
   private String voicePrefix;
 
+  @jakarta.annotation.PostConstruct
+  public void init() {
+    log.info("[S3StorageService] Initialized with bucket: {}, prefix: {}", bucket, voicePrefix);
+  }
+
 
   @Override
   public String save(MultipartFile file) throws IOException {
+    log.info("[S3StorageService] Saving file to bucket: {}, key: {}", bucket, file.getOriginalFilename());
     String key = voicePrefix + UUID.randomUUID() + ".webm";
     s3Client.putObject(
         PutObjectRequest.builder()

@@ -55,11 +55,12 @@ public class LetterService {
 
     return inheritDetails.stream().map(i -> InheritanceSummaryDto.builder()
         .inheritDetailId(String.valueOf(i.getInheritDetailId()))
-        .userId(String.valueOf(i.getUser().getUserId()))
-        .username(i.getUser().getUserNm())
+        .userId(i.getUser() != null ? String.valueOf(i.getUser().getUserId()) : null)
+        .username(i.getHeirName())
         .percent(i.getDistRatio())
         .amt(i.getInheritPlan().getTotalInheritAmt()
             .multiply(i.getDistRatio())
+            .divide(java.math.BigDecimal.valueOf(100), 0, java.math.RoundingMode.HALF_UP)
             .longValue()).build()).toList();
   }
 
@@ -71,15 +72,15 @@ public class LetterService {
     TBInheritDetail detail = inheritDetailRepository.findById(Long.parseLong(dto.getInheritDetailId()))
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
-    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId,
-        detail.getUser().getUserId())) {
-      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+    if (detail.getUser() != null) {
+      if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId,
+          detail.getUser().getUserId())) {
+        throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+      }
     }
 
-    if (letterRepository.findByInheritDetail_InheritDetailId(Long.parseLong(dto.getInheritDetailId()))
-        .isPresent()) {
-      throw new ApiException(ErrorStatus.LETTER_ALREADY_EXISTS);
-    }
+    TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(Long.parseLong(dto.getInheritDetailId()))
+        .orElse(null);
 
     String key = "";
     if (dto.getLetterTypeCd() == LetterType.VOICE) {
@@ -89,18 +90,39 @@ public class LetterService {
       key = storageService.save(voice);
       dto.setLetterCont(null);
     }
+    
     try {
-      TBInheritLetter letter = TBInheritLetter.builder()
-          .inheritDetail(detail)
-          .letterCont(dto.getLetterCont())
-          .voiceUrl(key)
-          .letterTypeCd(dto.getLetterTypeCd())
-          .build();
+      if (letter == null) {
+        letter = TBInheritLetter.builder()
+            .inheritDetail(detail)
+            .build();
+      } else {
+        // 기존 음성 파일이 있으면 삭제 시도
+        if (letter.getLetterTypeCd() == LetterType.VOICE && letter.getVoiceUrl() != null) {
+          try {
+            storageService.delete(letter.getVoiceUrl());
+          } catch (Exception e) {
+            // 삭제 실패는 무시하거나 로그만 남김
+          }
+        }
+      }
+
+      letter.setLetterCont(dto.getLetterCont());
+      letter.setVoiceUrl(key);
+      letter.setLetterTypeCd(dto.getLetterTypeCd());
+      
       letterRepository.save(letter);
-      return LetterResponseDto.builder().
-          letterTypeCd(dto.getLetterTypeCd())
+      
+      String returnVoiceUrl = key;
+      if (letter.getLetterTypeCd() == LetterType.VOICE && !key.isBlank()) {
+          returnVoiceUrl = storageService.getUrl(key);
+      }
+
+      return LetterResponseDto.builder()
+          .letterTypeCd(dto.getLetterTypeCd())
           .letterCont(dto.getLetterCont())
-          .voiceUrl(key).build();
+          .voiceUrl(returnVoiceUrl)
+          .build();
     } catch (RuntimeException e) {
       if (!key.isBlank()) {
         storageService.delete(key);
@@ -116,11 +138,13 @@ public class LetterService {
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
-    Long receivedId = detail.getUser().getUserId();
-
-    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
-      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+    if (detail.getUser() != null) {
+      Long receivedId = detail.getUser().getUserId();
+      if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
+        throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+      }
     }
+
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
     String voiceUrl = "";
@@ -150,18 +174,19 @@ public class LetterService {
     TBInheritDetail detail = inheritDetailRepository.findById(inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_DETAIL_NOT_FOUND));
 
-    Long receivedId = detail.getUser().getUserId();
-
-    if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
-      throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+    if (detail.getUser() != null) {
+      Long receivedId = detail.getUser().getUserId();
+      if (!familyAuthRepository.existsByGrantor_UserIdAndGrantee_UserId(userId, receivedId)) {
+        throw new ApiException(ErrorStatus.FAMILY_AUTH_NOT_FOUND);
+      }
     }
 
     TBInheritLetter letter = letterRepository.findByInheritDetail_InheritDetailId(
             inheritDetailId)
         .orElseThrow(() -> new ApiException(ErrorStatus.INHERIT_LETTER_NOT_FOUND));
 
+    letterRepository.delete(letter);
     detail.setInheritLetter(null);
     return String.valueOf(letter.getLetterId());
   }
 }
-

@@ -1,20 +1,7 @@
 package com.server.auth.service;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import com.server.auth.dto.FindIdRequestDTO;
 import com.server.auth.dto.FindIdResponseDTO;
-import com.server.auth.dto.LoginRequestDTO;
 import com.server.auth.dto.ResetPasswordRequestDTO;
 import com.server.auth.dto.SignUpRequestDTO;
 import com.server.auth.dto.TokenResponseDTO;
@@ -29,6 +16,18 @@ import com.server.common.security.dto.SubscriberDTO;
 import com.server.user.entity.TBUser;
 import com.server.user.enums.UserStatus;
 import com.server.user.repository.UserRepository;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 @Slf4j
 @Service
@@ -44,41 +43,27 @@ public class AuthService {
   @Value("${jwt.refresh-expiration}")
   private long refreshExpiration;
 
-  /**
-   * 아이디 중복 체크 UserRepository에 existsByLoginId가 선언되어 있어야 정상 작동합니다.
-   */
   public void checkLoginId(String loginId) {
     if (userRepository.existsByLoginId(loginId)) {
       throw new ApiException(ErrorStatus.AUTH_DUPLICATE_USERNAME);
     }
   }
 
-  /**
-   * 아이디 찾기 — 활성 상태인 계정 중 해당 이름이 존재하는지 확인합니다.
-   * 탈퇴/정지 계정은 검색되지 않습니다.
-   */
   public void checkUserByName(String userNm) {
     if (!userRepository.existsByUserNmAndUserStatusCd(userNm, UserStatus.ACTIVE)) {
       throw new ApiException(ErrorStatus.AUTH_USER_NAME_NOT_FOUND);
     }
   }
 
-  /**
-   * 비밀번호 찾기 — 활성 상태인 계정 중 해당 아이디가 존재하는지 확인합니다.
-   * 탈퇴/정지 계정은 검색되지 않습니다.
-   */
   public void checkUserExists(String loginId) {
     if (!userRepository.existsByLoginIdAndUserStatusCd(loginId, UserStatus.ACTIVE)) {
       throw new ApiException(ErrorStatus.AUTH_LOGIN_ID_NOT_FOUND);
     }
   }
 
-  /**
-   * 비밀번호 찾기 — 활성 상태인 계정 중 아이디+이름 조합이 존재하는지 확인합니다.
-   * 탈퇴/정지 계정은 검색되지 않습니다.
-   */
   public void checkUserNm(String loginId, String userNm) {
-    if (!userRepository.existsByLoginIdAndUserNmAndUserStatusCd(loginId, userNm, UserStatus.ACTIVE)) {
+    if (!userRepository.existsByLoginIdAndUserNmAndUserStatusCd(loginId, userNm,
+        UserStatus.ACTIVE)) {
       throw new ApiException(ErrorStatus.AUTH_NAME_NOT_FOUND);
     }
   }
@@ -209,8 +194,13 @@ public class AuthService {
     if (!smsAuthService.isVerified(normalizedPhone)) {
       throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
-    TBUser user = userRepository.findByUserNmAndUserPhoneAndUserStatusCd(
-            request.getUsername(), normalizedPhone, UserStatus.ACTIVE)
+    // userPhone은 AES 암호화 컬럼 — SQL 파라미터 비교 불가, 복호화된 값을 Java에서 비교
+    TBUser user = userRepository.findByUserNmAndUserStatusCd(request.getUsername(),
+            UserStatus.ACTIVE)
+        .stream()
+        .filter(u -> u.getUserPhone() != null
+            && u.getUserPhone().replaceAll("[^0-9]", "").equals(normalizedPhone))
+        .findFirst()
         .orElseThrow(() -> new ApiException(ErrorStatus.FIND_ID_USER_NOT_FOUND));
     log.info("[아이디 찾기 성공] userNm={}", request.getUsername());
     return new FindIdResponseDTO(maskLoginId(user.getLoginId()));
@@ -222,8 +212,11 @@ public class AuthService {
     if (!smsAuthService.isVerified(normalizedPhone)) {
       throw new ApiException(ErrorStatus.SMS_NOT_VERIFIED);
     }
-    TBUser user = userRepository.findByLoginIdAndUserPhoneAndUserStatusCd(
-            request.getLoginId(), normalizedPhone, UserStatus.ACTIVE)
+    // userPhone은 AES 암호화 컬럼 — SQL 파라미터 비교 불가, 복호화된 값을 Java에서 비교
+    TBUser user = userRepository.findByLoginId(request.getLoginId())
+        .filter(u -> u.getUserStatusCd() == UserStatus.ACTIVE)
+        .filter(u -> u.getUserPhone() != null
+            && u.getUserPhone().replaceAll("[^0-9]", "").equals(normalizedPhone))
         .orElseThrow(() -> new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND));
     if (!user.getUserNm().equals(request.getUsername())) {
       throw new ApiException(ErrorStatus.AUTH_USER_NOT_FOUND);
@@ -241,7 +234,9 @@ public class AuthService {
   }
 
   private String maskLoginId(String loginId) {
-    if (loginId == null || loginId.length() <= 3) return loginId;
+    if (loginId == null || loginId.length() <= 3) {
+      return loginId;
+    }
     return loginId.substring(0, 3) + "*".repeat(loginId.length() - 3);
   }
 

@@ -16,6 +16,11 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.server.user.enums.LoginMeans;
+import com.server.user.enums.SubscriberRole;
+import com.server.user.enums.UserStatus;
+import com.server.user.repository.UserRepository;
+
 class AccountRepositoryTest extends BaseRepositoryTest {
 
     private static long orgCount = 0;
@@ -23,7 +28,7 @@ class AccountRepositoryTest extends BaseRepositoryTest {
     private static TBUser user;
 
     @Autowired
-    private TestInitLoader initLoader;
+    private UserRepository userRepository;
 
     @Autowired
     private AccountRepository repository;
@@ -32,8 +37,21 @@ class AccountRepositoryTest extends BaseRepositoryTest {
     void setUp() {
         if (orgCount == 0)
             orgCount = repository.count();
-        if (user == null)
-            user = initLoader.getTestUser();
+        if (user == null) {
+            user = userRepository.findByLoginId("account_user").orElseGet(() -> 
+                userRepository.save(TBUser.builder()
+                    .loginId("account_user")
+                    .userNm("계좌유저")
+                    .userAge(65)
+                    .userPhone("01012345678")
+                    .userPwd("pwd!")
+                    .userStatusCd(UserStatus.ACTIVE)
+                    .authMeansCd(LoginMeans.PASSWORD)
+                    .userRole(SubscriberRole.ROLE_USER)
+                    .isHanaCert(false)
+                    .build())
+            );
+        }
     }
 
     @Test

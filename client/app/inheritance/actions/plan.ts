@@ -83,14 +83,14 @@ export async function submitInheritancePlan(data: InheritancePlanRequest) {
 
     const sanitizedDistributions = data.distributions.map(d => ({
       ...d,
-      distRatio: Math.round(Number(d.distRatio) * 10000) / 10000,
+      distRatio: Math.round(Number(d.distRatio) * 100) / 100,
       heirUserId: d.heirUserId || null 
     }));
 
     const totalCurrent = sanitizedDistributions.reduce((sum, d) => sum + d.distRatio, 0);
-    const diff = 1.0 - totalCurrent; 
+    const diff = 100.0 - totalCurrent; 
 
-    if (Math.abs(diff) > 0 && Math.abs(diff) < 0.01) {
+    if (Math.abs(diff) > 0 && Math.abs(diff) < 0.1) {
       sanitizedDistributions[sanitizedDistributions.length - 1].distRatio += diff;
     }
 

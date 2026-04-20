@@ -52,12 +52,26 @@ export default function LetterSummary({
     }
   };
 
+  // 진짜 진짜 범인 검거 로직
+  const rawValue = Number(distRatio) || 0;
+  let finalRatio = rawValue;
+
+  // 100 이상이면 무조건 100으로 나눔 (5000 -> 50)
+  if (rawValue >= 100) {
+    finalRatio = rawValue / 100;
+  } 
+  // 1 미만이면 100을 곱함 (0.5 -> 50)
+  else if (rawValue > 0 && rawValue < 1) {
+    finalRatio = rawValue * 100;
+  }
+  // 1 ~ 100 사이는 그대로 사용
+
   return (
     <div className="flex w-full flex-col gap-3 rounded-2xl border border-gray-200 px-5 py-4">
       {/* 상단 정보 */}
       <div className="flex items-center justify-between">
         <span className="font-medium text-gray-700 text-sm">
-          {relationCode} ( {distRatio * 100}% )
+          {relationCode} ( {Math.round(finalRatio)}% )
         </span>
         <span className="font-semibold text-gray-900 text-sm">
           {formatAmount(amount)}

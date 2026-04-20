@@ -12,7 +12,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FamilyAuthRepository extends JpaRepository<TBFamilyAuth, Long> {
 
-  Optional<TBFamilyAuth> findByGrantor_UserIdAndGrantee_UserId(
+  /** 중복 데이터가 있어도 안전하게 가장 최신 1건만 반환 */
+  Optional<TBFamilyAuth> findFirstByGrantor_UserIdAndGrantee_UserIdOrderByFamilyAuthIdDesc(
       Long grantorUserId,
       Long granteeUserId
   );
@@ -35,8 +36,9 @@ public interface FamilyAuthRepository extends JpaRepository<TBFamilyAuth, Long> 
 
   List<TBFamilyAuth> findAllByGrantee_UserIdAndIsInsView(Long userId, boolean isInsView);
 
-  Optional<TBFamilyAuth> findByGrantor_UserIdAndGrantee_UserIdAndIsInsView(Long grantorId,
-      Long granteeId, boolean isInsView);
+  /** isInsView 조건 포함, 중복 안전 버전 */
+  Optional<TBFamilyAuth> findFirstByGrantor_UserIdAndGrantee_UserIdAndIsInsViewOrderByFamilyAuthIdDesc(
+      Long grantorId, Long granteeId, boolean isInsView);
 
   Boolean existsByGrantee_UserIdAndIsProxyClaimTrue(Long userId);
 
@@ -49,4 +51,6 @@ public interface FamilyAuthRepository extends JpaRepository<TBFamilyAuth, Long> 
   void deleteAllByGrantor_UserIdOrGrantee_UserId(Long grantorId, Long granteeId);
 
   boolean existsByGrantee_UserIdAndGrantee_IsHanaCertFalse(Long granteeUserId);
+
+  boolean existsByGrantor_UserId(Long grantorId);
 }

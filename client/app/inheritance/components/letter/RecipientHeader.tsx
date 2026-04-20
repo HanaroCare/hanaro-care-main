@@ -19,7 +19,7 @@ export default function RecipientHeader({ recipient, onEdit }: Props) {
             {recipient.username}
           </span>
           <span className="text-gray-400 text-xs">
-            {recipient.percent * 100}% · {formatAmount(recipient.amt)}
+            {recipient.percent}% · {formatAmount(recipient.amt)}
           </span>
         </div>
       </div>

@@ -74,6 +74,7 @@ public interface PensionMapper {
 	@Mapping(target = "claimAgent",        ignore = true)
 	@Mapping(target = "isAgentView",       constant = "false")
 	@Mapping(target = "payoutSettings",    ignore = true)
+	@Mapping(target = "lastPayoutDate",    ignore = true)
 	TBUserProd toUserProd(TBPensionSimulation simulation, TBUser user, TBProduct product);
 
 	// TBUser + TBUserProd + BigDecimal + TBPensionSimulation -> TBAccount
@@ -91,5 +92,6 @@ public interface PensionMapper {
 	@Mapping(target = "limitAmt",       ignore = true)
 	@Mapping(target = "payDay",         ignore = true)
 	@Mapping(target = "expireDt",       ignore = true)
+	@Mapping(target = "isLinked",       ignore = true)
 	TBAccount toPensionAccount(TBUser user, TBUserProd savedProd, BigDecimal monthlyPayout, TBPensionSimulation simulation);
 }

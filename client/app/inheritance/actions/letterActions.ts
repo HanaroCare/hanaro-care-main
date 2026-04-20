@@ -1,70 +1,59 @@
 'use server';
 
-import { cookies } from 'next/headers';
-
-const getAuthHeader = async () => ({
-  Authorization: `Bearer ${(await cookies()).get('ACCESS_TOKEN')?.value}`,
-});
-
-const BASE_URL =
-  process.env.SPRING_API_URL ?? process.env.API_URL ?? 'http://localhost:8080';
+import { revalidatePath } from 'next/cache';
+import { serverFetch } from '@/lib/serverFetch';
+import type { InheritanceSummaryDto, LetterResponseDto } from '../letter/types';
 
 // 상속비율 및 가족 조회
 export async function getInheritanceInfo() {
-  const response = await fetch(`${BASE_URL}/api/inheritance`, {
-    headers: await getAuthHeader(),
-    cache: 'no-store', 
-  });
-
-  if (response.status === 404) {
-    console.warn('[getInheritanceInfo] 상속 설계 정보가 존재하지 않습니다.');
-    return null; 
+  try {
+    return await serverFetch<InheritanceSummaryDto[]>('/api/inheritance');
+  } catch (error) {
+    console.warn('[getInheritanceInfo] 상속 정보를 불러오지 못했습니다:', error);
+    return [];
   }
-
-  if (!response.ok) {
-    throw new Error('상속 정보를 불러오지 못했습니다.');
-  }
-
-  const data = await response.json();
-
-  return data.isSuccess ? data.data : null;
 }
 
 // 상속 편지 조회
 export async function getLetter(inheritDetailId: string) {
-  const response = await fetch(
-    `${BASE_URL}/api/inheritance/letter/${inheritDetailId}`,
-    { headers: await getAuthHeader() },
-  );
-  const data = await response.json();
-  return data.result;
+  try {
+    return await serverFetch<LetterResponseDto>(
+      `/api/inheritance/letter/${inheritDetailId}`,
+    );
+  } catch (error) {
+    console.error('[getLetter] 편지 조회 실패:', error);
+    return null;
+  }
 }
 
 // 상속 편지 생성
 export async function sendLetter(formData: FormData) {
-  const response = await fetch(`${BASE_URL}/api/inheritance/letter`, {
-    method: 'POST',
-    headers: await getAuthHeader(),
-    body: formData,
-  });
-  const data = await response.json();
-  return data.result;
+  try {
+    const response = await serverFetch<LetterResponseDto>('/api/inheritance/letter', {
+      method: 'POST',
+      body: formData,
+    });
+    revalidatePath('/inheritance/result');
+    return response;
+  } catch (error) {
+    console.error('[sendLetter] 편지 생성 실패:', error);
+    throw error;
+  }
 }
 
 // 상속 편지 삭제
 export async function deleteLetter(inheritDetailId: string) {
-  const response = await fetch(
-    `${BASE_URL}/api/inheritance/letter/${inheritDetailId}`,
-    {
-      method: 'DELETE',
-      headers: await getAuthHeader(),
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error(`편지 삭제 도중 오류가 발생했습니다: ${response.status}`);
+  try {
+    const response = await serverFetch<string>(
+      `/api/inheritance/letter/${inheritDetailId}`,
+      {
+        method: 'DELETE',
+      },
+    );
+    revalidatePath('/inheritance/result');
+    return response;
+  } catch (error) {
+    console.error('[deleteLetter] 편지 삭제 실패:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data.result;
 }

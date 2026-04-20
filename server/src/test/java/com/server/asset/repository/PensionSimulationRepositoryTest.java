@@ -37,17 +37,19 @@ class PensionSimulationRepositoryTest extends BaseRepositoryTest {
 
 	@BeforeEach
 	void setUp() {
-		user = userRepository.save(
-			TBUser.builder()
-				.loginId("pension_user")
-				.userNm("연금유저")
-				.userAge(45)
-				.userPhone("01011112222")
-				.userPwd("password")
-				.userStatusCd(UserStatus.ACTIVE)
-				.authMeansCd(LoginMeans.PASSWORD)
-				.isHanaCert(true)
-				.build()
+		user = userRepository.findByLoginId("pension_user").orElseGet(() -> 
+			userRepository.save(
+				TBUser.builder()
+					.loginId("pension_user")
+					.userNm("연금유저")
+					.userAge(45)
+					.userPhone("01011112222")
+					.userPwd("password")
+					.userStatusCd(UserStatus.ACTIVE)
+					.authMeansCd(LoginMeans.PASSWORD)
+					.isHanaCert(true)
+					.build()
+			)
 		);
 
 		realAsset = realAssetRepository.save(

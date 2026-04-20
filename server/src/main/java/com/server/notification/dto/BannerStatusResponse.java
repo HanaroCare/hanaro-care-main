@@ -41,14 +41,20 @@ public class BannerStatusResponse {
      */
     private final PensionInfo pension;
 
-    /** 초대 링크를 통해 가입한 미인증 유저 여부 */
+    /** 초대 링크를 통해 가입한 미인증 유저 여부 (grantee이며 아직 하나 인증 미완) */
     private final boolean isInvitedUser;
 
-    /** 이상 거래(ABNML_YN=Y)가 있는 카드 ID 목록. 없으면 빈 리스트 */
-    private final List<Long> abnormalCardIds;
+    /** 가족을 초대한 적 있는 유저 여부 (grantor). 이 경우 초대 배너를 노출하지 않음 */
+    private final boolean isGrantor;
 
-    /** 카드가 1개일 때 이동할 가장 최근 이상 거래 USAGE_ID. 없으면 null */
-    private final Long firstAbnormalUsageId;
+    /** 이상 거래(ABNML_YN=Y)가 있는 카드 ID 목록. 없으면 빈 리스트. TSID 정밀도 유지를 위해 String */
+    private final List<String> abnormalCardIds;
+
+    /**
+     * 카드가 1개일 때 이동할 가장 최근 이상 거래 USAGE_ID. 없으면 null.
+     * TSID는 JS Number.MAX_SAFE_INTEGER를 초과하므로 String으로 직렬화.
+     */
+    private final String firstAbnormalUsageId;
 
     @Getter
     @Builder

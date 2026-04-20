@@ -41,17 +41,18 @@ public class InheritLetterRepositoryTest extends BaseRepositoryTest {
   @BeforeEach
   void setUp() {
 
-    user = TBUser.builder()
-        .loginId("test_user")
-        .userNm("테스트유저")
-        .userAge(30)
-        .userPhone("01011112222")
-        .userPwd("password")
-        .userStatusCd(UserStatus.ACTIVE)
-        .authMeansCd(LoginMeans.PASSWORD)
-        .isHanaCert(true)
-        .build();
-    user = userRepository.save(user);
+    user = userRepository.findByLoginId("testuser01").orElseGet(() -> 
+        userRepository.save(TBUser.builder()
+            .loginId("testuser01")
+            .userNm("테스트유저")
+            .userAge(30)
+            .userPhone("01011112222")
+            .userPwd("password")
+            .userStatusCd(UserStatus.ACTIVE)
+            .authMeansCd(LoginMeans.PASSWORD)
+            .isHanaCert(true)
+            .build())
+    );
 
     plan = TBInheritPlan.builder()
         .user(user)

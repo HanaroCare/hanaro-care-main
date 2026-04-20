@@ -33,17 +33,19 @@ class TrustRepositoryTest extends BaseRepositoryTest {
 
 	@BeforeEach
 	void setUp() {
-		user = userRepository.save(
-			TBUser.builder()
-				.loginId("trust_user")
-				.userNm("신탁유저")
-				.userAge(55)
-				.userPhone("01044445555")
-				.userPwd("password")
-				.userStatusCd(UserStatus.ACTIVE)
-				.authMeansCd(LoginMeans.PASSWORD)
-				.isHanaCert(true)
-				.build()
+		user = userRepository.findByLoginId("trust_user").orElseGet(() -> 
+			userRepository.save(
+				TBUser.builder()
+					.loginId("trust_user")
+					.userNm("신탁유저")
+					.userAge(55)
+					.userPhone("01044445555")
+					.userPwd("password")
+					.userStatusCd(UserStatus.ACTIVE)
+					.authMeansCd(LoginMeans.PASSWORD)
+					.isHanaCert(true)
+					.build()
+			)
 		);
 	}
 

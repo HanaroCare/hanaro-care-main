@@ -1,5 +1,6 @@
 package com.server.card.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.server.asset.entity.TBAccount;
 import com.server.common.entity.BaseEntity;
 import io.hypersistence.utils.hibernate.id.Tsid;
@@ -33,6 +34,7 @@ public class TBCard extends BaseEntity {
 
   @Id
   @Tsid
+  @JsonFormat(shape = JsonFormat.Shape.STRING) // TSID: JS Number.MAX_SAFE_INTEGER 초과 방지
   @Column(name = "CARD_ID", columnDefinition = "bigint unsigned")
   private Long cardId;
 

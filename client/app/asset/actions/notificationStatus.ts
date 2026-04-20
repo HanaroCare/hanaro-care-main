@@ -15,12 +15,14 @@ export type BannerStatusResponse = {
     totalAmount: number;
     items: { name: string; amount: number }[];
   } | null;
-  /** 초대 링크를 통해 가입한 미인증 유저 여부 */
+  /** 초대 링크를 통해 가입한 미인증 유저 여부 (grantee이며 하나 인증 미완) */
   isInvitedUser: boolean;
-  /** 이상 거래(ABNML_YN=Y)가 있는 카드 ID 목록 */
-  abnormalCardIds: number[];
-  /** 카드가 1개일 때 이동할 가장 최근 이상 거래 USAGE_ID */
-  firstAbnormalUsageId: number | null;
+  /** 가족을 초대한 적 있는 grantor 여부. true이면 초대 배너를 노출하지 않음 */
+  isGrantor: boolean;
+  /** 이상 거래(ABNML_YN=Y)가 있는 카드 ID 목록. TSID 정밀도 유지를 위해 string[] */
+  abnormalCardIds: string[];
+  /** 카드가 1개일 때 이동할 가장 최근 이상 거래 USAGE_ID. TSID 정밀도 유지를 위해 string */
+  firstAbnormalUsageId: string | null;
 };
 
 const EMPTY_STATUS: BannerStatusResponse = {
@@ -33,6 +35,7 @@ const EMPTY_STATUS: BannerStatusResponse = {
   medicalBill: null,
   pension: null,
   isInvitedUser: false,
+  isGrantor: false,
   abnormalCardIds: [],
   firstAbnormalUsageId: null,
 };
