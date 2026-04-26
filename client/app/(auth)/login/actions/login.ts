@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 
-const SPRING_API_URL = process.env.SPRING_API_URL ?? 'http://localhost:8080';
+const SPRING_API_URL = process.env.SPRING_API_URL ?? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
 interface SpringLoginResponse {
   accessToken?: string;
