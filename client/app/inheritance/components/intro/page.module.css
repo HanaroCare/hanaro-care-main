@@ -1,0 +1,174 @@
+.page {
+  background: var(--background);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 80px; /* 네비바 공간 확보 */
+  position: relative;
+}
+
+/* ── Tab bar ── */
+.tabBar {
+  display: flex;
+  height: 47px;
+  margin-top: 20px;
+}
+
+.tabItem {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: var(--font-weight-medium);
+  border-bottom: 2px solid var(--color-hana-silver-100);
+  color: var(--color-hana-black-800);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabItemActive {
+  border-bottom-color: var(--color-hana-ez-600);
+  color: var(--color-hana-ez-600);
+}
+
+/* ── Hero section ── */
+.heroSection {
+  padding: 35px 24px 0;
+}
+
+.heroHeading {
+  font-size: 28px; 
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+  color: var(--color-hana-black-900);
+  margin-bottom: 8px;
+  white-space: pre-line;
+}
+
+.heroHeadingAccent {
+  color: var(--color-hana-ez-600);
+}
+
+.heroSubtext {
+  font-size: 16px;
+  font-weight: var(--font-weight-regular);
+  line-height: 1.5;
+  color: var(--color-hana-black-500);
+  white-space: pre-line;
+}
+
+/* ── Section label ── */
+.sectionLabel {
+  font-size: 20px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.4;
+  color: var(--color-hana-black-500);
+  margin: 40px 24px 12px;
+}
+
+/* ── Carousel ── */
+.carouselWrapper {
+  position: relative;
+  margin: 0 24px;
+}
+
+.carouselViewport {
+  width: 100%;
+  overflow: hidden;
+  border-radius: var(--radius-2xl);
+}
+
+.carouselTrack {
+  display: flex;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.carouselCard {
+  width: 100%;
+  padding: 32px 24px;
+  border-radius: var(--radius-2xl);
+  border: 1px solid var(--border);
+  background: var(--background);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.slideImage {
+  max-width: 100%;
+  height: auto;
+}
+
+.slideTitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-hana-black-800);
+  margin: 16px 0 8px;
+}
+
+.slideDescription {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--color-hana-black-500);
+  white-space: pre-line;
+}
+
+/* ── Controls ── */
+.dotIndicators {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin: 24px auto 0;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-hana-silver-100);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.dotActive {
+  background: var(--color-hana-ez-600);
+}
+
+.arrowBtn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--background);
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.arrowPrev { left: -16px; }
+.arrowNext { right: -16px; }
+
+/* ── Action ── */
+.ctaButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(100% - 48px);
+  height: 53px;
+  margin: 40px 24px;
+  background: var(--color-hana-ez-600);
+  color: #fff;
+  border-radius: var(--radius);
+  font-weight: var(--font-weight-medium);
+  text-decoration: none;
+}
