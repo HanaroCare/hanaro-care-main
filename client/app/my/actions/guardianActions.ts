@@ -15,7 +15,7 @@ const getAuthHeader = async () => {
 const BASE_URL =
   process.env.SPRING_API_URL ??
   process.env.API_URL ??
-  'http://localhost:8080';
+  (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
 // 1. 사용자 이름 조회
 export async function getUserName() {

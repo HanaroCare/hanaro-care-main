@@ -19,7 +19,7 @@ const getAuthHeader = async () => {
 const BASE_URL =
   process.env.SPRING_API_URL ??
   process.env.API_URL ??
-  'http://localhost:8080';
+  (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
 // 보험 목록 조회 (나 + 공유 허락한 유저)
 export async function getInsurances() {

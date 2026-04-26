@@ -1,6 +1,6 @@
 "use server";
 
-const BASE = process.env.SPRING_API_URL ?? "http://localhost:8080";
+const BASE = process.env.SPRING_API_URL ?? (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
 type ActionResult = { ok: true } | { ok: false; error: string };
 type FindIdResult = { ok: true; loginId: string } | { ok: false; error: string };
